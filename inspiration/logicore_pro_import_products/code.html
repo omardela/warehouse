@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>LogiCore Pro - Import Products</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400&amp;family=Inter:wght@400;500;600;700;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-secondary-container": "#003111",
+                      "on-surface": "#dae2fd",
+                      "primary-fixed": "#dbe1ff",
+                      "secondary-fixed-dim": "#62df7d",
+                      "surface-dim": "#0b1326",
+                      "tertiary-fixed": "#ffddb8",
+                      "error": "#ffb4ab",
+                      "primary-container": "#2563eb",
+                      "on-tertiary-fixed": "#2a1700",
+                      "on-tertiary": "#472a00",
+                      "on-primary": "#002a78",
+                      "primary": "#b4c5ff",
+                      "surface": "#0b1326",
+                      "on-surface-variant": "#c3c6d7",
+                      "surface-container-high": "#222a3d",
+                      "surface-variant": "#2d3449",
+                      "on-primary-container": "#eeefff",
+                      "on-primary-fixed": "#00174b",
+                      "surface-container": "#171f33",
+                      "on-secondary-fixed-variant": "#005320",
+                      "outline-variant": "#434655",
+                      "outline": "#8d90a0",
+                      "surface-container-low": "#131b2e",
+                      "on-secondary-fixed": "#002109",
+                      "inverse-on-surface": "#283044",
+                      "primary-fixed-dim": "#b4c5ff",
+                      "secondary-container": "#1ca64d",
+                      "error-container": "#93000a",
+                      "surface-container-highest": "#2d3449",
+                      "on-background": "#dae2fd",
+                      "on-secondary": "#003914",
+                      "inverse-surface": "#dae2fd",
+                      "secondary-fixed": "#7ffc97",
+                      "surface-bright": "#31394d",
+                      "tertiary-fixed-dim": "#ffb95f",
+                      "inverse-primary": "#0053db",
+                      "background": "#0b1326",
+                      "tertiary": "#ffb95f",
+                      "surface-tint": "#b4c5ff",
+                      "on-primary-fixed-variant": "#003ea8",
+                      "tertiary-container": "#996100",
+                      "on-tertiary-fixed-variant": "#653e00",
+                      "on-tertiary-container": "#ffeedd",
+                      "surface-container-lowest": "#060e20",
+                      "secondary": "#62df7d",
+                      "on-error": "#690005",
+                      "on-error-container": "#ffdad6"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "base": "4px",
+                      "xl": "32px",
+                      "sm": "8px",
+                      "margin": "32px",
+                      "lg": "24px",
+                      "md": "16px",
+                      "gutter": "24px",
+                      "xs": "4px"
+              },
+              "fontFamily": {
+                      "mono-data": ["JetBrains Mono"],
+                      "body-sm": ["Inter"],
+                      "display": ["Inter"],
+                      "body-lg": ["Inter"],
+                      "h3": ["Inter"],
+                      "label-md": ["Inter"],
+                      "h2": ["Inter"],
+                      "body-md": ["Inter"],
+                      "h1": ["Inter"]
+              },
+              "fontSize": {
+                      "mono-data": ["13px", {"lineHeight": "1", "letterSpacing": "-0.01em", "fontWeight": "400"}],
+                      "body-sm": ["12px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                      "display": ["48px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                      "body-lg": ["16px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                      "h3": ["20px", {"lineHeight": "1.4", "fontWeight": "600"}],
+                      "label-md": ["12px", {"lineHeight": "1", "letterSpacing": "0.02em", "fontWeight": "500"}],
+                      "h2": ["24px", {"lineHeight": "1.3", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                      "body-md": ["14px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                      "h1": ["32px", {"lineHeight": "1.25", "letterSpacing": "-0.01em", "fontWeight": "600"}]
+              }
+            }
+          }
+        }
+    </script>
+<style>
+        /* Custom Scrollbar for dark theme */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0b1326; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #2d3449; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #434655; 
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body-md antialiased overflow-hidden flex h-screen">
+<!-- SideNavBar -->
+<nav class="hidden md:flex flex-col h-screen sticky top-0 py-lg gap-xs bg-surface-dim dark:bg-surface-dim shadow-lg w-64 shrink-0 border-r border-outline-variant/30 z-20">
+<!-- Header -->
+<div class="px-md pb-lg mb-sm border-b border-outline-variant/30 flex items-center gap-sm">
+<div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-on-primary" data-icon="inventory_2">inventory_2</span>
+</div>
+<div>
+<h1 class="font-h3 text-h3 font-bold text-on-primary-fixed leading-tight">LogiCore Pro</h1>
+<p class="font-label-md text-label-md text-on-surface-variant">Enterprise ERP</p>
+</div>
+</div>
+<!-- Navigation Links -->
+<div class="flex-1 overflow-y-auto px-sm py-sm flex flex-col gap-xs">
+<a class="flex items-center gap-md px-md py-sm cursor-pointer text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-all rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-label-md text-label-md">Dashboard</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm cursor-pointer bg-primary-container text-on-primary-container rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="inventory_2" data-weight="fill" style="font-variation-settings: 'FILL' 1;">inventory_2</span>
+<span class="font-label-md text-label-md">Products</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm cursor-pointer text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-all rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="warehouse">warehouse</span>
+<span class="font-label-md text-label-md">Inventory</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm cursor-pointer text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-all rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="payments">payments</span>
+<span class="font-label-md text-label-md">Sales</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm cursor-pointer text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-all rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="shopping_cart">shopping_cart</span>
+<span class="font-label-md text-label-md">Purchases</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm cursor-pointer text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-all rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+<span class="font-label-md text-label-md">Customers</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm cursor-pointer text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-all rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="local_shipping">local_shipping</span>
+<span class="font-label-md text-label-md">Suppliers</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm cursor-pointer text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-all rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="badge">badge</span>
+<span class="font-label-md text-label-md">Employees</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm cursor-pointer text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-all rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="domain">domain</span>
+<span class="font-label-md text-label-md">Warehouses</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm cursor-pointer text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-all rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="analytics">analytics</span>
+<span class="font-label-md text-label-md">Reports</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm cursor-pointer text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-all rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="history">history</span>
+<span class="font-label-md text-label-md">Audit Logs</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm cursor-pointer text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-all rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="security">security</span>
+<span class="font-label-md text-label-md">Roles</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm cursor-pointer text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-all rounded-lg mt-auto" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-label-md text-label-md">Settings</span>
+</a>
+</div>
+</nav>
+<!-- Main Content Area -->
+<main class="flex-1 flex flex-col h-full bg-background relative overflow-hidden">
+<!-- TopNavBar (Simulated Top Area context for the page) -->
+<header class="flex justify-between items-center w-full px-lg h-16 bg-surface-container dark:bg-surface-container shadow-sm border-b border-outline-variant/30 shrink-0 z-10">
+<div class="flex items-center gap-md">
+<!-- Breadcrumbs/Context -->
+<nav class="flex items-center text-on-surface-variant font-body-sm text-body-sm">
+<a class="hover:text-primary transition-colors" href="#">Products</a>
+<span class="material-symbols-outlined mx-xs text-[16px]" data-icon="chevron_right">chevron_right</span>
+<span class="text-on-surface font-medium">Import</span>
+</nav>
+</div>
+<div class="flex items-center gap-md text-on-surface-variant">
+<button class="p-sm rounded-full hover:bg-surface-variant transition-colors cursor-pointer active:scale-95 text-primary dark:text-primary">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="p-sm rounded-full hover:bg-surface-variant transition-colors cursor-pointer active:scale-95 text-primary dark:text-primary">
+<span class="material-symbols-outlined" data-icon="warehouse">warehouse</span>
+</button>
+<button class="p-sm rounded-full hover:bg-surface-variant transition-colors cursor-pointer active:scale-95 text-primary dark:text-primary">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+</button>
+<div class="w-8 h-8 rounded-full bg-surface-bright border border-outline-variant overflow-hidden ml-sm cursor-pointer">
+<img alt="Administrator Profile" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida/ADBb0uhLkplk_tWE9jbf_vFZDw3oJxmAQlJ-W5bKy77rhfz9qth6VYNe_-_ZnPffd1n7yAeDbgFufFvwKeZ1iiH9wzqqHng0SNuKZNyjI9mYIe7O-Rw5iqBgUuxjyH25ZqOmP77P_Uk4p00EOyNg3XpbEigSOwMiWt1TTFpY94MHuxxnbIIcD97-IQM5zooDSI0xNzBg8EC9c8rNzJF2E4gEXg6yHx8jGBXz3geBNsEcw5ZEx9BIXh_bVWOsgzSS"/>
+</div>
+</div>
+</header>
+<!-- Canvas Area -->
+<div class="flex-1 overflow-y-auto p-margin flex flex-col gap-lg">
+<!-- Page Title & Actions -->
+<div class="flex justify-between items-end">
+<div>
+<h2 class="font-h1 text-h1 text-on-surface mb-xs">Bulk Import Products</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">Upload CSV or Excel files to add or update multiple records simultaneously.</p>
+</div>
+<div class="flex gap-md">
+<button class="px-md py-sm border border-outline rounded-lg text-on-surface hover:bg-surface-variant transition-colors font-label-md text-label-md flex items-center gap-sm">
+<span class="material-symbols-outlined text-[18px]" data-icon="download">download</span>
+                        Download Template
+                    </button>
+</div>
+</div>
+<!-- Bento Grid Layout for Import Tool -->
+<div class="grid grid-cols-12 gap-lg flex-1 min-h-0">
+<!-- Left Column: Upload & Config -->
+<div class="col-span-12 xl:col-span-4 flex flex-col gap-lg">
+<!-- Upload Zone Card -->
+<div class="bg-surface-container rounded-xl border border-outline-variant/50 p-lg flex flex-col shadow-sm">
+<h3 class="font-h3 text-h3 text-on-surface mb-md flex items-center gap-sm">
+<span class="material-symbols-outlined text-primary" data-icon="cloud_upload">cloud_upload</span>
+                            Source File
+                        </h3>
+<!-- Drag & Drop Area -->
+<div class="border-2 border-dashed border-outline/50 hover:border-primary transition-colors rounded-lg bg-surface-container-low flex flex-col items-center justify-center p-xl cursor-pointer group relative">
+<input accept=".csv, .xlsx, .xls" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" type="file"/>
+<div class="w-16 h-16 rounded-full bg-surface-variant flex items-center justify-center mb-md group-hover:scale-110 group-hover:bg-primary-container transition-all">
+<span class="material-symbols-outlined text-outline group-hover:text-primary text-h1" data-icon="upload_file">upload_file</span>
+</div>
+<p class="font-body-lg text-body-lg text-on-surface font-medium mb-xs text-center">Drag &amp; drop your file here</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant text-center mb-md">Supports .CSV, .XLSX up to 50MB</p>
+<button class="px-md py-sm bg-surface-variant text-on-surface rounded-lg font-label-md text-label-md pointer-events-none group-hover:bg-primary group-hover:text-on-primary transition-colors">
+                                Browse Files
+                            </button>
+</div>
+<!-- Uploaded File State (Simulated) -->
+<div class="mt-md p-md rounded-lg bg-surface-variant border border-outline-variant/30 flex items-center justify-between">
+<div class="flex items-center gap-md overflow-hidden">
+<span class="material-symbols-outlined text-secondary" data-icon="description">description</span>
+<div class="truncate">
+<p class="font-label-md text-label-md text-on-surface truncate">Q3_Inventory_Master_Update.csv</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">2.4 MB • 1,245 rows</p>
+</div>
+</div>
+<button class="text-on-surface-variant hover:text-error transition-colors p-xs rounded-full hover:bg-surface-container">
+<span class="material-symbols-outlined" data-icon="close">close</span>
+</button>
+</div>
+</div>
+<!-- Import Settings Card -->
+<div class="bg-surface-container rounded-xl border border-outline-variant/50 p-lg flex flex-col shadow-sm flex-1">
+<h3 class="font-h3 text-h3 text-on-surface mb-md">Import Settings</h3>
+<div class="space-y-md flex-1">
+<div>
+<label class="font-label-md text-label-md text-on-surface-variant block mb-xs">Import Behavior</label>
+<select class="w-full bg-surface-container-low border border-outline-variant text-on-surface text-body-md rounded-lg focus:ring-2 focus:ring-primary focus:border-primary block p-sm outline-none">
+<option>Add new and update existing</option>
+<option>Add new records only</option>
+<option>Update existing records only</option>
+</select>
+</div>
+<div>
+<label class="font-label-md text-label-md text-on-surface-variant block mb-xs">Match Records By</label>
+<select class="w-full bg-surface-container-low border border-outline-variant text-on-surface text-body-md rounded-lg focus:ring-2 focus:ring-primary focus:border-primary block p-sm outline-none">
+<option>SKU (Recommended)</option>
+<option>UPC / Barcode</option>
+<option>Product Name</option>
+</select>
+</div>
+<div class="pt-sm">
+<label class="flex items-center gap-sm cursor-pointer group">
+<input checked="" class="w-4 h-4 rounded border-outline-variant text-primary focus:ring-primary bg-surface-container-low" type="checkbox"/>
+<span class="font-body-md text-body-md text-on-surface group-hover:text-primary transition-colors">Skip empty columns</span>
+</label>
+</div>
+<div class="pt-xs">
+<label class="flex items-center gap-sm cursor-pointer group">
+<input class="w-4 h-4 rounded border-outline-variant text-primary focus:ring-primary bg-surface-container-low" type="checkbox"/>
+<span class="font-body-md text-body-md text-on-surface group-hover:text-primary transition-colors">Trigger automated low-stock alerts</span>
+</label>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Column: Preview & Validation -->
+<div class="col-span-12 xl:col-span-8 flex flex-col h-full bg-surface-container rounded-xl border border-outline-variant/50 shadow-sm overflow-hidden">
+<!-- Preview Header & Stats -->
+<div class="p-lg border-b border-outline-variant/30 flex justify-between items-end bg-surface-container-high">
+<div>
+<h3 class="font-h3 text-h3 text-on-surface mb-xs">Data Preview &amp; Validation</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Reviewing first 100 rows. Please resolve errors before committing.</p>
+</div>
+<!-- Validation Pills -->
+<div class="flex gap-sm">
+<div class="px-sm py-xs rounded-full bg-secondary-container/20 border border-secondary-container/30 flex items-center gap-xs">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+<span class="font-mono-data text-mono-data text-on-surface">1,241 Valid</span>
+</div>
+<div class="px-sm py-xs rounded-full bg-error-container/20 border border-error-container/30 flex items-center gap-xs">
+<span class="w-2 h-2 rounded-full bg-error"></span>
+<span class="font-mono-data text-mono-data text-error">4 Errors</span>
+</div>
+</div>
+</div>
+<!-- Data Grid (Table) -->
+<div class="flex-1 overflow-auto bg-surface relative">
+<table class="w-full text-left whitespace-nowrap border-collapse">
+<thead class="sticky top-0 bg-surface-container border-b border-outline-variant/50 z-10 font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">
+<tr>
+<th class="p-sm pl-lg w-10">Status</th>
+<th class="p-sm font-medium">SKU <span class="text-primary">*</span></th>
+<th class="p-sm font-medium">Product Name</th>
+<th class="p-sm font-medium">Category</th>
+<th class="p-sm font-medium text-right">Price</th>
+<th class="p-sm font-medium text-right">Cost</th>
+<th class="p-sm font-medium text-right pr-lg">Qty</th>
+</tr>
+</thead>
+<tbody class="font-mono-data text-mono-data text-on-surface divide-y divide-outline-variant/20">
+<!-- Row 1: Valid -->
+<tr class="hover:bg-surface-variant/50 transition-colors h-[40px]">
+<td class="p-sm pl-lg">
+<span class="material-symbols-outlined text-secondary text-[18px]" data-icon="check_circle">check_circle</span>
+</td>
+<td class="p-sm text-primary-fixed-dim">PRD-892-A</td>
+<td class="p-sm truncate max-w-[200px] text-body-sm font-body-sm">Industrial Gearbox Series 7</td>
+<td class="p-sm text-on-surface-variant">Mechanical</td>
+<td class="p-sm text-right">$450.00</td>
+<td class="p-sm text-right text-on-surface-variant">$280.00</td>
+<td class="p-sm text-right pr-lg">45</td>
+</tr>
+<!-- Row 2: Error -->
+<tr class="bg-error-container/10 hover:bg-error-container/20 transition-colors h-[40px] border-l-2 border-l-error">
+<td class="p-sm pl-lg flex items-center gap-xs text-error">
+<span class="material-symbols-outlined text-[18px]" data-icon="error">error</span>
+</td>
+<td class="p-sm text-primary-fixed-dim">PRD-892-A</td>
+<td class="p-sm truncate max-w-[200px] text-body-sm font-body-sm">Industrial Gearbox Series 7 (Variant)</td>
+<td class="p-sm text-on-surface-variant">Mechanical</td>
+<td class="p-sm text-right">$460.00</td>
+<td class="p-sm text-right text-on-surface-variant">$280.00</td>
+<td class="p-sm text-right pr-lg">12</td>
+</tr>
+<!-- Error Message Row for Row 2 -->
+<tr class="bg-error-container/5 border-l-2 border-l-error">
+<td class="p-xs pl-[52px] text-body-sm font-body-sm text-error/80 pb-sm" colspan="7">
+                                        Row 2 Error: Duplicate SKU detected. SKU must be unique across the catalog.
+                                    </td>
+</tr>
+<!-- Row 3: Valid -->
+<tr class="hover:bg-surface-variant/50 transition-colors h-[40px]">
+<td class="p-sm pl-lg">
+<span class="material-symbols-outlined text-secondary text-[18px]" data-icon="check_circle">check_circle</span>
+</td>
+<td class="p-sm text-primary-fixed-dim">PRD-893-X</td>
+<td class="p-sm truncate max-w-[200px] text-body-sm font-body-sm">Pneumatic Actuator Valv...</td>
+<td class="p-sm text-on-surface-variant">Fluid Control</td>
+<td class="p-sm text-right">$125.50</td>
+<td class="p-sm text-right text-on-surface-variant">$85.00</td>
+<td class="p-sm text-right pr-lg">120</td>
+</tr>
+<!-- Row 4: Error - Missing Data -->
+<tr class="bg-error-container/10 hover:bg-error-container/20 transition-colors h-[40px] border-l-2 border-l-error">
+<td class="p-sm pl-lg flex items-center gap-xs text-error">
+<span class="material-symbols-outlined text-[18px]" data-icon="error">error</span>
+</td>
+<td class="p-sm text-primary-fixed-dim"></td>
+<td class="p-sm truncate max-w-[200px] text-body-sm font-body-sm">Sensor Assembly V2</td>
+<td class="p-sm text-on-surface-variant">Electronics</td>
+<td class="p-sm text-right">$85.00</td>
+<td class="p-sm text-right text-on-surface-variant">$40.00</td>
+<td class="p-sm text-right pr-lg">500</td>
+</tr>
+<!-- Error Message Row for Row 4 -->
+<tr class="bg-error-container/5 border-l-2 border-l-error">
+<td class="p-xs pl-[52px] text-body-sm font-body-sm text-error/80 pb-sm" colspan="7">
+                                        Row 4 Error: SKU is a required field.
+                                    </td>
+</tr>
+<!-- Row 5: Valid -->
+<tr class="hover:bg-surface-variant/50 transition-colors h-[40px]">
+<td class="p-sm pl-lg">
+<span class="material-symbols-outlined text-secondary text-[18px]" data-icon="check_circle">check_circle</span>
+</td>
+<td class="p-sm text-primary-fixed-dim">PRD-901-B</td>
+<td class="p-sm truncate max-w-[200px] text-body-sm font-body-sm">Heavy Duty Caster Wheel</td>
+<td class="p-sm text-on-surface-variant">Hardware</td>
+<td class="p-sm text-right">$24.00</td>
+<td class="p-sm text-right text-on-surface-variant">$11.50</td>
+<td class="p-sm text-right pr-lg">1000</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Footer / Commit Action -->
+<div class="p-lg bg-surface-container-high border-t border-outline-variant/50 flex justify-between items-center shrink-0">
+<div class="flex items-center gap-md">
+<div class="h-2 w-32 bg-surface-variant rounded-full overflow-hidden">
+<div class="h-full bg-secondary w-[95%]"></div>
+</div>
+<span class="font-label-md text-label-md text-on-surface-variant">95% Validation Pass</span>
+</div>
+<div class="flex gap-md">
+<button class="px-lg py-sm rounded-lg font-label-md text-label-md text-on-surface hover:bg-surface-variant transition-colors border border-transparent hover:border-outline-variant">
+                                Cancel
+                            </button>
+<!-- Disabled state shown for realism due to errors -->
+<button class="px-lg py-sm rounded-lg font-label-md text-label-md bg-surface-variant text-on-surface-variant cursor-not-allowed flex items-center gap-sm" disabled="" title="Resolve errors to commit">
+<span class="material-symbols-outlined text-[18px]" data-icon="database">database</span>
+                                Commit Valid Records Only
+                            </button>
+<button class="px-lg py-sm rounded-lg font-label-md text-label-md bg-primary text-on-primary hover:bg-primary/90 transition-colors shadow-sm flex items-center gap-sm opacity-50 cursor-not-allowed" disabled="">
+                                Commit All (Fix Errors First)
+                            </button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</body></html>

@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>LogiCore Pro - Sales Analytics</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-container-high": "#222a3d",
+                    "error-container": "#93000a",
+                    "surface-container-highest": "#2d3449",
+                    "surface-container": "#171f33",
+                    "secondary": "#62df7d",
+                    "on-primary-fixed": "#00174b",
+                    "tertiary": "#ffb95f",
+                    "primary-fixed": "#dbe1ff",
+                    "inverse-on-surface": "#283044",
+                    "secondary-fixed-dim": "#62df7d",
+                    "on-primary-fixed-variant": "#003ea8",
+                    "on-tertiary-fixed-variant": "#653e00",
+                    "primary-fixed-dim": "#b4c5ff",
+                    "on-secondary-container": "#003111",
+                    "primary": "#b4c5ff",
+                    "on-tertiary-fixed": "#2a1700",
+                    "background": "#0b1326",
+                    "on-secondary-fixed-variant": "#005320",
+                    "inverse-primary": "#0053db",
+                    "inverse-surface": "#dae2fd",
+                    "on-primary-container": "#eeefff",
+                    "tertiary-fixed-dim": "#ffb95f",
+                    "surface-container-lowest": "#060e20",
+                    "primary-container": "#2563eb",
+                    "on-error-container": "#ffdad6",
+                    "outline": "#8d90a0",
+                    "on-tertiary": "#472a00",
+                    "on-background": "#dae2fd",
+                    "on-primary": "#002a78",
+                    "surface-bright": "#31394d",
+                    "tertiary-fixed": "#ffddb8",
+                    "on-secondary-fixed": "#002109",
+                    "surface-tint": "#b4c5ff",
+                    "on-surface-variant": "#c3c6d7",
+                    "secondary-fixed": "#7ffc97",
+                    "surface-dim": "#0b1326",
+                    "outline-variant": "#434655",
+                    "surface-container-low": "#131b2e",
+                    "error": "#ffb4ab",
+                    "surface-variant": "#2d3449",
+                    "secondary-container": "#1ca64d",
+                    "on-error": "#690005",
+                    "surface": "#0b1326",
+                    "on-surface": "#dae2fd",
+                    "on-tertiary-container": "#ffeedd",
+                    "tertiary-container": "#996100",
+                    "on-secondary": "#003914"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "md": "16px",
+                    "xl": "32px",
+                    "lg": "24px",
+                    "gutter": "24px",
+                    "margin": "32px",
+                    "xs": "4px",
+                    "sm": "8px",
+                    "base": "4px"
+            },
+            "fontFamily": {
+                    "body-sm": ["Inter"],
+                    "label-md": ["Inter"],
+                    "body-md": ["Inter"],
+                    "display": ["Inter"],
+                    "h3": ["Inter"],
+                    "h2": ["Inter"],
+                    "mono-data": ["JetBrains Mono"],
+                    "body-lg": ["Inter"],
+                    "h1": ["Inter"]
+            },
+            "fontSize": {
+                    "body-sm": ["12px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                    "label-md": ["12px", {"lineHeight": "1", "letterSpacing": "0.02em", "fontWeight": "500"}],
+                    "body-md": ["14px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                    "display": ["48px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "h3": ["20px", {"lineHeight": "1.4", "fontWeight": "600"}],
+                    "h2": ["24px", {"lineHeight": "1.3", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "mono-data": ["13px", {"lineHeight": "1", "letterSpacing": "-0.01em", "fontWeight": "400"}],
+                    "body-lg": ["16px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                    "h1": ["32px", {"lineHeight": "1.25", "letterSpacing": "-0.01em", "fontWeight": "600"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #434655;
+            border-radius: 10px;
+        }
+        .bento-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 24px;
+        }
+        .glass-card {
+            background: rgba(23, 31, 51, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(67, 70, 85, 0.5);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md selection:bg-primary-container selection:text-on-primary-container overflow-hidden">
+<!-- SideNavBar -->
+<aside class="h-screen w-64 fixed left-0 top-0 border-r border-outline-variant bg-surface-container-low dark:bg-surface-container-low flex flex-col p-md z-50">
+<div class="mb-xl px-sm">
+<h1 class="text-h3 font-h3 text-primary tracking-tight">LogiCore Pro</h1>
+<p class="font-body-md text-body-md text-on-surface-variant opacity-70">Enterprise ERP</p>
+</div>
+<nav class="flex-1 space-y-xs overflow-y-auto custom-scrollbar">
+<!-- Navigation Items Mapping -->
+<a class="flex items-center gap-md px-md py-sm transition-all duration-200 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-body-md text-body-md">Dashboard</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm transition-all duration-200 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high" href="#">
+<span class="material-symbols-outlined">inventory_2</span>
+<span class="font-body-md text-body-md">Products</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm transition-all duration-200 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high" href="#">
+<span class="material-symbols-outlined">warehouse</span>
+<span class="font-body-md text-body-md">Inventory</span>
+</a>
+<!-- Active State: Sales Analytics -->
+<a class="flex items-center gap-md px-md py-sm transition-all duration-200 text-secondary font-bold bg-surface-container-highest rounded-lg" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">payments</span>
+<span class="font-body-md text-body-md">Sales</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm transition-all duration-200 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high" href="#">
+<span class="material-symbols-outlined">shopping_cart</span>
+<span class="font-body-md text-body-md">Purchases</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm transition-all duration-200 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high" href="#">
+<span class="material-symbols-outlined">group</span>
+<span class="font-body-md text-body-md">Customers</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm transition-all duration-200 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high" href="#">
+<span class="material-symbols-outlined">local_shipping</span>
+<span class="font-body-md text-body-md">Suppliers</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm transition-all duration-200 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high" href="#">
+<span class="material-symbols-outlined">badge</span>
+<span class="font-body-md text-body-md">Employees</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm transition-all duration-200 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high" href="#">
+<span class="material-symbols-outlined">domain</span>
+<span class="font-body-md text-body-md">Warehouses</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm transition-all duration-200 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high" href="#">
+<span class="material-symbols-outlined">analytics</span>
+<span class="font-body-md text-body-md">Reports</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm transition-all duration-200 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high" href="#">
+<span class="material-symbols-outlined">history</span>
+<span class="font-body-md text-body-md">Audit Logs</span>
+</a>
+</nav>
+<div class="mt-auto pt-md border-t border-outline-variant">
+<button class="w-full bg-primary-container text-on-primary-container font-label-md text-label-md py-sm rounded-lg hover:brightness-110 active:scale-95 transition-all">
+                Create Invoice
+            </button>
+</div>
+</aside>
+<!-- TopNavBar -->
+<header class="fixed top-0 right-0 w-[calc(100%-16rem)] h-16 bg-surface dark:bg-surface border-b border-outline-variant flex justify-between items-center px-lg z-40">
+<div class="flex items-center gap-md flex-1">
+<span class="material-symbols-outlined text-on-surface-variant">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-body-md w-96 text-on-surface placeholder-on-surface-variant/50" placeholder="Search analytics, invoices, or customers..." type="text"/>
+</div>
+<div class="flex items-center gap-lg">
+<div class="flex gap-md">
+<button class="p-xs hover:bg-surface-container-lowest transition-all duration-300 rounded-full relative">
+<span class="material-symbols-outlined text-on-surface-variant">notifications</span>
+<span class="absolute top-0 right-0 w-2 h-2 bg-error rounded-full border-2 border-surface"></span>
+</button>
+<button class="p-xs hover:bg-surface-container-lowest transition-all duration-300 rounded-full">
+<span class="material-symbols-outlined text-on-surface-variant">settings</span>
+</button>
+<button class="p-xs hover:bg-surface-container-lowest transition-all duration-300 rounded-full">
+<span class="material-symbols-outlined text-on-surface-variant">help</span>
+</button>
+</div>
+<div class="h-8 w-8 rounded-full overflow-hidden border border-outline-variant">
+<img alt="User Profile" class="w-full h-full object-cover" data-alt="A professional headshot of a senior logistics operations manager in a high-tech corporate office. The lighting is crisp and cool-toned, reflecting a sophisticated dark-mode aesthetic. He has a focused expression, wearing a modern business-casual attire. The background shows blurred high-end data screens and architectural glass elements, consistent with the LogiCore Pro brand identity." src="https://lh3.googleusercontent.com/aida/AP1WRLvIinMXdT3QVL2tzkU0nn1b6cxuUOP-fg0Nax1HasurRdISo1SKunEiRGoC9H0QY1gQcOG1Q0O2jIM_NvLlvbE-EefTMkGydiGRp5nDnQkGWTT9WPQk6OBQt_AGNAMt6Tp511GewJsxJM1ocYLji6vbYA8kT245Ff5mnphxZqOg-CSAUYvgv3RTNVsjlEl0qY5QiWW-g_koXwtxKKgYLXImpdsL4Dedo4U68gpa-GkLlei4B5TjvULh0ZDq"/>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="ml-64 mt-16 p-lg h-[calc(100vh-64px)] overflow-y-auto custom-scrollbar">
+<header class="mb-xl flex justify-between items-end">
+<div>
+<h2 class="font-h1 text-h1 text-on-surface">Sales Analytics</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">Real-time performance monitoring across 12 global warehouses.</p>
+</div>
+<div class="flex gap-sm">
+<button class="px-md py-xs border border-outline-variant rounded-lg font-label-md text-label-md text-on-surface hover:bg-surface-container-high transition-colors">
+                    Last 30 Days
+                </button>
+<button class="px-md py-xs bg-surface-container-highest border border-outline-variant rounded-lg font-label-md text-label-md text-on-surface flex items-center gap-xs">
+<span class="material-symbols-outlined text-sm">download</span> Export Report
+                </button>
+</div>
+</header>
+<!-- KPI Cards Section -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-lg mb-xl">
+<div class="glass-card p-md rounded-xl">
+<div class="flex justify-between items-start mb-sm">
+<span class="text-on-surface-variant font-label-md text-label-md uppercase tracking-wider">Total Revenue</span>
+<span class="material-symbols-outlined text-primary">payments</span>
+</div>
+<div class="flex items-baseline gap-sm">
+<span class="font-h2 text-h2 text-on-surface font-mono-data">$4,281,902</span>
+<span class="text-secondary font-label-md text-label-md flex items-center">
+<span class="material-symbols-outlined text-sm">trending_up</span> 12.4%
+                    </span>
+</div>
+<div class="mt-md h-1 w-full bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-primary w-3/4"></div>
+</div>
+</div>
+<div class="glass-card p-md rounded-xl">
+<div class="flex justify-between items-start mb-sm">
+<span class="text-on-surface-variant font-label-md text-label-md uppercase tracking-wider">Avg. Order Value</span>
+<span class="material-symbols-outlined text-tertiary">analytics</span>
+</div>
+<div class="flex items-baseline gap-sm">
+<span class="font-h2 text-h2 text-on-surface font-mono-data">$12,450</span>
+<span class="text-secondary font-label-md text-label-md flex items-center">
+<span class="material-symbols-outlined text-sm">trending_up</span> 4.1%
+                    </span>
+</div>
+<div class="mt-md flex gap-1 items-end h-6">
+<div class="w-full bg-tertiary/20 h-2 rounded-t-sm"></div>
+<div class="w-full bg-tertiary/40 h-4 rounded-t-sm"></div>
+<div class="w-full bg-tertiary/60 h-3 rounded-t-sm"></div>
+<div class="w-full bg-tertiary h-6 rounded-t-sm"></div>
+</div>
+</div>
+<div class="glass-card p-md rounded-xl">
+<div class="flex justify-between items-start mb-sm">
+<span class="text-on-surface-variant font-label-md text-label-md uppercase tracking-wider">Active Contracts</span>
+<span class="material-symbols-outlined text-secondary">handshake</span>
+</div>
+<div class="flex items-baseline gap-sm">
+<span class="font-h2 text-h2 text-on-surface font-mono-data">1,204</span>
+<span class="text-error font-label-md text-label-md flex items-center">
+<span class="material-symbols-outlined text-sm">trending_down</span> 0.8%
+                    </span>
+</div>
+<p class="text-body-sm text-on-surface-variant mt-sm">2 expiring this week</p>
+</div>
+<div class="glass-card p-md rounded-xl">
+<div class="flex justify-between items-start mb-sm">
+<span class="text-on-surface-variant font-label-md text-label-md uppercase tracking-wider">Gross Margin</span>
+<span class="material-symbols-outlined text-primary-fixed-dim">percent</span>
+</div>
+<div class="flex items-baseline gap-sm">
+<span class="font-h2 text-h2 text-on-surface font-mono-data">32.8%</span>
+<span class="text-secondary font-label-md text-label-md flex items-center">
+<span class="material-symbols-outlined text-sm">trending_up</span> 2.3%
+                    </span>
+</div>
+<div class="mt-md h-1 w-full bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-secondary w-1/3"></div>
+</div>
+</div>
+</div>
+<!-- Main Analytics Bento Grid -->
+<div class="bento-grid">
+<!-- Monthly Revenue Trend -->
+<div class="col-span-8 glass-card p-lg rounded-xl flex flex-col">
+<div class="flex justify-between items-center mb-lg">
+<h3 class="font-h3 text-h3 text-on-surface">Monthly Revenue Trend</h3>
+<div class="flex gap-md">
+<div class="flex items-center gap-xs">
+<span class="w-3 h-3 rounded-full bg-primary"></span>
+<span class="font-label-md text-label-md text-on-surface-variant">2024 Revenue</span>
+</div>
+<div class="flex items-center gap-xs">
+<span class="w-3 h-3 rounded-full bg-surface-container-highest border border-outline"></span>
+<span class="font-label-md text-label-md text-on-surface-variant">2023 Revenue</span>
+</div>
+</div>
+</div>
+<div class="flex-1 w-full flex items-end gap-md min-h-[300px] pb-md">
+<!-- Fake Chart Visualization -->
+<div class="flex-1 h-full flex flex-col justify-end gap-sm group cursor-pointer">
+<div class="relative w-full bg-surface-container-highest rounded-t-lg transition-all group-hover:bg-primary/20 h-[40%]"></div>
+<div class="relative w-full bg-primary rounded-t-lg transition-all group-hover:brightness-125 h-[60%]"></div>
+<span class="text-center font-mono-data text-body-sm text-on-surface-variant">JAN</span>
+</div>
+<div class="flex-1 h-full flex flex-col justify-end gap-sm group cursor-pointer">
+<div class="relative w-full bg-surface-container-highest rounded-t-lg transition-all h-[45%]"></div>
+<div class="relative w-full bg-primary rounded-t-lg transition-all h-[65%]"></div>
+<span class="text-center font-mono-data text-body-sm text-on-surface-variant">FEB</span>
+</div>
+<div class="flex-1 h-full flex flex-col justify-end gap-sm group cursor-pointer">
+<div class="relative w-full bg-surface-container-highest rounded-t-lg transition-all h-[38%]"></div>
+<div class="relative w-full bg-primary rounded-t-lg transition-all h-[75%]"></div>
+<span class="text-center font-mono-data text-body-sm text-on-surface-variant">MAR</span>
+</div>
+<div class="flex-1 h-full flex flex-col justify-end gap-sm group cursor-pointer">
+<div class="relative w-full bg-surface-container-highest rounded-t-lg transition-all h-[50%]"></div>
+<div class="relative w-full bg-primary rounded-t-lg transition-all h-[85%]"></div>
+<span class="text-center font-mono-data text-body-sm text-on-surface-variant">APR</span>
+</div>
+<div class="flex-1 h-full flex flex-col justify-end gap-sm group cursor-pointer">
+<div class="relative w-full bg-surface-container-highest rounded-t-lg transition-all h-[55%]"></div>
+<div class="relative w-full bg-primary rounded-t-lg transition-all h-[95%]"></div>
+<span class="text-center font-mono-data text-body-sm text-on-surface-variant">MAY</span>
+</div>
+<div class="flex-1 h-full flex flex-col justify-end gap-sm group cursor-pointer">
+<div class="relative w-full bg-surface-container-highest rounded-t-lg transition-all h-[40%]"></div>
+<div class="relative w-full bg-primary-container rounded-t-lg transition-all h-[70%]"></div>
+<span class="text-center font-mono-data text-body-sm text-on-surface-variant">JUN</span>
+</div>
+</div>
+</div>
+<!-- Sales by Warehouse Donut -->
+<div class="col-span-4 glass-card p-lg rounded-xl flex flex-col">
+<h3 class="font-h3 text-h3 text-on-surface mb-lg">Regional Distribution</h3>
+<div class="flex-1 flex flex-col items-center justify-center relative">
+<!-- SVG Donut Chart -->
+<svg class="w-48 h-48 transform -rotate-90" viewbox="0 0 100 100">
+<circle cx="50" cy="50" fill="none" r="40" stroke="#2d3449" stroke-width="8"></circle>
+<circle cx="50" cy="50" fill="none" r="40" stroke="#b4c5ff" stroke-dasharray="251.2" stroke-dashoffset="62.8" stroke-width="8"></circle>
+<circle cx="50" cy="50" fill="none" r="40" stroke="#62df7d" stroke-dasharray="251.2" stroke-dashoffset="180" stroke-width="8"></circle>
+<circle cx="50" cy="50" fill="none" r="40" stroke="#ffb95f" stroke-dasharray="251.2" stroke-dashoffset="230" stroke-width="8"></circle>
+</svg>
+<div class="absolute inset-0 flex flex-col items-center justify-center">
+<span class="font-h2 text-h2 text-on-surface">12</span>
+<span class="text-body-sm text-on-surface-variant">Warehouses</span>
+</div>
+</div>
+<div class="space-y-sm mt-md">
+<div class="flex justify-between items-center text-body-md">
+<div class="flex items-center gap-sm">
+<span class="w-2 h-2 rounded-full bg-primary"></span>
+<span class="text-on-surface">North America</span>
+</div>
+<span class="font-mono-data text-on-surface-variant">42%</span>
+</div>
+<div class="flex justify-between items-center text-body-md">
+<div class="flex items-center gap-sm">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+<span class="text-on-surface">Europe</span>
+</div>
+<span class="font-mono-data text-on-surface-variant">31%</span>
+</div>
+<div class="flex justify-between items-center text-body-md">
+<div class="flex items-center gap-sm">
+<span class="w-2 h-2 rounded-full bg-tertiary"></span>
+<span class="text-on-surface">Asia Pacific</span>
+</div>
+<span class="font-mono-data text-on-surface-variant">27%</span>
+</div>
+</div>
+</div>
+<!-- Sales by Customer Bar -->
+<div class="col-span-6 glass-card p-lg rounded-xl">
+<div class="flex justify-between items-center mb-lg">
+<h3 class="font-h3 text-h3 text-on-surface">Revenue by Top Customers</h3>
+<span class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:text-on-surface">more_horiz</span>
+</div>
+<div class="space-y-lg">
+<div class="space-y-xs">
+<div class="flex justify-between font-label-md text-label-md text-on-surface">
+<span>Global Logistics Corp</span>
+<span class="font-mono-data">$842k</span>
+</div>
+<div class="h-2 w-full bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[85%] rounded-full"></div>
+</div>
+</div>
+<div class="space-y-xs">
+<div class="flex justify-between font-label-md text-label-md text-on-surface">
+<span>TechFlow Systems</span>
+<span class="font-mono-data">$612k</span>
+</div>
+<div class="h-2 w-full bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[65%] rounded-full"></div>
+</div>
+</div>
+<div class="space-y-xs">
+<div class="flex justify-between font-label-md text-label-md text-on-surface">
+<span>Nexus Prime Retail</span>
+<span class="font-mono-data">$530k</span>
+</div>
+<div class="h-2 w-full bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[55%] rounded-full"></div>
+</div>
+</div>
+<div class="space-y-xs">
+<div class="flex justify-between font-label-md text-label-md text-on-surface">
+<span>Horizon Energy</span>
+<span class="font-mono-data">$412k</span>
+</div>
+<div class="h-2 w-full bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[45%] rounded-full"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Top Selling Products List -->
+<div class="col-span-6 glass-card p-lg rounded-xl">
+<div class="flex justify-between items-center mb-lg">
+<h3 class="font-h3 text-h3 text-on-surface">High-Velocity Assets</h3>
+<a class="text-primary font-label-md text-label-md hover:underline" href="#">View All Inventory</a>
+</div>
+<div class="space-y-sm">
+<div class="flex items-center gap-md p-sm hover:bg-surface-container-high rounded-lg transition-colors cursor-pointer group">
+<div class="w-10 h-10 rounded-md bg-surface-container-highest flex items-center justify-center overflow-hidden">
+<img alt="Product" class="w-full h-full object-cover opacity-80" data-alt="A studio shot of a minimalist high-tech sleek electronic device in a dark professional setting. The product features brushed aluminum finishes and subtle LED indicator lights. The composition is clean, with dramatic side lighting that highlights the product's precise industrial design, fitting the LogiCore Pro corporate minimalist aesthetic." src="https://lh3.googleusercontent.com/aida/AP1WRLtg0PXFj1L1X3QUdPcRkaES7GLrT80nJrrwK74TNW1A-ipoEegM7M9sTiIPqkRshxVskU7DMudTjBV9bwd3KwrGJkaMnILujjHpsTATKHDMFZHN9uWr5Jr7yCpXX7P8dceuaKB6H4Q1OkKswNusw8hVMA7am-hg8OMniTbCFMTFSV0NJ04YcFnNgK_Cm-Ik4pdrLZ2aGlnwWFFsiil3mzAblbcl5agfsI2CwDcISko1XBAybjAB-DsTS9Es"/>
+</div>
+<div class="flex-1">
+<p class="font-body-md text-on-surface font-semibold">Logi-Sens X1000</p>
+<p class="text-body-sm text-on-surface-variant">SKU: LS-X1K-2024</p>
+</div>
+<div class="text-right">
+<p class="font-mono-data text-on-surface">$128,400</p>
+<p class="text-body-sm text-secondary">312 units sold</p>
+</div>
+</div>
+<div class="flex items-center gap-md p-sm hover:bg-surface-container-high rounded-lg transition-colors cursor-pointer group">
+<div class="w-10 h-10 rounded-md bg-surface-container-highest flex items-center justify-center overflow-hidden">
+<img alt="Product" class="w-full h-full object-cover opacity-80" data-alt="Close up detail of a high-end industrial mechanical component with metallic textures and orange accents. The lighting is focused and cinematic, creating deep shadows and bright highlights on the precision-engineered parts. The style is modern industrial photography, consistent with a high-performance logistics dashboard environment." src="https://lh3.googleusercontent.com/aida/AP1WRLtithlfRkPY3sAm28brY7kG4EFP5xOy6ud6s1TRiA625gIPgKiBjxl6UpwWg38E46m3Oi2bp5YAcWrR8klc0UxUARFajXrEGThEjVE32K2QpeYCPWqJ9PI77w5BztVXN4OaB6OpnYgJMtk1GMInOqB6310Yi7u4WeiiCBXIW1UuX-GdliTz_DBsJDukCbuu9FCvXx7ZxjSHoQT7UU2B2y17kgrRbJC4EwKI0ohQllipN18GHw9yAB1ILQsY"/>
+</div>
+<div class="flex-1">
+<p class="font-body-md text-on-surface font-semibold">Precision Flow Meter</p>
+<p class="text-body-sm text-on-surface-variant">SKU: PF-MTR-90</p>
+</div>
+<div class="text-right">
+<p class="font-mono-data text-on-surface">$94,200</p>
+<p class="text-body-sm text-secondary">184 units sold</p>
+</div>
+</div>
+<div class="flex items-center gap-md p-sm hover:bg-surface-container-high rounded-lg transition-colors cursor-pointer group">
+<div class="w-10 h-10 rounded-md bg-surface-container-highest flex items-center justify-center overflow-hidden">
+<img alt="Product" class="w-full h-full object-cover opacity-80" data-alt="A sleek black professional storage module with integrated fiber optic connections. The lighting uses blue and cool white tones to emphasize the technological sophistication. The image has a clean, wide-angle perspective in a modern dark data center environment, aligning perfectly with the enterprise ERP aesthetic." src="https://lh3.googleusercontent.com/aida/AP1WRLs4xDccggUjqo7v6WEBCnhYfA42wLHahzw3iqUBPa64NgI3IEYYYdK3Nsp0S6HL6jey58aLI_nYNSbVEz-83A1fvuMtKWVjikGwvnUwYPMPFr8FOgTn6vbYKTscxash4xrhrcgBvyLSBGi8PxzZjmV5JxntlM55TPRHVANbVldABXtZdCuOpgxIaZ5KylEEAu99BNkNP4jlFu_rjM3_pBzHd5nDZcQ2vpDJcfEp3Cn7qnjdHfAZjwW9oWyy"/>
+</div>
+<div class="flex-1">
+<p class="font-body-md text-on-surface font-semibold">Storage Array V5</p>
+<p class="text-body-sm text-on-surface-variant">SKU: SA-V5-B</p>
+</div>
+<div class="text-right">
+<p class="font-mono-data text-on-surface">$82,100</p>
+<p class="text-body-sm text-secondary">62 units sold</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Interactions Script -->
+<script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const cards = document.querySelectorAll('.glass-card');
+            
+            cards.forEach(card => {
+                card.addEventListener('mouseenter', () => {
+                    card.style.transform = 'translateY(-2px)';
+                    card.style.transition = 'all 0.3s ease';
+                    card.style.borderColor = 'rgba(180, 197, 255, 0.3)';
+                });
+                
+                card.addEventListener('mouseleave', () => {
+                    card.style.transform = 'translateY(0)';
+                    card.style.borderColor = 'rgba(67, 70, 85, 0.5)';
+                });
+            });
+            
+            // Notification toast simulation
+            setTimeout(() => {
+                const toast = document.createElement('div');
+                toast.className = 'fixed bottom-lg right-lg bg-surface-container-highest border border-primary text-on-surface px-lg py-md rounded-xl shadow-xl z-[100] flex items-center gap-md animate-bounce';
+                toast.innerHTML = `
+                    <span class="material-symbols-outlined text-primary">info</span>
+                    <div>
+                        <p class="font-label-md text-label-md">New Revenue Insight</p>
+                        <p class="text-body-sm text-on-surface-variant">APAC region exceeded quarterly targets by 15%.</p>
+                    </div>
+                `;
+                document.body.appendChild(toast);
+                setTimeout(() => toast.remove(), 5000);
+            }, 3000);
+        });
+    </script>
+</body></html>

@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Add Employee - Nexus ERP</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-primary-fixed-variant": "#003ea8",
+                      "primary": "#b4c5ff",
+                      "on-tertiary-fixed": "#2a1700",
+                      "surface-tint": "#b4c5ff",
+                      "secondary-fixed": "#7ffc97",
+                      "surface-container-highest": "#2d3449",
+                      "on-tertiary": "#472a00",
+                      "on-secondary-container": "#003111",
+                      "surface-bright": "#31394d",
+                      "surface-container-lowest": "#060e20",
+                      "on-surface-variant": "#c3c6d7",
+                      "surface-dim": "#0b1326",
+                      "on-tertiary-fixed-variant": "#653e00",
+                      "on-tertiary-container": "#ffeedd",
+                      "surface-container": "#171f33",
+                      "secondary-container": "#1ca64d",
+                      "primary-fixed": "#dbe1ff",
+                      "tertiary-fixed-dim": "#ffb95f",
+                      "surface-container-high": "#222a3d",
+                      "surface": "#0b1326",
+                      "primary-fixed-dim": "#b4c5ff",
+                      "inverse-primary": "#0053db",
+                      "outline-variant": "#434655",
+                      "outline": "#8d90a0",
+                      "primary-container": "#2563eb",
+                      "error-container": "#93000a",
+                      "tertiary": "#ffb95f",
+                      "error": "#ffb4ab",
+                      "on-secondary": "#003914",
+                      "secondary": "#62df7d",
+                      "on-primary-container": "#eeefff",
+                      "on-primary-fixed": "#00174b",
+                      "secondary-fixed-dim": "#62df7d",
+                      "on-secondary-fixed": "#002109",
+                      "on-background": "#dae2fd",
+                      "inverse-on-surface": "#283044",
+                      "inverse-surface": "#dae2fd",
+                      "tertiary-container": "#996100",
+                      "on-error-container": "#ffdad6",
+                      "background": "#0b1326",
+                      "surface-variant": "#2d3449",
+                      "on-secondary-fixed-variant": "#005320",
+                      "tertiary-fixed": "#ffddb8",
+                      "on-surface": "#dae2fd",
+                      "on-error": "#690005",
+                      "surface-container-low": "#131b2e",
+                      "on-primary": "#002a78"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "xl": "32px",
+                      "gutter": "24px",
+                      "sm": "8px",
+                      "base": "4px",
+                      "xs": "4px",
+                      "md": "16px",
+                      "margin": "32px",
+                      "lg": "24px"
+              },
+              "fontFamily": {
+                      "mono-data": ["JetBrains Mono"],
+                      "label-md": ["Inter"],
+                      "body-lg": ["Inter"],
+                      "h3": ["Inter"],
+                      "h1": ["Inter"],
+                      "display": ["Inter"],
+                      "body-md": ["Inter"],
+                      "body-sm": ["Inter"],
+                      "h2": ["Inter"]
+              },
+              "fontSize": {
+                      "mono-data": ["13px", {"lineHeight": "1", "letterSpacing": "-0.01em", "fontWeight": "400"}],
+                      "label-md": ["12px", {"lineHeight": "1", "letterSpacing": "0.02em", "fontWeight": "500"}],
+                      "body-lg": ["16px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                      "h3": ["20px", {"lineHeight": "1.4", "fontWeight": "600"}],
+                      "h1": ["32px", {"lineHeight": "1.25", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                      "display": ["48px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                      "body-md": ["14px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                      "body-sm": ["12px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                      "h2": ["24px", {"lineHeight": "1.3", "letterSpacing": "-0.01em", "fontWeight": "600"}]
+              }
+            }
+          }
+        }
+    </script>
+<style>
+        /* Custom styles for inputs to match the dark theme */
+        .input-dark {
+            @apply w-full bg-surface-container-low border border-outline text-on-surface font-body-md rounded focus:ring-1 focus:ring-primary focus:border-primary placeholder-on-surface-variant/50 px-sm py-[10px] transition-all;
+        }
+        .label-dark {
+            @apply block font-label-md text-on-surface-variant mb-xs;
+        }
+        .form-section-title {
+            @apply font-h3 text-on-surface mb-md pb-xs border-b border-surface-container-highest;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body-md min-h-screen flex flex-col md:flex-row">
+<!-- SideNavBar -->
+<nav class="hidden md:flex fixed left-0 top-0 h-full w-64 py-md px-sm overflow-y-auto z-40 bg-surface-container-lowest flex-col border-r border-surface-container">
+<div class="px-sm mb-lg">
+<h2 class="font-h3 text-h3 text-primary flex items-center gap-sm">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">widgets</span>
+                Global Ops
+            </h2>
+<p class="font-label-md text-label-md text-on-surface-variant mt-xs">Admin Terminal</p>
+</div>
+<div class="flex-1 flex flex-col gap-xs">
+<a class="flex items-center gap-md px-sm py-[10px] text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high rounded-lg transition-all duration-200 ease-in-out font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">dashboard</span>Dashboard
+            </a>
+<a class="flex items-center gap-md px-sm py-[10px] text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high rounded-lg transition-all duration-200 ease-in-out font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">inventory_2</span>Products
+            </a>
+<a class="flex items-center gap-md px-sm py-[10px] text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high rounded-lg transition-all duration-200 ease-in-out font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">warehouse</span>Inventory
+            </a>
+<a class="flex items-center gap-md px-sm py-[10px] bg-primary-container text-on-primary-container font-bold rounded-xl font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">badge</span>Employees
+            </a>
+<a class="flex items-center gap-md px-sm py-[10px] text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high rounded-lg transition-all duration-200 ease-in-out font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">settings</span>Settings
+            </a>
+</div>
+<div class="mt-auto px-sm pt-md">
+<button class="w-full py-[10px] text-center border border-outline text-on-surface font-label-md text-label-md rounded-lg hover:bg-surface-container transition-colors">
+                Switch Warehouse
+            </button>
+</div>
+</nav>
+<!-- Main Content Canvas -->
+<main class="flex-1 md:ml-64 flex flex-col min-h-screen">
+<!-- TopAppBar -->
+<header class="sticky top-0 z-50 flex items-center justify-between px-md w-full h-16 bg-surface shadow-sm border-b border-surface-container-low">
+<div class="flex items-center gap-md">
+<button class="md:hidden text-on-surface">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<div class="hidden md:flex items-center text-on-surface-variant font-label-md text-label-md gap-sm">
+<span class="material-symbols-outlined text-sm">badge</span>
+<span>Employees</span>
+<span class="material-symbols-outlined text-sm">chevron_right</span>
+<span class="text-on-surface">Add Employee</span>
+</div>
+<h1 class="md:hidden font-h2 text-h2 font-bold text-primary">Nexus ERP</h1>
+</div>
+<div class="flex items-center gap-md">
+<button class="text-on-surface-variant hover:text-on-surface transition-colors cursor-pointer active:opacity-80">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="text-on-surface-variant hover:text-on-surface transition-colors cursor-pointer active:opacity-80">
+<span class="material-symbols-outlined">apps</span>
+</button>
+<div class="h-8 w-8 rounded-full bg-surface-container-highest border border-outline flex items-center justify-center overflow-hidden cursor-pointer">
+<span class="material-symbols-outlined text-on-surface">person</span>
+</div>
+</div>
+</header>
+<!-- Form Container -->
+<div class="flex-1 p-md md:p-lg lg:p-xl flex justify-center items-start overflow-y-auto">
+<div class="w-full max-w-4xl bg-surface-container-lowest border border-surface-container shadow-lg rounded-xl overflow-hidden relative">
+<!-- Subtle decorative top accent -->
+<div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary to-secondary"></div>
+<div class="p-md md:p-lg lg:p-xl">
+<div class="mb-lg">
+<h1 class="font-h1 text-h1 text-on-surface mb-xs">Add New Employee</h1>
+<p class="font-body-md text-body-md text-on-surface-variant">Enter the details below to register a new staff member in the system.</p>
+</div>
+<form class="space-y-xl">
+<!-- Basic Info Section -->
+<section>
+<h3 class="form-section-title flex items-center gap-sm">
+<span class="material-symbols-outlined text-primary">person</span>
+                                Basic Information
+                            </h3>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-md">
+<div>
+<label class="label-dark" for="firstName">First Name</label>
+<input class="input-dark" id="firstName" placeholder="e.g. Jane" type="text"/>
+</div>
+<div>
+<label class="label-dark" for="lastName">Last Name</label>
+<input class="input-dark" id="lastName" placeholder="e.g. Doe" type="text"/>
+</div>
+<div>
+<label class="label-dark" for="employeeId">Employee ID</label>
+<input class="input-dark font-mono-data text-mono-data" id="employeeId" placeholder="e.g. EMP-90210" type="text" value="EMP-"/>
+</div>
+<div class="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-md">
+<div>
+<label class="label-dark" for="email">Work Email</label>
+<input class="input-dark" id="email" placeholder="jane.doe@company.com" type="email"/>
+</div>
+<div>
+<label class="label-dark" for="phone">Phone Number</label>
+<input class="input-dark" id="phone" placeholder="+1 (555) 000-0000" type="tel"/>
+</div>
+</div>
+</div>
+</section>
+<!-- Employment Info Section -->
+<section>
+<h3 class="form-section-title flex items-center gap-sm">
+<span class="material-symbols-outlined text-primary">work</span>
+                                Employment Information
+                            </h3>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-md">
+<div>
+<label class="label-dark" for="jobTitle">Job Title</label>
+<input class="input-dark" id="jobTitle" placeholder="e.g. Warehouse Supervisor" type="text"/>
+</div>
+<div>
+<label class="label-dark" for="department">Department</label>
+<select class="input-dark appearance-none" id="department">
+<option disabled="" selected="" value="">Select Department</option>
+<option value="operations">Operations</option>
+<option value="logistics">Logistics</option>
+<option value="inventory">Inventory Management</option>
+<option value="quality">Quality Assurance</option>
+</select>
+</div>
+<div>
+<label class="label-dark" for="warehouse">Assigned Warehouse</label>
+<select class="input-dark appearance-none" id="warehouse">
+<option disabled="" selected="" value="">Select Facility</option>
+<option value="w1">Facility Alpha (Seattle)</option>
+<option value="w2">Facility Beta (Chicago)</option>
+<option value="w3">Facility Gamma (Dallas)</option>
+</select>
+</div>
+<div>
+<label class="label-dark" for="manager">Direct Manager</label>
+<input class="input-dark" id="manager" placeholder="Search for manager..." type="text"/>
+</div>
+</div>
+</section>
+<!-- Access & Permissions Section -->
+<section>
+<h3 class="form-section-title flex items-center gap-sm">
+<span class="material-symbols-outlined text-primary">key</span>
+                                Access &amp; Permissions
+                            </h3>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-md">
+<div>
+<label class="label-dark" for="systemRole">System Role</label>
+<select class="input-dark appearance-none" id="systemRole">
+<option disabled="" selected="" value="">Assign Role</option>
+<option value="admin">Administrator</option>
+<option value="manager">Manager</option>
+<option value="staff">Staff / Picker</option>
+<option value="viewer">Read-Only</option>
+</select>
+</div>
+<div>
+<label class="label-dark">Account Status</label>
+<div class="flex items-center gap-md mt-sm">
+<label class="flex items-center gap-sm cursor-pointer">
+<input checked="" class="text-primary focus:ring-primary bg-surface-container-low border-outline" name="status" type="radio" value="active"/>
+<span class="font-body-md text-on-surface">Active</span>
+</label>
+<label class="flex items-center gap-sm cursor-pointer">
+<input class="text-primary focus:ring-primary bg-surface-container-low border-outline" name="status" type="radio" value="pending"/>
+<span class="font-body-md text-on-surface-variant">Pending Activation</span>
+</label>
+</div>
+</div>
+</div>
+</section>
+<!-- Actions -->
+<div class="pt-lg border-t border-surface-container-highest flex flex-col-reverse sm:flex-row justify-end gap-md">
+<button class="px-lg py-[10px] font-label-md text-label-md text-on-surface border border-outline rounded hover:bg-surface-container transition-colors" type="button">
+                                Cancel
+                            </button>
+<button class="px-lg py-[10px] font-label-md text-label-md bg-primary-container text-on-primary-container rounded hover:opacity-90 transition-opacity shadow-sm flex items-center justify-center gap-sm" type="button">
+<span class="material-symbols-outlined text-sm">save</span>
+                                Save Employee
+                            </button>
+</div>
+</form>
+</div>
+</div>
+</div>
+</main>
+</body></html>

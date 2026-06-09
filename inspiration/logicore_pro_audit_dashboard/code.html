@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+
+<html class="light dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>LogisticsVault - Audit Management System</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&amp;family=Jetbrains+Mono:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">tailwind.config = {darkMode: "class", theme: {extend: {colors: {"tertiary-container": "#00180d", "surface-container-high": "#1b2b3f", "outline-variant": "#45464d", "tertiary-fixed-dim": "#4edea3", "on-error": "#690005", "on-surface": "#d3e4fe", "surface-variant": "#26364a", "error-container": "#93000a", "primary-container": "#0b1326", background: "#031427", "secondary-fixed": "#e3e1e8", "on-background": "#d3e4fe", "on-tertiary-container": "#009063", "on-primary-container": "#767e95", "surface-container": "#102034", primary: "#bfc6e0", "on-tertiary-fixed": "#002113", "surface-container-lowest": "#000f21", "inverse-on-surface": "#213145", "surface-bright": "#2a3a4f", "surface-tint": "#bfc6e0", "surface-container-low": "#0b1c30", outline: "#909097", secondary: "#c7c6cc", "tertiary-fixed": "#6ffbbe", "on-primary-fixed": "#131b2e", "on-secondary-fixed": "#1a1b20", "inverse-surface": "#d3e4fe", "on-secondary-container": "#b5b4bb", "on-secondary": "#2f3035", error: "#ffb4ab", "on-tertiary": "#003824", tertiary: "#4edea3", "primary-fixed-dim": "#bfc6e0", "primary-fixed": "#dbe2fd", "secondary-fixed-dim": "#c7c6cc", surface: "#031427", "on-tertiary-fixed-variant": "#005236", "on-primary": "#283044", "on-primary-fixed-variant": "#3f465c", "on-secondary-fixed-variant": "#46464c", "secondary-container": "#46464c", "inverse-primary": "#565e74", "surface-container-highest": "#26364a", "on-surface-variant": "#c6c6cd", "surface-dim": "#031427", "on-error-container": "#ffdad6"}, borderRadius: {DEFAULT: "0.25rem", lg: "0.5rem", xl: "0.75rem", full: "9999px"}, spacing: {"container-padding": "32px", "sidebar-width": "260px", unit: "4px", "table-cell-padding": "12px 16px", "stack-gap": "16px"}, fontFamily: {"body-sm": ["Inter"], "metadata-code": ["JetBrains Mono"], "headline-lg": ["Inter"], "headline-md": ["Inter"], "label-caps": ["Inter"], "body-lg": ["Inter"], "body-md": ["Inter"], "headline-sm": ["Inter"], headline: ["Inter"], display: ["Inter"], body: ["Inter"], label: ["Jetbrains Mono"]}, fontSize: {"body-sm": ["12px", {lineHeight: "18px", fontWeight: "400"}], "metadata-code": ["13px", {lineHeight: "20px", fontWeight: "450"}], "headline-lg": ["30px", {lineHeight: "36px", letterSpacing: "-0.02em", fontWeight: "600"}], "headline-md": ["24px", {lineHeight: "32px", letterSpacing: "-0.01em", fontWeight: "600"}], "label-caps": ["11px", {lineHeight: "16px", letterSpacing: "0.05em", fontWeight: "700"}], "body-lg": ["16px", {lineHeight: "24px", fontWeight: "400"}], "body-md": ["14px", {lineHeight: "20px", fontWeight: "400"}], "headline-sm": ["18px", {lineHeight: "24px", fontWeight: "600"}]}}}};</script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+        .audit-log-terminal {
+            background-image: linear-gradient(rgba(26, 26, 26, 0.97), rgba(26, 26, 26, 0.97)), url("https://www.transparenttextures.com/patterns/carbon-fibre.png");
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body-md overflow-x-hidden">
+<!-- Sidebar Navigation -->
+<aside class="h-screen w-64 fixed left-0 top-0 bg-surface-dim dark:bg-surface-container-lowest flex flex-col h-full py-12 px-4 shadow-sm border-r border-outline-variant z-50">
+<div class="mb-10 px-4">
+<h1 class="font-headline-lg text-primary tracking-tight font-black">LogisticsVault</h1>
+<p class="text-on-surface-variant font-body-sm opacity-70">Enterprise Audit</p>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-primary bg-secondary-container/10 border-r-2 border-secondary font-bold transition-all" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-label-md">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">list_alt</span>
+<span class="font-label-md">Audit Log Table</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">timeline</span>
+<span class="font-label-md">Activity Timeline</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">security</span>
+<span class="font-label-md">Security Events</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">category</span>
+<span class="font-label-md">Module Logs</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">analytics</span>
+<span class="font-label-md">Analytics</span>
+</a>
+<div class="pt-8 pb-4">
+<p class="px-4 text-on-surface-variant text-[10px] font-bold uppercase tracking-widest opacity-50">Utilities</p>
+</div>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">ios_share</span>
+<span class="font-label-md">Export</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">verified</span>
+<span class="font-label-md">Compliance</span>
+</a>
+</nav>
+<div class="mt-auto px-4 py-4 border-t border-outline-variant flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white font-bold text-xs">AV</div>
+<div class="overflow-hidden">
+<p class="text-on-surface font-bold text-xs truncate">LogisticsVault Admin</p>
+<p class="text-on-surface-variant text-[10px] truncate">System Oversight</p>
+</div>
+</div>
+</aside>
+<!-- Main Content Wrapper -->
+<main class="ml-64 min-h-screen">
+<!-- Top Navigation Bar -->
+<header class="fixed top-0 right-0 left-64 h-16 bg-surface-container-high/50 backdrop-blur-md border-b border-outline-variant flex justify-between items-center px-8 z-40 shadow-md">
+<div class="flex items-center gap-6">
+<h2 class="font-headline-sm font-bold text-on-surface">Audit Management System</h2>
+<div class="h-4 w-px bg-outline-variant"></div>
+<div class="flex items-center gap-2 text-on-surface-variant font-body-sm">
+<span class="hover:text-primary cursor-pointer">Dashboard</span>
+<span class="material-symbols-outlined text-sm">chevron_right</span>
+<span class="text-primary font-bold">Audit Log</span>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="flex items-center bg-surface-container p-1 rounded-lg">
+<button class="px-3 py-1.5 text-body-sm font-bold bg-surface-container-lowest shadow-sm rounded-md">Real-time</button>
+<button class="px-3 py-1.5 text-body-sm text-on-surface-variant hover:text-on-surface transition-colors">Historical</button>
+</div>
+<button class="p-2 hover:bg-surface-container-highest rounded-lg transition-all active:opacity-80">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="p-2 hover:bg-surface-container-highest rounded-lg transition-all active:opacity-80">
+<span class="material-symbols-outlined">settings</span>
+</button>
+</div>
+</header>
+<!-- Dashboard Canvas -->
+<div class="pt-24 px-8 pb-12">
+<!-- Page Header -->
+<div class="flex justify-between items-end mb-8">
+<div>
+<h1 class="font-headline-lg font-bold text-primary">Audit Log</h1>
+<p class="text-on-surface-variant font-body-md mt-1">Track and review all critical activities across the ERP platform.</p>
+</div>
+<div class="flex gap-3">
+<button class="flex items-center gap-2 px-5 py-2.5 bg-surface-container-lowest border border-outline-variant rounded-lg font-bold text-on-surface hover:bg-surface-container transition-all active:scale-95">
+<span class="material-symbols-outlined text-xl">ios_share</span>
+<span>Export Logs</span>
+</button>
+<button class="flex items-center gap-2 px-6 py-2.5 bg-primary text-white rounded-lg font-bold hover:opacity-90 transition-all active:scale-95 shadow-lg shadow-primary/10">
+<span class="material-symbols-outlined text-xl">description</span>
+<span>Generate Audit Report</span>
+</button>
+</div>
+</div>
+<!-- KPI Cards Grid -->
+<div class="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
+<!-- Total Activities -->
+<div class="bg-surface-container-lowest border border-outline-variant p-6 rounded-xl hover:border-primary transition-colors cursor-default">
+<div class="flex justify-between items-start mb-4">
+<div class="p-2 bg-surface-container rounded-lg">
+<span class="material-symbols-outlined text-primary">analytics</span>
+</div>
+<span class="text-on-tertiary-container font-bold text-[10px] bg-tertiary-fixed px-2 py-0.5 rounded-full">+4.2%</span>
+</div>
+<p class="text-on-surface-variant font-label-caps uppercase">Total Activities</p>
+<h3 class="font-headline-md font-bold text-primary mt-1">14.2k</h3>
+</div>
+<!-- Today's Activities -->
+<div class="bg-surface-container-lowest border border-outline-variant p-6 rounded-xl hover:border-primary transition-colors cursor-default">
+<div class="flex justify-between items-start mb-4">
+<div class="p-2 bg-surface-container rounded-lg">
+<span class="material-symbols-outlined text-primary">today</span>
+</div>
+</div>
+<p class="text-on-surface-variant font-label-caps uppercase">Today's Activities</p>
+<h3 class="font-headline-md font-bold text-primary mt-1">128</h3>
+</div>
+<!-- Security Events -->
+<div class="bg-surface-container-lowest border border-outline-variant p-6 rounded-xl hover:border-error transition-colors cursor-default relative overflow-hidden">
+<div class="absolute top-0 left-0 w-1 h-full bg-error"></div>
+<div class="flex justify-between items-start mb-4">
+<div class="p-2 bg-error-container/20 rounded-lg">
+<span class="material-symbols-outlined text-error">security</span>
+</div>
+</div>
+<p class="text-on-surface-variant font-label-caps uppercase">Security Events</p>
+<h3 class="font-headline-md font-bold text-error mt-1">12</h3>
+</div>
+<!-- Inventory Changes -->
+<div class="bg-surface-container-lowest border border-outline-variant p-6 rounded-xl hover:border-primary transition-colors cursor-default">
+<div class="flex justify-between items-start mb-4">
+<div class="p-2 bg-surface-container rounded-lg">
+<span class="material-symbols-outlined text-primary">inventory_2</span>
+</div>
+</div>
+<p class="text-on-surface-variant font-label-caps uppercase">Inventory Changes</p>
+<h3 class="font-headline-md font-bold text-primary mt-1">84</h3>
+</div>
+<!-- Invoice Activities -->
+<div class="bg-surface-container-lowest border border-outline-variant p-6 rounded-xl hover:border-primary transition-colors cursor-default">
+<div class="flex justify-between items-start mb-4">
+<div class="p-2 bg-surface-container rounded-lg">
+<span class="material-symbols-outlined text-primary">receipt_long</span>
+</div>
+</div>
+<p class="text-on-surface-variant font-label-caps uppercase">Invoice Activities</p>
+<h3 class="font-headline-md font-bold text-primary mt-1">32</h3>
+</div>
+</div>
+<!-- Charts Section -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+<!-- Activity Volume Trend (Bento Large) -->
+<div class="lg:col-span-2 bg-surface-container-lowest border border-outline-variant rounded-xl p-8 flex flex-col">
+<div class="flex justify-between items-center mb-10">
+<h4 class="font-headline-sm font-bold text-primary">Activity Volume Trend</h4>
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-2">
+<span class="w-3 h-3 rounded-full bg-primary"></span>
+<span class="text-body-sm text-on-surface-variant">System Logs</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="w-3 h-3 rounded-full bg-secondary"></span>
+<span class="text-body-sm text-on-surface-variant">User Actions</span>
+</div>
+<select class="bg-surface-container border-none rounded-lg font-body-sm text-on-surface px-4 py-1.5 focus:ring-0">
+<option>Last 7 Days</option>
+<option>Last 30 Days</option>
+</select>
+</div>
+</div>
+<!-- Line Chart Visual Simulation -->
+<div class="flex-1 w-full flex items-end justify-between gap-1 h-48 px-2">
+<div class="flex-1 bg-surface-container rounded-t-sm h-1/4 relative group">
+<div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 bg-primary text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Mon: 1.2k</div>
+</div>
+<div class="flex-1 bg-surface-container rounded-t-sm h-2/5 relative group">
+<div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 bg-primary text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">Tue: 1.8k</div>
+</div>
+<div class="flex-1 bg-surface-container-high rounded-t-sm h-1/2 relative group"></div>
+<div class="flex-1 bg-primary rounded-t-sm h-3/4 relative group">
+<div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 bg-primary text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">Thu: 3.4k</div>
+</div>
+<div class="flex-1 bg-surface-container rounded-t-sm h-2/3 relative group"></div>
+<div class="flex-1 bg-surface-container-high rounded-t-sm h-4/5 relative group">
+<div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 bg-primary text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">Sat: 4.1k</div>
+</div>
+<div class="flex-1 bg-surface-container rounded-t-sm h-1/3 relative group"></div>
+</div>
+<div class="flex justify-between mt-4 text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">
+<span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
+</div>
+</div>
+<!-- Activity Distribution (Bento Small) -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-8">
+<h4 class="font-headline-sm font-bold text-primary mb-8">Module Distribution</h4>
+<div class="relative w-48 h-48 mx-auto mb-8">
+<!-- Custom CSS Donut Visual -->
+<div class="absolute inset-0 rounded-full border-[18px] border-surface-container"></div>
+<div class="absolute inset-0 rounded-full border-[18px] border-primary" style="clip-path: polygon(50% 50%, 50% 0%, 100% 0%, 100% 100%, 0% 100%, 0% 50%);"></div>
+<div class="absolute inset-0 flex flex-col items-center justify-center">
+<span class="text-headline-md font-bold text-primary">ERP</span>
+<span class="text-[10px] font-bold uppercase text-on-surface-variant opacity-60">Primary</span>
+</div>
+</div>
+<div class="space-y-4">
+<div class="flex justify-between items-center">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-primary"></span>
+<span class="text-body-sm text-on-surface">Inventory Management</span>
+</div>
+<span class="text-body-sm font-bold">42%</span>
+</div>
+<div class="flex justify-between items-center">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-outline"></span>
+<span class="text-body-sm text-on-surface">Financial Accounting</span>
+</div>
+<span class="text-body-sm font-bold">28%</span>
+</div>
+<div class="flex justify-between items-center">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-surface-variant"></span>
+<span class="text-body-sm text-on-surface">User Management</span>
+</div>
+<span class="text-body-sm font-bold">18%</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Recent Critical Logs Feed -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden shadow-sm">
+<div class="px-8 py-5 border-b border-outline-variant flex justify-between items-center bg-surface-container-low/30">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-error" style="font-variation-settings: 'FILL' 1;">warning</span>
+<h4 class="font-headline-sm font-bold text-primary">Recent Critical Logs Feed</h4>
+</div>
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-2 text-on-surface-variant font-body-sm">
+<span class="w-2 h-2 rounded-full bg-error"></span>
+<span>Live Monitoring Active</span>
+</div>
+<button class="text-primary font-bold text-body-sm hover:underline">View All Critical</button>
+</div>
+</div>
+<div class="audit-log-terminal p-0 font-metadata-code">
+<table class="w-full text-left border-collapse">
+<thead class="bg-white/5 text-white/40 font-label-caps border-b border-white/10">
+<tr>
+<th class="px-8 py-3 font-bold">Timestamp</th>
+<th class="px-6 py-3 font-bold">Level</th>
+<th class="px-6 py-3 font-bold">Module</th>
+<th class="px-6 py-3 font-bold">Actor</th>
+<th class="px-6 py-3 font-bold">Action / Event</th>
+<th class="px-8 py-3 font-bold text-right">Reference ID</th>
+</tr>
+</thead>
+<tbody class="text-white/80">
+<!-- Log Entry 1: Security Critical -->
+<tr class="hover:bg-white/5 transition-colors border-b border-white/5 group">
+<td class="px-8 py-4 text-[13px] opacity-60">2023-11-24 14:22:01.034</td>
+<td class="px-6 py-4">
+<span class="bg-error/10 border-l-2 border-error px-2 py-0.5 text-[11px] font-bold text-error">CRITICAL</span>
+</td>
+<td class="px-6 py-4 text-[13px]">AUTH_MANAGER</td>
+<td class="px-6 py-4 text-[13px]">System_Auto</td>
+<td class="px-6 py-4 text-[13px] text-white">Multiple failed login attempts from IP 192.168.1.105 (Block Initiated)</td>
+<td class="px-8 py-4 text-right text-[12px] opacity-40 group-hover:opacity-100 transition-opacity">ERR_77402_AX</td>
+</tr>
+<!-- Log Entry 2: Inventory High -->
+<tr class="hover:bg-white/5 transition-colors border-b border-white/5 group">
+<td class="px-8 py-4 text-[13px] opacity-60">2023-11-24 14:18:45.912</td>
+<td class="px-6 py-4">
+<span class="bg-primary-fixed-dim/20 border-l-2 border-primary-fixed-dim px-2 py-0.5 text-[11px] font-bold text-primary-fixed-dim uppercase">High</span>
+</td>
+<td class="px-6 py-4 text-[13px]">INV_CONTROL</td>
+<td class="px-6 py-4 text-[13px]">j.smith_admin</td>
+<td class="px-6 py-4 text-[13px] text-white">Bulk deletion of warehouse records (WH_NORTH_04) - Manual Override</td>
+<td class="px-8 py-4 text-right text-[12px] opacity-40 group-hover:opacity-100 transition-opacity">TRX_9921_INV</td>
+</tr>
+<!-- Log Entry 3: Finance Critical -->
+<tr class="hover:bg-white/5 transition-colors border-b border-white/5 group">
+<td class="px-8 py-4 text-[13px] opacity-60">2023-11-24 14:15:22.110</td>
+<td class="px-6 py-4">
+<span class="bg-error/10 border-l-2 border-error px-2 py-0.5 text-[11px] font-bold text-error">CRITICAL</span>
+</td>
+<td class="px-6 py-4 text-[13px]">FIN_RECON</td>
+<td class="px-6 py-4 text-[13px]">api_gateway_v2</td>
+<td class="px-6 py-4 text-[13px] text-white">Integrity mismatch detected on Ledger #8812. Difference: $42,100.00</td>
+<td class="px-8 py-4 text-right text-[12px] opacity-40 group-hover:opacity-100 transition-opacity">AUD_MATCH_91</td>
+</tr>
+<!-- Log Entry 4: User High -->
+<tr class="hover:bg-white/5 transition-colors border-b border-white/5 group">
+<td class="px-8 py-4 text-[13px] opacity-60">2023-11-24 14:10:05.552</td>
+<td class="px-6 py-4">
+<span class="bg-tertiary-fixed/20 border-l-2 border-tertiary-fixed px-2 py-0.5 text-[11px] font-bold text-tertiary-fixed uppercase">Info</span>
+</td>
+<td class="px-6 py-4 text-[13px]">USER_MGMT</td>
+<td class="px-6 py-4 text-[13px]">root_security</td>
+<td class="px-6 py-4 text-[13px] text-white">Privilege escalation for user 'a.miller' (Temporary: 2h)</td>
+<td class="px-8 py-4 text-right text-[12px] opacity-40 group-hover:opacity-100 transition-opacity">SEC_PRV_04</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="p-6 bg-surface-container-low flex justify-between items-center border-t border-outline-variant">
+<p class="text-body-sm text-on-surface-variant italic">Showing last 4 high-priority events from the last hour.</p>
+<div class="flex gap-2">
+<button class="p-2 border border-outline-variant rounded bg-white hover:bg-surface-container transition-all">
+<span class="material-symbols-outlined text-sm">chevron_left</span>
+</button>
+<button class="p-2 border border-outline-variant rounded bg-white hover:bg-surface-container transition-all">
+<span class="material-symbols-outlined text-sm">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Dashboard Footer -->
+<footer class="mt-12 pt-8 border-t border-outline-variant flex justify-between items-center opacity-50">
+<p class="text-body-sm">LogisticsVault © 2023. Compliance Engine v4.8.2-stable</p>
+<div class="flex gap-6 text-body-sm font-bold">
+<a class="hover:text-primary" href="#">System Status</a>
+<a class="hover:text-primary" href="#">API Docs</a>
+<a class="hover:text-primary" href="#">Help Center</a>
+</div>
+</footer>
+</div>
+</main>
+<!-- Contextual FAB (Only for main screens) -->
+<button class="fixed bottom-8 right-8 w-14 h-14 bg-primary text-white rounded-full flex items-center justify-center shadow-xl hover:scale-110 active:scale-90 transition-all z-50 group">
+<span class="material-symbols-outlined text-2xl group-hover:rotate-90 transition-transform">add</span>
+<div class="absolute bottom-full right-0 mb-4 bg-inverse-surface text-inverse-on-surface text-[10px] py-1 px-3 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none font-bold uppercase tracking-widest">Manual Audit Log</div>
+</button>
+<script>
+        // Micro-interactions and effects
+        document.addEventListener('DOMContentLoaded', () => {
+            // Add a subtle scanline effect to the terminal log
+            const terminal = document.querySelector('.audit-log-terminal');
+            const scanline = document.createElement('div');
+            scanline.className = 'absolute inset-0 pointer-events-none overflow-hidden';
+            scanline.innerHTML = '<div class="w-full h-1 bg-white opacity-[0.02] animate-scanline"></div>';
+            terminal.classList.add('relative');
+            terminal.appendChild(scanline);
+
+            const style = document.createElement('style');
+            style.innerHTML = `
+                @keyframes scanline {
+                    0% { transform: translateY(-100%); }
+                    100% { transform: translateY(1000%); }
+                }
+                .animate-scanline {
+                    animation: scanline 8s linear infinite;
+                }
+            `;
+            document.head.appendChild(style);
+
+            // Toggle active states for navigation (logic for current page)
+            const navLinks = document.querySelectorAll('nav a');
+            navLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    navLinks.forEach(l => {
+                        l.classList.remove('bg-secondary-container/10', 'border-r-2', 'border-secondary', 'font-bold', 'text-primary');
+                        l.classList.add('text-on-surface-variant');
+                    });
+                    link.classList.add('bg-secondary-container/10', 'border-r-2', 'border-secondary', 'font-bold', 'text-primary');
+                    link.classList.remove('text-on-surface-variant');
+                });
+            });
+        });
+    </script>
+</body></html>

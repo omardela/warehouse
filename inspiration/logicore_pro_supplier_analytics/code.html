@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Supplier Analytics - LogiCore Pro</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "background": "#0b1326",
+                        "tertiary-container": "#996100",
+                        "inverse-surface": "#dae2fd",
+                        "on-secondary-container": "#003111",
+                        "inverse-on-surface": "#283044",
+                        "on-secondary": "#003914",
+                        "surface-dim": "#0b1326",
+                        "on-error": "#690005",
+                        "outline": "#8d90a0",
+                        "surface-container": "#171f33",
+                        "on-tertiary-fixed": "#2a1700",
+                        "on-primary-container": "#eeefff",
+                        "on-error-container": "#ffdad6",
+                        "surface-tint": "#b4c5ff",
+                        "on-background": "#dae2fd",
+                        "primary-container": "#2563eb",
+                        "inverse-primary": "#0053db",
+                        "surface-container-highest": "#2d3449",
+                        "surface-container-high": "#222a3d",
+                        "primary": "#b4c5ff",
+                        "on-primary-fixed": "#00174b",
+                        "outline-variant": "#434655",
+                        "on-tertiary": "#472a00",
+                        "tertiary-fixed-dim": "#ffb95f",
+                        "on-secondary-fixed-variant": "#005320",
+                        "tertiary": "#ffb95f",
+                        "surface": "#0b1326",
+                        "secondary-fixed": "#7ffc97",
+                        "primary-fixed": "#dbe1ff",
+                        "surface-bright": "#31394d",
+                        "on-surface": "#dae2fd",
+                        "surface-variant": "#2d3449",
+                        "on-tertiary-container": "#ffeedd",
+                        "secondary": "#62df7d",
+                        "on-secondary-fixed": "#002109",
+                        "surface-container-lowest": "#060e20",
+                        "on-primary-fixed-variant": "#003ea8",
+                        "error-container": "#93000a",
+                        "error": "#ffb4ab",
+                        "surface-container-low": "#131b2e",
+                        "secondary-fixed-dim": "#62df7d",
+                        "primary-fixed-dim": "#b4c5ff",
+                        "on-surface-variant": "#c3c6d7",
+                        "tertiary-fixed": "#ffddb8",
+                        "on-tertiary-fixed-variant": "#653e00",
+                        "secondary-container": "#1ca64d",
+                        "on-primary": "#002a78"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "xl": "32px",
+                        "xs": "4px",
+                        "sm": "8px",
+                        "margin": "32px",
+                        "md": "16px",
+                        "lg": "24px",
+                        "gutter": "24px",
+                        "base": "4px"
+                    },
+                    "fontFamily": {
+                        "display": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "h3": ["Inter"],
+                        "label-md": ["Inter"],
+                        "h2": ["Inter"],
+                        "body-sm": ["Inter"],
+                        "body-md": ["Inter"],
+                        "h1": ["Inter"],
+                        "mono-data": ["JetBrains Mono"]
+                    },
+                    "fontSize": {
+                        "display": ["48px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "body-lg": ["16px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                        "h3": ["20px", {"lineHeight": "1.4", "fontWeight": "600"}],
+                        "label-md": ["12px", {"lineHeight": "1", "letterSpacing": "0.02em", "fontWeight": "500"}],
+                        "h2": ["24px", {"lineHeight": "1.3", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "body-sm": ["12px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                        "body-md": ["14px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                        "h1": ["32px", {"lineHeight": "1.25", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "mono-data": ["13px", {"lineHeight": "1", "letterSpacing": "-0.01em", "fontWeight": "400"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            background-color: #0b1326;
+            color: #dae2fd;
+            font-family: 'Inter', sans-serif;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #434655;
+            border-radius: 10px;
+        }
+        .chart-gradient-blue {
+            background: linear-gradient(180deg, rgba(37, 99, 235, 0.2) 0%, rgba(37, 99, 235, 0) 100%);
+        }
+    </style>
+</head>
+<body class="flex overflow-hidden">
+<!-- SideNavBar Anchor -->
+<aside class="fixed left-0 top-0 h-screen w-64 flex flex-col p-md z-40 bg-surface-container-lowest border-r border-outline-variant hidden md:flex">
+<div class="flex items-center gap-sm mb-xl px-sm">
+<div class="w-8 h-8 rounded bg-primary-container flex items-center justify-center">
+<span class="material-symbols-outlined text-on-primary-container" style="font-variation-settings: 'FILL' 1;">dataset</span>
+</div>
+<div>
+<h1 class="font-display text-h3 font-bold text-on-surface">LogiCore Pro</h1>
+<p class="font-body-sm text-[10px] text-on-surface-variant uppercase tracking-widest">Global Operations</p>
+</div>
+</div>
+<nav class="flex-1 space-y-1 overflow-y-auto custom-scrollbar">
+<!-- Nav Items from JSON -->
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-all duration-150 cursor-pointer active:scale-[0.98]" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-body-sm text-body-sm">Dashboard</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-all duration-150 cursor-pointer active:scale-[0.98]" href="#">
+<span class="material-symbols-outlined">inventory_2</span>
+<span class="font-body-sm text-body-sm">Products</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-all duration-150 cursor-pointer active:scale-[0.98]" href="#">
+<span class="material-symbols-outlined">warehouse</span>
+<span class="font-body-sm text-body-sm">Inventory</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-all duration-150 cursor-pointer active:scale-[0.98]" href="#">
+<span class="material-symbols-outlined">payments</span>
+<span class="font-body-sm text-body-sm">Sales</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-all duration-150 cursor-pointer active:scale-[0.98]" href="#">
+<span class="material-symbols-outlined">shopping_cart</span>
+<span class="font-body-sm text-body-sm">Purchases</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-all duration-150 cursor-pointer active:scale-[0.98]" href="#">
+<span class="material-symbols-outlined">group</span>
+<span class="font-body-sm text-body-sm">Customers</span>
+</a>
+<a class="bg-secondary-container text-on-secondary-container font-semibold rounded-lg flex items-center gap-md px-md py-sm transition-all duration-150 cursor-pointer active:scale-[0.98]" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">local_shipping</span>
+<span class="font-body-sm text-body-sm">Suppliers</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-all duration-150 cursor-pointer active:scale-[0.98]" href="#">
+<span class="material-symbols-outlined">badge</span>
+<span class="font-body-sm text-body-sm">Employees</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-all duration-150 cursor-pointer active:scale-[0.98]" href="#">
+<span class="material-symbols-outlined">location_on</span>
+<span class="font-body-sm text-body-sm">Warehouses</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-all duration-150 cursor-pointer active:scale-[0.98]" href="#">
+<span class="material-symbols-outlined">bar_chart</span>
+<span class="font-body-sm text-body-sm">Reports</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-all duration-150 cursor-pointer active:scale-[0.98]" href="#">
+<span class="material-symbols-outlined">history</span>
+<span class="font-body-sm text-body-sm">Audit Logs</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-all duration-150 cursor-pointer active:scale-[0.98]" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-body-sm text-body-sm">Settings</span>
+</a>
+</nav>
+<div class="mt-auto pt-md border-t border-outline-variant flex items-center gap-md px-sm">
+<div class="w-10 h-10 rounded-full overflow-hidden bg-surface-container-high">
+<img alt="User Avatar" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida/ADBb0ui3j6PlWGTzLY8ehJb3Y9Ki6kNhWio3aA8QcQPAss-pBb1hEZO-pI5x1yL2wpHcZBk0vFA8q2jQ6f8cBNSSpTvFRSf1-R-lli9o2aAB5N1_rOQu2TDEKhQ9MFn_jmtJFv3iXCwdXa5-8yg_Dib-UoYd8k_C_vRTbRfOBH6ggRjRFkWMA_hHpsjPrRvLhYUmp32SuwbEZ90erGzL4h7cvQWsFZyu_ea2hRRcYNjsMSHatzvJGeHGOhK0uOvt"/>
+</div>
+<div class="flex-1 overflow-hidden">
+<p class="font-body-sm font-semibold text-on-surface truncate">Marcus Chen</p>
+<p class="font-body-sm text-[10px] text-on-surface-variant truncate">Ops Director</p>
+</div>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 flex flex-col min-w-0 md:ml-64 h-screen">
+<!-- TopNavBar Anchor -->
+<header class="flex justify-between items-center h-16 px-gutter w-full sticky top-0 z-50 bg-surface border-b border-outline-variant shadow-sm">
+<div class="flex items-center gap-md flex-1">
+<div class="relative w-full max-w-md hidden lg:block">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[20px]">search</span>
+<input class="w-full bg-surface-container-low border border-outline-variant rounded-lg pl-10 pr-4 py-2 text-body-sm focus:ring-2 focus:ring-primary focus:border-transparent outline-none" placeholder="Search suppliers, SKU orders, or shipping IDs..." type="text"/>
+</div>
+<div class="lg:hidden">
+<h2 class="font-display text-h2 font-bold text-primary">LogiCore Pro</h2>
+</div>
+</div>
+<div class="flex items-center gap-md">
+<button class="text-on-surface-variant hover:text-primary transition-colors duration-200 cursor-pointer active:opacity-70 p-2">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="text-on-surface-variant hover:text-primary transition-colors duration-200 cursor-pointer active:opacity-70 p-2">
+<span class="material-symbols-outlined">help</span>
+</button>
+<button class="text-on-surface-variant hover:text-primary transition-colors duration-200 cursor-pointer active:opacity-70 p-2">
+<span class="material-symbols-outlined">account_circle</span>
+</button>
+</div>
+</header>
+<!-- Content Canvas -->
+<div class="flex-1 overflow-y-auto p-gutter custom-scrollbar space-y-gutter">
+<!-- Header Section -->
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-md">
+<div>
+<nav class="flex items-center gap-xs text-on-surface-variant font-body-sm text-[11px] uppercase tracking-widest mb-xs">
+<span>Operations</span>
+<span class="material-symbols-outlined text-[12px]">chevron_right</span>
+<span class="text-primary">Supplier Analytics</span>
+</nav>
+<h1 class="font-display text-h1 text-on-surface">Supplier Performance Hub</h1>
+<p class="font-body-md text-on-surface-variant">Real-time supply chain health and procurement insights.</p>
+</div>
+<div class="flex gap-sm">
+<button class="px-md py-sm bg-surface-container-high hover:bg-surface-container-highest text-on-surface rounded-lg font-body-sm flex items-center gap-xs transition-all border border-outline-variant">
+<span class="material-symbols-outlined text-[18px]">calendar_today</span>
+                        Last 30 Days
+                    </button>
+<button class="px-md py-sm bg-primary-container hover:brightness-110 text-on-primary-container rounded-lg font-body-sm flex items-center gap-xs transition-all">
+<span class="material-symbols-outlined text-[18px]">download</span>
+                        Export Report
+                    </button>
+</div>
+</div>
+<!-- Scorecards Grid -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-md">
+<!-- Card 1 -->
+<div class="bg-surface-container-low border border-outline-variant p-md rounded-xl hover:border-primary/50 transition-all group">
+<div class="flex justify-between items-start mb-sm">
+<div class="p-2 bg-primary/10 rounded-lg text-primary">
+<span class="material-symbols-outlined">local_shipping</span>
+</div>
+<span class="text-secondary font-mono-data text-label-md flex items-center gap-xs">
+<span class="material-symbols-outlined text-[14px]">trending_up</span>
+                            +12.4%
+                        </span>
+</div>
+<p class="text-on-surface-variant font-body-sm uppercase tracking-wider text-[10px]">Total Active Suppliers</p>
+<h3 class="font-display text-h2 text-on-surface mt-xs">1,248</h3>
+<div class="mt-md h-1 bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[75%] rounded-full"></div>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="bg-surface-container-low border border-outline-variant p-md rounded-xl hover:border-primary/50 transition-all">
+<div class="flex justify-between items-start mb-sm">
+<div class="p-2 bg-secondary/10 rounded-lg text-secondary">
+<span class="material-symbols-outlined">timer</span>
+</div>
+<span class="text-error font-mono-data text-label-md flex items-center gap-xs">
+<span class="material-symbols-outlined text-[14px]">trending_down</span>
+                            -2.1%
+                        </span>
+</div>
+<p class="text-on-surface-variant font-body-sm uppercase tracking-wider text-[10px]">Avg Lead Time</p>
+<h3 class="font-display text-h2 text-on-surface mt-xs">4.2 Days</h3>
+<div class="mt-md flex gap-xs">
+<span class="h-4 w-1 bg-secondary rounded-full"></span>
+<span class="h-4 w-1 bg-secondary rounded-full"></span>
+<span class="h-4 w-1 bg-secondary rounded-full"></span>
+<span class="h-4 w-1 bg-secondary/30 rounded-full"></span>
+<span class="h-4 w-1 bg-secondary/30 rounded-full"></span>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="bg-surface-container-low border border-outline-variant p-md rounded-xl hover:border-primary/50 transition-all">
+<div class="flex justify-between items-start mb-sm">
+<div class="p-2 bg-tertiary/10 rounded-lg text-tertiary">
+<span class="material-symbols-outlined">payments</span>
+</div>
+<span class="text-secondary font-mono-data text-label-md flex items-center gap-xs">
+<span class="material-symbols-outlined text-[14px]">trending_up</span>
+                            +8.5%
+                        </span>
+</div>
+<p class="text-on-surface-variant font-body-sm uppercase tracking-wider text-[10px]">Monthly Purchase Vol</p>
+<h3 class="font-display text-h2 text-on-surface mt-xs">$2.4M</h3>
+<div class="mt-md flex items-baseline gap-xs">
+<div class="w-full h-8 flex items-end gap-[2px]">
+<div class="bg-tertiary w-full h-[40%] rounded-t-sm"></div>
+<div class="bg-tertiary w-full h-[60%] rounded-t-sm"></div>
+<div class="bg-tertiary w-full h-[50%] rounded-t-sm"></div>
+<div class="bg-tertiary w-full h-[80%] rounded-t-sm"></div>
+<div class="bg-tertiary w-full h-[100%] rounded-t-sm"></div>
+</div>
+</div>
+</div>
+<!-- Card 4 -->
+<div class="bg-surface-container-low border border-outline-variant p-md rounded-xl hover:border-primary/50 transition-all">
+<div class="flex justify-between items-start mb-sm">
+<div class="p-2 bg-error/10 rounded-lg text-error">
+<span class="material-symbols-outlined">warning</span>
+</div>
+<span class="text-on-surface-variant font-mono-data text-label-md">High Risk</span>
+</div>
+<p class="text-on-surface-variant font-body-sm uppercase tracking-wider text-[10px]">Delivery Compliance</p>
+<h3 class="font-display text-h2 text-on-surface mt-xs">94.2%</h3>
+<div class="mt-md h-1 bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-error w-[94.2%] rounded-full"></div>
+</div>
+</div>
+</div>
+<!-- Charts Section -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-gutter">
+<!-- Main Line Chart: Purchase Volume -->
+<div class="lg:col-span-2 bg-surface-container-low border border-outline-variant rounded-xl p-lg flex flex-col">
+<div class="flex justify-between items-center mb-lg">
+<div>
+<h3 class="font-h3 text-on-surface">Purchase Volume Trends</h3>
+<p class="text-on-surface-variant font-body-sm">Global spend distribution over the fiscal quarter</p>
+</div>
+<div class="flex bg-surface-container rounded-lg p-1 border border-outline-variant">
+<button class="px-3 py-1 bg-primary-container text-on-primary-container text-[11px] rounded font-semibold uppercase">Daily</button>
+<button class="px-3 py-1 text-on-surface-variant text-[11px] font-semibold uppercase hover:text-on-surface transition-colors">Weekly</button>
+</div>
+</div>
+<div class="flex-1 min-h-[300px] relative">
+<!-- Simulated High Fidelity Line Chart -->
+<div class="absolute inset-0 flex flex-col justify-between py-2">
+<div class="border-b border-outline-variant/30 w-full h-0"></div>
+<div class="border-b border-outline-variant/30 w-full h-0"></div>
+<div class="border-b border-outline-variant/30 w-full h-0"></div>
+<div class="border-b border-outline-variant/30 w-full h-0"></div>
+<div class="border-b border-outline-variant/30 w-full h-0"></div>
+</div>
+<svg class="absolute inset-0 w-full h-full overflow-visible" preserveaspectratio="none" viewbox="0 0 800 300">
+<defs>
+<lineargradient id="line-gradient" x1="0" x2="0" y1="0" y2="1">
+<stop offset="0%" stop-color="#2563eb" stop-opacity="0.5"></stop>
+<stop offset="100%" stop-color="#2563eb" stop-opacity="0"></stop>
+</lineargradient>
+</defs>
+<path d="M0,220 L100,180 L200,240 L300,140 L400,160 L500,80 L600,110 L700,40 L800,90 L800,300 L0,300 Z" fill="url(#line-gradient)"></path>
+<path d="M0,220 L100,180 L200,240 L300,140 L400,160 L500,80 L600,110 L700,40 L800,90" fill="none" stroke="#b4c5ff" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"></path>
+<circle class="animate-pulse" cx="700" cy="40" fill="#b4c5ff" r="4"></circle>
+</svg>
+<div class="absolute bottom-[-1.5rem] left-0 right-0 flex justify-between px-2 text-[10px] font-mono-data text-on-surface-variant">
+<span>MAR 01</span>
+<span>MAR 08</span>
+<span>MAR 15</span>
+<span>MAR 22</span>
+<span>MAR 29</span>
+</div>
+</div>
+</div>
+<!-- Bar Chart: Top Suppliers -->
+<div class="bg-surface-container-low border border-outline-variant rounded-xl p-lg flex flex-col">
+<div class="mb-lg">
+<h3 class="font-h3 text-on-surface">Top Suppliers</h3>
+<p class="text-on-surface-variant font-body-sm">Ranked by shipment reliability</p>
+</div>
+<div class="flex-1 space-y-md">
+<!-- Bar 1 -->
+<div class="space-y-xs">
+<div class="flex justify-between text-body-sm mb-xs">
+<span class="text-on-surface font-medium">NexGen Logistics</span>
+<span class="font-mono-data text-primary">98.2%</span>
+</div>
+<div class="h-2 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[98.2%] rounded-full shadow-[0_0_8px_rgba(180,197,255,0.4)]"></div>
+</div>
+</div>
+<!-- Bar 2 -->
+<div class="space-y-xs">
+<div class="flex justify-between text-body-sm mb-xs">
+<span class="text-on-surface font-medium">Blue Horizon S.A.</span>
+<span class="font-mono-data text-primary">92.4%</span>
+</div>
+<div class="h-2 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[92.4%] rounded-full"></div>
+</div>
+</div>
+<!-- Bar 3 -->
+<div class="space-y-xs">
+<div class="flex justify-between text-body-sm mb-xs">
+<span class="text-on-surface font-medium">Titan Foundry</span>
+<span class="font-mono-data text-primary">89.1%</span>
+</div>
+<div class="h-2 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[89.1%] rounded-full"></div>
+</div>
+</div>
+<!-- Bar 4 -->
+<div class="space-y-xs">
+<div class="flex justify-between text-body-sm mb-xs">
+<span class="text-on-surface font-medium">Swift Supply Corp</span>
+<span class="font-mono-data text-primary">84.5%</span>
+</div>
+<div class="h-2 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[84.5%] rounded-full"></div>
+</div>
+</div>
+<!-- Bar 5 -->
+<div class="space-y-xs">
+<div class="flex justify-between text-body-sm mb-xs">
+<span class="text-on-surface font-medium">Global Parts Ltd</span>
+<span class="font-mono-data text-primary">76.2%</span>
+</div>
+<div class="h-2 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-error w-[76.2%] rounded-full"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Lower Section: Activity & Details -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-gutter">
+<!-- Data Table: Supplier List -->
+<div class="lg:col-span-2 bg-surface-container-low border border-outline-variant rounded-xl overflow-hidden">
+<div class="px-lg py-md border-b border-outline-variant flex justify-between items-center bg-surface-container-high/30">
+<h3 class="font-h3 text-on-surface">Compliance Activity</h3>
+<button class="text-primary text-body-sm font-semibold hover:underline">View All Suppliers</button>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-highest/50">
+<th class="px-lg py-sm font-label-md text-on-surface-variant uppercase tracking-wider border-b border-outline-variant">Supplier</th>
+<th class="px-lg py-sm font-label-md text-on-surface-variant uppercase tracking-wider border-b border-outline-variant">Active SKU</th>
+<th class="px-lg py-sm font-label-md text-on-surface-variant uppercase tracking-wider border-b border-outline-variant">Status</th>
+<th class="px-lg py-sm font-label-md text-on-surface-variant uppercase tracking-wider border-b border-outline-variant">Last Audit</th>
+<th class="px-lg py-sm font-label-md text-on-surface-variant uppercase tracking-wider border-b border-outline-variant">Region</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant/30">
+<tr class="hover:bg-surface-container-high/20 transition-colors">
+<td class="px-lg py-md">
+<div class="flex items-center gap-sm">
+<div class="w-8 h-8 rounded bg-surface-container-high border border-outline-variant flex items-center justify-center font-bold text-[10px]">NL</div>
+<span class="text-body-md font-medium text-on-surface">NexGen Logistics</span>
+</div>
+</td>
+<td class="px-lg py-md font-mono-data text-on-surface-variant">412</td>
+<td class="px-lg py-md">
+<span class="px-2 py-1 bg-secondary/10 text-secondary rounded text-[10px] font-bold uppercase tracking-widest">Compliant</span>
+</td>
+<td class="px-lg py-md text-body-sm text-on-surface-variant">12 Mar 2024</td>
+<td class="px-lg py-md text-body-sm text-on-surface-variant">North America</td>
+</tr>
+<tr class="hover:bg-surface-container-high/20 transition-colors">
+<td class="px-lg py-md">
+<div class="flex items-center gap-sm">
+<div class="w-8 h-8 rounded bg-surface-container-high border border-outline-variant flex items-center justify-center font-bold text-[10px]">BH</div>
+<span class="text-body-md font-medium text-on-surface">Blue Horizon S.A.</span>
+</div>
+</td>
+<td class="px-lg py-md font-mono-data text-on-surface-variant">1,890</td>
+<td class="px-lg py-md">
+<span class="px-2 py-1 bg-secondary/10 text-secondary rounded text-[10px] font-bold uppercase tracking-widest">Compliant</span>
+</td>
+<td class="px-lg py-md text-body-sm text-on-surface-variant">05 Mar 2024</td>
+<td class="px-lg py-md text-body-sm text-on-surface-variant">Western Europe</td>
+</tr>
+<tr class="hover:bg-surface-container-high/20 transition-colors">
+<td class="px-lg py-md">
+<div class="flex items-center gap-sm">
+<div class="w-8 h-8 rounded bg-surface-container-high border border-outline-variant flex items-center justify-center font-bold text-[10px]">TF</div>
+<span class="text-body-md font-medium text-on-surface">Titan Foundry</span>
+</div>
+</td>
+<td class="px-lg py-md font-mono-data text-on-surface-variant">56</td>
+<td class="px-lg py-md">
+<span class="px-2 py-1 bg-tertiary/10 text-tertiary rounded text-[10px] font-bold uppercase tracking-widest">Under Review</span>
+</td>
+<td class="px-lg py-md text-body-sm text-on-surface-variant">28 Feb 2024</td>
+<td class="px-lg py-md text-body-sm text-on-surface-variant">East Asia</td>
+</tr>
+<tr class="hover:bg-surface-container-high/20 transition-colors">
+<td class="px-lg py-md">
+<div class="flex items-center gap-sm">
+<div class="w-8 h-8 rounded bg-surface-container-high border border-outline-variant flex items-center justify-center font-bold text-[10px]">GL</div>
+<span class="text-body-md font-medium text-on-surface">Global Parts Ltd</span>
+</div>
+</td>
+<td class="px-lg py-md font-mono-data text-on-surface-variant">2,105</td>
+<td class="px-lg py-md">
+<span class="px-2 py-1 bg-error/10 text-error rounded text-[10px] font-bold uppercase tracking-widest">At Risk</span>
+</td>
+<td class="px-lg py-md text-body-sm text-on-surface-variant">14 Feb 2024</td>
+<td class="px-lg py-md text-body-sm text-on-surface-variant">South America</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<!-- Recent Events Sidebar -->
+<div class="bg-surface-container-low border border-outline-variant rounded-xl p-lg flex flex-col">
+<h3 class="font-h3 text-on-surface mb-lg">Activity Stream</h3>
+<div class="space-y-gutter flex-1 overflow-y-auto custom-scrollbar pr-2">
+<!-- Event 1 -->
+<div class="flex gap-md relative">
+<div class="absolute left-[11px] top-6 bottom-[-24px] w-[2px] bg-outline-variant/30"></div>
+<div class="w-6 h-6 rounded-full bg-secondary/20 border border-secondary flex items-center justify-center z-10">
+<span class="material-symbols-outlined text-[14px] text-secondary">check_circle</span>
+</div>
+<div>
+<p class="text-body-sm font-semibold text-on-surface">Shipment Received</p>
+<p class="text-body-sm text-on-surface-variant">NexGen Logistics - #PO-44129</p>
+<span class="text-[10px] font-mono-data text-on-surface-variant uppercase">14 mins ago</span>
+</div>
+</div>
+<!-- Event 2 -->
+<div class="flex gap-md relative">
+<div class="absolute left-[11px] top-6 bottom-[-24px] w-[2px] bg-outline-variant/30"></div>
+<div class="w-6 h-6 rounded-full bg-tertiary/20 border border-tertiary flex items-center justify-center z-10">
+<span class="material-symbols-outlined text-[14px] text-tertiary">priority_high</span>
+</div>
+<div>
+<p class="text-body-sm font-semibold text-on-surface">Audit Required</p>
+<p class="text-body-sm text-on-surface-variant">Titan Foundry compliance window closing.</p>
+<span class="text-[10px] font-mono-data text-on-surface-variant uppercase">2 hours ago</span>
+</div>
+</div>
+<!-- Event 3 -->
+<div class="flex gap-md relative">
+<div class="absolute left-[11px] top-6 bottom-[-24px] w-[2px] bg-outline-variant/30"></div>
+<div class="w-6 h-6 rounded-full bg-primary/20 border border-primary flex items-center justify-center z-10">
+<span class="material-symbols-outlined text-[14px] text-primary">add_shopping_cart</span>
+</div>
+<div>
+<p class="text-body-sm font-semibold text-on-surface">New Supplier Integrated</p>
+<p class="text-body-sm text-on-surface-variant">Apex Industrials - Region: SEA</p>
+<span class="text-[10px] font-mono-data text-on-surface-variant uppercase">5 hours ago</span>
+</div>
+</div>
+<!-- Event 4 -->
+<div class="flex gap-md relative">
+<div class="w-6 h-6 rounded-full bg-error/20 border border-error flex items-center justify-center z-10">
+<span class="material-symbols-outlined text-[14px] text-error">dangerous</span>
+</div>
+<div>
+<p class="text-body-sm font-semibold text-on-surface">Delivery Delay Alert</p>
+<p class="text-body-sm text-on-surface-variant">Global Parts Ltd - Delayed by 48h</p>
+<span class="text-[10px] font-mono-data text-on-surface-variant uppercase">Yesterday</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Global Map Visibility Placeholder -->
+<div class="bg-surface-container-low border border-outline-variant rounded-xl overflow-hidden h-72 relative group">
+<img alt="Global Supply Map" class="w-full h-full object-cover opacity-40 grayscale group-hover:grayscale-0 transition-all duration-700" data-alt="A futuristic dark-mode digital map of the world with glowing blue and teal connections between major global logistics hubs like Shanghai, Rotterdam, and New York. The aesthetic is high-tech corporate with subtle data overlays showing transit routes. Ambient blue lighting emanates from the screen, creating a professional and data-rich visualization of a global supply chain ecosystem." src="https://lh3.googleusercontent.com/aida/ADBb0uiH5aSLCOJwAGINai3Zre_u6l8xgaQr2hmfy1zb1l7WvIL7x-x2dNrxC1E2stoohV--BNrSoTTur-j13VnEdhwWSJNPSP6C-upjwxt07WQ1wMOTHHxWh5Dfwpu3Bbx3EOc9N1QmXoQ4BAETaqjFiecqVDAo1FYD0zUJjy4WYe0GPqZnItNHoBOI7dI9z5n4jorH0FwwB8vYjpYCRrLSUubcR4INnRraVNWyalUxEXSMS6bx6kB_cwrki_z4"/>
+<div class="absolute inset-0 bg-gradient-to-t from-background to-transparent pointer-events-none"></div>
+<div class="absolute bottom-md left-md p-md">
+<h3 class="font-h3 text-on-surface">Global Distribution</h3>
+<p class="text-on-surface-variant text-body-sm">Visualizing active transit routes and supplier nodes.</p>
+</div>
+<div class="absolute top-md right-md">
+<div class="flex items-center gap-xs bg-surface-container-highest px-md py-xs rounded-full border border-outline-variant">
+<span class="w-2 h-2 bg-secondary rounded-full animate-pulse"></span>
+<span class="text-[10px] font-mono-data text-on-surface uppercase tracking-widest">System Online</span>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Contextual FAB (Suppressed on analytics screens as per instruction, but added a trigger icon in bottom corner for utility) -->
+<div class="fixed bottom-md right-md hidden lg:block">
+<button class="w-14 h-14 bg-primary text-on-primary rounded-full shadow-xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all">
+<span class="material-symbols-outlined text-[28px]" style="font-variation-settings: 'FILL' 1;">add</span>
+</button>
+</div>
+<script>
+        // Simple interactivity for navigation items
+        document.querySelectorAll('nav a').forEach(item => {
+            item.addEventListener('click', (e) => {
+                if (!item.classList.contains('bg-secondary-container')) {
+                    document.querySelectorAll('nav a').forEach(i => {
+                        i.classList.remove('bg-secondary-container', 'text-on-secondary-container', 'font-semibold');
+                        i.classList.add('text-on-surface-variant');
+                        const icon = i.querySelector('.material-symbols-outlined');
+                        if (icon) icon.style.fontVariationSettings = "'FILL' 0";
+                    });
+                    item.classList.add('bg-secondary-container', 'text-on-secondary-container', 'font-semibold');
+                    item.classList.remove('text-on-surface-variant');
+                    const activeIcon = item.querySelector('.material-symbols-outlined');
+                    if (activeIcon) activeIcon.style.fontVariationSettings = "'FILL' 1";
+                }
+            });
+        });
+
+        // Search Bar Focus Effect
+        const searchInput = document.querySelector('input[type="text"]');
+        searchInput.addEventListener('focus', () => {
+            searchInput.parentElement.classList.add('ring-2', 'ring-primary');
+        });
+        searchInput.addEventListener('blur', () => {
+            searchInput.parentElement.classList.remove('ring-2', 'ring-primary');
+        });
+    </script>
+</body></html>

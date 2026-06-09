@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>LogiCore Pro - Create Sales Invoice</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-high": "#222a3d",
+                        "error-container": "#93000a",
+                        "surface-container-highest": "#2d3449",
+                        "surface-container": "#171f33",
+                        "secondary": "#62df7d",
+                        "on-primary-fixed": "#00174b",
+                        "tertiary": "#ffb95f",
+                        "primary-fixed": "#dbe1ff",
+                        "inverse-on-surface": "#283044",
+                        "secondary-fixed-dim": "#62df7d",
+                        "on-primary-fixed-variant": "#003ea8",
+                        "on-tertiary-fixed-variant": "#653e00",
+                        "primary-fixed-dim": "#b4c5ff",
+                        "on-secondary-container": "#003111",
+                        "primary": "#b4c5ff",
+                        "on-tertiary-fixed": "#2a1700",
+                        "background": "#0b1326",
+                        "on-secondary-fixed-variant": "#005320",
+                        "inverse-primary": "#0053db",
+                        "inverse-surface": "#dae2fd",
+                        "on-primary-container": "#eeefff",
+                        "tertiary-fixed-dim": "#ffb95f",
+                        "surface-container-lowest": "#060e20",
+                        "primary-container": "#2563eb",
+                        "on-error-container": "#ffdad6",
+                        "outline": "#8d90a0",
+                        "on-tertiary": "#472a00",
+                        "on-background": "#dae2fd",
+                        "on-primary": "#002a78",
+                        "surface-bright": "#31394d",
+                        "tertiary-fixed": "#ffddb8",
+                        "on-secondary-fixed": "#002109",
+                        "surface-tint": "#b4c5ff",
+                        "on-surface-variant": "#c3c6d7",
+                        "secondary-fixed": "#7ffc97",
+                        "surface-dim": "#0b1326",
+                        "outline-variant": "#434655",
+                        "surface-container-low": "#131b2e",
+                        "error": "#ffb4ab",
+                        "surface-variant": "#2d3449",
+                        "secondary-container": "#1ca64d",
+                        "on-error": "#690005",
+                        "surface": "#0b1326",
+                        "on-surface": "#dae2fd",
+                        "on-tertiary-container": "#ffeedd",
+                        "tertiary-container": "#996100",
+                        "on-secondary": "#003914"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "md": "16px",
+                        "xl": "32px",
+                        "lg": "24px",
+                        "gutter": "24px",
+                        "margin": "32px",
+                        "xs": "4px",
+                        "sm": "8px",
+                        "base": "4px"
+                    },
+                    "fontFamily": {
+                        "body-sm": ["Inter"],
+                        "label-md": ["Inter"],
+                        "body-md": ["Inter"],
+                        "display": ["Inter"],
+                        "h3": ["Inter"],
+                        "h2": ["Inter"],
+                        "mono-data": ["JetBrains Mono"],
+                        "body-lg": ["Inter"],
+                        "h1": ["Inter"]
+                    },
+                    "fontSize": {
+                        "body-sm": ["12px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                        "label-md": ["12px", {"lineHeight": "1", "letterSpacing": "0.02em", "fontWeight": "500"}],
+                        "body-md": ["14px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                        "display": ["48px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "h3": ["20px", {"lineHeight": "1.4", "fontWeight": "600"}],
+                        "h2": ["24px", {"lineHeight": "1.3", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "mono-data": ["13px", {"lineHeight": "1", "letterSpacing": "-0.01em", "fontWeight": "400"}],
+                        "body-lg": ["16px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                        "h1": ["32px", {"lineHeight": "1.25", "letterSpacing": "-0.01em", "fontWeight": "600"}]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            background-color: #0b1326;
+            color: #dae2fd;
+        }
+        /* Custom scrollbar for high-density feel */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #131b2e;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #434655;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #8d90a0;
+        }
+    </style>
+</head>
+<body class="font-body-md text-body-md selection:bg-primary-container selection:text-on-primary-container">
+<!-- SideNavBar Anchor -->
+<aside class="h-screen w-64 fixed left-0 top-0 flex flex-col p-md bg-surface-container-low border-r border-outline-variant shadow-sm z-50">
+<div class="mb-xl px-sm">
+<h1 class="text-h3 font-h3 text-primary tracking-tight">LogiCore Pro</h1>
+<p class="font-label-md text-label-md text-on-surface-variant opacity-70">Enterprise ERP</p>
+</div>
+<nav class="flex-1 space-y-1">
+<!-- Active State Logic: Sales is active -->
+<a class="flex items-center gap-md p-md text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span>Dashboard</span>
+</a>
+<a class="flex items-center gap-md p-md text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined">inventory_2</span>
+<span>Products</span>
+</a>
+<a class="flex items-center gap-md p-md text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined">warehouse</span>
+<span>Inventory</span>
+</a>
+<a class="flex items-center gap-md p-md text-secondary font-bold bg-surface-container-highest rounded-lg transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">payments</span>
+<span>Sales</span>
+</a>
+<a class="flex items-center gap-md p-md text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined">shopping_cart</span>
+<span>Purchases</span>
+</a>
+<a class="flex items-center gap-md p-md text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined">group</span>
+<span>Customers</span>
+</a>
+<a class="flex items-center gap-md p-md text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined">local_shipping</span>
+<span>Suppliers</span>
+</a>
+<a class="flex items-center gap-md p-md text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined">badge</span>
+<span>Employees</span>
+</a>
+<a class="flex items-center gap-md p-md text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined">domain</span>
+<span>Warehouses</span>
+</a>
+<a class="flex items-center gap-md p-md text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined">analytics</span>
+<span>Reports</span>
+</a>
+<a class="flex items-center gap-md p-md text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined">history</span>
+<span>Audit Logs</span>
+</a>
+</nav>
+<button class="mt-xl w-full bg-primary-container text-on-primary-container font-h3 text-body-md py-md rounded-lg active:scale-95 transition-all flex items-center justify-center gap-sm">
+<span class="material-symbols-outlined">add</span>
+            Create Invoice
+        </button>
+</aside>
+<!-- TopNavBar Anchor -->
+<header class="fixed top-0 right-0 w-[calc(100%-16rem)] h-16 bg-surface border-b border-outline-variant shadow-sm flex justify-between items-center px-lg z-40">
+<div class="flex items-center gap-md">
+<h2 class="font-h3 text-h3 text-on-surface">Sales Invoices Management</h2>
+<div class="h-8 w-px bg-outline-variant mx-sm"></div>
+<div class="relative group">
+<span class="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-outline">search</span>
+<input class="bg-surface-container-low border-outline-variant text-body-sm pl-10 pr-md py-sm rounded-full w-64 focus:ring-2 focus:ring-primary focus:border-transparent transition-all" placeholder="Search orders, SKU..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-lg">
+<div class="flex gap-md">
+<button class="text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">settings</span>
+</button>
+<button class="text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">help</span>
+</button>
+</div>
+<div class="flex items-center gap-sm pl-md border-l border-outline-variant">
+<img alt="User Profile" class="w-8 h-8 rounded-full border border-outline-variant" data-alt="A professional close-up headshot of a warehouse operations director in a modern tech-integrated distribution center. He is wearing a minimalist navy blue uniform with a smart badge. The lighting is crisp and cool, featuring a cinematic depth of field with blurred logistics machinery and orange industrial shelves in the deep slate background. The image has a clean, high-contrast corporate aesthetic." src="https://lh3.googleusercontent.com/aida/AP1WRLuQHtHzisRx7NNuO7DKYQU0SuKutoGSITs-DgZ2_7mtZ5jTwewm5BlQrtTHkReMW50rdbm91-4OnUQMtZ_I7PF4vKEY1_zYrrgwv20Tkf_XYx8dvJ6naVhNK2yM4Jw-hDZGdFixcwtZpMopj4Nsxa8rmYyO7tbzbT5vHnS3ySmawn1NNmnvC45gCSg_YKkVFNhmrFdZ37Jngb3EA4eB0sweAyxeEkjhf-Lf5UMGHAaYdgG3OLks6MKcMOYk"/>
+<div class="hidden lg:block text-right">
+<p class="font-label-md text-label-md text-on-surface">Alex Rivera</p>
+<p class="text-[10px] text-on-surface-variant">Global Logistics Lead</p>
+</div>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="ml-64 pt-16 min-h-screen p-lg bg-background">
+<div class="max-w-7xl mx-auto">
+<!-- Page Header -->
+<div class="flex justify-between items-end mb-lg">
+<div>
+<nav class="flex items-center gap-xs text-on-surface-variant text-body-sm mb-xs">
+<span>Sales</span>
+<span class="material-symbols-outlined text-[16px]">chevron_right</span>
+<span class="text-primary">New Invoice</span>
+</nav>
+<h1 class="font-h1 text-h1 text-on-surface tracking-tight">Create Sales Invoice</h1>
+</div>
+<div class="flex gap-md">
+<button class="px-lg py-sm border border-outline-variant rounded-lg text-on-surface hover:bg-surface-container-high transition-colors">Save Draft</button>
+<button class="px-lg py-sm bg-primary-container text-on-primary-container rounded-lg font-bold hover:shadow-lg transition-all active:scale-95">Confirm Invoice</button>
+</div>
+</div>
+<div class="grid grid-cols-12 gap-gutter">
+<!-- Section 1: Invoice Info (Bento Style) -->
+<div class="col-span-12 grid grid-cols-12 gap-gutter">
+<div class="col-span-12 lg:col-span-8 bg-surface-container p-lg rounded-xl border border-outline-variant shadow-sm">
+<div class="flex items-center gap-sm mb-lg">
+<span class="material-symbols-outlined text-primary">description</span>
+<h3 class="font-h3 text-h3">Invoice Information</h3>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-md">
+<div class="space-y-xs">
+<label class="font-label-md text-label-md text-on-surface-variant">Customer</label>
+<select class="w-full bg-surface-container-low border-outline-variant rounded-lg p-sm text-body-md focus:ring-primary">
+<option>Select Customer</option>
+<option>Nexus Distribution Corp</option>
+<option>Global Logistics Solutions</option>
+<option>Apex Retail Partners</option>
+</select>
+</div>
+<div class="space-y-xs">
+<label class="font-label-md text-label-md text-on-surface-variant">Warehouse</label>
+<select class="w-full bg-surface-container-low border-outline-variant rounded-lg p-sm text-body-md focus:ring-primary">
+<option>Central Distribution (CHI-01)</option>
+<option>East Coast Hub (NY-04)</option>
+<option>West Coast Port (LA-02)</option>
+</select>
+</div>
+<div class="space-y-xs">
+<label class="font-label-md text-label-md text-on-surface-variant">Reference #</label>
+<input class="w-full bg-surface-container-low border-outline-variant rounded-lg p-sm text-mono-data font-mono-data focus:ring-primary" type="text" value="INV-2024-0042"/>
+</div>
+<div class="space-y-xs">
+<label class="font-label-md text-label-md text-on-surface-variant">Invoice Date</label>
+<input class="w-full bg-surface-container-low border-outline-variant rounded-lg p-sm text-body-md focus:ring-primary" type="date"/>
+</div>
+<div class="space-y-xs">
+<label class="font-label-md text-label-md text-on-surface-variant">Due Date</label>
+<input class="w-full bg-surface-container-low border-outline-variant rounded-lg p-sm text-body-md focus:ring-primary" type="date"/>
+</div>
+<div class="space-y-xs">
+<label class="font-label-md text-label-md text-on-surface-variant">Sales Rep</label>
+<select class="w-full bg-surface-container-low border-outline-variant rounded-lg p-sm text-body-md focus:ring-primary">
+<option>Sarah Jenkins</option>
+<option>Marcus Thorne</option>
+<option>Linda Chen</option>
+</select>
+</div>
+</div>
+</div>
+<div class="col-span-12 lg:col-span-4 bg-surface-container p-lg rounded-xl border border-outline-variant shadow-sm">
+<div class="flex items-center gap-sm mb-lg">
+<span class="material-symbols-outlined text-primary">notes</span>
+<h3 class="font-h3 text-h3">Internal Notes</h3>
+</div>
+<textarea class="w-full h-32 bg-surface-container-low border-outline-variant rounded-lg p-sm text-body-md focus:ring-primary resize-none" placeholder="Add any shipping instructions or payment terms..."></textarea>
+</div>
+</div>
+<!-- Section 2: Products Section (Table) -->
+<div class="col-span-12 bg-surface-container rounded-xl border border-outline-variant shadow-sm overflow-hidden">
+<div class="p-lg border-b border-outline-variant flex justify-between items-center">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-primary">inventory</span>
+<h3 class="font-h3 text-h3">Line Items</h3>
+</div>
+<button class="flex items-center gap-xs text-primary hover:bg-primary/10 px-md py-xs rounded-lg transition-colors">
+<span class="material-symbols-outlined">add_circle</span>
+<span class="font-label-md">Add Product</span>
+</button>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-high border-b border-outline-variant">
+<th class="p-md font-label-md text-on-surface-variant">Product &amp; SKU</th>
+<th class="p-md font-label-md text-on-surface-variant text-right">Available</th>
+<th class="p-md font-label-md text-on-surface-variant text-right">Qty Sold</th>
+<th class="p-md font-label-md text-on-surface-variant">Unit</th>
+<th class="p-md font-label-md text-on-surface-variant text-right">Price</th>
+<th class="p-md font-label-md text-on-surface-variant text-right">Discount</th>
+<th class="p-md font-label-md text-on-surface-variant text-right">Tax</th>
+<th class="p-md font-label-md text-on-surface-variant text-right">Total</th>
+<th class="p-md"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="border-b border-outline-variant hover:bg-surface-container-low transition-colors group">
+<td class="p-md">
+<p class="font-h3 text-body-md text-on-surface">Precision Sensor Hub Gen 4</p>
+<p class="text-mono-data text-xs text-outline">SKU: PH-9923-B</p>
+</td>
+<td class="p-md text-right">
+<span class="inline-flex items-center gap-xs px-sm py-1 rounded bg-secondary-container/10 text-secondary text-mono-data">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+                                            1,240
+                                        </span>
+</td>
+<td class="p-md text-right">
+<input class="w-20 text-right bg-surface-container-low border-outline-variant rounded p-xs text-mono-data focus:ring-primary" type="number" value="100"/>
+</td>
+<td class="p-md">
+<span class="text-body-sm text-on-surface-variant">Units</span>
+</td>
+<td class="p-md text-right">
+<input class="w-24 text-right bg-surface-container-low border-outline-variant rounded p-xs text-mono-data focus:ring-primary" type="text" value="$245.00"/>
+</td>
+<td class="p-md text-right">
+<input class="w-16 text-right bg-surface-container-low border-outline-variant rounded p-xs text-mono-data focus:ring-primary" type="text" value="0%"/>
+</td>
+<td class="p-md text-right">
+<span class="text-mono-data text-on-surface-variant">10%</span>
+</td>
+<td class="p-md text-right">
+<span class="font-mono-data text-on-surface font-bold">$26,950.00</span>
+</td>
+<td class="p-md text-right">
+<button class="text-error opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined">delete</span>
+</button>
+</td>
+</tr>
+<tr class="border-b border-outline-variant hover:bg-surface-container-low transition-colors group">
+<td class="p-md">
+<p class="font-h3 text-body-md text-on-surface">Industrial Mounting Kit</p>
+<p class="text-mono-data text-xs text-outline">SKU: MK-0012-S</p>
+</td>
+<td class="p-md text-right">
+<span class="inline-flex items-center gap-xs px-sm py-1 rounded bg-tertiary-container/10 text-tertiary text-mono-data">
+<span class="w-1.5 h-1.5 rounded-full bg-tertiary"></span>
+                                            12
+                                        </span>
+</td>
+<td class="p-md text-right">
+<input class="w-20 text-right bg-error-container/20 border-error text-error rounded p-xs text-mono-data focus:ring-error" type="number" value="25"/>
+<p class="text-[10px] text-error mt-xs">Insufficent Stock</p>
+</td>
+<td class="p-md">
+<span class="text-body-sm text-on-surface-variant">Box (10pcs)</span>
+</td>
+<td class="p-md text-right">
+<input class="w-24 text-right bg-surface-container-low border-outline-variant rounded p-xs text-mono-data focus:ring-primary" type="text" value="$89.50"/>
+</td>
+<td class="p-md text-right">
+<input class="w-16 text-right bg-surface-container-low border-outline-variant rounded p-xs text-mono-data focus:ring-primary" type="text" value="5%"/>
+</td>
+<td class="p-md text-right">
+<span class="text-mono-data text-on-surface-variant">10%</span>
+</td>
+<td class="p-md text-right">
+<span class="font-mono-data text-on-surface font-bold">$2,338.12</span>
+</td>
+<td class="p-md text-right">
+<button class="text-error opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined">delete</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<!-- Section 3: Summary & Footer Actions -->
+<div class="col-span-12 lg:col-span-8">
+<!-- Visual Trend Card -->
+<div class="bg-surface-container-high rounded-xl p-lg border border-outline-variant relative overflow-hidden h-full">
+<div class="relative z-10">
+<h4 class="font-label-md text-label-md text-on-surface-variant mb-md">Sales Trend Analysis (Selected Warehouse)</h4>
+<div class="flex items-end gap-sm h-32">
+<div class="bg-primary/20 w-full rounded-t-sm" style="height: 40%"></div>
+<div class="bg-primary/30 w-full rounded-t-sm" style="height: 60%"></div>
+<div class="bg-primary/40 w-full rounded-t-sm" style="height: 45%"></div>
+<div class="bg-primary/60 w-full rounded-t-sm" style="height: 80%"></div>
+<div class="bg-primary/50 w-full rounded-t-sm" style="height: 55%"></div>
+<div class="bg-primary w-full rounded-t-sm" style="height: 100%"></div>
+</div>
+<p class="text-body-sm text-on-surface-variant mt-md">Current invoice adds <span class="text-secondary font-bold">+12%</span> volume to CHI-01 warehouse this week.</p>
+</div>
+<div class="absolute inset-0 opacity-10 pointer-events-none">
+<div class="grid grid-cols-6 h-full border-l border-outline-variant">
+<div></div><div></div><div></div><div></div><div></div><div></div>
+</div>
+</div>
+</div>
+</div>
+<div class="col-span-12 lg:col-span-4 space-y-md">
+<div class="bg-surface-container p-lg rounded-xl border border-outline-variant shadow-sm space-y-md">
+<div class="flex justify-between text-body-md text-on-surface-variant">
+<span>Subtotal</span>
+<span class="text-mono-data text-on-surface">$28,838.12</span>
+</div>
+<div class="flex justify-between text-body-md text-on-surface-variant">
+<span>Discounts Applied</span>
+<span class="text-mono-data text-error">-$112.50</span>
+</div>
+<div class="flex justify-between text-body-md text-on-surface-variant">
+<span>Taxes (Estimated)</span>
+<span class="text-mono-data text-on-surface">$2,872.56</span>
+</div>
+<div class="flex justify-between text-body-md text-on-surface-variant pb-md border-b border-outline-variant">
+<div class="flex items-center gap-xs">
+<span>Shipping Fees</span>
+<span class="material-symbols-outlined text-[14px]">edit</span>
+</div>
+<span class="text-mono-data text-on-surface">$450.00</span>
+</div>
+<div class="flex justify-between items-baseline pt-md">
+<span class="font-h2 text-h2 text-on-surface">Grand Total</span>
+<span class="font-display text-[28px] text-primary tracking-tight">$32,048.18</span>
+</div>
+</div>
+<div class="flex flex-col gap-sm">
+<button class="w-full py-md bg-primary text-on-primary rounded-xl font-bold shadow-lg hover:shadow-primary/20 transition-all flex items-center justify-center gap-sm">
+<span class="material-symbols-outlined">check_circle</span>
+                            Confirm and Generate Invoice
+                        </button>
+<button class="w-full py-md border border-error/50 text-error rounded-xl font-bold hover:bg-error/5 transition-all">
+                            Cancel and Discard
+                        </button>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Success Feedback Overlay (Hidden by default) -->
+<div class="fixed inset-0 bg-background/80 backdrop-blur-md z-[100] hidden flex items-center justify-center" id="success-feedback">
+<div class="bg-surface-container border border-outline-variant p-xl rounded-2xl shadow-2xl text-center max-w-sm">
+<div class="w-16 h-16 bg-secondary/10 text-secondary rounded-full flex items-center justify-center mx-auto mb-lg">
+<span class="material-symbols-outlined text-[40px]">check</span>
+</div>
+<h2 class="text-h2 font-h2 mb-md">Invoice Created</h2>
+<p class="text-on-surface-variant mb-xl">Invoice INV-2024-0042 has been successfully recorded and sent to Nexus Distribution Corp.</p>
+<button class="bg-primary-container text-on-primary-container w-full py-md rounded-lg font-bold" onclick="document.getElementById('success-feedback').classList.add('hidden')">Return to Dashboard</button>
+</div>
+</div>
+<script>
+        // Simple Interaction logic
+        const confirmBtn = document.querySelector('button.bg-primary');
+        confirmBtn.addEventListener('click', () => {
+            const feedback = document.getElementById('success-feedback');
+            feedback.classList.remove('hidden');
+        });
+
+        // Quantity validation micro-interaction
+        const qtyInputs = document.querySelectorAll('input[type="number"]');
+        qtyInputs.forEach(input => {
+            input.addEventListener('change', (e) => {
+                const val = parseInt(e.target.value);
+                if (val > 100) {
+                    e.target.classList.add('bg-error-container/20', 'border-error', 'text-error');
+                    e.target.classList.remove('bg-surface-container-low', 'border-outline-variant');
+                } else {
+                    e.target.classList.remove('bg-error-container/20', 'border-error', 'text-error');
+                    e.target.classList.add('bg-surface-container-low', 'border-outline-variant');
+                }
+            });
+        });
+    </script>
+</body></html>

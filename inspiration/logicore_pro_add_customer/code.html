@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>LogiCore Pro - Add Customer</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "background": "#0b1326",
+                    "tertiary-container": "#996100",
+                    "inverse-surface": "#dae2fd",
+                    "on-secondary-container": "#003111",
+                    "inverse-on-surface": "#283044",
+                    "on-secondary": "#003914",
+                    "surface-dim": "#0b1326",
+                    "on-error": "#690005",
+                    "outline": "#8d90a0",
+                    "surface-container": "#171f33",
+                    "on-tertiary-fixed": "#2a1700",
+                    "on-primary-container": "#eeefff",
+                    "on-error-container": "#ffdad6",
+                    "surface-tint": "#b4c5ff",
+                    "on-background": "#dae2fd",
+                    "primary-container": "#2563eb",
+                    "inverse-primary": "#0053db",
+                    "surface-container-highest": "#2d3449",
+                    "surface-container-high": "#222a3d",
+                    "primary": "#b4c5ff",
+                    "on-primary-fixed": "#00174b",
+                    "outline-variant": "#434655",
+                    "on-tertiary": "#472a00",
+                    "tertiary-fixed-dim": "#ffb95f",
+                    "on-secondary-fixed-variant": "#005320",
+                    "tertiary": "#ffb95f",
+                    "surface": "#0b1326",
+                    "secondary-fixed": "#7ffc97",
+                    "primary-fixed": "#dbe1ff",
+                    "surface-bright": "#31394d",
+                    "on-surface": "#dae2fd",
+                    "surface-variant": "#2d3449",
+                    "on-tertiary-container": "#ffeedd",
+                    "secondary": "#62df7d",
+                    "on-secondary-fixed": "#002109",
+                    "surface-container-lowest": "#060e20",
+                    "on-primary-fixed-variant": "#003ea8",
+                    "error-container": "#93000a",
+                    "error": "#ffb4ab",
+                    "surface-container-low": "#131b2e",
+                    "secondary-fixed-dim": "#62df7d",
+                    "primary-fixed-dim": "#b4c5ff",
+                    "on-surface-variant": "#c3c6d7",
+                    "tertiary-fixed": "#ffddb8",
+                    "on-tertiary-fixed-variant": "#653e00",
+                    "secondary-container": "#1ca64d",
+                    "on-primary": "#002a78"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "xl": "32px",
+                    "xs": "4px",
+                    "sm": "8px",
+                    "margin": "32px",
+                    "md": "16px",
+                    "lg": "24px",
+                    "gutter": "24px",
+                    "base": "4px"
+            },
+            "fontFamily": {
+                    "display": ["Inter"],
+                    "body-lg": ["Inter"],
+                    "h3": ["Inter"],
+                    "label-md": ["Inter"],
+                    "h2": ["Inter"],
+                    "body-sm": ["Inter"],
+                    "body-md": ["Inter"],
+                    "h1": ["Inter"],
+                    "mono-data": ["JetBrains Mono"]
+            },
+            "fontSize": {
+                    "display": ["48px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "body-lg": ["16px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                    "h3": ["20px", {"lineHeight": "1.4", "fontWeight": "600"}],
+                    "label-md": ["12px", {"lineHeight": "1", "letterSpacing": "0.02em", "fontWeight": "500"}],
+                    "h2": ["24px", {"lineHeight": "1.3", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "body-sm": ["12px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                    "body-md": ["14px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                    "h1": ["32px", {"lineHeight": "1.25", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "mono-data": ["13px", {"lineHeight": "1", "letterSpacing": "-0.01em", "fontWeight": "400"}]
+            }
+          }
+        }
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            background-color: #0b1326;
+            color: #dae2fd;
+            font-family: 'Inter', sans-serif;
+        }
+        /* Glassmorphism subtle effect for cards */
+        .glass-card {
+            background: rgba(23, 31, 51, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(67, 70, 85, 0.5);
+        }
+    </style>
+</head>
+<body class="flex min-h-screen overflow-hidden">
+<!-- SideNavBar Component -->
+<aside class="fixed left-0 top-0 h-screen w-64 flex flex-col p-md z-40 bg-surface-container-lowest border-r border-outline-variant hidden md:flex">
+<div class="flex items-center gap-md mb-xl px-sm">
+<div class="w-10 h-10 rounded-lg bg-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-on-primary text-h3">inventory_2</span>
+</div>
+<div>
+<h1 class="font-display text-h3 font-bold text-on-surface">LogiCore Pro</h1>
+<p class="text-body-sm text-on-surface-variant">Global Operations</p>
+</div>
+</div>
+<nav class="flex-1 space-y-xs overflow-y-auto pr-xs">
+<!-- Navigation Items mapped from JSON -->
+<div class="text-on-surface-variant hover:bg-surface-container-high rounded-lg cursor-pointer active:scale-[0.98] transition-all duration-150 flex items-center gap-md px-md py-sm">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-body-sm">Dashboard</span>
+</div>
+<div class="text-on-surface-variant hover:bg-surface-container-high rounded-lg cursor-pointer active:scale-[0.98] transition-all duration-150 flex items-center gap-md px-md py-sm">
+<span class="material-symbols-outlined">inventory_2</span>
+<span class="font-body-sm">Products</span>
+</div>
+<div class="text-on-surface-variant hover:bg-surface-container-high rounded-lg cursor-pointer active:scale-[0.98] transition-all duration-150 flex items-center gap-md px-md py-sm">
+<span class="material-symbols-outlined">warehouse</span>
+<span class="font-body-sm">Inventory</span>
+</div>
+<div class="text-on-surface-variant hover:bg-surface-container-high rounded-lg cursor-pointer active:scale-[0.98] transition-all duration-150 flex items-center gap-md px-md py-sm">
+<span class="material-symbols-outlined">payments</span>
+<span class="font-body-sm">Sales</span>
+</div>
+<div class="text-on-surface-variant hover:bg-surface-container-high rounded-lg cursor-pointer active:scale-[0.98] transition-all duration-150 flex items-center gap-md px-md py-sm">
+<span class="material-symbols-outlined">shopping_cart</span>
+<span class="font-body-sm">Purchases</span>
+</div>
+<!-- Active State: Customers -->
+<div class="bg-secondary-container text-on-secondary-container font-semibold rounded-lg cursor-pointer active:scale-[0.98] transition-all duration-150 flex items-center gap-md px-md py-sm">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">group</span>
+<span class="font-body-sm">Customers</span>
+</div>
+<div class="text-on-surface-variant hover:bg-surface-container-high rounded-lg cursor-pointer active:scale-[0.98] transition-all duration-150 flex items-center gap-md px-md py-sm">
+<span class="material-symbols-outlined">local_shipping</span>
+<span class="font-body-sm">Suppliers</span>
+</div>
+<div class="text-on-surface-variant hover:bg-surface-container-high rounded-lg cursor-pointer active:scale-[0.98] transition-all duration-150 flex items-center gap-md px-md py-sm">
+<span class="material-symbols-outlined">badge</span>
+<span class="font-body-sm">Employees</span>
+</div>
+<div class="text-on-surface-variant hover:bg-surface-container-high rounded-lg cursor-pointer active:scale-[0.98] transition-all duration-150 flex items-center gap-md px-md py-sm">
+<span class="material-symbols-outlined">location_on</span>
+<span class="font-body-sm">Warehouses</span>
+</div>
+<div class="text-on-surface-variant hover:bg-surface-container-high rounded-lg cursor-pointer active:scale-[0.98] transition-all duration-150 flex items-center gap-md px-md py-sm">
+<span class="material-symbols-outlined">bar_chart</span>
+<span class="font-body-sm">Reports</span>
+</div>
+<div class="text-on-surface-variant hover:bg-surface-container-high rounded-lg cursor-pointer active:scale-[0.98] transition-all duration-150 flex items-center gap-md px-md py-sm">
+<span class="material-symbols-outlined">history</span>
+<span class="font-body-sm">Audit Logs</span>
+</div>
+<div class="text-on-surface-variant hover:bg-surface-container-high rounded-lg cursor-pointer active:scale-[0.98] transition-all duration-150 flex items-center gap-md px-md py-sm">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-body-sm">Settings</span>
+</div>
+</nav>
+<div class="mt-xl pt-md border-t border-outline-variant">
+<div class="flex items-center gap-md px-sm">
+<img alt="User" class="w-8 h-8 rounded-full border border-outline-variant" src="https://lh3.googleusercontent.com/aida/ADBb0uhJfjhPSH8jLEWcKd3idMseNd5BV2WuOiQYp-_e7I3oxYVPwxvuNZl65Amp_XUGRcCmMQj1Ek_hdiysH_VEFip4YT_fzL9PvszFgc4d_CjZypSoSNIUFxt0Zpdc6cAOE48iYFXSihQ9tVEfd3r4ob_SWfvMpPX0DiZJIkw4EoIUNhVEgHm_Bl_4NMiXkG7lmTCF4GzmiHUHAynKmGnr0JgaaNm0qpL5tY78yXGsf6qNELs0ZpwUOhSXl8hj"/>
+<div class="flex-1 overflow-hidden">
+<p class="font-label-md text-on-surface truncate">Alex Sterling</p>
+<p class="text-[10px] text-on-surface-variant uppercase tracking-wider">Ops Director</p>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 md:ml-64 flex flex-col h-screen overflow-hidden bg-background">
+<!-- TopNavBar Component -->
+<header class="flex justify-between items-center h-16 px-gutter w-full sticky top-0 z-50 bg-surface border-b border-outline-variant shadow-sm">
+<div class="flex items-center gap-lg">
+<div class="md:hidden">
+<span class="material-symbols-outlined text-on-surface cursor-pointer">menu</span>
+</div>
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-primary">person_add</span>
+<h2 class="font-display text-h2 font-bold text-primary">Add Customer</h2>
+</div>
+</div>
+<div class="flex-1 max-w-xl mx-xl hidden md:block">
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline group-focus-within:text-primary">search</span>
+<input class="w-full bg-surface-container-high border-none rounded-lg pl-10 pr-4 py-2 text-body-md text-on-surface placeholder-on-surface-variant focus:ring-2 focus:ring-primary-container transition-all" placeholder="Global search commands..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-md">
+<div class="relative cursor-pointer hover:text-primary transition-colors duration-200">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-0 right-0 w-2 h-2 bg-error rounded-full"></span>
+</div>
+<span class="material-symbols-outlined cursor-pointer hover:text-primary transition-colors duration-200">help</span>
+<span class="material-symbols-outlined cursor-pointer hover:text-primary transition-colors duration-200 text-primary">account_circle</span>
+</div>
+</header>
+<!-- Form Scrollable Canvas -->
+<div class="flex-1 overflow-y-auto p-gutter custom-scrollbar">
+<div class="max-w-6xl mx-auto space-y-lg pb-xl">
+<!-- Page Breadcrumbs -->
+<nav class="flex items-center gap-xs text-on-surface-variant font-label-md">
+<span>LogiCore Pro</span>
+<span class="material-symbols-outlined text-[14px]">chevron_right</span>
+<span>Customers</span>
+<span class="material-symbols-outlined text-[14px]">chevron_right</span>
+<span class="text-primary font-semibold">Add New Profile</span>
+</nav>
+<!-- Hero Header for Context -->
+<div class="relative h-48 w-full rounded-xl overflow-hidden glass-card p-xl flex flex-col justify-end">
+<div class="absolute inset-0 z-0 opacity-20 pointer-events-none">
+<div class="absolute inset-0 bg-gradient-to-br from-primary-container/20 to-transparent"></div>
+<img class="w-full h-full object-cover grayscale" data-alt="A sophisticated macro shot of complex interlocking gears and circuit traces, rendered in a deep blue and charcoal color palette. The lighting is focused and dramatic, highlighting the metallic textures and precision engineering of a high-end logistics system. This image captures the essence of authoritative reliability and modern frictionless operations." src="https://lh3.googleusercontent.com/aida/ADBb0uiV69kN9jQ-ZsF03FAj2zBZng5fQsT_Q2bfMIjrgBS6M1gCxIkAjRh1QFIORk2NTLHdkPg8eEXv2qAKajjFyTdWY3X7g2ODoH84hbOXzWGvLy50gfEdgHDj-elLBFdmVlYLcCOmBYF1TqqKvoNaOGFSKconVth0XnkK1L4yCZjkzNGsMZYMF8Y_5bQgUeXBGbeXEP6gkVPSz4gTN3ln8P_nEJI2mljTYPYgO-09GGKChvYHlEALXoWQLmsH"/>
+</div>
+<div class="relative z-10">
+<h3 class="font-h1 text-h1 text-on-surface">New Customer Onboarding</h3>
+<p class="text-body-md text-on-surface-variant max-w-xl">Registering a new client into the global distribution network. Ensure all tax and credit details are verified against the regional compliance database.</p>
+</div>
+</div>
+<!-- Form Sections in Bento Grid -->
+<form class="grid grid-cols-12 gap-lg" id="customerForm">
+<!-- Basic Information (Col 1-8) -->
+<section class="col-span-12 lg:col-span-8 space-y-md">
+<div class="glass-card p-lg rounded-xl">
+<div class="flex items-center gap-sm mb-lg">
+<span class="material-symbols-outlined text-primary">info</span>
+<h3 class="font-h3 text-h3 text-on-surface">Basic Information</h3>
+</div>
+<div class="grid grid-cols-2 gap-lg">
+<div class="col-span-2 md:col-span-1 space-y-xs">
+<label class="font-label-md text-on-surface-variant">Customer Name</label>
+<input class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-md py-sm text-body-md text-on-surface focus:border-primary-container focus:ring-2 focus:ring-primary-container transition-all" placeholder="e.g. Acme Corp Logistics" type="text"/>
+</div>
+<div class="col-span-2 md:col-span-1 space-y-xs">
+<label class="font-label-md text-on-surface-variant">Customer Code</label>
+<input class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-md py-sm text-body-md font-mono-data text-primary focus:border-primary-container focus:ring-2 focus:ring-primary-container transition-all" placeholder="LC-00412" type="text"/>
+</div>
+<div class="col-span-2 md:col-span-1 space-y-xs">
+<label class="font-label-md text-on-surface-variant">Business Type</label>
+<select class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-md py-sm text-body-md text-on-surface focus:border-primary-container focus:ring-2 focus:ring-primary-container transition-all">
+<option>Retail Distribution</option>
+<option>Wholesale/B2B</option>
+<option>E-commerce Fulfillment</option>
+<option>Manufacturing Partner</option>
+<option>3PL Service Provider</option>
+</select>
+</div>
+<div class="col-span-2 md:col-span-1 space-y-xs">
+<label class="font-label-md text-on-surface-variant">Primary Contact Person</label>
+<input class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-md py-sm text-body-md text-on-surface focus:border-primary-container focus:ring-2 focus:ring-primary-container transition-all" placeholder="Full legal name" type="text"/>
+</div>
+</div>
+</div>
+<!-- Contact Information -->
+<div class="glass-card p-lg rounded-xl">
+<div class="flex items-center gap-sm mb-lg">
+<span class="material-symbols-outlined text-primary">contact_phone</span>
+<h3 class="font-h3 text-h3 text-on-surface">Contact Channels</h3>
+</div>
+<div class="grid grid-cols-2 gap-lg">
+<div class="space-y-xs">
+<label class="font-label-md text-on-surface-variant">Phone (Office)</label>
+<input class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-md py-sm text-body-md text-on-surface focus:border-primary-container focus:ring-2 focus:ring-primary-container transition-all" placeholder="+1 (555) 000-0000" type="tel"/>
+</div>
+<div class="space-y-xs">
+<label class="font-label-md text-on-surface-variant">Mobile (Direct)</label>
+<input class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-md py-sm text-body-md text-on-surface focus:border-primary-container focus:ring-2 focus:ring-primary-container transition-all" placeholder="+1 (555) 000-1111" type="tel"/>
+</div>
+<div class="space-y-xs">
+<label class="font-label-md text-on-surface-variant">Official Email</label>
+<input class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-md py-sm text-body-md text-on-surface focus:border-primary-container focus:ring-2 focus:ring-primary-container transition-all" placeholder="billing@customer.com" type="email"/>
+</div>
+<div class="space-y-xs">
+<label class="font-label-md text-on-surface-variant">Website</label>
+<div class="flex">
+<span class="inline-flex items-center px-md rounded-l-lg border border-r-0 border-outline-variant bg-surface-container-high text-on-surface-variant text-body-sm">https://</span>
+<input class="flex-1 bg-surface-container-low border border-outline-variant rounded-r-lg px-md py-sm text-body-md text-on-surface focus:border-primary-container focus:ring-2 focus:ring-primary-container transition-all" placeholder="www.customer.com" type="text"/>
+</div>
+</div>
+</div>
+</div>
+<!-- Address Information -->
+<div class="glass-card p-lg rounded-xl">
+<div class="flex items-center gap-sm mb-lg">
+<span class="material-symbols-outlined text-primary">location_on</span>
+<h3 class="font-h3 text-h3 text-on-surface">Registered Address</h3>
+</div>
+<div class="grid grid-cols-12 gap-lg">
+<div class="col-span-12 md:col-span-4 space-y-xs">
+<label class="font-label-md text-on-surface-variant">Country</label>
+<select class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-md py-sm text-body-md text-on-surface focus:border-primary-container focus:ring-2 focus:ring-primary-container transition-all">
+<option>United States</option>
+<option>Germany</option>
+<option>Singapore</option>
+<option>United Kingdom</option>
+</select>
+</div>
+<div class="col-span-12 md:col-span-8 space-y-xs">
+<label class="font-label-md text-on-surface-variant">City</label>
+<input class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-md py-sm text-body-md text-on-surface focus:border-primary-container focus:ring-2 focus:ring-primary-container transition-all" placeholder="New York City" type="text"/>
+</div>
+<div class="col-span-12 space-y-xs">
+<label class="font-label-md text-on-surface-variant">Full Address</label>
+<textarea class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-md py-sm text-body-md text-on-surface focus:border-primary-container focus:ring-2 focus:ring-primary-container transition-all" placeholder="Street, Suite, ZIP Code" rows="3"></textarea>
+</div>
+</div>
+</div>
+</section>
+<!-- Financial & Actions (Col 9-12) -->
+<aside class="col-span-12 lg:col-span-4 space-y-lg">
+<!-- Financial Info -->
+<div class="glass-card p-lg rounded-xl border-l-4 border-l-secondary">
+<div class="flex items-center gap-sm mb-lg">
+<span class="material-symbols-outlined text-secondary">payments</span>
+<h3 class="font-h3 text-h3 text-on-surface">Financial Details</h3>
+</div>
+<div class="space-y-lg">
+<div class="space-y-xs">
+<label class="font-label-md text-on-surface-variant">Credit Limit ($)</label>
+<div class="relative">
+<span class="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">$</span>
+<input class="w-full bg-surface-container-low border border-outline-variant rounded-lg pl-8 pr-md py-sm text-body-md font-mono-data text-secondary focus:border-secondary-container focus:ring-2 focus:ring-secondary-container transition-all" type="number" value="50000"/>
+</div>
+<p class="text-[10px] text-on-surface-variant">Default standard tier limit</p>
+</div>
+<div class="space-y-xs">
+<label class="font-label-md text-on-surface-variant">Tax Registration No.</label>
+<input class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-md py-sm text-body-md font-mono-data text-on-surface focus:border-primary-container focus:ring-2 focus:ring-primary-container transition-all" placeholder="VAT/GST-99234X" type="text"/>
+</div>
+<div class="space-y-xs">
+<label class="font-label-md text-on-surface-variant">Operational Notes</label>
+<textarea class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-md py-sm text-body-sm text-on-surface focus:border-primary-container focus:ring-2 focus:ring-primary-container transition-all" placeholder="Special handling requirements or preferred delivery windows..." rows="4"></textarea>
+</div>
+</div>
+</div>
+<!-- Sticky Action Sidebar -->
+<div class="space-y-md sticky top-gutter">
+<button class="w-full bg-primary-container text-on-primary-container hover:bg-primary-container/90 py-md px-lg rounded-lg font-h3 flex items-center justify-center gap-md transition-all active:scale-[0.98] shadow-lg" type="submit">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">save</span>
+                                Save Customer
+                            </button>
+<button class="w-full bg-surface-container-high text-on-surface hover:bg-surface-container-highest py-md px-lg rounded-lg font-body-md flex items-center justify-center gap-md transition-all active:scale-[0.98] border border-outline-variant" type="button">
+<span class="material-symbols-outlined">add_circle</span>
+                                Save &amp; Create Another
+                            </button>
+<button class="w-full bg-transparent text-error hover:bg-error/10 py-md px-lg rounded-lg font-body-md flex items-center justify-center gap-md transition-all active:scale-[0.98]" type="button">
+<span class="material-symbols-outlined">cancel</span>
+                                Cancel
+                            </button>
+<!-- Verification Status Widget -->
+<div class="mt-xl p-md rounded-lg bg-surface-container-low border border-outline-variant">
+<div class="flex items-center justify-between mb-sm">
+<span class="font-label-md text-on-surface-variant uppercase tracking-tighter">Profile Integrity</span>
+<span class="text-secondary font-mono-data">85%</span>
+</div>
+<div class="w-full h-1.5 bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-secondary w-[85%] transition-all duration-1000"></div>
+</div>
+<p class="mt-sm text-[10px] text-on-surface-variant italic">Missing: Contact Website, VAT Verification</p>
+</div>
+</div>
+</aside>
+</form>
+</div>
+</div>
+<!-- Footer / Feedback Bar -->
+<footer class="h-10 px-gutter bg-surface-container-lowest border-t border-outline-variant flex items-center justify-between">
+<div class="flex items-center gap-md text-[11px] text-on-surface-variant font-mono-data">
+<span class="flex items-center gap-xs"><span class="w-2 h-2 rounded-full bg-secondary"></span> API Status: Active</span>
+<span>DB Latency: 24ms</span>
+</div>
+<div class="text-[11px] text-on-surface-variant">
+                © 2024 LogiCore Pro Enterprise v4.2.1
+            </div>
+</footer>
+</main>
+<script>
+        // Micro-interactions and atmospheric effects
+        document.querySelectorAll('input, select, textarea').forEach(el => {
+            el.addEventListener('focus', () => {
+                // Add a subtle glow to the parent card
+                el.closest('.glass-card').style.boxShadow = '0 0 20px rgba(37, 99, 235, 0.1)';
+            });
+            el.addEventListener('blur', () => {
+                el.closest('.glass-card').style.boxShadow = 'none';
+            });
+        });
+
+        // Simple Form Submission prevention
+        document.getElementById('customerForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            // Trigger visual feedback (simulation)
+            const btn = e.target.querySelector('button[type="submit"]');
+            const originalContent = btn.innerHTML;
+            btn.innerHTML = '<span class="material-symbols-outlined animate-spin">sync</span> Saving...';
+            btn.classList.add('opacity-70');
+            
+            setTimeout(() => {
+                btn.innerHTML = '<span class="material-symbols-outlined">check_circle</span> Profile Created';
+                btn.classList.remove('bg-primary-container');
+                btn.classList.add('bg-secondary-container', 'text-on-secondary-container');
+                
+                setTimeout(() => {
+                    btn.innerHTML = originalContent;
+                    btn.classList.add('bg-primary-container');
+                    btn.classList.remove('bg-secondary-container', 'text-on-secondary-container', 'opacity-70');
+                }, 2000);
+            }, 1200);
+        });
+    </script>
+</body></html>

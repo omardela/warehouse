@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+
+<html class="light dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Audit Event Details | LogisticsVault</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&amp;family=Jetbrains+Mono:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">tailwind.config = {darkMode: "class", theme: {extend: {colors: {"tertiary-container": "#00180d", "surface-container-high": "#1b2b3f", "outline-variant": "#45464d", "tertiary-fixed-dim": "#4edea3", "on-error": "#690005", "on-surface": "#d3e4fe", "surface-variant": "#26364a", "error-container": "#93000a", "primary-container": "#0b1326", background: "#031427", "secondary-fixed": "#e3e1e8", "on-background": "#d3e4fe", "on-tertiary-container": "#009063", "on-primary-container": "#767e95", "surface-container": "#102034", primary: "#bfc6e0", "on-tertiary-fixed": "#002113", "surface-container-lowest": "#000f21", "inverse-on-surface": "#213145", "surface-bright": "#2a3a4f", "surface-tint": "#bfc6e0", "surface-container-low": "#0b1c30", outline: "#909097", secondary: "#c7c6cc", "tertiary-fixed": "#6ffbbe", "on-primary-fixed": "#131b2e", "on-secondary-fixed": "#1a1b20", "inverse-surface": "#d3e4fe", "on-secondary-container": "#b5b4bb", "on-secondary": "#2f3035", error: "#ffb4ab", "on-tertiary": "#003824", tertiary: "#4edea3", "primary-fixed-dim": "#bfc6e0", "primary-fixed": "#dbe2fd", "secondary-fixed-dim": "#c7c6cc", surface: "#031427", "on-tertiary-fixed-variant": "#005236", "on-primary": "#283044", "on-primary-fixed-variant": "#3f465c", "on-secondary-fixed-variant": "#46464c", "secondary-container": "#46464c", "inverse-primary": "#565e74", "surface-container-highest": "#26364a", "on-surface-variant": "#c6c6cd", "surface-dim": "#031427", "on-error-container": "#ffdad6"}, borderRadius: {DEFAULT: "0.25rem", lg: "0.5rem", xl: "0.75rem", full: "9999px"}, spacing: {"container-padding": "32px", "sidebar-width": "260px", unit: "4px", "table-cell-padding": "12px 16px", "stack-gap": "16px"}, fontFamily: {"body-sm": ["Inter"], "metadata-code": ["JetBrains Mono"], "headline-lg": ["Inter"], "headline-md": ["Inter"], "label-caps": ["Inter"], "body-lg": ["Inter"], "body-md": ["Inter"], "headline-sm": ["Inter"], headline: ["Inter"], display: ["Inter"], body: ["Inter"], label: ["Jetbrains Mono"]}, fontSize: {"body-sm": ["12px", {lineHeight: "18px", fontWeight: "400"}], "metadata-code": ["13px", {lineHeight: "20px", fontWeight: "450"}], "headline-lg": ["30px", {lineHeight: "36px", letterSpacing: "-0.02em", fontWeight: "600"}], "headline-md": ["24px", {lineHeight: "32px", letterSpacing: "-0.01em", fontWeight: "600"}], "label-caps": ["11px", {lineHeight: "16px", letterSpacing: "0.05em", fontWeight: "700"}], "body-lg": ["16px", {lineHeight: "24px", fontWeight: "400"}], "body-md": ["14px", {lineHeight: "20px", fontWeight: "400"}], "headline-sm": ["18px", {lineHeight: "24px", fontWeight: "600"}]}}}};</script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #cbd5e1; }
+        .diff-added { background-color: rgba(16, 185, 129, 0.1); color: #065f46; border-left: 2px solid #10b981; }
+        .diff-removed { background-color: rgba(244, 63, 94, 0.1); color: #9f1239; border-left: 2px solid #f43f5e; }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body-md overflow-x-hidden">
+<!-- Sidebar Navigation -->
+<aside class="h-screen w-64 fixed left-0 top-0 bg-surface-dim dark:bg-surface-container-lowest border-r border-outline-variant shadow-sm flex flex-col py-8 px-4 z-50">
+<div class="mb-10 px-2">
+<h1 class="font-h2 text-h2 font-black text-primary tracking-tight text-2xl">LogisticsVault</h1>
+<p class="text-on-surface-variant font-label-md text-xs uppercase tracking-widest mt-1">Enterprise Audit</p>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-label-md">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-primary dark:text-secondary bg-secondary-container/10 border-r-2 border-secondary font-bold" href="#">
+<span class="material-symbols-outlined">list_alt</span>
+<span class="font-label-md">Audit Log Table</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">timeline</span>
+<span class="font-label-md">Activity Timeline</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">security</span>
+<span class="font-label-md">Security Events</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">category</span>
+<span class="font-label-md">Module Logs</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">analytics</span>
+<span class="font-label-md">Analytics</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">ios_share</span>
+<span class="font-label-md">Export</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">verified</span>
+<span class="font-label-md">Compliance</span>
+</a>
+</nav>
+<div class="mt-auto p-4 bg-surface-container-low rounded-xl border border-outline-variant">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center text-on-primary-container font-bold text-xs">OL</div>
+<div class="overflow-hidden">
+<p class="font-bold text-xs truncate">LogisticsVault HQ</p>
+<p class="text-[10px] text-on-surface-variant truncate">License: Enterprise 2024</p>
+</div>
+</div>
+</div>
+</aside>
+<!-- Top Navigation Bar -->
+<header class="fixed top-0 right-0 left-64 h-16 bg-surface-container-high/50 backdrop-blur-md border-b border-outline-variant flex justify-between items-center px-8 z-40">
+<div class="flex items-center gap-4">
+<nav class="flex items-center gap-2 text-on-surface-variant font-body-sm">
+<span class="hover:text-primary cursor-pointer">Logs</span>
+<span class="material-symbols-outlined text-sm">chevron_right</span>
+<span class="text-primary font-bold">Event Details</span>
+</nav>
+<div class="h-4 w-px bg-outline-variant mx-2"></div>
+<div class="flex items-center gap-2 px-3 py-1 bg-surface-container rounded-lg border border-outline-variant/30 text-body-sm font-medium">
+<span class="material-symbols-outlined text-sm">calendar_today</span>
+<span>Last 24 Hours</span>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-2">
+<button class="p-2 hover:bg-surface-container-highest rounded-lg transition-all active:opacity-80">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="p-2 hover:bg-surface-container-highest rounded-lg transition-all active:opacity-80">
+<span class="material-symbols-outlined">settings</span>
+</button>
+</div>
+<div class="w-8 h-8 rounded-full overflow-hidden bg-outline-variant border border-outline">
+<img alt="User Profile Avatar" data-alt="A professional headshot of a senior compliance officer with a focused, authoritative expression. The individual is wearing a charcoal suit against a clean, softly lit office background. The lighting is bright and natural, reflecting a high-end corporate aesthetic with pristine whites and deep neutral tones, emphasizing reliability and professional meticulousness." src="https://lh3.googleusercontent.com/aida/AP1WRLt8pAarmUGwNp4p6QqOhTMRdtP0yLoWUFDiifTZAVzrwhxB0RPhcuNua73HuTqhZhBa22EsGWZKh02vZAEQjp0UzvouEOzMblxGIXG8O4OisCR3n1Tc-SJyp1UG1QPOle_VYtngJNzh-yc08l0kkVowKuBGjQewuJD2ko4LMPt1gFt0aPVUZrtXNhjmap_aI-RpofnzjR2m0dLFgcStErHCq4owVsBIgOqiQsxdmr1n7l3rKyR4nfTxn4M"/>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="ml-64 mt-16 p-8 min-h-[calc(100vh-64px)]">
+<!-- Action Header -->
+<div class="flex justify-between items-end mb-8">
+<div>
+<div class="flex items-center gap-3 mb-2">
+<span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-tertiary/10 border-l-2 border-tertiary-fixed-dim text-on-tertiary-fixed-variant">Compliant</span>
+<span class="text-on-surface-variant font-metadata-code text-xs">ID: EVT-992-04X-118</span>
+</div>
+<h2 class="font-headline-lg text-headline-lg text-primary">Logistics Unit Reconciliation</h2>
+</div>
+<div class="flex gap-3">
+<button class="flex items-center gap-2 px-4 py-2 rounded-lg bg-surface-container-highest text-on-surface hover:bg-outline-variant transition-all font-label-md border border-outline-variant/50" onclick="window.print()">
+<span class="material-symbols-outlined text-lg">print</span>
+                    Print
+                </button>
+<button class="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-on-primary hover:opacity-90 transition-all font-label-md">
+<span class="material-symbols-outlined text-lg">ios_share</span>
+                    Export Event
+                </button>
+</div>
+</div>
+<!-- Bento Grid Layout -->
+<div class="grid grid-cols-12 gap-6">
+<!-- Event Information Card -->
+<div class="col-span-12 lg:col-span-4 bg-surface-container-lowest border border-outline-variant rounded-xl p-6">
+<div class="flex items-center gap-2 mb-6">
+<span class="material-symbols-outlined text-secondary">info</span>
+<h3 class="font-label-caps text-label-caps uppercase text-on-surface-variant">Event Information</h3>
+</div>
+<div class="space-y-4">
+<div class="flex justify-between py-2 border-b border-outline-variant/20">
+<span class="text-on-surface-variant text-body-sm">Timestamp</span>
+<span class="font-metadata-code text-body-md">2023-10-24 14:32:01.442</span>
+</div>
+<div class="flex justify-between py-2 border-b border-outline-variant/20">
+<span class="text-on-surface-variant text-body-sm">Source IP</span>
+<span class="font-metadata-code text-body-md">192.168.1.104</span>
+</div>
+<div class="flex justify-between py-2 border-b border-outline-variant/20">
+<span class="text-on-surface-variant text-body-sm">Auth User</span>
+<span class="font-body-md font-semibold">a.carter@logivault.io</span>
+</div>
+<div class="flex justify-between py-2">
+<span class="text-on-surface-variant text-body-sm">Access Level</span>
+<span class="font-body-md text-on-tertiary-fixed-variant">Administrator</span>
+</div>
+</div>
+</div>
+<!-- Entity Information Card -->
+<div class="col-span-12 lg:col-span-4 bg-surface-container-lowest border border-outline-variant rounded-xl p-6">
+<div class="flex items-center gap-2 mb-6">
+<span class="material-symbols-outlined text-secondary">inventory_2</span>
+<h3 class="font-label-caps text-label-caps uppercase text-on-surface-variant">Entity Information</h3>
+</div>
+<div class="space-y-4">
+<div class="flex justify-between py-2 border-b border-outline-variant/20">
+<span class="text-on-surface-variant text-body-sm">Target SKU</span>
+<span class="font-metadata-code text-body-md">SKU-90210-BLU</span>
+</div>
+<div class="flex justify-between py-2 border-b border-outline-variant/20">
+<span class="text-on-surface-variant text-body-sm">Origin Module</span>
+<span class="font-body-md font-semibold">Inventory Manager</span>
+</div>
+<div class="flex justify-between py-2 border-b border-outline-variant/20">
+<span class="text-on-surface-variant text-body-sm">Entity Type</span>
+<span class="font-body-md">Physical Good</span>
+</div>
+<div class="flex justify-between py-2">
+<span class="text-on-surface-variant text-body-sm">Cluster Node</span>
+<span class="font-metadata-code text-body-md">us-east-1a-pod4</span>
+</div>
+</div>
+</div>
+<!-- Technical Metadata Card -->
+<div class="col-span-12 lg:col-span-4 bg-surface-container-lowest border border-outline-variant rounded-xl p-6">
+<div class="flex items-center gap-2 mb-6">
+<span class="material-symbols-outlined text-secondary">terminal</span>
+<h3 class="font-label-caps text-label-caps uppercase text-on-surface-variant">Technical Metadata</h3>
+</div>
+<div class="space-y-3">
+<div>
+<p class="text-[10px] text-on-surface-variant uppercase font-bold mb-1">Request ID</p>
+<p class="font-metadata-code text-body-sm break-all bg-surface-container-low p-2 rounded border border-outline-variant/30">req_a8f92j1k92nn_prod_01</p>
+</div>
+<div class="flex justify-between items-center">
+<span class="text-on-surface-variant text-body-sm">Process Latency</span>
+<span class="font-metadata-code text-body-sm text-on-tertiary-fixed-variant font-bold">42ms</span>
+</div>
+<div>
+<p class="text-[10px] text-on-surface-variant uppercase font-bold mb-1">User Agent</p>
+<p class="text-[11px] leading-relaxed text-on-surface-variant">Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36</p>
+</div>
+</div>
+</div>
+<!-- Difference View Section -->
+<div class="col-span-12">
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden">
+<div class="bg-surface-container-low px-6 py-4 border-b border-outline-variant flex justify-between items-center">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary">difference</span>
+<h3 class="font-label-caps text-label-caps uppercase text-on-surface-variant">Value Difference View</h3>
+</div>
+<div class="flex gap-4">
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-error"></div>
+<span class="text-[10px] font-bold text-on-surface-variant">PREVIOUS</span>
+</div>
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-emerald-500"></div>
+<span class="text-[10px] font-bold text-on-surface-variant">NEW</span>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 bg-neutral-900 overflow-x-auto">
+<!-- Left Panel: Previous State -->
+<div class="p-6 border-r border-white/5 font-metadata-code text-[13px] leading-relaxed text-slate-300">
+<pre class="whitespace-pre-wrap">{
+  "sku": "SKU-90210-BLU",
+  "status": "in_transit",
+  <span class="diff-removed px-1 block w-full">"quantity": 140,</span>
+  "warehouse_id": "WH-TX-04",
+  "last_updated": "2023-10-23T18:00:00Z",
+  "reconciliation": {
+    "needed": false,
+    <span class="diff-removed px-1 block w-full">"threshold": 0.05</span>
+  }
+}</pre>
+</div>
+<!-- Right Panel: New State -->
+<div class="p-6 font-metadata-code text-[13px] leading-relaxed text-slate-300">
+<pre class="whitespace-pre-wrap">{
+  "sku": "SKU-90210-BLU",
+  "status": "in_transit",
+  <span class="diff-added px-1 block w-full">"quantity": 128,</span>
+  "warehouse_id": "WH-TX-04",
+  "last_updated": "2023-10-24T14:32:01Z",
+  "reconciliation": {
+    "needed": true,
+    <span class="diff-added px-1 block w-full">"threshold": 0.02,</span>
+    <span class="diff-added px-1 block w-full">"flagged_by": "auto_auditor_v2"</span>
+  }
+}</pre>
+</div>
+</div>
+<div class="bg-surface-container px-6 py-4 flex items-center justify-between border-t border-outline-variant">
+<div class="flex items-center gap-4 text-body-sm text-on-surface-variant">
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">add_circle</span>
+<span>3 additions</span>
+</div>
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">remove_circle</span>
+<span>2 deletions</span>
+</div>
+</div>
+<button class="text-body-sm font-bold text-secondary hover:underline transition-all">Expand Full JSON</button>
+</div>
+</div>
+</div>
+<!-- Verification & Chain of Custody -->
+<div class="col-span-12 lg:col-span-8 bg-surface-container-lowest border border-outline-variant rounded-xl p-6 relative overflow-hidden">
+<div class="absolute top-0 right-0 w-32 h-32 bg-tertiary-fixed/5 rounded-full -mr-16 -mt-16"></div>
+<div class="flex items-center gap-2 mb-6">
+<span class="material-symbols-outlined text-secondary">verified_user</span>
+<h3 class="font-label-caps text-label-caps uppercase text-on-surface-variant">Cryptographic Verification</h3>
+</div>
+<div class="flex flex-col md:flex-row gap-6">
+<div class="flex-1">
+<p class="text-[10px] text-on-surface-variant uppercase font-bold mb-2">Event Hash (SHA-256)</p>
+<div class="bg-surface-container-low p-3 rounded font-metadata-code text-xs break-all border border-outline-variant/30 text-on-surface">
+                            e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+                        </div>
+</div>
+<div class="w-px bg-outline-variant/50 hidden md:block"></div>
+<div class="flex-1">
+<div class="flex items-center gap-2 mb-3">
+<div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+<p class="text-body-sm font-bold text-on-tertiary-fixed-variant">Blockchain Anchored</p>
+</div>
+<p class="text-body-sm text-on-surface-variant mb-4">This log entry was immutably committed to the LogisticsVault Private Ledger on Block #1,492,002.</p>
+<a class="text-xs font-bold underline text-secondary" href="#">View Explorer Trail</a>
+</div>
+</div>
+</div>
+<!-- Notes Section -->
+<div class="col-span-12 lg:col-span-4 bg-surface-container-low/50 border border-dashed border-outline-variant rounded-xl p-6">
+<div class="flex items-center gap-2 mb-4">
+<span class="material-symbols-outlined text-secondary">notes</span>
+<h3 class="font-label-caps text-label-caps uppercase text-on-surface-variant">Auditor Notes</h3>
+</div>
+<p class="text-body-md text-on-surface-variant italic mb-6">"Manual reconciliation triggered by system due to discrepancy in outbound transit logs vs physical warehouse scan. Variance: -12 units."</p>
+<div class="flex items-center gap-2 text-xs font-bold text-on-surface-variant">
+<span class="material-symbols-outlined text-sm">edit</span>
+                    Read-only Archive State
+                </div>
+</div>
+</div>
+<footer class="mt-12 pt-8 border-t border-outline-variant flex justify-between text-body-sm text-on-surface-variant">
+<p>© 2024 LogisticsVault Regulatory Oversight Module</p>
+<div class="flex gap-4">
+<span class="hover:text-primary cursor-pointer">Security Policy</span>
+<span class="hover:text-primary cursor-pointer">Help Center</span>
+</div>
+</footer>
+</main>
+<script>
+        // Simple micro-interaction for hover states
+        document.querySelectorAll('.diff-added, .diff-removed').forEach(el => {
+            el.addEventListener('mouseenter', () => {
+                el.style.opacity = '0.8';
+            });
+            el.addEventListener('mouseleave', () => {
+                el.style.opacity = '1';
+            });
+        });
+    </script>
+</body></html>

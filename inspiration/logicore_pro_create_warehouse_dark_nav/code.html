@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>LogiCore Pro - Add Warehouse</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "outline-variant": "#434655",
+                      "tertiary-container": "#996100",
+                      "surface-container-highest": "#2d3449",
+                      "secondary-fixed-dim": "#62df7d",
+                      "inverse-surface": "#dae2fd",
+                      "tertiary": "#ffb95f",
+                      "on-primary-container": "#eeefff",
+                      "surface-container-high": "#222a3d",
+                      "outline": "#8d90a0",
+                      "on-primary": "#002a78",
+                      "inverse-on-surface": "#283044",
+                      "on-secondary-container": "#003111",
+                      "error-container": "#93000a",
+                      "background": "#0b1326",
+                      "on-secondary-fixed-variant": "#005320",
+                      "tertiary-fixed-dim": "#ffb95f",
+                      "secondary-container": "#1ca64d",
+                      "secondary-fixed": "#7ffc97",
+                      "primary-fixed-dim": "#b4c5ff",
+                      "on-secondary-fixed": "#002109",
+                      "surface-variant": "#2d3449",
+                      "tertiary-fixed": "#ffddb8",
+                      "on-tertiary-fixed-variant": "#653e00",
+                      "on-tertiary-fixed": "#2a1700",
+                      "on-tertiary-container": "#ffeedd",
+                      "on-surface-variant": "#c3c6d7",
+                      "surface-container-lowest": "#060e20",
+                      "surface-tint": "#b4c5ff",
+                      "inverse-primary": "#0053db",
+                      "on-surface": "#dae2fd",
+                      "on-error": "#690005",
+                      "surface-container-low": "#131b2e",
+                      "primary": "#b4c5ff",
+                      "on-primary-fixed-variant": "#003ea8",
+                      "surface-bright": "#31394d",
+                      "primary-container": "#2563eb",
+                      "surface-container": "#171f33",
+                      "secondary": "#62df7d",
+                      "primary-fixed": "#dbe1ff",
+                      "surface": "#0b1326",
+                      "surface-dim": "#0b1326",
+                      "on-primary-fixed": "#00174b",
+                      "on-background": "#dae2fd",
+                      "on-tertiary": "#472a00",
+                      "on-error-container": "#ffdad6",
+                      "on-secondary": "#003914",
+                      "error": "#ffb4ab"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "lg": "24px",
+                      "xl": "32px",
+                      "md": "16px",
+                      "margin": "32px",
+                      "base": "4px",
+                      "gutter": "24px",
+                      "xs": "4px",
+                      "sm": "8px"
+              },
+              "fontFamily": {
+                      "h2": ["Inter"],
+                      "body-md": ["Inter"],
+                      "label-md": ["Inter"],
+                      "h3": ["Inter"],
+                      "body-lg": ["Inter"],
+                      "body-sm": ["Inter"],
+                      "display": ["Inter"],
+                      "mono-data": ["JetBrains Mono"],
+                      "h1": ["Inter"]
+              },
+              "fontSize": {
+                      "h2": ["24px", {"lineHeight": "1.3", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                      "body-md": ["14px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                      "label-md": ["12px", {"lineHeight": "1", "letterSpacing": "0.02em", "fontWeight": "500"}],
+                      "h3": ["20px", {"lineHeight": "1.4", "fontWeight": "600"}],
+                      "body-lg": ["16px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                      "body-sm": ["12px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                      "display": ["48px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                      "mono-data": ["13px", {"lineHeight": "1", "letterSpacing": "-0.01em", "fontWeight": "400"}],
+                      "h1": ["32px", {"lineHeight": "1.25", "letterSpacing": "-0.01em", "fontWeight": "600"}]
+              }
+            }
+          }
+        }
+    </script>
+<style>
+        .glass-panel {
+            background: rgba(23, 31, 51, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(141, 144, 160, 0.15);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background flex h-screen overflow-hidden font-body-md text-body-md antialiased">
+<!-- SideNavBar (Shared Component) -->
+<aside class="hidden md:flex flex-col h-full border-r border-outline-variant/30 py-md docked left-0 h-screen w-64 z-40 transition-all duration-300 bg-surface-container-lowest">
+<div class="px-md mb-xl flex items-center gap-sm">
+<div class="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-on-primary-container" style="font-variation-settings: 'FILL' 1;">language</span>
+</div>
+<div class="flex flex-col">
+<span class="font-h3 text-h3 text-on-surface">Global Ops</span>
+<span class="font-label-md text-label-md text-on-surface-variant opacity-80">Enterprise Tier</span>
+</div>
+</div>
+<nav class="flex-1 overflow-y-auto px-sm flex flex-col gap-xs font-label-md text-label-md">
+<a class="flex items-center gap-sm px-md py-sm cursor-pointer hover:bg-surface-container-low transition-all duration-200 rounded-lg text-on-surface-variant hover:text-on-surface" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+                Dashboard
+            </a>
+<a class="flex items-center gap-sm px-md py-sm cursor-pointer hover:bg-surface-container-low transition-all duration-200 rounded-lg text-on-surface-variant hover:text-on-surface" href="#">
+<span class="material-symbols-outlined">inventory_2</span>
+                Products
+            </a>
+<a class="flex items-center gap-sm px-md py-sm cursor-pointer hover:bg-surface-container-low transition-all duration-200 rounded-lg text-on-surface-variant hover:text-on-surface" href="#">
+<span class="material-symbols-outlined">warehouse</span>
+                Inventory
+            </a>
+<a class="flex items-center gap-sm px-md py-sm cursor-pointer hover:bg-surface-container-low transition-all duration-200 rounded-lg text-on-surface-variant hover:text-on-surface" href="#">
+<span class="material-symbols-outlined">trending_up</span>
+                Sales
+            </a>
+<a class="flex items-center gap-sm px-md py-sm cursor-pointer hover:bg-surface-container-low transition-all duration-200 rounded-lg text-on-surface-variant hover:text-on-surface" href="#">
+<span class="material-symbols-outlined">shopping_cart</span>
+                Purchases
+            </a>
+<a class="flex items-center gap-sm px-md py-sm cursor-pointer hover:bg-surface-container-low transition-all duration-200 rounded-lg text-on-surface-variant hover:text-on-surface" href="#">
+<span class="material-symbols-outlined">group</span>
+                Customers
+            </a>
+<a class="flex items-center gap-sm px-md py-sm cursor-pointer hover:bg-surface-container-low transition-all duration-200 rounded-lg text-on-surface-variant hover:text-on-surface" href="#">
+<span class="material-symbols-outlined">local_shipping</span>
+                Suppliers
+            </a>
+<a class="flex items-center gap-sm px-md py-sm cursor-pointer hover:bg-surface-container-low transition-all duration-200 rounded-lg text-on-surface-variant hover:text-on-surface" href="#">
+<span class="material-symbols-outlined">badge</span>
+                Employees
+            </a>
+<a class="flex items-center gap-sm px-md py-sm cursor-pointer rounded-lg text-on-surface bg-primary/20 text-primary" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">domain</span>
+                Warehouses
+            </a>
+<a class="flex items-center gap-sm px-md py-sm cursor-pointer hover:bg-surface-container-low transition-all duration-200 rounded-lg text-on-surface-variant hover:text-on-surface" href="#">
+<span class="material-symbols-outlined">analytics</span>
+                Reports
+            </a>
+<a class="flex items-center gap-sm px-md py-sm cursor-pointer hover:bg-surface-container-low transition-all duration-200 rounded-lg text-on-surface-variant hover:text-on-surface" href="#">
+<span class="material-symbols-outlined">history</span>
+                Audit Logs
+            </a>
+<a class="flex items-center gap-sm px-md py-sm cursor-pointer hover:bg-surface-container-low transition-all duration-200 rounded-lg text-on-surface-variant hover:text-on-surface" href="#">
+<span class="material-symbols-outlined">security</span>
+                Roles
+            </a>
+<a class="flex items-center gap-sm px-md py-sm cursor-pointer hover:bg-surface-container-low transition-all duration-200 rounded-lg mt-auto text-on-surface-variant hover:text-on-surface" href="#">
+<span class="material-symbols-outlined">settings</span>
+                Settings
+            </a>
+</nav>
+</aside>
+<!-- Main Workspace -->
+<div class="flex-1 flex flex-col h-screen overflow-hidden">
+<!-- TopNavBar (Shared Component) -->
+<header class="flex justify-between items-center w-full px-md h-16 z-50 border-b border-outline-variant/30 shadow-sm docked full-width top-0 font-body-md text-body-md shrink-0 bg-surface-container-lowest">
+<div class="flex items-center gap-lg">
+<h1 class="font-h2 text-h2 font-bold text-on-surface">LogiCore Pro</h1>
+<div class="hidden lg:flex relative w-96 ml-xl">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant opacity-70">search</span>
+<input class="w-full bg-surface-container-low border-none rounded-full py-2 pl-10 pr-4 text-on-surface placeholder:text-on-surface-variant/50 focus:ring-2 focus:ring-primary focus:bg-surface transition-all" placeholder="Search operations..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-sm">
+<button class="w-10 h-10 rounded-full flex items-center justify-center hover:bg-surface-container-low text-on-surface-variant hover:text-on-surface transition-colors cursor-pointer active:opacity-80">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="w-10 h-10 rounded-full flex items-center justify-center hover:bg-surface-container-low text-on-surface-variant hover:text-on-surface transition-colors cursor-pointer active:opacity-80">
+<span class="material-symbols-outlined">apps</span>
+</button>
+<div class="h-8 w-px bg-outline-variant/30 mx-2"></div>
+<div class="flex items-center gap-sm cursor-pointer hover:bg-surface-container-low p-1 pr-3 rounded-full transition-colors">
+<img alt="User profile" class="w-8 h-8 rounded-full border border-outline-variant/20" src="https://lh3.googleusercontent.com/aida/ADBb0uiVAebjCt0yQFkEZ1rVoTAMpHKOVJgBIKMBh5a6NFVM8NgnT-R1Q8CF8_-frAXi3B1IZr1kd4AdZWVrq5Jnw8F3ucWGwae-in8DYdA_uFLu2gjIRMzW7JAryCNSzFG7tue0VaYYxHlDWkK8mPJpWOR90ku5FfSVVvwqr3s1Gt2yW7z-sttqi1GCsXKzyJWOPYMHGNktFsZkwvv5ckcSM-FnlRyel3aryOCzOwrBr76UA6tXK1a2eUX-7nI"/>
+<span class="font-label-md text-label-md text-on-surface">Warehouse Alpha</span>
+<span class="material-symbols-outlined text-[18px] text-on-surface-variant">expand_more</span>
+</div>
+</div>
+</header>
+<!-- Scrollable Form Canvas -->
+<main class="flex-1 overflow-y-auto bg-background p-md lg:p-lg relative">
+<!-- Atmospheric glow behind content -->
+<div class="absolute top-0 left-1/4 w-1/2 h-96 bg-primary/5 blur-[120px] rounded-full pointer-events-none"></div>
+<div class="max-w-7xl mx-auto flex flex-col gap-lg relative z-10">
+<!-- Page Header -->
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-md mb-sm">
+<div>
+<div class="flex items-center gap-sm mb-xs">
+<span class="font-label-md text-label-md text-primary">WAREHOUSES</span>
+<span class="material-symbols-outlined text-[14px] text-on-surface-variant">chevron_right</span>
+<span class="font-label-md text-label-md text-on-surface-variant">NEW RECORD</span>
+</div>
+<h2 class="font-h1 text-h1 text-on-background">Register Facility</h2>
+</div>
+<div class="flex items-center gap-sm">
+<button class="px-4 py-2 rounded-lg font-label-md text-label-md text-on-surface border border-outline-variant hover:bg-surface-container-high transition-colors">Cancel</button>
+<button class="px-4 py-2 rounded-lg font-label-md text-label-md bg-primary-container text-on-primary-container hover:bg-primary hover:text-on-primary shadow-sm shadow-primary/20 transition-all flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">save</span>
+                            Save Warehouse
+                        </button>
+</div>
+</div>
+<!-- Bento Grid Layout for Form -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-lg">
+<!-- Left Column: Core Data -->
+<div class="lg:col-span-8 flex flex-col gap-lg">
+<!-- Basic Info Card -->
+<section class="glass-panel rounded-xl p-lg flex flex-col gap-md">
+<div class="flex items-center gap-sm border-b border-outline-variant/30 pb-sm mb-sm">
+<span class="material-symbols-outlined text-primary">info</span>
+<h3 class="font-h3 text-h3 text-on-surface">Facility Identification</h3>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-lg">
+<div class="flex flex-col gap-xs">
+<label class="font-label-md text-label-md text-on-surface-variant">Facility Name *</label>
+<input class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg px-4 py-3 text-on-surface font-body-md focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all hover:border-outline" placeholder="e.g. Central Hub Europe" type="text"/>
+</div>
+<div class="flex flex-col gap-xs">
+<label class="font-label-md text-label-md text-on-surface-variant">Facility Code *</label>
+<input class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg px-4 py-3 text-on-surface font-mono-data text-mono-data uppercase focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all hover:border-outline" placeholder="e.g. CHE-001" type="text"/>
+</div>
+<div class="flex flex-col gap-xs md:col-span-2">
+<label class="font-label-md text-label-md text-on-surface-variant">Operating Organization</label>
+<div class="relative">
+<select class="appearance-none w-full bg-surface-container-lowest border border-outline-variant rounded-lg px-4 py-3 text-on-surface font-body-md focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all hover:border-outline">
+<option disabled="" selected="" value="">Select business unit...</option>
+<option value="1">LogiCore Global Inc.</option>
+<option value="2">Alpha Logistics EMEA</option>
+<option value="3">Omega Supply Chain APAC</option>
+</select>
+<span class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant">arrow_drop_down</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Management Card -->
+<section class="glass-panel rounded-xl p-lg flex flex-col gap-md">
+<div class="flex items-center gap-sm border-b border-outline-variant/30 pb-sm mb-sm">
+<span class="material-symbols-outlined text-tertiary">badge</span>
+<h3 class="font-h3 text-h3 text-on-surface">Management &amp; Contact</h3>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-lg">
+<div class="flex flex-col gap-xs">
+<label class="font-label-md text-label-md text-on-surface-variant">Assigned Manager</label>
+<div class="relative">
+<select class="appearance-none w-full bg-surface-container-lowest border border-outline-variant rounded-lg px-4 py-3 pl-10 text-on-surface font-body-md focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all hover:border-outline">
+<option disabled="" selected="" value="">Search personnel...</option>
+<option value="1">Sarah Jenkins (ID: 8492)</option>
+<option value="2">Marcus Reed (ID: 9103)</option>
+</select>
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant text-[18px]">person</span>
+<span class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant">arrow_drop_down</span>
+</div>
+</div>
+<div class="flex flex-col gap-xs">
+<label class="font-label-md text-label-md text-on-surface-variant">Primary Contact Phone</label>
+<div class="flex w-full">
+<span class="bg-surface-container-high border border-r-0 border-outline-variant rounded-l-lg px-3 py-3 text-on-surface-variant font-mono-data text-mono-data flex items-center">+1</span>
+<input class="w-full bg-surface-container-lowest border border-outline-variant rounded-r-lg px-4 py-3 text-on-surface font-body-md focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all hover:border-outline" placeholder="(555) 012-3456" type="tel"/>
+</div>
+</div>
+</div>
+</section>
+</div>
+<!-- Right Column: Location & Settings -->
+<div class="lg:col-span-4 flex flex-col gap-lg">
+<!-- Location Card -->
+<section class="glass-panel rounded-xl flex flex-col overflow-hidden border border-outline-variant/50">
+<!-- Map Placeholder -->
+<div class="h-48 w-full bg-surface-container-highest relative group">
+<div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-surface-variant/20 to-surface-container-lowest/80"></div>
+<div class="absolute inset-0 flex items-center justify-center">
+<span class="material-symbols-outlined text-[48px] text-outline opacity-20 group-hover:opacity-40 transition-opacity">map</span>
+</div>
+<div class="absolute bottom-2 right-2 px-2 py-1 bg-surface-container/80 backdrop-blur text-label-md font-label-md text-on-surface-variant rounded">Map Preview Unavailable</div>
+</div>
+<div class="p-lg flex flex-col gap-md">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-secondary">location_on</span>
+<h3 class="font-h3 text-h3 text-on-surface">Geographic Data</h3>
+</div>
+<div class="flex flex-col gap-md">
+<div class="flex flex-col gap-xs">
+<label class="font-label-md text-label-md text-on-surface-variant">Country / Region</label>
+<div class="relative">
+<select class="appearance-none w-full bg-surface-container-lowest border border-outline-variant rounded-lg px-4 py-3 text-on-surface font-body-md focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all hover:border-outline">
+<option disabled="" selected="" value="">Select country...</option>
+<option value="us">United States</option>
+<option value="uk">United Kingdom</option>
+<option value="de">Germany</option>
+</select>
+<span class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant">arrow_drop_down</span>
+</div>
+</div>
+<div class="flex flex-col gap-xs">
+<label class="font-label-md text-label-md text-on-surface-variant">City / Municipality</label>
+<input class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg px-4 py-3 text-on-surface font-body-md focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all hover:border-outline" placeholder="e.g. Frankfurt" type="text"/>
+</div>
+<div class="flex flex-col gap-xs">
+<label class="font-label-md text-label-md text-on-surface-variant">Full Street Address</label>
+<textarea class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg px-4 py-3 text-on-surface font-body-md focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all hover:border-outline resize-none" placeholder="Enter complete physical address for routing..." rows="3"></textarea>
+</div>
+</div>
+</div>
+</section>
+<!-- Operational Settings Card -->
+<section class="glass-panel rounded-xl p-lg flex flex-col gap-md">
+<div class="flex items-center gap-sm border-b border-outline-variant/30 pb-sm mb-sm">
+<span class="material-symbols-outlined text-error">settings</span>
+<h3 class="font-h3 text-h3 text-on-surface">Operational Status</h3>
+</div>
+<div class="flex items-start justify-between gap-md p-md bg-surface-container-low rounded-lg border border-outline-variant/30">
+<div class="flex flex-col">
+<span class="font-body-md text-body-md text-on-surface font-semibold">Active Facility</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Allow inbound/outbound routing and inventory allocation.</span>
+</div>
+<label class="relative inline-flex items-center cursor-pointer shrink-0 mt-1">
+<input checked="" class="sr-only peer" type="checkbox" value=""/>
+<div class="w-11 h-6 bg-surface-variant rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-secondary"></div>
+</label>
+</div>
+</section>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>

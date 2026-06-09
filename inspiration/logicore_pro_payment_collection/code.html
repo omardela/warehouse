@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-high": "#222a3d",
+                        "error-container": "#93000a",
+                        "surface-container-highest": "#2d3449",
+                        "surface-container": "#171f33",
+                        "secondary": "#62df7d",
+                        "on-primary-fixed": "#00174b",
+                        "tertiary": "#ffb95f",
+                        "primary-fixed": "#dbe1ff",
+                        "inverse-on-surface": "#283044",
+                        "secondary-fixed-dim": "#62df7d",
+                        "on-primary-fixed-variant": "#003ea8",
+                        "on-tertiary-fixed-variant": "#653e00",
+                        "primary-fixed-dim": "#b4c5ff",
+                        "on-secondary-container": "#003111",
+                        "primary": "#b4c5ff",
+                        "on-tertiary-fixed": "#2a1700",
+                        "background": "#0b1326",
+                        "on-secondary-fixed-variant": "#005320",
+                        "inverse-primary": "#0053db",
+                        "inverse-surface": "#dae2fd",
+                        "on-primary-container": "#eeefff",
+                        "tertiary-fixed-dim": "#ffb95f",
+                        "surface-container-lowest": "#060e20",
+                        "primary-container": "#2563eb",
+                        "on-error-container": "#ffdad6",
+                        "outline": "#8d90a0",
+                        "on-tertiary": "#472a00",
+                        "on-background": "#dae2fd",
+                        "on-primary": "#002a78",
+                        "surface-bright": "#31394d",
+                        "tertiary-fixed": "#ffddb8",
+                        "on-secondary-fixed": "#002109",
+                        "surface-tint": "#b4c5ff",
+                        "on-surface-variant": "#c3c6d7",
+                        "secondary-fixed": "#7ffc97",
+                        "surface-dim": "#0b1326",
+                        "outline-variant": "#434655",
+                        "surface-container-low": "#131b2e",
+                        "error": "#ffb4ab",
+                        "surface-variant": "#2d3449",
+                        "secondary-container": "#1ca64d",
+                        "on-error": "#690005",
+                        "surface": "#0b1326",
+                        "on-surface": "#dae2fd",
+                        "on-tertiary-container": "#ffeedd",
+                        "tertiary-container": "#996100",
+                        "on-secondary": "#003914"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "md": "16px",
+                        "xl": "32px",
+                        "lg": "24px",
+                        "gutter": "24px",
+                        "margin": "32px",
+                        "xs": "4px",
+                        "sm": "8px",
+                        "base": "4px"
+                    },
+                    "fontFamily": {
+                        "body-sm": ["Inter"],
+                        "label-md": ["Inter"],
+                        "body-md": ["Inter"],
+                        "display": ["Inter"],
+                        "h3": ["Inter"],
+                        "h2": ["Inter"],
+                        "mono-data": ["JetBrains Mono"],
+                        "body-lg": ["Inter"],
+                        "h1": ["Inter"]
+                    },
+                    "fontSize": {
+                        "body-sm": ["12px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                        "label-md": ["12px", {"lineHeight": "1", "letterSpacing": "0.02em", "fontWeight": "500"}],
+                        "body-md": ["14px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                        "display": ["48px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "h3": ["20px", {"lineHeight": "1.4", "fontWeight": "600"}],
+                        "h2": ["24px", {"lineHeight": "1.3", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "mono-data": ["13px", {"lineHeight": "1", "letterSpacing": "-0.01em", "fontWeight": "400"}],
+                        "body-lg": ["16px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                        "h1": ["32px", {"lineHeight": "1.25", "letterSpacing": "-0.01em", "fontWeight": "600"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            line-height: 1;
+            text-transform: none;
+            letter-spacing: normal;
+            word-wrap: normal;
+            white-space: nowrap;
+            direction: ltr;
+        }
+        body {
+            background-color: #0b1326;
+            color: #dae2fd;
+        }
+        .glass-panel {
+            background: rgba(23, 31, 51, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(67, 70, 85, 0.5);
+        }
+    </style>
+</head>
+<body class="font-body-md text-body-md overflow-x-hidden">
+<!-- Side Navigation Shell -->
+<aside class="h-screen w-64 fixed left-0 top-0 bg-surface-container-low dark:bg-surface-container-low border-r border-outline-variant shadow-sm flex flex-col h-full p-md z-50">
+<div class="mb-xl px-sm">
+<h1 class="text-h3 font-h3 text-primary tracking-tight">LogiCore Pro</h1>
+<p class="font-label-md text-label-md text-on-surface-variant opacity-70">Enterprise ERP</p>
+</div>
+<nav class="flex-1 space-y-xs overflow-y-auto">
+<!-- Navigation Items Mapping -->
+<a class="flex items-center gap-md p-sm text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-body-md">Dashboard</span>
+</a>
+<a class="flex items-center gap-md p-sm text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="inventory_2">inventory_2</span>
+<span class="font-body-md">Products</span>
+</a>
+<a class="flex items-center gap-md p-sm text-secondary font-bold bg-surface-container-highest rounded-lg transition-colors duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="payments">payments</span>
+<span class="font-body-md">Sales</span>
+</a>
+<a class="flex items-center gap-md p-sm text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="shopping_cart">shopping_cart</span>
+<span class="font-body-md">Purchases</span>
+</a>
+<a class="flex items-center gap-md p-sm text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+<span class="font-body-md">Customers</span>
+</a>
+<a class="flex items-center gap-md p-sm text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="local_shipping">local_shipping</span>
+<span class="font-body-md">Suppliers</span>
+</a>
+<a class="flex items-center gap-md p-sm text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="badge">badge</span>
+<span class="font-body-md">Employees</span>
+</a>
+<a class="flex items-center gap-md p-sm text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="domain">domain</span>
+<span class="font-body-md">Warehouses</span>
+</a>
+<a class="flex items-center gap-md p-sm text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="analytics">analytics</span>
+<span class="font-body-md">Reports</span>
+</a>
+</nav>
+<div class="mt-auto border-t border-outline-variant pt-md px-sm">
+<button class="w-full bg-primary-container text-on-primary-container py-sm px-md rounded-lg font-label-md flex items-center justify-center gap-sm active:scale-95 transition-all">
+<span class="material-symbols-outlined" data-icon="add">add</span>
+                Create Invoice
+            </button>
+</div>
+</aside>
+<!-- Top Navigation Shell -->
+<header class="fixed top-0 right-0 w-[calc(100%-16rem)] h-16 bg-surface dark:bg-surface border-b border-outline-variant shadow-sm flex justify-between items-center px-lg ml-64 z-40">
+<div class="flex items-center gap-lg">
+<span class="font-h3 text-h3 text-on-surface">Sales Invoices Management</span>
+<div class="relative w-64">
+<span class="material-symbols-outlined absolute left-md top-1/2 -translate-y-1/2 text-on-surface-variant" data-icon="search">search</span>
+<input class="w-full bg-surface-container-low border border-outline-variant rounded-full py-xs pl-xl pr-md text-body-sm focus:border-primary focus:ring-1 focus:ring-primary transition-all outline-none" placeholder="Search invoices..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-md">
+<button class="p-sm text-on-surface-variant hover:bg-surface-container-lowest rounded-full transition-all duration-300">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="p-sm text-on-surface-variant hover:bg-surface-container-lowest rounded-full transition-all duration-300">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+</button>
+<button class="p-sm text-on-surface-variant hover:bg-surface-container-lowest rounded-full transition-all duration-300">
+<span class="material-symbols-outlined" data-icon="help">help</span>
+</button>
+<div class="w-8 h-8 rounded-full overflow-hidden bg-surface-container-highest border border-outline-variant">
+<img alt="User Profile" data-alt="A professional headshot of a corporate warehouse manager in a dark navy polo shirt, set against a blurred industrial background. The lighting is crisp and modern with cool tones, reflecting a high-end enterprise environment with high contrast and sharp focus." src="https://lh3.googleusercontent.com/aida/AP1WRLuzrDGCz60ax9FHgVgkTgeVJPlCB5Hd4je6y9wc91UkkRZj_1596HsI7b6sVS4Pfv_jDkTZVXLiftdDYC2IrWgcXqs-7X_lc2ObH_zphw5bpjVVAXWaVal5ZMWhW0AiPqVfEaEDInZQ5rUsGG10WGP7uMc2GmfRqpxO43TmlX5BBfa3XpjzBhmIXbCNzV0W5oimLTPrIdR8AgckdxU3hnAjYKtkPb28teUhQ6Uub6f91q1UVH0Oq7XKWzag"/>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="ml-64 pt-24 p-lg min-h-screen">
+<div class="max-w-5xl mx-auto space-y-lg">
+<!-- Breadcrumbs -->
+<nav class="flex items-center gap-xs text-label-md font-label-md text-on-surface-variant">
+<a class="hover:text-primary transition-colors" href="#">Sales</a>
+<span class="material-symbols-outlined text-[14px]" data-icon="chevron_right">chevron_right</span>
+<a class="hover:text-primary transition-colors" href="#">Invoices</a>
+<span class="material-symbols-outlined text-[14px]" data-icon="chevron_right">chevron_right</span>
+<span class="text-on-surface">Payment Collection</span>
+</nav>
+<!-- Page Title & Primary Actions -->
+<div class="flex justify-between items-end">
+<div>
+<h2 class="font-h1 text-h1 text-on-surface">Record Payment</h2>
+<p class="text-body-md text-on-surface-variant mt-xs">Update account ledger for outstanding invoice SI-2024-0891</p>
+</div>
+<div class="flex gap-md">
+<button class="flex items-center gap-sm px-lg py-sm border border-outline-variant rounded-lg text-on-surface hover:bg-surface-container-high transition-all active:scale-95 font-label-md">
+<span class="material-symbols-outlined" data-icon="print">print</span>
+                        Print Receipt
+                    </button>
+<button class="flex items-center gap-sm px-lg py-sm bg-primary text-on-primary rounded-lg shadow-lg hover:shadow-primary/20 transition-all active:scale-95 font-label-md" id="save-btn">
+<span class="material-symbols-outlined" data-icon="save">save</span>
+                        Save Payment
+                    </button>
+</div>
+</div>
+<!-- Bento Layout Content -->
+<div class="grid grid-cols-12 gap-lg">
+<!-- Summary Card -->
+<section class="col-span-12 md:col-span-4 space-y-lg">
+<div class="glass-panel p-lg rounded-xl shadow-sm">
+<h3 class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider mb-lg">Entity Details</h3>
+<div class="space-y-md">
+<div>
+<label class="text-body-sm text-on-surface-variant block mb-xs">Customer</label>
+<p class="font-h3 text-h3 text-on-surface">Aether Dynamics</p>
+<p class="text-body-sm text-primary">ID: CUST-7821-X</p>
+</div>
+<div class="pt-md border-t border-outline-variant/30">
+<label class="text-body-sm text-on-surface-variant block mb-xs">Invoice Number</label>
+<p class="font-mono-data text-mono-data text-on-surface bg-surface-container px-sm py-xs rounded inline-block">SI-2024-0891</p>
+</div>
+</div>
+</div>
+<div class="bg-surface-container-high p-lg rounded-xl shadow-sm border border-outline-variant/30 relative overflow-hidden">
+<div class="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -mr-16 -mt-16 blur-3xl"></div>
+<h3 class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider mb-lg">Balance Snapshot</h3>
+<div class="space-y-lg">
+<div class="flex justify-between items-center">
+<span class="text-body-md text-on-surface-variant">Total Amount</span>
+<span class="font-h3 text-h3 text-on-surface">$11,729.00</span>
+</div>
+<div class="flex justify-between items-center text-secondary">
+<span class="text-body-md">Amount Paid</span>
+<span class="font-h3 text-h3">$0.00</span>
+</div>
+<div class="pt-md border-t border-outline-variant flex justify-between items-center">
+<span class="text-body-md font-bold text-on-surface">Remaining</span>
+<span class="font-h2 text-h2 text-tertiary">$11,729.00</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Form Section -->
+<section class="col-span-12 md:col-span-8">
+<div class="glass-panel p-xl rounded-xl shadow-sm">
+<form class="grid grid-cols-2 gap-xl">
+<!-- Payment Date -->
+<div class="col-span-2 md:col-span-1 space-y-sm">
+<label class="font-label-md text-label-md text-on-surface block">Payment Date</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-md top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none" data-icon="calendar_today">calendar_today</span>
+<input class="w-full bg-surface-container-low border border-outline-variant rounded-lg py-md pl-xl pr-md text-body-md focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none" type="date" value="2024-10-25"/>
+</div>
+</div>
+<!-- Payment Method -->
+<div class="col-span-2 md:col-span-1 space-y-sm">
+<label class="font-label-md text-label-md text-on-surface block">Payment Method</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-md top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none" data-icon="payments">payments</span>
+<select class="w-full bg-surface-container-low border border-outline-variant rounded-lg py-md pl-xl pr-md text-body-md focus:border-primary focus:ring-2 focus:ring-primary/20 appearance-none transition-all outline-none">
+<option value="ach">ACH Transfer</option>
+<option value="card">Credit Card</option>
+<option value="cash">Cash</option>
+</select>
+<span class="material-symbols-outlined absolute right-md top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none" data-icon="arrow_drop_down">arrow_drop_down</span>
+</div>
+</div>
+<!-- Amount Received -->
+<div class="col-span-2 space-y-sm">
+<label class="font-label-md text-label-md text-on-surface block">Amount Received (USD)</label>
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-md top-1/2 -translate-y-1/2 text-on-surface-variant transition-colors group-focus-within:text-primary" data-icon="attach_money">attach_money</span>
+<input class="w-full bg-surface-container-low border border-outline-variant rounded-lg py-xl pl-xl pr-md text-h2 font-h2 text-on-surface focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none placeholder:text-outline-variant" placeholder="0.00" step="0.01" type="number"/>
+<button class="absolute right-md top-1/2 -translate-y-1/2 text-primary font-label-md hover:underline" type="button">Pay Full Balance</button>
+</div>
+</div>
+<!-- Notes -->
+<div class="col-span-2 space-y-sm">
+<label class="font-label-md text-label-md text-on-surface block">Transaction Notes</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-md top-4 text-on-surface-variant" data-icon="edit_note">edit_note</span>
+<textarea class="w-full bg-surface-container-low border border-outline-variant rounded-lg py-md pl-xl pr-md text-body-md focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none resize-none" placeholder="Add internal payment details or confirmation numbers..." rows="4"></textarea>
+</div>
+</div>
+<div class="col-span-2 pt-md">
+<div class="flex items-start gap-md p-md bg-tertiary/10 rounded-lg border border-tertiary/20">
+<span class="material-symbols-outlined text-tertiary" data-icon="info">info</span>
+<p class="text-body-sm text-on-surface-variant">
+                                        Recording this payment will automatically update the inventory fulfillment status if the balance becomes fully paid. Ensure the ACH reference matches the bank statement.
+                                    </p>
+</div>
+</div>
+</form>
+</div>
+</section>
+<!-- Activity Log / Quick History -->
+<section class="col-span-12">
+<div class="glass-panel rounded-xl overflow-hidden shadow-sm">
+<div class="px-lg py-md bg-surface-container-high border-b border-outline-variant flex justify-between items-center">
+<h3 class="font-label-md text-label-md text-on-surface">Payment History for SI-2024-0891</h3>
+<span class="text-label-md text-on-surface-variant">0 Records Found</span>
+</div>
+<div class="p-xl text-center space-y-md opacity-50">
+<div class="w-16 h-16 bg-surface-container rounded-full flex items-center justify-center mx-auto">
+<span class="material-symbols-outlined text-h1" data-icon="history">history</span>
+</div>
+<p class="text-body-md">No payments have been recorded for this invoice yet.</p>
+</div>
+</div>
+</section>
+</div>
+</div>
+</main>
+<!-- Success Toast (Hidden by default) -->
+<div class="fixed bottom-lg right-lg transform translate-y-24 opacity-0 transition-all duration-500 z-[100]" id="toast">
+<div class="bg-secondary-container text-on-secondary-container px-xl py-md rounded-xl shadow-2xl flex items-center gap-md">
+<span class="material-symbols-outlined" data-icon="check_circle" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span class="font-label-md">Payment recorded successfully.</span>
+</div>
+</div>
+<script>
+        // Micro-interactions
+        const saveBtn = document.getElementById('save-btn');
+        const toast = document.getElementById('toast');
+
+        saveBtn.addEventListener('click', () => {
+            // Animate button
+            saveBtn.innerHTML = '<span class="material-symbols-outlined animate-spin" data-icon="progress_activity">progress_activity</span> Saving...';
+            saveBtn.classList.add('opacity-80', 'pointer-events-none');
+
+            // Simulate server request
+            setTimeout(() => {
+                saveBtn.innerHTML = '<span class="material-symbols-outlined" data-icon="check">check</span> Saved';
+                saveBtn.classList.replace('bg-primary', 'bg-secondary');
+                saveBtn.classList.replace('text-on-primary', 'text-on-secondary');
+                
+                // Show toast
+                toast.classList.remove('translate-y-24', 'opacity-0');
+                
+                setTimeout(() => {
+                    toast.classList.add('translate-y-24', 'opacity-0');
+                    // Reset button after toast hides
+                    setTimeout(() => {
+                        saveBtn.innerHTML = '<span class="material-symbols-outlined" data-icon="save">save</span> Save Payment';
+                        saveBtn.classList.replace('bg-secondary', 'bg-primary');
+                        saveBtn.classList.replace('text-on-secondary', 'text-on-primary');
+                        saveBtn.classList.remove('opacity-80', 'pointer-events-none');
+                    }, 500);
+                }, 3000);
+            }, 1500);
+        });
+
+        // Floating label effect simulation for number input
+        const amountInput = document.querySelector('input[type="number"]');
+        amountInput.addEventListener('input', (e) => {
+            if(e.target.value > 0) {
+                e.target.classList.add('text-primary');
+            } else {
+                e.target.classList.remove('text-primary');
+            }
+        });
+    </script>
+</body></html>

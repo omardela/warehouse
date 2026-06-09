@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>LogiCore Pro POS - Cash Register Management</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-tertiary-container": "#ffeedd",
+                    "surface-container": "#171f33",
+                    "error-container": "#93000a",
+                    "tertiary-container": "#996100",
+                    "tertiary": "#ffb95f",
+                    "surface-variant": "#2d3449",
+                    "on-primary-fixed": "#00174b",
+                    "inverse-on-surface": "#283044",
+                    "tertiary-fixed": "#ffddb8",
+                    "on-secondary-fixed-variant": "#005320",
+                    "surface-container-high": "#222a3d",
+                    "tertiary-fixed-dim": "#ffb95f",
+                    "on-tertiary": "#472a00",
+                    "surface-container-highest": "#2d3449",
+                    "surface-dim": "#0b1326",
+                    "surface-container-low": "#131b2e",
+                    "on-surface-variant": "#c3c6d7",
+                    "on-secondary": "#003914",
+                    "on-background": "#dae2fd",
+                    "on-tertiary-fixed-variant": "#653e00",
+                    "primary": "#b4c5ff",
+                    "on-primary-fixed-variant": "#003ea8",
+                    "surface-container-lowest": "#060e20",
+                    "primary-fixed": "#dbe1ff",
+                    "inverse-surface": "#dae2fd",
+                    "secondary": "#62df7d",
+                    "on-surface": "#dae2fd",
+                    "on-primary": "#002a78",
+                    "primary-fixed-dim": "#b4c5ff",
+                    "outline": "#8d90a0",
+                    "on-primary-container": "#eeefff",
+                    "on-secondary-fixed": "#002109",
+                    "inverse-primary": "#0053db",
+                    "secondary-container": "#1ca64d",
+                    "on-secondary-container": "#003111",
+                    "error": "#ffb4ab",
+                    "surface-bright": "#31394d",
+                    "background": "#0b1326",
+                    "secondary-fixed": "#7ffc97",
+                    "on-error": "#690005",
+                    "surface": "#0b1326",
+                    "on-tertiary-fixed": "#2a1700",
+                    "primary-container": "#2563eb",
+                    "outline-variant": "#434655",
+                    "surface-tint": "#b4c5ff",
+                    "on-error-container": "#ffdad6",
+                    "secondary-fixed-dim": "#62df7d"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "xl": "32px",
+                    "lg": "24px",
+                    "base": "4px",
+                    "sm": "8px",
+                    "margin": "32px",
+                    "gutter": "24px",
+                    "xs": "4px",
+                    "md": "16px"
+            },
+            "fontFamily": {
+                    "h1": ["Inter"],
+                    "label-md": ["Inter"],
+                    "body-lg": ["Inter"],
+                    "display": ["Inter"],
+                    "body-sm": ["Inter"],
+                    "mono-data": ["JetBrains Mono"],
+                    "h3": ["Inter"],
+                    "body-md": ["Inter"],
+                    "h2": ["Inter"]
+            },
+            "fontSize": {
+                    "h1": ["32px", {"lineHeight": "1.25", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "label-md": ["12px", {"lineHeight": "1", "letterSpacing": "0.02em", "fontWeight": "500"}],
+                    "body-lg": ["16px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                    "display": ["48px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "body-sm": ["12px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                    "mono-data": ["13px", {"lineHeight": "1", "letterSpacing": "-0.01em", "fontWeight": "400"}],
+                    "h3": ["20px", {"lineHeight": "1.4", "fontWeight": "600"}],
+                    "body-md": ["14px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                    "h2": ["24px", {"lineHeight": "1.3", "letterSpacing": "-0.01em", "fontWeight": "600"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            background-color: #0b1326;
+            color: #dae2fd;
+        }
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #131b2e;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #2d3449;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #434655;
+        }
+    </style>
+</head>
+<body class="font-body-md text-body-md overflow-hidden">
+<div class="flex h-screen w-full">
+<!-- SideNavBar -->
+<aside class="flex flex-col h-full py-md px-sm bg-surface-container-lowest dark:bg-surface-container-lowest docked left-0 h-screen w-64 border-r border-outline-variant shadow-md">
+<div class="px-md mb-xl">
+<h1 class="font-h3 text-h3 font-black text-on-surface">LogiCore Pro</h1>
+<p class="font-label-md text-label-md text-on-surface-variant opacity-70">Enterprise ERP</p>
+</div>
+<nav class="flex-1 space-y-xs overflow-y-auto">
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-secondary bg-secondary-container/10 border-r-4 border-secondary transition-all" href="#">
+<span class="material-symbols-outlined">point_of_sale</span>
+<span class="font-label-md text-label-md">Terminal</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-variant/50 transition-colors" href="#">
+<span class="material-symbols-outlined">receipt_long</span>
+<span class="font-label-md text-label-md">History</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-variant/50 transition-colors" href="#">
+<span class="material-symbols-outlined">pause_circle</span>
+<span class="font-label-md text-label-md">Suspended</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-variant/50 transition-colors" href="#">
+<span class="material-symbols-outlined">assignment_return</span>
+<span class="font-label-md text-label-md">Returns</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-variant/50 transition-colors" href="#">
+<span class="material-symbols-outlined">monitoring</span>
+<span class="font-label-md text-label-md">Analytics</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-variant/50 transition-colors" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-label-md text-label-md">Settings</span>
+</a>
+</nav>
+<div class="mt-auto space-y-xs pt-md border-t border-outline-variant">
+<button class="w-full flex items-center justify-center gap-sm bg-primary text-on-primary py-sm rounded-lg font-label-md text-label-md shadow-sm active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-[18px]">qr_code_scanner</span>
+                    Quick Scan
+                </button>
+<div class="flex flex-col pt-sm">
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-variant/50 transition-colors" href="#">
+<span class="material-symbols-outlined">help</span>
+<span class="font-label-md text-label-md">Help</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-variant/50 transition-colors" href="#">
+<span class="material-symbols-outlined">lock</span>
+<span class="font-label-md text-label-md">Lock</span>
+</a>
+</div>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 flex flex-col min-w-0 bg-background overflow-hidden">
+<!-- TopAppBar -->
+<header class="flex justify-between items-center w-full px-lg h-16 bg-surface-container dark:bg-surface-container-low border-b border-outline-variant shadow-sm docked full-width top-0 z-10">
+<div class="flex items-center gap-xl">
+<span class="font-h2 text-h2 font-bold text-primary">LogiCore Pro POS</span>
+<div class="relative hidden lg:block">
+<span class="material-symbols-outlined absolute left-sm top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none">search</span>
+<input class="bg-surface-variant text-on-surface px-xl py-xs pl-10 rounded-full border-none focus:ring-2 focus:ring-primary w-64 text-body-sm" placeholder="Search orders..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-md">
+<div class="flex items-center gap-sm mr-md border-r border-outline-variant pr-md">
+<button class="p-sm rounded-full text-on-surface-variant hover:bg-surface-variant transition-colors active:opacity-80 active:scale-95">
+<span class="material-symbols-outlined">account_balance_wallet</span>
+</button>
+<button class="p-sm rounded-full text-on-surface-variant hover:bg-surface-variant transition-colors active:opacity-80 active:scale-95">
+<span class="material-symbols-outlined">sync</span>
+</button>
+<button class="p-sm rounded-full text-on-surface-variant hover:bg-surface-variant transition-colors active:opacity-80 active:scale-95 relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-error rounded-full"></span>
+</button>
+</div>
+<button class="hidden sm:block text-on-surface-variant font-label-md text-label-md hover:bg-surface-variant px-md py-xs rounded transition-colors">End Session</button>
+<button class="bg-primary-container text-on-primary-container px-lg py-sm rounded-lg font-label-md text-label-md active:scale-95 transition-transform flex items-center gap-xs shadow-sm">
+<span class="material-symbols-outlined text-[18px]">add</span>
+                        New Sale
+                    </button>
+<div class="w-10 h-10 rounded-full bg-surface-variant border border-outline-variant flex items-center justify-center overflow-hidden ml-sm cursor-pointer hover:opacity-80 transition-opacity">
+<img class="w-full h-full object-cover" data-alt="A professional warehouse manager portrait with a confident expression, wearing a sleek modern tactical uniform. The background is a high-tech logistics hub with soft cyan and deep slate lighting, creating a high-performance corporate atmosphere. High-end digital photography style, clean focus, and cinematic depth of field." src="https://lh3.googleusercontent.com/aida/AP1WRLt-QB5RbIpOCJq0BpTONSPvjUXjzPn46UrCsuw9EekeZ0gGHZao6KhE0BkNfJXzeBuPg6ZZJ9uRmXgJX7AUwcAAZjaEMakdse-SGbdTQdAezsbzThckf94833_fHgphbTjhn2i5hvIL6HonyZC6NRpNIxuJBlBrMzA91nA-150oExG73IT-Hqh7w6Y1e6kPiefxOcbY9urY78wgVF4b2iIblwpxtyHOtzJdPB0DF24nbkv2YonZdtWCAeGS"/>
+</div>
+</div>
+</header>
+<!-- Scrollable Canvas -->
+<div class="flex-1 overflow-y-auto p-lg">
+<div class="max-w-6xl mx-auto space-y-lg">
+<!-- Page Header -->
+<div class="flex justify-between items-end">
+<div class="space-y-xs">
+<div class="flex items-center gap-sm text-primary">
+<span class="material-symbols-outlined">point_of_sale</span>
+<span class="uppercase tracking-widest font-label-md text-label-md">Register Management</span>
+</div>
+<h2 class="font-h1 text-h1 text-on-surface">Terminal Reconciliation</h2>
+<p class="text-on-surface-variant font-body-md">Session started: Oct 24, 2023 · 08:00 AM · ID: REG-04-102</p>
+</div>
+<div class="flex gap-sm">
+<button class="flex items-center gap-sm px-lg py-md rounded-xl border border-outline-variant text-on-surface font-label-md text-label-md hover:bg-surface-variant transition-all active:scale-98" onclick="document.getElementById('drawer-status').innerText = 'Drawer Opened'">
+<span class="material-symbols-outlined">lock_open</span>
+                                Open Cash Drawer
+                            </button>
+</div>
+</div>
+<!-- Bento Grid Layout -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-lg">
+<!-- Main Reconciliation View -->
+<div class="md:col-span-8 space-y-lg">
+<section class="bg-surface-container-high rounded-xl border border-outline-variant shadow-sm overflow-hidden">
+<div class="p-lg border-b border-outline-variant flex justify-between items-center bg-surface-container-highest/30">
+<h3 class="font-h3 text-h3 flex items-center gap-sm">
+<span class="material-symbols-outlined text-secondary">payments</span>
+                                        Cash Reconciliation
+                                    </h3>
+<span class="bg-secondary-container/20 text-secondary px-sm py-1 rounded text-xs font-bold uppercase tracking-tighter" id="drawer-status">Drawer Closed</span>
+</div>
+<div class="p-lg space-y-lg">
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-xl">
+<!-- Financial Data Points -->
+<div class="space-y-md">
+<div class="flex justify-between items-center pb-sm border-b border-outline-variant/30">
+<span class="text-on-surface-variant font-body-md">Opening Balance</span>
+<span class="font-mono-data text-mono-data text-on-surface">$500.00</span>
+</div>
+<div class="flex justify-between items-center pb-sm border-b border-outline-variant/30">
+<span class="text-on-surface-variant font-body-md">Cash Sales (+)</span>
+<span class="font-mono-data text-mono-data text-secondary">+$2,485.50</span>
+</div>
+<div class="flex justify-between items-center pb-sm border-b border-outline-variant/30">
+<span class="text-on-surface-variant font-body-md">Refunds (-)</span>
+<span class="font-mono-data text-mono-data text-error">-$120.25</span>
+</div>
+<div class="flex justify-between items-center pt-md">
+<span class="text-on-surface font-h3">Expected Balance</span>
+<span class="font-mono-data text-h3 text-primary">$2,865.25</span>
+</div>
+</div>
+<!-- User Input -->
+<div class="bg-surface-dim p-lg rounded-xl border border-primary/20 space-y-md">
+<label class="block text-primary font-label-md text-label-md uppercase tracking-wider mb-xs">Actual Cash Counted</label>
+<div class="relative">
+<span class="absolute left-md top-1/2 -translate-y-1/2 text-h2 font-bold text-on-surface-variant">$</span>
+<input class="w-full bg-surface-variant border-outline-variant text-h2 font-h2 font-mono-data text-on-surface py-md pl-12 pr-md rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" id="actual-count" placeholder="0.00" step="0.01" type="number"/>
+</div>
+<p class="text-body-sm text-on-surface-variant italic">Enter the physical cash total from the register drawer.</p>
+</div>
+</div>
+<!-- Discrepancy Alert -->
+<div class="hidden animate-in fade-in slide-in-from-top-4 duration-300" id="discrepancy-card">
+<div class="bg-error-container/10 border border-error/30 p-md rounded-xl flex gap-md">
+<span class="material-symbols-outlined text-error text-[32px]">warning</span>
+<div class="flex-1">
+<div class="flex justify-between">
+<h4 class="font-h3 text-h3 text-error">Discrepancy Detected</h4>
+<span class="font-mono-data text-h3 text-error" id="discrepancy-amount">-$0.00</span>
+</div>
+<p class="text-on-surface-variant mt-xs">The counted total does not match the system's expected balance. Discrepancies exceeding $5.00 require a manager's override to proceed.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Denomination Breakdown -->
+<section class="bg-surface-container-high rounded-xl border border-outline-variant shadow-sm">
+<div class="p-lg border-b border-outline-variant flex justify-between items-center">
+<h3 class="font-h3 text-h3">Denomination Breakdown</h3>
+<button class="text-primary font-label-md text-label-md hover:underline">Reset Counts</button>
+</div>
+<div class="p-lg grid grid-cols-2 sm:grid-cols-4 gap-md">
+<!-- Denom Item -->
+<div class="bg-surface-dim p-sm rounded border border-outline-variant/30 text-center">
+<span class="text-xs text-on-surface-variant uppercase">$100s</span>
+<input class="w-full bg-transparent border-none text-center font-mono-data text-lg p-0 focus:ring-0" type="number" value="12"/>
+</div>
+<div class="bg-surface-dim p-sm rounded border border-outline-variant/30 text-center">
+<span class="text-xs text-on-surface-variant uppercase">$50s</span>
+<input class="w-full bg-transparent border-none text-center font-mono-data text-lg p-0 focus:ring-0" type="number" value="20"/>
+</div>
+<div class="bg-surface-dim p-sm rounded border border-outline-variant/30 text-center">
+<span class="text-xs text-on-surface-variant uppercase">$20s</span>
+<input class="w-full bg-transparent border-none text-center font-mono-data text-lg p-0 focus:ring-0" type="number" value="15"/>
+</div>
+<div class="bg-surface-dim p-sm rounded border border-outline-variant/30 text-center">
+<span class="text-xs text-on-surface-variant uppercase">$10s</span>
+<input class="w-full bg-transparent border-none text-center font-mono-data text-lg p-0 focus:ring-0" type="number" value="25"/>
+</div>
+</div>
+</section>
+</div>
+<!-- Sidebar Actions & Overrides -->
+<div class="md:col-span-4 space-y-lg">
+<!-- Actions Card -->
+<div class="bg-surface-container-high rounded-xl border border-outline-variant shadow-sm p-lg space-y-md">
+<button class="w-full py-md bg-secondary text-on-secondary font-h3 text-h3 rounded-xl shadow-lg active:scale-95 transition-all flex items-center justify-center gap-sm" onclick="reconcile()">
+<span class="material-symbols-outlined">check_circle</span>
+                                    Reconcile Register
+                                </button>
+<button class="w-full py-md bg-error text-on-error font-h3 text-h3 rounded-xl shadow-lg active:scale-95 transition-all flex items-center justify-center gap-sm opacity-50 cursor-not-allowed" disabled="">
+<span class="material-symbols-outlined">power_settings_new</span>
+                                    Close Register
+                                </button>
+</div>
+<!-- Manager Override -->
+<div class="bg-surface-container-high rounded-xl border border-outline-variant shadow-sm overflow-hidden">
+<div class="p-md bg-tertiary-container/20 border-b border-outline-variant flex items-center gap-sm">
+<span class="material-symbols-outlined text-tertiary">admin_panel_settings</span>
+<h4 class="font-h3 text-h3 text-tertiary">Manager Override</h4>
+</div>
+<div class="p-lg space-y-md">
+<div class="space-y-xs">
+<label class="font-label-md text-label-md text-on-surface-variant">Manager PIN</label>
+<input class="w-full bg-surface-dim border-outline-variant rounded-lg font-mono-data text-center tracking-widest py-sm focus:ring-primary" placeholder="••••" type="password"/>
+</div>
+<div class="space-y-xs">
+<label class="font-label-md text-label-md text-on-surface-variant">Reason for Discrepancy</label>
+<select class="w-full bg-surface-dim border-outline-variant rounded-lg text-body-sm py-sm focus:ring-primary">
+<option>Miscount / Error</option>
+<option>Drawer Change Issue</option>
+<option>Unrecorded Payout</option>
+<option>Other / See Notes</option>
+</select>
+</div>
+<textarea class="w-full bg-surface-dim border-outline-variant rounded-lg text-body-sm py-sm focus:ring-primary h-24 resize-none" placeholder="Additional notes..."></textarea>
+<button class="w-full bg-surface-variant text-on-surface py-sm rounded-lg font-label-md text-label-md hover:bg-outline-variant transition-colors active:scale-98">
+                                        Authorize Discrepancy
+                                    </button>
+</div>
+</div>
+<!-- Stats Visualization -->
+<div class="bg-surface-container-high rounded-xl border border-outline-variant shadow-sm p-lg overflow-hidden relative">
+<div class="absolute inset-0 opacity-10 pointer-events-none">
+<div class="w-full h-full" style="background-image: radial-gradient(circle at 2px 2px, #8d90a0 1px, transparent 0); background-size: 24px 24px;"></div>
+</div>
+<div class="relative z-10 space-y-md">
+<h4 class="font-label-md text-label-md uppercase tracking-widest text-on-surface-variant">Terminal Performance</h4>
+<div class="flex items-end gap-xs h-24">
+<div class="flex-1 bg-primary/20 rounded-t-sm" style="height: 40%"></div>
+<div class="flex-1 bg-primary/20 rounded-t-sm" style="height: 60%"></div>
+<div class="flex-1 bg-primary/20 rounded-t-sm" style="height: 45%"></div>
+<div class="flex-1 bg-primary/20 rounded-t-sm" style="height: 80%"></div>
+<div class="flex-1 bg-primary/20 rounded-t-sm" style="height: 95%"></div>
+<div class="flex-1 bg-primary/40 rounded-t-sm border-t-2 border-primary" style="height: 70%"></div>
+</div>
+<div class="flex justify-between text-mono-data text-[10px] text-on-surface-variant uppercase">
+<span>08:00</span>
+<span>12:00</span>
+<span>16:00</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+<!-- Success Modal (Hidden by default) -->
+<div class="hidden fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-md" id="success-modal">
+<div class="bg-surface-container-high border border-outline-variant rounded-2xl shadow-2xl p-xl max-w-md w-full text-center space-y-lg animate-in zoom-in-95 duration-300">
+<div class="w-20 h-20 bg-secondary/10 rounded-full flex items-center justify-center mx-auto border-2 border-secondary/30">
+<span class="material-symbols-outlined text-secondary text-[48px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+<div class="space-y-sm">
+<h2 class="font-h1 text-h1 text-on-surface">Reconciliation Complete</h2>
+<p class="text-on-surface-variant">Terminal REG-04-102 has been successfully reconciled. The shift report has been sent to the admin portal.</p>
+</div>
+<div class="pt-md">
+<button class="w-full bg-primary text-on-primary py-md rounded-xl font-h3 text-h3 active:scale-95 transition-transform" onclick="window.location.reload()">Done</button>
+</div>
+</div>
+</div>
+<script>
+        const expected = 2865.25;
+        const actualInput = document.getElementById('actual-count');
+        const discrepancyCard = document.getElementById('discrepancy-card');
+        const discrepancyAmount = document.getElementById('discrepancy-amount');
+
+        actualInput.addEventListener('input', (e) => {
+            const val = parseFloat(e.target.value) || 0;
+            const diff = val - expected;
+
+            if (Math.abs(diff) > 0.01) {
+                discrepancyCard.classList.remove('hidden');
+                discrepancyAmount.innerText = (diff >= 0 ? '+$' : '-$') + Math.abs(diff).toFixed(2);
+                discrepancyAmount.className = `font-mono-data text-h3 ${diff >= 0 ? 'text-secondary' : 'text-error'}`;
+            } else {
+                discrepancyCard.classList.add('hidden');
+            }
+        });
+
+        function reconcile() {
+            const modal = document.getElementById('success-modal');
+            modal.classList.remove('hidden');
+        }
+    </script>
+</body></html>

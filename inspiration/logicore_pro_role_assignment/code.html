@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Role Assignment - LogiCore Pro</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&amp;family=JetBrains+Mono:wght@400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "primary-fixed": "#dbe1ff",
+                      "secondary-container": "#1ca64d",
+                      "surface-container-highest": "#2d3449",
+                      "error-container": "#93000a",
+                      "on-tertiary": "#472a00",
+                      "inverse-primary": "#0053db",
+                      "surface-variant": "#2d3449",
+                      "secondary-fixed-dim": "#62df7d",
+                      "on-background": "#dae2fd",
+                      "primary-container": "#2563eb",
+                      "primary": "#b4c5ff",
+                      "tertiary-fixed-dim": "#ffb95f",
+                      "outline": "#8d90a0",
+                      "on-surface": "#dae2fd",
+                      "surface-container-low": "#131b2e",
+                      "on-tertiary-container": "#ffeedd",
+                      "inverse-surface": "#dae2fd",
+                      "outline-variant": "#434655",
+                      "on-secondary-fixed-variant": "#005320",
+                      "on-secondary-container": "#003111",
+                      "secondary": "#62df7d",
+                      "on-primary-container": "#eeefff",
+                      "on-primary": "#002a78",
+                      "surface-container-high": "#222a3d",
+                      "background": "#0b1326",
+                      "on-error": "#690005",
+                      "on-secondary": "#003914",
+                      "surface": "#0b1326",
+                      "on-surface-variant": "#c3c6d7",
+                      "on-primary-fixed": "#00174b",
+                      "secondary-fixed": "#7ffc97",
+                      "surface-dim": "#0b1326",
+                      "on-error-container": "#ffdad6",
+                      "surface-container-lowest": "#060e20",
+                      "on-tertiary-fixed-variant": "#653e00",
+                      "on-primary-fixed-variant": "#003ea8",
+                      "on-secondary-fixed": "#002109",
+                      "surface-tint": "#b4c5ff",
+                      "tertiary-container": "#996100",
+                      "surface-container": "#171f33",
+                      "on-tertiary-fixed": "#2a1700",
+                      "tertiary-fixed": "#ffddb8",
+                      "error": "#ffb4ab",
+                      "tertiary": "#ffb95f",
+                      "surface-bright": "#31394d",
+                      "primary-fixed-dim": "#b4c5ff",
+                      "inverse-on-surface": "#283044"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "gutter": "24px",
+                      "md": "16px",
+                      "lg": "24px",
+                      "xl": "32px",
+                      "sm": "8px",
+                      "margin": "32px",
+                      "xs": "4px",
+                      "base": "4px"
+              },
+              "fontFamily": {
+                      "h3": ["Inter"],
+                      "display": ["Inter"],
+                      "h2": ["Inter"],
+                      "h1": ["Inter"],
+                      "body-md": ["Inter"],
+                      "mono-data": ["JetBrains Mono"],
+                      "body-sm": ["Inter"],
+                      "label-md": ["Inter"],
+                      "body-lg": ["Inter"]
+              },
+              "fontSize": {
+                      "h3": ["20px", {"lineHeight": "1.4", "fontWeight": "600"}],
+                      "display": ["48px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                      "h2": ["24px", {"lineHeight": "1.3", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                      "h1": ["32px", {"lineHeight": "1.25", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                      "body-md": ["14px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                      "mono-data": ["13px", {"lineHeight": "1", "letterSpacing": "-0.01em", "fontWeight": "400"}],
+                      "body-sm": ["12px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                      "label-md": ["12px", {"lineHeight": "1", "letterSpacing": "0.02em", "fontWeight": "500"}],
+                      "body-lg": ["16px", {"lineHeight": "1.5", "fontWeight": "400"}]
+              }
+            }
+          }
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; background-color: #0b1326; color: #dae2fd; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        
+        /* Custom Scrollbar for dark theme */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #060e20; }
+        ::-webkit-scrollbar-thumb { background: #2d3449; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #434655; }
+
+        /* Custom select styling */
+        select {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238d90a0' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 8px center;
+            background-size: 16px;
+        }
+    </style>
+</head>
+<body class="flex min-h-screen bg-background antialiased selection:bg-primary-container selection:text-on-primary-container">
+<!-- SideNavBar -->
+<nav class="fixed left-0 top-0 h-full flex flex-col border-r border-outline-variant bg-surface-container-lowest z-40 docked h-screen w-64 transition-all duration-200 ease-in-out hidden md:flex">
+<div class="flex items-center gap-sm p-lg">
+<div class="h-8 w-8 rounded bg-primary flex items-center justify-center text-on-primary font-bold">L</div>
+<div>
+<h1 class="font-h3 text-h3 font-black text-primary leading-tight">LogiCore Pro</h1>
+<p class="font-label-md text-label-md text-on-surface-variant opacity-70">Enterprise ERP</p>
+</div>
+</div>
+<div class="flex-1 overflow-y-auto py-md flex flex-col gap-xs px-sm">
+<a class="flex items-center gap-md px-md py-sm rounded-md font-label-md text-label-md text-on-surface-variant hover:bg-surface-container transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]">dashboard</span> Dashboard
+            </a>
+<a class="flex items-center gap-md px-md py-sm rounded-md font-label-md text-label-md text-on-surface-variant hover:bg-surface-container transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]">inventory_2</span> Inventory
+            </a>
+<a class="flex items-center gap-md px-md py-sm rounded-md font-label-md text-label-md text-on-surface-variant hover:bg-surface-container transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]">warehouse</span> Warehouses
+            </a>
+<a class="flex items-center gap-md px-md py-sm rounded-md font-label-md text-label-md text-primary bg-primary-container/10 border-r-2 border-primary transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">admin_panel_settings</span> Roles &amp; Permissions
+            </a>
+<a class="flex items-center gap-md px-md py-sm rounded-md font-label-md text-label-md text-on-surface-variant hover:bg-surface-container transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]">badge</span> Employees
+            </a>
+<a class="flex items-center gap-md px-md py-sm rounded-md font-label-md text-label-md text-on-surface-variant hover:bg-surface-container transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]">security</span> Audit Logs
+            </a>
+</div>
+<div class="p-sm flex flex-col gap-xs border-t border-outline-variant/30 mt-auto">
+<a class="flex items-center gap-md px-md py-sm rounded-md font-label-md text-label-md text-on-surface-variant hover:bg-surface-container transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]">contact_support</span> Support
+            </a>
+<a class="flex items-center gap-md px-md py-sm rounded-md font-label-md text-label-md text-on-surface-variant hover:bg-surface-container transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]">settings</span> Settings
+            </a>
+</div>
+</nav>
+<!-- Main Content Area -->
+<div class="flex-1 flex flex-col md:ml-64 w-full">
+<!-- TopNavBar -->
+<header class="flex justify-between items-center w-full px-lg h-16 sticky top-0 z-30 bg-surface-container-low border-b border-outline-variant shadow-sm transition-colors md:hidden">
+<!-- Mobile View Only -->
+<div class="flex items-center gap-sm">
+<h1 class="font-h2 text-h2 font-bold text-primary">LogiCore Pro</h1>
+</div>
+<div class="flex items-center gap-md">
+<button class="text-on-surface-variant hover:text-primary transition-colors cursor-pointer active:opacity-80"><span class="material-symbols-outlined">menu</span></button>
+</div>
+</header>
+<header class="hidden md:flex justify-end items-center w-full px-lg h-16 sticky top-0 z-30 bg-surface-container-low border-b border-outline-variant shadow-sm transition-colors">
+<div class="flex items-center gap-sm">
+<button class="p-xs rounded-full text-on-surface-variant hover:bg-surface-container-highest transition-colors cursor-pointer active:opacity-80">
+<span class="material-symbols-outlined text-[20px]">notifications</span>
+</button>
+<button class="p-xs rounded-full text-on-surface-variant hover:bg-surface-container-highest transition-colors cursor-pointer active:opacity-80">
+<span class="material-symbols-outlined text-[20px]">help</span>
+</button>
+<button class="p-xs rounded-full text-on-surface-variant hover:bg-surface-container-highest transition-colors cursor-pointer active:opacity-80">
+<span class="material-symbols-outlined text-[20px]">settings</span>
+</button>
+<div class="h-8 w-8 ml-sm rounded-full bg-surface-variant border border-outline-variant overflow-hidden cursor-pointer">
+<img alt="User profile" class="h-full w-full object-cover" data-alt="A close-up portrait of a professional male warehouse manager in his late 30s, looking confidently at the camera. He is wearing a dark, minimal corporate polo shirt. The background is slightly blurred, hinting at an industrial setting with cool, ambient lighting typical of a modern, efficient logistics center." src="https://lh3.googleusercontent.com/aida/ADBb0ujVXeBLiIi5CGPm6YrHEh6T5NANR-wfcKKelOehUWkM1gfv08gCy_pgD7_sSBp7FGlLdhQnYdp-T6qigbxdCW58kaK1J6dfT8VXyj9TVhbgkr4fdmJeLNkE9rZJEiarcUjJnJF5t_sbqG2u0ucMup8dWJIB1Z4OTna-NN96St3kjOsBkxfyPoiW8iLWSBDyiVk7pOl2n3KZblD1I-_MinDqDvj27OgM-SnYQ7pVsa15W3_I_5hzevaen3js"/>
+</div>
+</div>
+</header>
+<!-- Canvas -->
+<main class="flex-1 p-gutter max-w-[1440px] w-full mx-auto">
+<!-- Header Section -->
+<div class="mb-xl flex flex-col md:flex-row md:items-end justify-between gap-md">
+<div>
+<h2 class="font-h1 text-h1 text-on-surface mb-xs">Role Assignment</h2>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-2xl">
+                        Assign or update system roles for multiple employees at once. Changes take effect immediately upon saving.
+                    </p>
+</div>
+<div class="flex gap-sm">
+<button class="flex items-center gap-xs px-md py-sm bg-surface-container border border-outline-variant rounded-md text-on-surface font-label-md hover:bg-surface-container-highest transition-colors">
+<span class="material-symbols-outlined text-[18px]">download</span> Export CSV
+                    </button>
+</div>
+</div>
+<!-- Table Wrapper / Card -->
+<div class="bg-surface-container-low border border-outline-variant rounded-lg overflow-hidden flex flex-col shadow-sm">
+<!-- Toolbar -->
+<div class="p-md border-b border-outline-variant bg-surface flex flex-col sm:flex-row justify-between items-center gap-md">
+<div class="relative w-full sm:max-w-md">
+<span class="material-symbols-outlined absolute left-sm top-1/2 -translate-y-1/2 text-on-surface-variant text-[20px]">search</span>
+<input class="w-full bg-surface-container border border-outline-variant rounded-md py-2 pl-xl pr-sm font-body-md text-on-surface focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all placeholder:text-on-surface-variant/50" placeholder="Search by name, ID, or role..." type="text"/>
+</div>
+<div class="flex items-center gap-sm w-full sm:w-auto">
+<select class="bg-surface-container border border-outline-variant rounded-md py-2 pl-sm pr-xl font-label-md text-on-surface focus:border-primary focus:ring-1 focus:ring-primary outline-none text-sm w-full sm:w-auto">
+<option value="all">All Warehouses</option>
+<option value="ny">NY-Hub Alpha</option>
+<option value="la">LA-Dist Center</option>
+</select>
+<button aria-label="Filter" class="flex items-center justify-center p-2 border border-outline-variant rounded-md bg-surface-container text-on-surface-variant hover:bg-surface-container-highest hover:text-on-surface transition-colors">
+<span class="material-symbols-outlined text-[20px]">filter_list</span>
+</button>
+</div>
+</div>
+<!-- Data Table -->
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse whitespace-nowrap">
+<thead>
+<tr class="bg-surface-container-highest border-b border-outline-variant text-on-surface-variant font-label-md">
+<th class="py-sm px-md w-12 text-center">
+<input class="rounded border-outline-variant bg-surface text-primary focus:ring-primary focus:ring-offset-background h-4 w-4 cursor-pointer" id="selectAll" type="checkbox"/>
+</th>
+<th class="py-sm px-md font-medium tracking-wide">Employee</th>
+<th class="py-sm px-md font-medium tracking-wide">Current Role</th>
+<th class="py-sm px-md font-medium tracking-wide">Current Warehouse</th>
+<th class="py-sm px-md font-medium tracking-wide">New Role Assignment</th>
+</tr>
+</thead>
+<tbody class="font-body-md text-on-surface divide-y divide-outline-variant/50 bg-surface" id="employeeTableBody">
+<!-- Row 1 -->
+<tr class="hover:bg-surface-container-highest/50 transition-colors group">
+<td class="py-sm px-md text-center">
+<input class="row-checkbox rounded border-outline-variant bg-surface text-primary focus:ring-primary focus:ring-offset-background h-4 w-4 cursor-pointer" type="checkbox"/>
+</td>
+<td class="py-sm px-md flex items-center gap-3">
+<div class="h-8 w-8 rounded-full bg-surface-variant overflow-hidden border border-outline-variant/50">
+<img alt="Sarah Jenkins" class="h-full w-full object-cover" data-alt="A portrait of a professional female logistics coordinator in her 40s. She is wearing a practical, dark grey zip-up jacket. The lighting is bright but neutral, indicative of a corporate office environment. The background is a clean, minimal white wall." src="https://lh3.googleusercontent.com/aida/ADBb0ug3mMECYFOcTMLdKOY4E3LH7mmjQbOGQZO-BracJ0ezqaMvTCuhb7NJi4kZv042VzTdqYUV8NTE0SN-ZyUtxzF_X__R9qsaVdKDWkzFOADZ5zQSUzmH_FopF1glJyY_57zq_sHyspRa3wmf36rrr-ikCBqq_BAbHlMPiJ7hmc7yfFkb4W49VvsRaYx_4CjscWwi91N9ijTdTzsSndyaNZ8JJ9mEzLraYaeEWUe48aGi9UYVV7YBBOd9oow"/>
+</div>
+<div class="flex flex-col">
+<span class="font-medium text-on-surface">Sarah Jenkins</span>
+<span class="font-mono-data text-mono-data text-on-surface-variant opacity-70">EMP-8492</span>
+</div>
+</td>
+<td class="py-sm px-md">
+<span class="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-primary-container/20 text-primary border border-primary/20">
+                                        Inventory Specialist
+                                    </span>
+</td>
+<td class="py-sm px-md text-on-surface-variant font-mono-data text-mono-data">NY-Hub Alpha</td>
+<td class="py-sm px-md">
+<select class="w-full max-w-[200px] bg-surface-container border border-outline-variant rounded py-1 pl-2 pr-8 font-label-md text-on-surface focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors group-hover:border-outline">
+<option selected="" value="keep">Keep Current Role</option>
+<option value="manager">Warehouse Manager</option>
+<option value="picker">Order Picker</option>
+<option value="auditor">Auditor</option>
+</select>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-surface-container-highest/50 transition-colors group">
+<td class="py-sm px-md text-center">
+<input class="row-checkbox rounded border-outline-variant bg-surface text-primary focus:ring-primary focus:ring-offset-background h-4 w-4 cursor-pointer" type="checkbox"/>
+</td>
+<td class="py-sm px-md flex items-center gap-3">
+<div class="h-8 w-8 rounded-full bg-surface-variant overflow-hidden border border-outline-variant/50">
+<img alt="Marcus Chen" class="h-full w-full object-cover" data-alt="A portrait of a young male warehouse operative in his 20s. He has short hair and a focused expression. He is wearing a high-visibility vest over a dark t-shirt. The background is a slightly out-of-focus warehouse setting with tall shelving units in a dark, linear style." src="https://lh3.googleusercontent.com/aida/ADBb0ujiIzUocTmI9C8uJCKWXIZg6zR6TyD79-ta4dpnJxGMIwnZ0IhTrUXvBcr3cxJnKbw2TbpDajFJ-hiAZrsRQBpWAXyrqmMIIajZhsG0FffalWTEA_nN9Be0psjaUxQywqSUSyx2zHJ-3Mvgj4s5J-wLUY_X3a6Dk8KS6gFE6TazTWMWgvjxSrGsN09Z6RqwYTCGQa_xSNt0Dpdb4CzNOfHrbs7GxbeuXXG4eN93iD2Za2Am13QQjXb7BijP"/>
+</div>
+<div class="flex flex-col">
+<span class="font-medium text-on-surface">Marcus Chen</span>
+<span class="font-mono-data text-mono-data text-on-surface-variant opacity-70">EMP-3011</span>
+</div>
+</td>
+<td class="py-sm px-md">
+<span class="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-surface-variant text-on-surface border border-outline-variant/50">
+                                        Order Picker
+                                    </span>
+</td>
+<td class="py-sm px-md text-on-surface-variant font-mono-data text-mono-data">LA-Dist Center</td>
+<td class="py-sm px-md">
+<select class="w-full max-w-[200px] bg-surface-container border border-outline-variant rounded py-1 pl-2 pr-8 font-label-md text-on-surface focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors group-hover:border-outline">
+<option selected="" value="keep">Keep Current Role</option>
+<option value="manager">Warehouse Manager</option>
+<option value="specialist">Inventory Specialist</option>
+<option value="auditor">Auditor</option>
+</select>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-surface-container-highest/50 transition-colors group">
+<td class="py-sm px-md text-center">
+<input class="row-checkbox rounded border-outline-variant bg-surface text-primary focus:ring-primary focus:ring-offset-background h-4 w-4 cursor-pointer" type="checkbox"/>
+</td>
+<td class="py-sm px-md flex items-center gap-3">
+<div class="h-8 w-8 rounded-full bg-surface-variant overflow-hidden border border-outline-variant/50">
+<img alt="Elena Rodriguez" class="h-full w-full object-cover" data-alt="A portrait of a confident female operations director in her 30s. She has dark hair tied back and is wearing a dark, structured blazer. The lighting is moody and professional, creating soft shadows. The background is a solid, dark slate color, fitting an enterprise UI aesthetic." src="https://lh3.googleusercontent.com/aida/ADBb0uiiLv1dpjd6llNH4su1yvG0erphzEzBVbE6XQM9Vr8vjfXn-rr_9HbRJMYpRcLgxtAdQeTNKeLQ89SOsQJHrbHvztsnBe1C5SvIlfashwR5qS9FWscZ-lK581W24RhzEXVz9iyxqHe5Q74ClVttTTznbA4szFi2hU5ck6WQxqrRqHaF8afkHkcM_mc8g_BnZQCPCIYC6f1QBbokTu8fdiGFNDvSN5XzfyspY2uSGfA8rUVBRwxtj56LofE"/>
+</div>
+<div class="flex flex-col">
+<span class="font-medium text-on-surface">Elena Rodriguez</span>
+<span class="font-mono-data text-mono-data text-on-surface-variant opacity-70">EMP-1102</span>
+</div>
+</td>
+<td class="py-sm px-md">
+<span class="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-secondary-container/20 text-secondary border border-secondary/20">
+                                        Warehouse Manager
+                                    </span>
+</td>
+<td class="py-sm px-md text-on-surface-variant font-mono-data text-mono-data">NY-Hub Alpha</td>
+<td class="py-sm px-md">
+<select class="w-full max-w-[200px] bg-surface-container border border-outline-variant rounded py-1 pl-2 pr-8 font-label-md text-on-surface focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors group-hover:border-outline">
+<option selected="" value="keep">Keep Current Role</option>
+<option value="director">Operations Director</option>
+<option value="auditor">Auditor</option>
+</select>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Pagination Footer -->
+<div class="p-sm border-t border-outline-variant bg-surface flex justify-between items-center text-sm">
+<span class="text-on-surface-variant font-body-sm">Showing 1-3 of 124 employees</span>
+<div class="flex gap-1">
+<button class="p-1 rounded text-on-surface-variant hover:bg-surface-container-highest disabled:opacity-50" disabled=""><span class="material-symbols-outlined text-[18px]">chevron_left</span></button>
+<button class="p-1 rounded text-on-surface-variant hover:bg-surface-container-highest"><span class="material-symbols-outlined text-[18px]">chevron_right</span></button>
+</div>
+</div>
+</div>
+</main>
+</div>
+<!-- Bulk Actions Bar -->
+<div class="fixed bottom-lg left-1/2 -translate-x-1/2 md:ml-32 transform translate-y-24 opacity-0 transition-all duration-300 ease-out flex items-center justify-between bg-surface-bright border border-outline-variant px-lg py-sm rounded-lg shadow-[0_8px_30px_rgb(0,0,0,0.5)] z-50 w-[90%] max-w-2xl" id="bulkActionsBar">
+<div class="flex items-center gap-md">
+<div class="flex items-center justify-center h-8 w-8 rounded-full bg-primary-container/20 text-primary">
+<span class="material-symbols-outlined text-[18px]">check_box</span>
+</div>
+<div>
+<span class="font-label-md text-on-surface block leading-tight"><span class="text-primary font-bold" id="selectedCount">0</span> Employees Selected</span>
+<span class="font-body-sm text-on-surface-variant opacity-80 block leading-tight">Ready for bulk modification</span>
+</div>
+</div>
+<div class="flex items-center gap-sm">
+<button class="px-md py-2 bg-surface-container-low border border-outline-variant rounded text-on-surface font-label-md hover:bg-surface-container-high hover:border-outline transition-colors">
+                Change Warehouse
+            </button>
+<button class="px-md py-2 bg-primary-container text-on-primary-container rounded font-label-md hover:bg-inverse-primary transition-colors flex items-center gap-xs shadow-sm">
+                Apply New Roles
+            </button>
+</div>
+</div>
+<script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const selectAll = document.getElementById('selectAll');
+            const rowCheckboxes = document.querySelectorAll('.row-checkbox');
+            const bulkActionsBar = document.getElementById('bulkActionsBar');
+            const selectedCountSpan = document.getElementById('selectedCount');
+
+            function updateBulkActions() {
+                const checkedCount = document.querySelectorAll('.row-checkbox:checked').length;
+                selectedCountSpan.textContent = checkedCount;
+
+                if (checkedCount > 0) {
+                    bulkActionsBar.classList.remove('translate-y-24', 'opacity-0');
+                    bulkActionsBar.classList.add('translate-y-0', 'opacity-100');
+                } else {
+                    bulkActionsBar.classList.remove('translate-y-0', 'opacity-100');
+                    bulkActionsBar.classList.add('translate-y-24', 'opacity-0');
+                }
+            }
+
+            selectAll.addEventListener('change', (e) => {
+                rowCheckboxes.forEach(cb => {
+                    cb.checked = e.target.checked;
+                    // Optional: Highlight row
+                    const row = cb.closest('tr');
+                    if (e.target.checked) row.classList.add('bg-primary-container/5');
+                    else row.classList.remove('bg-primary-container/5');
+                });
+                updateBulkActions();
+            });
+
+            rowCheckboxes.forEach(cb => {
+                cb.addEventListener('change', (e) => {
+                    // Optional: Highlight row
+                    const row = e.target.closest('tr');
+                    if (e.target.checked) row.classList.add('bg-primary-container/5');
+                    else row.classList.remove('bg-primary-container/5');
+
+                    // Update select all state
+                    const allChecked = Array.from(rowCheckboxes).every(c => c.checked);
+                    const someChecked = Array.from(rowCheckboxes).some(c => c.checked);
+                    selectAll.checked = allChecked;
+                    selectAll.indeterminate = someChecked && !allChecked;
+
+                    updateBulkActions();
+                });
+            });
+        });
+    </script>
+</body></html>

@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+
+<html class="light dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>LogisticsVault - Activity Timeline</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&amp;family=Jetbrains+Mono:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">tailwind.config = {darkMode: "class", theme: {extend: {colors: {"tertiary-container": "#00180d", "surface-container-high": "#1b2b3f", "outline-variant": "#45464d", "tertiary-fixed-dim": "#4edea3", "on-error": "#690005", "on-surface": "#d3e4fe", "surface-variant": "#26364a", "error-container": "#93000a", "primary-container": "#0b1326", background: "#031427", "secondary-fixed": "#e3e1e8", "on-background": "#d3e4fe", "on-tertiary-container": "#009063", "on-primary-container": "#767e95", "surface-container": "#102034", primary: "#bfc6e0", "on-tertiary-fixed": "#002113", "surface-container-lowest": "#000f21", "inverse-on-surface": "#213145", "surface-bright": "#2a3a4f", "surface-tint": "#bfc6e0", "surface-container-low": "#0b1c30", outline: "#909097", secondary: "#c7c6cc", "tertiary-fixed": "#6ffbbe", "on-primary-fixed": "#131b2e", "on-secondary-fixed": "#1a1b20", "inverse-surface": "#d3e4fe", "on-secondary-container": "#b5b4bb", "on-secondary": "#2f3035", error: "#ffb4ab", "on-tertiary": "#003824", tertiary: "#4edea3", "primary-fixed-dim": "#bfc6e0", "primary-fixed": "#dbe2fd", "secondary-fixed-dim": "#c7c6cc", surface: "#031427", "on-tertiary-fixed-variant": "#005236", "on-primary": "#283044", "on-primary-fixed-variant": "#3f465c", "on-secondary-fixed-variant": "#46464c", "secondary-container": "#46464c", "inverse-primary": "#565e74", "surface-container-highest": "#26364a", "on-surface-variant": "#c6c6cd", "surface-dim": "#031427", "on-error-container": "#ffdad6"}, borderRadius: {DEFAULT: "0.25rem", lg: "0.5rem", xl: "0.75rem", full: "9999px"}, spacing: {"container-padding": "32px", "sidebar-width": "260px", unit: "4px", "table-cell-padding": "12px 16px", "stack-gap": "16px"}, fontFamily: {"body-sm": ["Inter"], "metadata-code": ["JetBrains Mono"], "headline-lg": ["Inter"], "headline-md": ["Inter"], "label-caps": ["Inter"], "body-lg": ["Inter"], "body-md": ["Inter"], "headline-sm": ["Inter"], headline: ["Inter"], display: ["Inter"], body: ["Inter"], label: ["Jetbrains Mono"]}, fontSize: {"body-sm": ["12px", {lineHeight: "18px", fontWeight: "400"}], "metadata-code": ["13px", {lineHeight: "20px", fontWeight: "450"}], "headline-lg": ["30px", {lineHeight: "36px", letterSpacing: "-0.02em", fontWeight: "600"}], "headline-md": ["24px", {lineHeight: "32px", letterSpacing: "-0.01em", fontWeight: "600"}], "label-caps": ["11px", {lineHeight: "16px", letterSpacing: "0.05em", fontWeight: "700"}], "body-lg": ["16px", {lineHeight: "24px", fontWeight: "400"}], "body-md": ["14px", {lineHeight: "20px", fontWeight: "400"}], "headline-sm": ["18px", {lineHeight: "24px", fontWeight: "600"}]}}}};</script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+        .timeline-line::before {
+            content: '';
+            position: absolute;
+            left: 23px;
+            top: 40px;
+            bottom: -20px;
+            width: 1px;
+            background-color: #e2e8f0;
+        }
+        .last-entry .timeline-line::before { display: none; }
+    </style>
+</head>
+<body class="bg-background text-on-background">
+<!-- Side Navigation Shell -->
+<nav class="bg-surface-dim dark:bg-surface-container-lowest h-screen w-64 fixed left-0 top-0 flex flex-col h-full py-8 px-4 border-r border-outline-variant shadow-sm z-50">
+<div class="mb-10 px-2">
+<h1 class="font-headline-md text-headline-md font-black text-primary tracking-tight">LogisticsVault</h1>
+<p class="font-body-sm text-body-sm text-on-surface-variant uppercase tracking-widest font-bold mt-1">Enterprise Audit</p>
+</div>
+<div class="flex-1 space-y-1">
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors duration-200 active:scale-95 transition-transform font-body-md text-body-md" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+                Dashboard
+            </a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors duration-200 active:scale-95 transition-transform font-body-md text-body-md" href="#">
+<span class="material-symbols-outlined">list_alt</span>
+                Audit Log Table
+            </a>
+<!-- ACTIVE TAB: Activity Timeline -->
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-primary dark:text-secondary bg-secondary-container/10 border-r-2 border-secondary font-bold active:scale-95 transition-transform font-body-md text-body-md" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">timeline</span>
+                Activity Timeline
+            </a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors duration-200 active:scale-95 transition-transform font-body-md text-body-md" href="#">
+<span class="material-symbols-outlined">security</span>
+                Security Events
+            </a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors duration-200 active:scale-95 transition-transform font-body-md text-body-md" href="#">
+<span class="material-symbols-outlined">category</span>
+                Module Logs
+            </a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors duration-200 active:scale-95 transition-transform font-body-md text-body-md" href="#">
+<span class="material-symbols-outlined">analytics</span>
+                Analytics
+            </a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors duration-200 active:scale-95 transition-transform font-body-md text-body-md" href="#">
+<span class="material-symbols-outlined">ios_share</span>
+                Export
+            </a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors duration-200 active:scale-95 transition-transform font-body-md text-body-md" href="#">
+<span class="material-symbols-outlined">verified</span>
+                Compliance
+            </a>
+</div>
+<div class="mt-auto pt-6 border-t border-outline-variant flex items-center gap-3 px-2">
+<img alt="Organization Logo" class="w-8 h-8 rounded bg-primary-container" src="https://lh3.googleusercontent.com/aida/AP1WRLulxU8KbBl1rxf7cqMoRhnZG0zG8hhgJqgfdwBilnB2TMPL106FlEez588KyEMifW_xCt5VQYEPpYIOHwjn9gpYkqACGbpuQ30pFLI_nQmimoVwOppuGSncxSihdKSsPuhExiHTUozd6q2JHzhPPn6CdSD4_JQHYIDniC6dCh0cjZbbrpNFfwwzARiMVysfVAQU0_O1xcWKL7g0yGeqcBwjz9tIrMYk0sY26cqdoGz76mqAKwQjl0w086RG"/>
+<div class="flex-1 overflow-hidden">
+<p class="font-label-md text-label-md font-bold truncate">LogisticsVault Corp</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant truncate">ID: LV-992-PX</p>
+</div>
+</div>
+</nav>
+<!-- Top Navigation Shell -->
+<header class="fixed top-0 right-0 left-64 h-16 bg-surface-container-high/50 backdrop-blur-md border-b border-outline-variant flex justify-between items-center px-8 z-40 shadow-md">
+<div class="flex items-center gap-4">
+<span class="font-h3 text-h3 font-bold text-on-surface">Audit Management System</span>
+<div class="h-4 w-px bg-outline-variant mx-2"></div>
+<nav class="flex gap-4 font-body-sm text-body-sm">
+<span class="text-on-surface-variant">System</span>
+<span class="text-on-surface-variant">/</span>
+<span class="text-primary font-bold border-b-2 border-primary pb-1">Activity Timeline</span>
+</nav>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-2 px-3 py-1.5 bg-surface-container-highest rounded-lg cursor-pointer hover:bg-surface-container-highest/80 transition-all">
+<span class="material-symbols-outlined text-on-surface-variant">calendar_today</span>
+<span class="font-body-sm text-body-sm">Last 24 Hours</span>
+</div>
+<div class="flex gap-3">
+<button class="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-surface-container-highest transition-all cursor-pointer active:opacity-80">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-surface-container-highest transition-all cursor-pointer active:opacity-80">
+<span class="material-symbols-outlined">settings</span>
+</button>
+</div>
+<div class="w-8 h-8 rounded-full bg-surface-container-highest overflow-hidden cursor-pointer active:opacity-80">
+<img alt="User Profile Avatar" src="https://lh3.googleusercontent.com/aida/AP1WRLtOSygsWvJqNFvnLV5gNXUyEwTyGFNvYhUKfJFivKQgn5NrBgVYUj5TcBYCgKHVgxRzABh5u_4ue4wNWsmpJ2Pkx7uIKE5aEs5cZrjVQJ7sucSgvPfsi2QjnLj7J97pMEmmwik41UDFuqa5hwusObsHksf_1Fl4vhrliONQ_FeVKFzGx03rfi9VjnduRrkoZJjw2OMdwrYpowL4-L0QDXrbPU5HGlyXYETIaTcB78ZkRSXcEpZInuoaPdxj"/>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="ml-64 pt-16 min-h-screen p-8">
+<div class="max-w-6xl mx-auto space-y-8">
+<!-- Page Header & Filters -->
+<div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 pb-6 border-b border-outline-variant">
+<div>
+<h2 class="font-headline-lg text-headline-lg text-on-surface">System Activity Timeline</h2>
+<p class="font-body-md text-body-md text-on-surface-variant mt-2">Monitoring high-integrity audit trails across all modules.</p>
+</div>
+<div class="flex flex-wrap gap-3">
+<div class="flex items-center bg-white border border-outline-variant rounded px-3 py-2 shadow-sm">
+<span class="material-symbols-outlined text-outline mr-2 text-sm">filter_list</span>
+<select class="border-none focus:ring-0 font-body-md text-body-md py-0 bg-transparent">
+<option>All Modules</option>
+<option>Inventory</option>
+<option>Security</option>
+<option>User Admin</option>
+</select>
+</div>
+<div class="flex items-center bg-white border border-outline-variant rounded px-3 py-2 shadow-sm">
+<span class="material-symbols-outlined text-outline mr-2 text-sm">sort</span>
+<select class="border-none focus:ring-0 font-body-md text-body-md py-0 bg-transparent">
+<option>Newest First</option>
+<option>Oldest First</option>
+</select>
+</div>
+</div>
+</div>
+<!-- Timeline View -->
+<div class="space-y-12">
+<!-- Group: Today -->
+<section>
+<div class="flex items-center gap-4 mb-8">
+<span class="font-label-caps text-label-caps text-outline uppercase tracking-widest">Today</span>
+<div class="h-px flex-1 bg-outline-variant"></div>
+</div>
+<div class="space-y-0">
+<!-- Entry 1 -->
+<div class="relative pl-12 pb-10 timeline-line">
+<div class="absolute left-0 top-0 w-12 h-12 flex items-center justify-center z-10">
+<div class="w-12 h-12 rounded-full border-2 border-white bg-surface-container flex items-center justify-center overflow-hidden shadow-sm">
+<img alt="Alex Rivers" class="w-full h-full object-cover" data-alt="A clean, minimalist vector avatar of a professional compliance officer with a modern haircut and focused expression. The illustration uses a palette of soft grays and deep blues against a bright, airy background, maintaining a high-contrast corporate aesthetic suitable for an enterprise audit dashboard." src="https://lh3.googleusercontent.com/aida/AP1WRLsJp8B1zCoVrOexdpedz-X-s4vTqPkg3LFa0L7eTKvHKjvQ9_jgWxpyZPfHM9IwxMLVRxE-QaLSGalkTInzdgvI8r5wRiJPB6bXFEcGDQ_7MYKKsJ-OJXZgWjzAMaEfHEb5zzxgcT1ax-_0lDJ0YBgkEodt-zHIJ3VbVJrjyTxlyQmhp2w4DoDxvnUzo32uGWGC0iPra5HA8GZIl6KWhfrKL8O7LwNl4XdPbLOi1AbKsdCa2fdOjR-uYrcu"/>
+</div>
+<div class="absolute -right-1 -bottom-1 w-6 h-6 rounded-full bg-tertiary-fixed-dim/20 border-2 border-white flex items-center justify-center">
+<span class="material-symbols-outlined text-[14px] text-on-tertiary-fixed-variant" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+</div>
+<div class="bg-white border border-outline-variant rounded-xl p-6 shadow-sm hover:bg-surface-container-low transition-colors duration-200">
+<div class="flex justify-between items-start mb-4">
+<div class="flex flex-col">
+<span class="font-headline-sm text-headline-sm text-on-surface">Inventory Adjusted</span>
+<div class="flex items-center gap-3 mt-1">
+<span class="font-label-caps text-label-caps bg-surface-container-high px-2 py-0.5 rounded">INVENTORY</span>
+<span class="font-metadata-code text-metadata-code text-on-surface-variant">ID: #INV-9021-X</span>
+</div>
+</div>
+<div class="text-right">
+<span class="font-metadata-code text-metadata-code text-on-surface-variant">02:45 PM</span>
+<div class="flex items-center gap-1 justify-end text-tertiary-fixed-dim mt-1">
+<span class="w-1 h-3 bg-tertiary-fixed-dim rounded-full"></span>
+<span class="font-label-caps text-label-caps font-bold">SUCCESS</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-2 mb-4">
+<span class="font-body-md text-body-md text-on-surface font-semibold">Alex Rivers</span>
+<span class="font-body-md text-body-md text-on-surface-variant">re-calibrated regional distribution quantities in Sector 7G.</span>
+</div>
+<div class="bg-surface-bright border border-outline-variant/30 rounded p-3 font-metadata-code text-metadata-code text-on-surface-variant">
+<span class="text-on-tertiary-fixed-variant">diff</span>: -2,400 units (Safety Stock Buffer adjusted)
+                                </div>
+</div>
+</div>
+<!-- Entry 2 -->
+<div class="relative pl-12 pb-10 timeline-line">
+<div class="absolute left-0 top-0 w-12 h-12 flex items-center justify-center z-10">
+<div class="w-12 h-12 rounded-full border-2 border-white bg-surface-container flex items-center justify-center overflow-hidden shadow-sm">
+<img alt="Jordan Smith" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida/AP1WRLuA0EGRzU_DIK8COTt3WzgctDI35cZQOpiM6QwkJ6ibNcR4bphQGBdB6h9Lcuo1Zq4hkBcm0REOVYy06MoMXLHLZ-JqrPZI24VDYUngNug3pYinmcoF9b9riQU4Um3VcUONiiE4X4lnXQN8rGbA-QFTFFyhMqQAxKyszn3k7tGvCEPYg_rDnfxIanlg81VeaetYCKsnnFXRobZoTB1SJOoZh5vaS2bCOR0mDepFLHd-dX99xYA0GERKi3Wu"/>
+</div>
+<div class="absolute -right-1 -bottom-1 w-6 h-6 rounded-full bg-error-container border-2 border-white flex items-center justify-center">
+<span class="material-symbols-outlined text-[14px] text-error">warning</span>
+</div>
+</div>
+<div class="bg-white border border-outline-variant border-l-4 border-l-error rounded-xl p-6 shadow-sm hover:bg-surface-container-low transition-colors duration-200">
+<div class="flex justify-between items-start mb-4">
+<div class="flex flex-col">
+<span class="font-headline-sm text-headline-sm text-on-surface">Unauthorized Access Attempt</span>
+<div class="flex items-center gap-3 mt-1">
+<span class="font-label-caps text-label-caps bg-error-container text-error px-2 py-0.5 rounded">SECURITY</span>
+<span class="font-metadata-code text-metadata-code text-error font-bold tracking-tight">ALERT-CRITICAL</span>
+</div>
+</div>
+<div class="text-right">
+<span class="font-metadata-code text-metadata-code text-on-surface-variant">11:12 AM</span>
+<div class="flex items-center gap-1 justify-end text-error mt-1">
+<span class="w-1 h-3 bg-error rounded-full"></span>
+<span class="font-label-caps text-label-caps font-bold">FAILED</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-2 mb-4">
+<span class="font-body-md text-body-md text-on-surface font-semibold">Jordan Smith</span>
+<span class="font-body-md text-body-md text-on-surface-variant">attempted to bypass MFA on the Global Ledger Module.</span>
+</div>
+<div class="bg-primary-container text-on-primary-container p-4 rounded-lg font-metadata-code text-metadata-code overflow-x-auto">
+<div class="flex gap-4">
+<span class="text-on-tertiary-container">ERR_AUTH_012</span>
+<span class="text-on-primary-container/60">|</span>
+<span>IP: 192.168.1.104</span>
+<span class="text-on-primary-container/60">|</span>
+<span class="text-error">ACCESS_DENIED</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Entry 3 -->
+<div class="relative pl-12 pb-10 timeline-line">
+<div class="absolute left-0 top-0 w-12 h-12 flex items-center justify-center z-10">
+<div class="w-12 h-12 rounded-full border-2 border-white bg-surface-container flex items-center justify-center overflow-hidden shadow-sm">
+<img alt="Morgan Lee" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida/AP1WRLtuyvct2EBlmAtRs_xRX3uARbJu1KCWVM7AKQFJ_Lz_Il2DTkS-_xadAwMU3pyKJuXkhiKycaShnjBUlfbY7ZuYzUM5j2yVbldZhzfWkx50onS81SNnCxawTxUMhuYwMhooEQ39XksOjgtw--x5RJj__EtBrsuhYExuR9_bD_UeqDu1E6ynHJuENuKy4Neh1b8dt2sUzOdjsTbvE4s5WSo987nhYkl7eJR0PwflQDevuIegueomitjuJ7k"/>
+</div>
+<div class="absolute -right-1 -bottom-1 w-6 h-6 rounded-full bg-tertiary-fixed-dim/20 border-2 border-white flex items-center justify-center">
+<span class="material-symbols-outlined text-[14px] text-on-tertiary-fixed-variant" style="font-variation-settings: 'FILL' 1;">info</span>
+</div>
+</div>
+<div class="bg-white border border-outline-variant rounded-xl p-6 shadow-sm hover:bg-surface-container-low transition-colors duration-200">
+<div class="flex justify-between items-start mb-4">
+<div class="flex flex-col">
+<span class="font-headline-sm text-headline-sm text-on-surface">Policy Update Applied</span>
+<div class="flex items-center gap-3 mt-1">
+<span class="font-label-caps text-label-caps bg-surface-container-high px-2 py-0.5 rounded">COMPLIANCE</span>
+</div>
+</div>
+<div class="text-right">
+<span class="font-metadata-code text-metadata-code text-on-surface-variant">08:02 AM</span>
+<div class="flex items-center gap-1 justify-end text-tertiary-fixed-dim mt-1">
+<span class="w-1 h-3 bg-tertiary-fixed-dim rounded-full"></span>
+<span class="font-label-caps text-label-caps font-bold">SUCCESS</span>
+</div>
+</div>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant">
+<span class="font-semibold text-on-surface">Morgan Lee</span> updated the Data Retention Policy to align with new regional GDPR directives (V2.4).
+                                </p>
+</div>
+</div>
+</div>
+</section>
+<!-- Group: Yesterday -->
+<section>
+<div class="flex items-center gap-4 mb-8">
+<span class="font-label-caps text-label-caps text-outline uppercase tracking-widest">Yesterday</span>
+<div class="h-px flex-1 bg-outline-variant"></div>
+</div>
+<div class="space-y-0">
+<!-- Entry 4 -->
+<div class="relative pl-12 pb-10 timeline-line last-entry">
+<div class="absolute left-0 top-0 w-12 h-12 flex items-center justify-center z-10">
+<div class="w-12 h-12 rounded-full border-2 border-white bg-surface-container flex items-center justify-center overflow-hidden shadow-sm">
+<img alt="Casey Chen" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida/AP1WRLta2Ia67dW45rtRVvNR1ZEjOOv8z8RF77Ilyf0QzzQpOvXnsw38YU3einzXr115hSPYvlOH34dZJD1QWPxR_KRoz1q7DcXJZ6y1lIHD3Ll30HcSKnN8O1gobqtoDbGyfaTJC2Pakpn1wo5QkVKaLa8Bg_zJwl9rKFLHwTvbZhq1focOovkgwGzZnHk9pFsJIsnycsAXCAnkZO_aQFls83GjEYMEWm1G8CLssa3JyV5OxJQMu0zTquMpgqk"/>
+</div>
+<div class="absolute -right-1 -bottom-1 w-6 h-6 rounded-full bg-tertiary-fixed-dim/20 border-2 border-white flex items-center justify-center">
+<span class="material-symbols-outlined text-[14px] text-on-tertiary-fixed-variant" style="font-variation-settings: 'FILL' 1;">verified</span>
+</div>
+</div>
+<div class="bg-white border border-outline-variant rounded-xl p-6 shadow-sm hover:bg-surface-container-low transition-colors duration-200">
+<div class="flex justify-between items-start mb-4">
+<div class="flex flex-col">
+<span class="font-headline-sm text-headline-sm text-on-surface">Module Logs Exported</span>
+<div class="flex items-center gap-3 mt-1">
+<span class="font-label-caps text-label-caps bg-surface-container-high px-2 py-0.5 rounded">REPORTS</span>
+</div>
+</div>
+<div class="text-right">
+<span class="font-metadata-code text-metadata-code text-on-surface-variant">10:45 PM</span>
+<div class="flex items-center gap-1 justify-end text-tertiary-fixed-dim mt-1">
+<span class="w-1 h-3 bg-tertiary-fixed-dim rounded-full"></span>
+<span class="font-label-caps text-label-caps font-bold">SUCCESS</span>
+</div>
+</div>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant">
+<span class="font-semibold text-on-surface">Casey Chen</span> generated a full system audit export for the Q3 Regulatory Review. 
+                                </p>
+<div class="mt-4 flex gap-4">
+<button class="flex items-center gap-2 font-label-caps text-label-caps border border-outline-variant px-3 py-1.5 rounded hover:bg-surface-container transition-all">
+<span class="material-symbols-outlined text-sm">download</span>
+                                        DOWNLOAD CSV
+                                    </button>
+<button class="flex items-center gap-2 font-label-caps text-label-caps border border-outline-variant px-3 py-1.5 rounded hover:bg-surface-container transition-all">
+<span class="material-symbols-outlined text-sm">visibility</span>
+                                        PREVIEW
+                                    </button>
+</div>
+</div>
+</div>
+</div>
+</section>
+</div>
+<!-- Empty State / Load More -->
+<div class="flex flex-col items-center justify-center py-12 border-t border-outline-variant border-dashed">
+<p class="font-body-md text-body-md text-on-surface-variant mb-4 text-center">You've reached the end of the recent activity trail.<br/>Audit logs are archived every 30 days.</p>
+<button class="flex items-center gap-2 bg-primary text-on-primary font-label-caps text-label-caps px-6 py-2.5 rounded-lg shadow hover:opacity-90 active:scale-95 transition-all">
+                    LOAD HISTORICAL ARCHIVE
+                    <span class="material-symbols-outlined text-sm">history</span>
+</button>
+</div>
+</div>
+</main>
+<!-- Floating Help Button -->
+<button class="fixed bottom-8 right-8 w-14 h-14 bg-primary-container text-on-primary-container rounded-full shadow-lg flex items-center justify-center hover:scale-105 active:scale-95 transition-transform group">
+<span class="material-symbols-outlined text-2xl group-hover:rotate-12 transition-transform">help</span>
+</button>
+<script>
+        // Simple micro-interaction for entry cards
+        document.querySelectorAll('.bg-white.border').forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                card.classList.add('translate-x-1');
+            });
+            card.addEventListener('mouseleave', () => {
+                card.classList.remove('translate-x-1');
+            });
+        });
+
+        // Search bar interaction
+        const searchInput = document.createElement('div');
+        // Placeholder for future logic
+    </script>
+</body></html>

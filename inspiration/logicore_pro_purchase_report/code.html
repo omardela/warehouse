@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;family=JetBrains+Mono:wght@500&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+                  "on-error": "#ffffff",
+                  "surface-container-low": "#f2f3ff",
+                  "on-primary": "#ffffff",
+                  "inverse-surface": "#283044",
+                  "tertiary-container": "#9c6300",
+                  "background": "#faf8ff",
+                  "on-error-container": "#93000a",
+                  "surface-variant": "#dbe2fd",
+                  "on-secondary-fixed-variant": "#005236",
+                  "on-surface": "#131b2e",
+                  "tertiary-fixed": "#ffddb8",
+                  "secondary": "#006c49",
+                  "on-primary-container": "#f3f3ff",
+                  "on-primary-fixed": "#00174b",
+                  "on-secondary-fixed": "#002113",
+                  "secondary-fixed-dim": "#4edea3",
+                  "on-background": "#131b2e",
+                  "inverse-on-surface": "#eef0ff",
+                  "tertiary": "#7b4d00",
+                  "error": "#ba1a1a",
+                  "on-secondary": "#ffffff",
+                  "inverse-primary": "#b4c5ff",
+                  "outline": "#737687",
+                  "outline-variant": "#c2c6d9",
+                  "primary-container": "#0062ff",
+                  "error-container": "#ffdad6",
+                  "secondary-container": "#6cf8bb",
+                  "surface-container": "#eaedff",
+                  "primary-fixed": "#dbe1ff",
+                  "tertiary-fixed-dim": "#ffb95f",
+                  "surface-container-high": "#e2e7ff",
+                  "surface": "#faf8ff",
+                  "primary-fixed-dim": "#b4c5ff",
+                  "surface-bright": "#faf8ff",
+                  "surface-container-lowest": "#ffffff",
+                  "on-surface-variant": "#424656",
+                  "surface-dim": "#d2d9f4",
+                  "on-tertiary-fixed-variant": "#653e00",
+                  "on-tertiary-container": "#fff2e7",
+                  "on-primary-fixed-variant": "#003ea8",
+                  "primary": "#004cca",
+                  "on-tertiary-fixed": "#2a1700",
+                  "surface-tint": "#0053da",
+                  "secondary-fixed": "#6ffbbe",
+                  "surface-container-highest": "#dbe2fd",
+                  "on-tertiary": "#ffffff",
+                  "on-secondary-container": "#00714d"
+          },
+          "borderRadius": {
+                  "DEFAULT": "0.25rem",
+                  "lg": "0.5rem",
+                  "xl": "0.75rem",
+                  "full": "9999px"
+          },
+          "spacing": {
+                  "xl": "40px",
+                  "container-max": "1440px",
+                  "lg": "24px",
+                  "md": "16px",
+                  "xs": "4px",
+                  "sm": "8px",
+                  "base": "4px",
+                  "gutter": "24px"
+          },
+          "fontFamily": {
+                  "mono-stats": ["JetBrains Mono"],
+                  "headline-sm": ["Inter"],
+                  "body-lg": ["Inter"],
+                  "display-lg": ["Inter"],
+                  "label-md": ["Inter"],
+                  "headline-md": ["Inter"],
+                  "display-lg-mobile": ["Inter"],
+                  "label-sm": ["Inter"],
+                  "body-md": ["Inter"]
+          },
+          "fontSize": {
+                  "mono-stats": ["14px", {"lineHeight": "20px", "fontWeight": "500"}],
+                  "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                  "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                  "display-lg": ["36px", {"lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                  "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                  "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                  "display-lg-mobile": ["28px", {"lineHeight": "34px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                  "label-sm": ["11px", {"lineHeight": "14px", "fontWeight": "500"}],
+                  "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}]
+          }
+        },
+      },
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #c2c6d9;
+      border-radius: 10px;
+    }
+    .chart-gradient {
+      background: linear-gradient(180deg, rgba(0, 98, 255, 0.1) 0%, rgba(0, 98, 255, 0) 100%);
+    }
+  </style>
+</head>
+<body class="bg-background text-on-background min-h-screen font-body-md flex">
+<!-- SideNavBar: Dark Workspace -->
+<aside class="fixed left-0 top-0 h-full w-60 flex flex-col z-40 py-md px-sm bg-inverse-surface dark:bg-inverse-surface transition-all duration-200 ease-in-out">
+<div class="px-md py-lg mb-md">
+<h1 class="font-headline-md text-headline-md text-on-primary">LogiCore Pro</h1>
+<p class="font-label-sm text-label-sm text-surface-variant opacity-70">Analytics Engine</p>
+</div>
+<nav class="flex-1 space-y-xs overflow-y-auto custom-scrollbar px-sm">
+<a class="flex items-center gap-md px-md py-sm text-surface-variant hover:text-on-primary hover:bg-on-surface-variant/20 rounded-lg transition-colors" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-label-md text-label-md">Dashboard</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm text-surface-variant hover:text-on-primary hover:bg-on-surface-variant/20 rounded-lg transition-colors" href="#">
+<span class="material-symbols-outlined">payments</span>
+<span class="font-label-md text-label-md">Sales</span>
+</a>
+<!-- Active Tab: Purchase -->
+<a class="flex items-center gap-md px-md py-sm bg-primary-container text-on-primary-container rounded-lg font-bold transition-all duration-200 ease-in-out shadow-sm" href="#">
+<span class="material-symbols-outlined">shopping_cart</span>
+<span class="font-label-md text-label-md">Purchase</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm text-surface-variant hover:text-on-primary hover:bg-on-surface-variant/20 rounded-lg transition-colors" href="#">
+<span class="material-symbols-outlined">inventory_2</span>
+<span class="font-label-md text-label-md">Inventory</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm text-surface-variant hover:text-on-primary hover:bg-on-surface-variant/20 rounded-lg transition-colors" href="#">
+<span class="material-symbols-outlined">warehouse</span>
+<span class="font-label-md text-label-md">Warehouse</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm text-surface-variant hover:text-on-primary hover:bg-on-surface-variant/20 rounded-lg transition-colors" href="#">
+<span class="material-symbols-outlined">group</span>
+<span class="font-label-md text-label-md">Customer</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm text-surface-variant hover:text-on-primary hover:bg-on-surface-variant/20 rounded-lg transition-colors" href="#">
+<span class="material-symbols-outlined">local_shipping</span>
+<span class="font-label-md text-label-md">Supplier</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm text-surface-variant hover:text-on-primary hover:bg-on-surface-variant/20 rounded-lg transition-colors" href="#">
+<span class="material-symbols-outlined">badge</span>
+<span class="font-label-md text-label-md">Employee</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm text-surface-variant hover:text-on-primary hover:bg-on-surface-variant/20 rounded-lg transition-colors" href="#">
+<span class="material-symbols-outlined">trending_up</span>
+<span class="font-label-md text-label-md">Profitability</span>
+</a>
+</nav>
+<div class="mt-auto border-t border-on-surface-variant/10 pt-md px-sm">
+<a class="flex items-center gap-md px-md py-sm text-surface-variant hover:text-on-primary hover:bg-on-surface-variant/20 rounded-lg" href="#">
+<span class="material-symbols-outlined">help</span>
+<span class="font-label-md text-label-md">Help Center</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm text-surface-variant hover:text-on-primary hover:bg-on-surface-variant/20 rounded-lg" href="#">
+<span class="material-symbols-outlined">logout</span>
+<span class="font-label-md text-label-md">Logout</span>
+</a>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="ml-60 flex-1 flex flex-col">
+<!-- TopNavBar -->
+<header class="fixed top-0 right-0 left-60 h-16 z-50 flex justify-between items-center px-lg bg-inverse-surface shadow-sm transition-all duration-100">
+<div class="flex items-center gap-md flex-1">
+<div class="relative w-full max-w-md">
+<span class="absolute inset-y-0 left-0 pl-3 flex items-center text-surface-variant">
+<span class="material-symbols-outlined text-sm">search</span>
+</span>
+<input class="block w-full pl-10 pr-3 py-2 border-none bg-on-surface-variant/10 text-on-primary placeholder-surface-variant rounded-lg focus:ring-2 focus:ring-primary-fixed focus:bg-on-surface-variant/20 sm:text-sm transition-all" placeholder="Search procurement data..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-md">
+<button class="p-sm text-on-primary hover:bg-on-surface-variant/10 rounded-full transition-colors relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-secondary rounded-full border-2 border-inverse-surface"></span>
+</button>
+<button class="p-sm text-on-primary hover:bg-on-surface-variant/10 rounded-full transition-colors">
+<span class="material-symbols-outlined">settings</span>
+</button>
+<div class="h-8 w-px bg-on-surface-variant/20 mx-xs"></div>
+<div class="flex items-center gap-sm cursor-pointer hover:bg-on-surface-variant/10 p-xs rounded-lg transition-colors">
+<div class="h-8 w-8 rounded-full bg-primary overflow-hidden">
+<img alt="User Profile" class="h-full w-full object-cover" data-alt="A professional headshot of a corporate executive in their late 40s, wearing a charcoal grey tailored suit and a crisp white shirt. The lighting is soft and directional, typical of high-end business photography. The background is a blurred modern office environment with cool blue and grey tones. The executive has a confident and welcoming expression, representing a high-performance leadership persona." src="https://lh3.googleusercontent.com/aida/AP1WRLvqqsmx7u814OPoK3WBJBDPN3yp2HA5ci3rCJPlGiEAcw9H9L-bOJfXNquq1YVeAIeuDOKD7Gs0yyQQA02Ti29GtVjhkB4W8hn6xzx_GeXJxVinsEMq4452MZyvE_au3LTZhVT4z4v4OFRFjSjFS3l1OzkosUDSkCX5OabWeBVtdGzoMKyvx4oKlogwervJo_njPMrnJR8iOy15s4WpGGVTnW6NCH-lWeOIVUmQ_zsqPr_-zxCyEmLKiryM"/>
+</div>
+<span class="text-on-primary font-label-md text-label-md hidden lg:block">Alex Sterling</span>
+</div>
+</div>
+</header>
+<!-- TopAppBar (Sub-header) -->
+<div class="sticky top-16 w-full z-30 flex items-center justify-between px-lg py-sm bg-surface-container border-b border-outline-variant">
+<div class="flex items-center gap-md">
+<span class="material-symbols-outlined text-primary">filter_list</span>
+<h2 class="font-headline-sm text-headline-sm text-on-surface">Purchasing Performance</h2>
+<div class="flex items-center gap-xs ml-md">
+<span class="bg-surface-container-highest px-sm py-1 rounded text-primary font-label-sm text-label-sm">FY 2024 Q3</span>
+<span class="bg-surface-container-highest px-sm py-1 rounded text-on-surface-variant font-label-sm text-label-sm">All Warehouses</span>
+</div>
+</div>
+<div class="flex items-center gap-sm">
+<button class="flex items-center gap-xs px-md py-2 bg-surface-container-lowest border border-outline-variant rounded-lg text-on-surface-variant hover:bg-surface-bright transition-shadow font-body-md text-body-md shadow-sm">
+<span class="material-symbols-outlined text-sm">calendar_month</span>
+          Custom Range
+        </button>
+<button class="flex items-center gap-xs px-md py-2 bg-primary-container text-on-primary border border-transparent rounded-lg hover:shadow-lg transition-all duration-100 font-body-md text-body-md">
+<span class="material-symbols-outlined text-sm">add</span>
+          New PO
+        </button>
+</div>
+</div>
+<!-- Content Area -->
+<div class="p-lg mt-32 space-y-lg max-w-container-max mx-auto w-full">
+<!-- KPI Row (Bento Grid Style) -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-gutter">
+<!-- KPI 1: Total Purchases -->
+<div class="bg-surface-container-lowest p-md rounded-xl border border-outline-variant shadow-sm hover:shadow-md transition-shadow">
+<div class="flex justify-between items-start mb-sm">
+<span class="font-label-md text-label-md text-on-surface-variant">TOTAL PURCHASES</span>
+<span class="bg-secondary-container text-on-secondary-container px-sm py-0.5 rounded-full text-label-sm font-label-sm flex items-center gap-xs">
+<span class="material-symbols-outlined text-[12px]">trending_up</span>
+              12.5%
+            </span>
+</div>
+<div class="font-display-lg text-display-lg text-on-surface font-bold">$4.82M</div>
+<div class="mt-xs text-on-surface-variant font-label-sm text-label-sm">vs. $4.28M last period</div>
+</div>
+<!-- KPI 2: PO Count -->
+<div class="bg-surface-container-lowest p-md rounded-xl border border-outline-variant shadow-sm hover:shadow-md transition-shadow">
+<div class="flex justify-between items-start mb-sm">
+<span class="font-label-md text-label-md text-on-surface-variant">PO COUNT</span>
+<span class="bg-error-container text-on-error-container px-sm py-0.5 rounded-full text-label-sm font-label-sm flex items-center gap-xs">
+<span class="material-symbols-outlined text-[12px]">trending_down</span>
+              2.1%
+            </span>
+</div>
+<div class="font-display-lg text-display-lg text-on-surface font-bold">1,284</div>
+<div class="mt-xs text-on-surface-variant font-label-sm text-label-sm">Active Purchase Orders</div>
+</div>
+<!-- KPI 3: Avg PO Value -->
+<div class="bg-surface-container-lowest p-md rounded-xl border border-outline-variant shadow-sm hover:shadow-md transition-shadow">
+<div class="flex justify-between items-start mb-sm">
+<span class="font-label-md text-label-md text-on-surface-variant">AVG PO VALUE</span>
+<span class="bg-secondary-container text-on-secondary-container px-sm py-0.5 rounded-full text-label-sm font-label-sm flex items-center gap-xs">
+<span class="material-symbols-outlined text-[12px]">trending_up</span>
+              8.4%
+            </span>
+</div>
+<div class="font-display-lg text-display-lg text-on-surface font-bold">$3,754</div>
+<div class="mt-xs text-on-surface-variant font-label-sm text-label-sm">Up from $3,463 avg</div>
+</div>
+<!-- KPI 4: Top Supplier -->
+<div class="bg-surface-container-lowest p-md rounded-xl border border-outline-variant shadow-sm hover:shadow-md transition-shadow">
+<div class="flex justify-between items-start mb-sm">
+<span class="font-label-md text-label-md text-on-surface-variant">TOP SUPPLIER</span>
+<span class="material-symbols-outlined text-primary">stars</span>
+</div>
+<div class="font-headline-md text-headline-md text-on-surface font-bold truncate">Nexus Logistics</div>
+<div class="mt-sm space-y-1">
+<div class="w-full bg-surface-container rounded-full h-1.5">
+<div class="bg-primary h-1.5 rounded-full" style="width: 72%"></div>
+</div>
+<div class="flex justify-between text-on-surface-variant font-label-sm text-label-sm">
+<span>Share of Wallet</span>
+<span>72%</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Charts Section -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-gutter">
+<!-- Purchase Trends (Line Chart) -->
+<div class="lg:col-span-2 bg-surface-container-lowest p-lg rounded-xl border border-outline-variant shadow-sm">
+<div class="flex justify-between items-center mb-lg">
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Purchase Trends</h3>
+<div class="flex items-center gap-md">
+<div class="flex items-center gap-xs">
+<span class="w-3 h-3 rounded-full bg-primary"></span>
+<span class="text-label-sm text-on-surface-variant">Current</span>
+</div>
+<div class="flex items-center gap-xs">
+<span class="w-3 h-3 rounded-full bg-outline-variant"></span>
+<span class="text-label-sm text-on-surface-variant">Previous</span>
+</div>
+</div>
+</div>
+<div class="h-64 flex items-end justify-between gap-2 px-sm relative">
+<!-- Simulated Line Chart with SVG -->
+<svg class="absolute inset-0 w-full h-full px-sm pb-1" preserveaspectratio="none" viewbox="0 0 800 200">
+<path class="stroke-primary" d="M0,180 Q100,140 200,160 T400,80 T600,110 T800,40" fill="none" stroke="var(--primary)" stroke-width="3"></path>
+<path d="M0,180 Q100,140 200,160 T400,80 T600,110 T800,40 L800,200 L0,200 Z" fill="url(#gradient)" opacity="0.1"></path>
+<defs>
+<lineargradient id="gradient" x1="0" x2="0" y1="0" y2="1">
+<stop offset="0%" stop-color="var(--primary)"></stop>
+<stop offset="100%" stop-color="transparent"></stop>
+</lineargradient>
+</defs>
+<path d="M0,190 Q100,170 200,180 T400,130 T600,150 T800,90" fill="none" stroke="#c2c6d9" stroke-dasharray="4" stroke-width="2"></path>
+</svg>
+<!-- X-Axis Labels -->
+<div class="absolute bottom-[-24px] left-0 right-0 flex justify-between px-sm text-label-sm text-on-surface-variant">
+<span>Jan</span><span>Feb</span><span>Mar</span><span>Apr</span><span>May</span><span>Jun</span><span>Jul</span><span>Aug</span>
+</div>
+</div>
+</div>
+<!-- Purchases By Supplier (Pie Chart Alternative) -->
+<div class="bg-surface-container-lowest p-lg rounded-xl border border-outline-variant shadow-sm">
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-lg">Purchases By Supplier</h3>
+<div class="space-y-md">
+<div class="flex items-center gap-md">
+<div class="w-12 h-12 rounded-full border-4 border-primary border-t-transparent animate-pulse"></div>
+<div class="flex-1">
+<div class="flex justify-between font-label-md text-label-md mb-xs">
+<span>Nexus Logistics</span>
+<span>$1.2M</span>
+</div>
+<div class="w-full bg-surface-container h-2 rounded-full overflow-hidden">
+<div class="bg-primary h-full rounded-full" style="width: 45%"></div>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-md">
+<div class="w-12 h-12 rounded-full border-4 border-secondary border-r-transparent"></div>
+<div class="flex-1">
+<div class="flex justify-between font-label-md text-label-md mb-xs">
+<span>Global Parts Inc.</span>
+<span>$840K</span>
+</div>
+<div class="w-full bg-surface-container h-2 rounded-full overflow-hidden">
+<div class="bg-secondary h-full rounded-full" style="width: 32%"></div>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-md">
+<div class="w-12 h-12 rounded-full border-4 border-tertiary border-b-transparent"></div>
+<div class="flex-1">
+<div class="flex justify-between font-label-md text-label-md mb-xs">
+<span>Swift Freight</span>
+<span>$620K</span>
+</div>
+<div class="w-full bg-surface-container h-2 rounded-full overflow-hidden">
+<div class="bg-tertiary h-full rounded-full" style="width: 23%"></div>
+</div>
+</div>
+</div>
+<div class="pt-sm">
+<button class="w-full text-center text-primary font-label-md text-label-md hover:underline">View All 42 Suppliers</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Purchases By Warehouse & Table Row -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-gutter">
+<!-- Purchases By Warehouse (Bar Chart) -->
+<div class="bg-surface-container-lowest p-lg rounded-xl border border-outline-variant shadow-sm">
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-lg">By Warehouse</h3>
+<div class="flex items-end justify-between h-48 gap-sm pt-md">
+<div class="flex flex-col items-center gap-sm flex-1">
+<div class="w-full bg-primary-fixed hover:bg-primary-container transition-colors rounded-t-sm" style="height: 80%"></div>
+<span class="font-label-sm text-label-sm text-on-surface-variant rotate-[-45deg] origin-top-left translate-y-2">Chicago</span>
+</div>
+<div class="flex flex-col items-center gap-sm flex-1">
+<div class="w-full bg-primary-fixed hover:bg-primary-container transition-colors rounded-t-sm" style="height: 60%"></div>
+<span class="font-label-sm text-label-sm text-on-surface-variant rotate-[-45deg] origin-top-left translate-y-2">Dallas</span>
+</div>
+<div class="flex flex-col items-center gap-sm flex-1">
+<div class="w-full bg-primary hover:bg-primary-container transition-colors rounded-t-sm" style="height: 95%"></div>
+<span class="font-label-sm text-label-sm text-on-surface-variant rotate-[-45deg] origin-top-left translate-y-2">Memphis</span>
+</div>
+<div class="flex flex-col items-center gap-sm flex-1">
+<div class="w-full bg-primary-fixed hover:bg-primary-container transition-colors rounded-t-sm" style="height: 45%"></div>
+<span class="font-label-sm text-label-sm text-on-surface-variant rotate-[-45deg] origin-top-left translate-y-2">Phoenix</span>
+</div>
+<div class="flex flex-col items-center gap-sm flex-1">
+<div class="w-full bg-primary-fixed hover:bg-primary-container transition-colors rounded-t-sm" style="height: 70%"></div>
+<span class="font-label-sm text-label-sm text-on-surface-variant rotate-[-45deg] origin-top-left translate-y-2">Miami</span>
+</div>
+</div>
+</div>
+<!-- Recent Purchase Orders Table -->
+<div class="lg:col-span-2 bg-surface-container-lowest rounded-xl border border-outline-variant shadow-sm overflow-hidden flex flex-col">
+<div class="p-lg border-b border-outline-variant flex justify-between items-center">
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Recent Purchase Orders</h3>
+<button class="text-primary font-label-md text-label-md">Export CSV</button>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container text-on-surface-variant font-label-md text-label-md">
+<th class="px-lg py-sm">PO NUMBER</th>
+<th class="px-lg py-sm">SUPPLIER</th>
+<th class="px-lg py-sm">DATE</th>
+<th class="px-lg py-sm">AMOUNT</th>
+<th class="px-lg py-sm">STATUS</th>
+<th class="px-lg py-sm"></th>
+</tr>
+</thead>
+<tbody class="divide-y divide-surface-container">
+<tr class="hover:bg-background transition-colors group">
+<td class="px-lg py-md font-mono-stats text-mono-stats text-primary font-semibold">PO-2024-8842</td>
+<td class="px-lg py-md font-body-md text-body-md text-on-surface">Nexus Logistics</td>
+<td class="px-lg py-md font-body-md text-body-md text-on-surface-variant">Oct 24, 2023</td>
+<td class="px-lg py-md font-mono-stats text-mono-stats text-on-surface">$24,450.00</td>
+<td class="px-lg py-md">
+<span class="bg-secondary-container text-on-secondary-container px-sm py-1 rounded-full text-[11px] font-bold">SHIPPED</span>
+</td>
+<td class="px-lg py-md text-right">
+<button class="material-symbols-outlined text-outline group-hover:text-primary transition-colors">more_vert</button>
+</td>
+</tr>
+<tr class="hover:bg-background transition-colors group">
+<td class="px-lg py-md font-mono-stats text-mono-stats text-primary font-semibold">PO-2024-8839</td>
+<td class="px-lg py-md font-body-md text-body-md text-on-surface">Global Parts Inc.</td>
+<td class="px-lg py-md font-body-md text-body-md text-on-surface-variant">Oct 23, 2023</td>
+<td class="px-lg py-md font-mono-stats text-mono-stats text-on-surface">$12,800.00</td>
+<td class="px-lg py-md">
+<span class="bg-surface-container-highest text-on-surface-variant px-sm py-1 rounded-full text-[11px] font-bold">PENDING</span>
+</td>
+<td class="px-lg py-md text-right">
+<button class="material-symbols-outlined text-outline group-hover:text-primary transition-colors">more_vert</button>
+</td>
+</tr>
+<tr class="hover:bg-background transition-colors group">
+<td class="px-lg py-md font-mono-stats text-mono-stats text-primary font-semibold">PO-2024-8835</td>
+<td class="px-lg py-md font-body-md text-body-md text-on-surface">Swift Freight</td>
+<td class="px-lg py-md font-body-md text-body-md text-on-surface-variant">Oct 22, 2023</td>
+<td class="px-lg py-md font-mono-stats text-mono-stats text-on-surface">$5,240.50</td>
+<td class="px-lg py-md">
+<span class="bg-primary-container text-on-primary px-sm py-1 rounded-full text-[11px] font-bold">APPROVED</span>
+</td>
+<td class="px-lg py-md text-right">
+<button class="material-symbols-outlined text-outline group-hover:text-primary transition-colors">more_vert</button>
+</td>
+</tr>
+<tr class="hover:bg-background transition-colors group border-b-0">
+<td class="px-lg py-md font-mono-stats text-mono-stats text-primary font-semibold">PO-2024-8831</td>
+<td class="px-lg py-md font-body-md text-body-md text-on-surface">Ironclad Supplies</td>
+<td class="px-lg py-md font-body-md text-body-md text-on-surface-variant">Oct 20, 2023</td>
+<td class="px-lg py-md font-mono-stats text-mono-stats text-on-surface">$102,400.00</td>
+<td class="px-lg py-md">
+<span class="bg-error-container text-on-error-container px-sm py-1 rounded-full text-[11px] font-bold">HOLD</span>
+</td>
+<td class="px-lg py-md text-right">
+<button class="material-symbols-outlined text-outline group-hover:text-primary transition-colors">more_vert</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="mt-auto p-md border-t border-outline-variant bg-surface-container-lowest flex justify-center">
+<button class="text-on-surface-variant font-label-md text-label-md hover:text-primary transition-colors">View All Purchase Orders</button>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Interactive JavaScript for micro-interactions -->
+<script>
+    // Subtle hover effect for the line chart SVG path
+    const svgPath = document.querySelector('svg path.stroke-primary');
+    if (svgPath) {
+      svgPath.addEventListener('mouseenter', () => {
+        svgPath.style.strokeWidth = '4';
+        svgPath.style.transition = 'stroke-width 0.3s ease';
+      });
+      svgPath.addEventListener('mouseleave', () => {
+        svgPath.style.strokeWidth = '3';
+      });
+    }
+
+    // Toggle Sidebar active state (Visual only for demonstration)
+    const navLinks = document.querySelectorAll('aside nav a');
+    navLinks.forEach(link => {
+      link.addEventListener('click', (e) => {
+        navLinks.forEach(l => {
+          l.classList.remove('bg-primary-container', 'text-on-primary-container', 'font-bold', 'shadow-sm');
+          l.classList.add('text-surface-variant');
+        });
+        link.classList.remove('text-surface-variant');
+        link.classList.add('bg-primary-container', 'text-on-primary-container', 'font-bold', 'shadow-sm');
+      });
+    });
+
+    // Handle smooth search input expansion
+    const searchInput = document.querySelector('input[placeholder="Search procurement data..."]');
+    searchInput.addEventListener('focus', () => {
+      searchInput.parentElement.classList.add('max-w-xl');
+      searchInput.parentElement.classList.remove('max-w-md');
+    });
+    searchInput.addEventListener('blur', () => {
+      searchInput.parentElement.classList.remove('max-w-xl');
+      searchInput.parentElement.classList.add('max-w-md');
+    });
+  </script>
+</body></html>

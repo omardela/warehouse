@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>LogiCore Pro POS - Checkout</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-tertiary-container": "#ffeedd",
+                    "surface-container": "#171f33",
+                    "error-container": "#93000a",
+                    "tertiary-container": "#996100",
+                    "tertiary": "#ffb95f",
+                    "surface-variant": "#2d3449",
+                    "on-primary-fixed": "#00174b",
+                    "inverse-on-surface": "#283044",
+                    "tertiary-fixed": "#ffddb8",
+                    "on-secondary-fixed-variant": "#005320",
+                    "surface-container-high": "#222a3d",
+                    "tertiary-fixed-dim": "#ffb95f",
+                    "on-tertiary": "#472a00",
+                    "surface-container-highest": "#2d3449",
+                    "surface-dim": "#0b1326",
+                    "surface-container-low": "#131b2e",
+                    "on-surface-variant": "#c3c6d7",
+                    "on-secondary": "#003914",
+                    "on-background": "#dae2fd",
+                    "on-tertiary-fixed-variant": "#653e00",
+                    "primary": "#b4c5ff",
+                    "on-primary-fixed-variant": "#003ea8",
+                    "surface-container-lowest": "#060e20",
+                    "primary-fixed": "#dbe1ff",
+                    "inverse-surface": "#dae2fd",
+                    "secondary": "#62df7d",
+                    "on-surface": "#dae2fd",
+                    "on-primary": "#002a78",
+                    "primary-fixed-dim": "#b4c5ff",
+                    "outline": "#8d90a0",
+                    "on-primary-container": "#eeefff",
+                    "on-secondary-fixed": "#002109",
+                    "inverse-primary": "#0053db",
+                    "secondary-container": "#1ca64d",
+                    "on-secondary-container": "#003111",
+                    "error": "#ffb4ab",
+                    "surface-bright": "#31394d",
+                    "background": "#0b1326",
+                    "secondary-fixed": "#7ffc97",
+                    "on-error": "#690005",
+                    "surface": "#0b1326",
+                    "on-tertiary-fixed": "#2a1700",
+                    "primary-container": "#2563eb",
+                    "outline-variant": "#434655",
+                    "surface-tint": "#b4c5ff",
+                    "on-error-container": "#ffdad6",
+                    "secondary-fixed-dim": "#62df7d"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "xl": "32px",
+                    "lg": "24px",
+                    "base": "4px",
+                    "sm": "8px",
+                    "margin": "32px",
+                    "gutter": "24px",
+                    "xs": "4px",
+                    "md": "16px"
+            },
+            "fontFamily": {
+                    "h1": ["Inter"],
+                    "label-md": ["Inter"],
+                    "body-lg": ["Inter"],
+                    "display": ["Inter"],
+                    "body-sm": ["Inter"],
+                    "mono-data": ["JetBrains Mono"],
+                    "h3": ["Inter"],
+                    "body-md": ["Inter"],
+                    "h2": ["Inter"]
+            },
+            "fontSize": {
+                    "h1": ["32px", {"lineHeight": "1.25", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "label-md": ["12px", {"lineHeight": "1", "letterSpacing": "0.02em", "fontWeight": "500"}],
+                    "body-lg": ["16px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                    "display": ["48px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "body-sm": ["12px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                    "mono-data": ["13px", {"lineHeight": "1", "letterSpacing": "-0.01em", "fontWeight": "400"}],
+                    "h3": ["20px", {"lineHeight": "1.4", "fontWeight": "600"}],
+                    "body-md": ["14px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                    "h2": ["24px", {"lineHeight": "1.3", "letterSpacing": "-0.01em", "fontWeight": "600"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #434655; border-radius: 10px; }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .numpad-btn:active { transform: scale(0.96); opacity: 0.9; }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body-md overflow-hidden h-screen flex">
+<!-- SideNavBar (Suppressed for focused task, but per instructions, we keep "Dark navigation remains visible") -->
+<nav class="hidden md:flex flex-col h-full py-md px-sm bg-surface-container-lowest border-r border-outline-variant shadow-md w-64 shrink-0">
+<div class="px-md mb-xl">
+<h1 class="font-h3 text-h3 font-black text-on-surface">LogiCore Pro</h1>
+<p class="font-label-md text-label-md text-on-surface-variant opacity-70">Enterprise ERP</p>
+</div>
+<div class="flex-1 space-y-base">
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-secondary bg-secondary-container/10 border-r-4 border-secondary transition-transform active:scale-98" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">point_of_sale</span>
+<span class="font-label-md text-label-md">Terminal</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-variant/50 transition-colors" href="#">
+<span class="material-symbols-outlined">receipt_long</span>
+<span class="font-label-md text-label-md">History</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-variant/50 transition-colors" href="#">
+<span class="material-symbols-outlined">pause_circle</span>
+<span class="font-label-md text-label-md">Suspended</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-variant/50 transition-colors" href="#">
+<span class="material-symbols-outlined">assignment_return</span>
+<span class="font-label-md text-label-md">Returns</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-variant/50 transition-colors" href="#">
+<span class="material-symbols-outlined">monitoring</span>
+<span class="font-label-md text-label-md">Analytics</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-variant/50 transition-colors" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-label-md text-label-md">Settings</span>
+</a>
+</div>
+<div class="mt-auto space-y-base border-t border-outline-variant pt-md">
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-variant/50 transition-colors" href="#">
+<span class="material-symbols-outlined">help</span>
+<span class="font-label-md text-label-md">Help</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-variant/50 transition-colors" href="#">
+<span class="material-symbols-outlined">lock</span>
+<span class="font-label-md text-label-md">Lock</span>
+</a>
+</div>
+</nav>
+<div class="flex-1 flex flex-col h-full overflow-hidden relative">
+<!-- TopNavBar -->
+<header class="flex justify-between items-center w-full px-lg h-16 bg-surface-container border-b border-outline-variant shadow-sm z-10">
+<div class="flex items-center gap-md">
+<div class="bg-primary/20 p-2 rounded-lg">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">terminal</span>
+</div>
+<div>
+<span class="font-h3 text-h3 font-bold text-primary">LogiCore Pro POS</span>
+<span class="ml-md text-body-sm text-outline px-sm py-1 border border-outline-variant rounded-full">Terminal #01</span>
+</div>
+</div>
+<div class="flex items-center gap-lg">
+<div class="flex gap-sm">
+<button class="p-sm text-on-surface-variant hover:bg-surface-variant transition-colors rounded-full active:opacity-80 active:scale-95">
+<span class="material-symbols-outlined">account_balance_wallet</span>
+</button>
+<button class="p-sm text-on-surface-variant hover:bg-surface-variant transition-colors rounded-full active:opacity-80 active:scale-95">
+<span class="material-symbols-outlined">sync</span>
+</button>
+<button class="p-sm text-on-surface-variant hover:bg-surface-variant transition-colors rounded-full active:opacity-80 active:scale-95">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+</div>
+<div class="h-8 w-[1px] bg-outline-variant"></div>
+<button class="px-md py-sm font-label-md text-label-md text-error hover:bg-error-container/20 rounded-lg transition-colors">End Session</button>
+<img alt="Manager Avatar" class="w-10 h-10 rounded-full border border-outline-variant" data-alt="A professional warehouse manager portrait with sharp lighting, wearing a tactical modern logistical vest. The setting is a brightly lit, high-tech command center with blurred digital displays in the background. The visual style is crisp and modern with a cool color palette of slate and deep blues." src="https://lh3.googleusercontent.com/aida/AP1WRLtGcvley9YD2hz9q7Z9Eq4oSqazPvJrpRvIjdTJv0-pBW81PBnd-mGqr7YcsE48taGQic-OHLiCaaG6uETXajVCEHch1fmquXTdiaOOsW43gPlOm99jWWVgPDxkXvxKmFUyGaIpLRD9ilhmTPcOGVLZEFcW3yLaDwJ6sVdwRQgCB4clcHfcpi1CSGtezWYTtNKnk35qYrJrbSGtfEhGE2B7f6VbmvVoNxIC-xqDpcdQ43_UInKQe3VoEHjl"/>
+</div>
+</header>
+<!-- Main Checkout Overlay -->
+<main class="flex-1 overflow-hidden p-lg bg-background flex items-center justify-center">
+<!-- Full Screen Overlay Simulation -->
+<div class="w-full h-full bg-surface-container-lowest rounded-xl shadow-2xl overflow-hidden flex flex-col lg:flex-row border border-outline-variant">
+<!-- Left Column: Order Summary (Light-ish Neutral) -->
+<div class="w-full lg:w-5/12 bg-surface-container-low border-r border-outline-variant flex flex-col">
+<div class="p-lg border-b border-outline-variant flex justify-between items-center">
+<div>
+<h2 class="font-h2 text-h2 text-on-surface">Order Summary</h2>
+<p class="text-body-sm text-outline">TXN ID: #LCP-98442-01</p>
+</div>
+<div class="bg-primary/10 px-md py-sm rounded-lg border border-primary/20">
+<span class="font-mono-data text-primary text-xl font-bold">12 Items</span>
+</div>
+</div>
+<div class="flex-1 overflow-y-auto p-lg space-y-md">
+<!-- Customer Info Card -->
+<div class="p-md rounded-xl bg-surface-container-high border border-outline-variant">
+<div class="flex items-center gap-md mb-sm">
+<span class="material-symbols-outlined text-secondary">person</span>
+<span class="font-h3 text-h3">Global Logistics Ltd.</span>
+</div>
+<div class="grid grid-cols-2 gap-sm text-body-sm text-on-surface-variant">
+<span>Tier: Gold Enterprise</span>
+<span class="text-right">Tax ID: 99-1029-4</span>
+</div>
+</div>
+<!-- Mini Table -->
+<div class="space-y-sm">
+<div class="flex justify-between p-sm hover:bg-surface-variant/30 rounded transition-colors">
+<div class="flex flex-col">
+<span class="font-label-md text-on-surface">Industrial Conveyor Belt B-22</span>
+<span class="text-body-sm text-outline">x2 @ $450.00</span>
+</div>
+<span class="font-mono-data text-on-surface">$900.00</span>
+</div>
+<div class="flex justify-between p-sm hover:bg-surface-variant/30 rounded transition-colors">
+<div class="flex flex-col">
+<span class="font-label-md text-on-surface">Precision Sensor Kit (Auto-Cal)</span>
+<span class="text-body-sm text-outline">x10 @ $125.00</span>
+</div>
+<span class="font-mono-data text-on-surface">$1,250.00</span>
+</div>
+<div class="flex justify-between p-sm hover:bg-surface-variant/30 rounded transition-colors">
+<div class="flex flex-col">
+<span class="font-label-md text-on-surface">Shipping &amp; Handling (Priority)</span>
+<span class="text-body-sm text-outline">Zone 4 Delivery</span>
+</div>
+<span class="font-mono-data text-on-surface">$145.50</span>
+</div>
+</div>
+</div>
+<div class="p-lg bg-surface-container-high border-t border-outline-variant space-y-sm">
+<div class="flex justify-between text-on-surface-variant">
+<span class="font-body-md">Subtotal</span>
+<span class="font-mono-data">$2,295.50</span>
+</div>
+<div class="flex justify-between text-on-surface-variant">
+<span class="font-body-md">VAT (15%)</span>
+<span class="font-mono-data">$344.32</span>
+</div>
+<div class="flex justify-between items-center pt-md border-t border-outline-variant">
+<span class="font-h2 text-h2 text-on-surface">Total</span>
+<span class="font-display text-primary">$2,639.82</span>
+</div>
+</div>
+</div>
+<!-- Right Column: Payment Interface (Light Content) -->
+<div class="flex-1 bg-on-surface/95 text-background flex flex-col p-lg">
+<div class="flex justify-between items-center mb-lg">
+<h2 class="font-h1 text-h1 font-bold text-background/90 tracking-tight">Checkout Payment</h2>
+<button class="p-md hover:bg-background/10 rounded-full">
+<span class="material-symbols-outlined text-background">close</span>
+</button>
+</div>
+<div class="grid grid-cols-2 gap-lg mb-xl">
+<!-- Method Selection -->
+<div class="col-span-2 grid grid-cols-4 gap-md">
+<button class="payment-method flex flex-col items-center justify-center p-lg rounded-xl border-2 border-primary-container bg-primary-container/10 text-primary-container shadow-sm transition-all hover:shadow-md active:scale-95">
+<span class="material-symbols-outlined text-4xl mb-sm" style="font-variation-settings: 'FILL' 1;">payments</span>
+<span class="font-h3 text-h3">Cash</span>
+</button>
+<button class="payment-method flex flex-col items-center justify-center p-lg rounded-xl border-2 border-background/20 text-background/60 hover:border-primary-container/50 hover:text-primary-container transition-all active:scale-95">
+<span class="material-symbols-outlined text-4xl mb-sm">credit_card</span>
+<span class="font-h3 text-h3">Card</span>
+</button>
+<button class="payment-method flex flex-col items-center justify-center p-lg rounded-xl border-2 border-background/20 text-background/60 hover:border-primary-container/50 hover:text-primary-container transition-all active:scale-95">
+<span class="material-symbols-outlined text-4xl mb-sm">account_balance</span>
+<span class="font-h3 text-h3">Transfer</span>
+</button>
+<button class="payment-method flex flex-col items-center justify-center p-lg rounded-xl border-2 border-background/20 text-background/60 hover:border-primary-container/50 hover:text-primary-container transition-all active:scale-95">
+<span class="material-symbols-outlined text-4xl mb-sm">layers</span>
+<span class="font-h3 text-h3">Mixed</span>
+</button>
+</div>
+<!-- Amount Fields -->
+<div class="space-y-lg">
+<div class="space-y-xs">
+<label class="font-label-md text-background/50 uppercase tracking-widest">Amount Received</label>
+<div class="relative">
+<span class="absolute left-md top-1/2 -translate-y-1/2 text-background/40 font-mono-data text-2xl">$</span>
+<input class="w-full bg-background/5 border-2 border-background/10 rounded-xl p-md pl-10 font-mono-data text-3xl focus:border-primary-container focus:ring-0 outline-none transition-all" type="text" value="3000.00"/>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-lg">
+<div class="space-y-xs">
+<label class="font-label-md text-background/50 uppercase tracking-widest">Change Due</label>
+<div class="p-md rounded-xl bg-secondary-container/10 border border-secondary-container/20">
+<span class="font-mono-data text-2xl text-secondary-container font-bold">$360.18</span>
+</div>
+</div>
+<div class="space-y-xs">
+<label class="font-label-md text-background/50 uppercase tracking-widest">Balance</label>
+<div class="p-md rounded-xl bg-background/5 border border-background/10">
+<span class="font-mono-data text-2xl text-background/80 font-bold">$0.00</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Touch Numpad -->
+<div class="grid grid-cols-3 gap-sm">
+<button class="numpad-btn h-16 rounded-xl bg-background/5 font-h3 text-h3 hover:bg-background/10 transition-colors">1</button>
+<button class="numpad-btn h-16 rounded-xl bg-background/5 font-h3 text-h3 hover:bg-background/10 transition-colors">2</button>
+<button class="numpad-btn h-16 rounded-xl bg-background/5 font-h3 text-h3 hover:bg-background/10 transition-colors">3</button>
+<button class="numpad-btn h-16 rounded-xl bg-background/5 font-h3 text-h3 hover:bg-background/10 transition-colors">4</button>
+<button class="numpad-btn h-16 rounded-xl bg-background/5 font-h3 text-h3 hover:bg-background/10 transition-colors">5</button>
+<button class="numpad-btn h-16 rounded-xl bg-background/5 font-h3 text-h3 hover:bg-background/10 transition-colors">6</button>
+<button class="numpad-btn h-16 rounded-xl bg-background/5 font-h3 text-h3 hover:bg-background/10 transition-colors">7</button>
+<button class="numpad-btn h-16 rounded-xl bg-background/5 font-h3 text-h3 hover:bg-background/10 transition-colors">8</button>
+<button class="numpad-btn h-16 rounded-xl bg-background/5 font-h3 text-h3 hover:bg-background/10 transition-colors">9</button>
+<button class="numpad-btn h-16 rounded-xl bg-background/5 font-h3 text-h3 hover:bg-background/10 transition-colors">C</button>
+<button class="numpad-btn h-16 rounded-xl bg-background/5 font-h3 text-h3 hover:bg-background/10 transition-colors">0</button>
+<button class="numpad-btn h-16 rounded-xl bg-background/5 font-h3 text-h3 hover:bg-background/10 transition-colors">
+<span class="material-symbols-outlined">backspace</span>
+</button>
+</div>
+</div>
+<!-- Final Actions -->
+<div class="mt-auto grid grid-cols-2 gap-lg pt-lg border-t border-background/10">
+<div class="grid grid-cols-2 gap-md">
+<button class="flex items-center justify-center gap-md px-lg py-md rounded-xl border-2 border-background/10 font-h3 text-h3 hover:bg-background/5 transition-all active:scale-95">
+<span class="material-symbols-outlined">print</span>
+<span>Print Receipt</span>
+</button>
+<button class="flex items-center justify-center gap-md px-lg py-md rounded-xl border-2 border-background/10 font-h3 text-h3 hover:bg-background/5 transition-all active:scale-95">
+<span class="material-symbols-outlined">mail</span>
+<span>Email Receipt</span>
+</button>
+</div>
+<button class="flex items-center justify-center gap-lg px-lg py-md rounded-xl bg-primary-container text-on-primary-container font-h1 text-h1 shadow-lg shadow-primary-container/20 hover:shadow-xl transition-all active:scale-[0.98]">
+<span class="material-symbols-outlined text-4xl" style="font-variation-settings: 'FILL' 1;">task_alt</span>
+<span>Complete Sale</span>
+</button>
+</div>
+</div>
+</div>
+</main>
+</div>
+<!-- Background Decoration -->
+<div class="fixed inset-0 -z-10 pointer-events-none overflow-hidden">
+<div class="absolute -top-1/4 -right-1/4 w-[800px] h-[800px] bg-primary/5 rounded-full blur-[120px]"></div>
+<div class="absolute -bottom-1/4 -left-1/4 w-[600px] h-[600px] bg-secondary/5 rounded-full blur-[100px]"></div>
+</div>
+<script>
+        // Simple micro-interaction for payment methods
+        const methods = document.querySelectorAll('.payment-method');
+        methods.forEach(btn => {
+            btn.addEventListener('click', () => {
+                methods.forEach(b => {
+                    b.classList.remove('border-primary-container', 'bg-primary-container/10', 'text-primary-container');
+                    b.classList.add('border-background/20', 'text-background/60');
+                    const icon = b.querySelector('.material-symbols-outlined');
+                    if (icon) icon.style.fontVariationSettings = "'FILL' 0";
+                });
+                btn.classList.add('border-primary-container', 'bg-primary-container/10', 'text-primary-container');
+                btn.classList.remove('border-background/20', 'text-background/60');
+                const icon = btn.querySelector('.material-symbols-outlined');
+                if (icon) icon.style.fontVariationSettings = "'FILL' 1";
+            });
+        });
+
+        // Numpad interaction simulation
+        const numButtons = document.querySelectorAll('.numpad-btn');
+        const amountInput = document.querySelector('input');
+        numButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const val = btn.innerText;
+                if (val === 'C') {
+                    amountInput.value = '0.00';
+                } else if (val === 'backspace') {
+                    amountInput.value = amountInput.value.slice(0, -1) || '0.00';
+                } else {
+                    if (amountInput.value === '0.00') amountInput.value = '';
+                    amountInput.value += val;
+                }
+            });
+        });
+    </script>
+</body></html>

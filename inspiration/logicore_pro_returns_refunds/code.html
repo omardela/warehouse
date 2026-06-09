@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>LogiCore Pro POS - Returns &amp; Refunds</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-tertiary-container": "#ffeedd",
+                    "surface-container": "#171f33",
+                    "error-container": "#93000a",
+                    "tertiary-container": "#996100",
+                    "tertiary": "#ffb95f",
+                    "surface-variant": "#2d3449",
+                    "on-primary-fixed": "#00174b",
+                    "inverse-on-surface": "#283044",
+                    "tertiary-fixed": "#ffddb8",
+                    "on-secondary-fixed-variant": "#005320",
+                    "surface-container-high": "#222a3d",
+                    "tertiary-fixed-dim": "#ffb95f",
+                    "on-tertiary": "#472a00",
+                    "surface-container-highest": "#2d3449",
+                    "surface-dim": "#0b1326",
+                    "surface-container-low": "#131b2e",
+                    "on-surface-variant": "#c3c6d7",
+                    "on-secondary": "#003914",
+                    "on-background": "#dae2fd",
+                    "on-tertiary-fixed-variant": "#653e00",
+                    "primary": "#b4c5ff",
+                    "on-primary-fixed-variant": "#003ea8",
+                    "surface-container-lowest": "#060e20",
+                    "primary-fixed": "#dbe1ff",
+                    "inverse-surface": "#dae2fd",
+                    "secondary": "#62df7d",
+                    "on-surface": "#dae2fd",
+                    "on-primary": "#002a78",
+                    "primary-fixed-dim": "#b4c5ff",
+                    "outline": "#8d90a0",
+                    "on-primary-container": "#eeefff",
+                    "on-secondary-fixed": "#002109",
+                    "inverse-primary": "#0053db",
+                    "secondary-container": "#1ca64d",
+                    "on-secondary-container": "#003111",
+                    "error": "#ffb4ab",
+                    "surface-bright": "#31394d",
+                    "background": "#0b1326",
+                    "secondary-fixed": "#7ffc97",
+                    "on-error": "#690005",
+                    "surface": "#0b1326",
+                    "on-tertiary-fixed": "#2a1700",
+                    "primary-container": "#2563eb",
+                    "outline-variant": "#434655",
+                    "surface-tint": "#b4c5ff",
+                    "on-error-container": "#ffdad6",
+                    "secondary-fixed-dim": "#62df7d"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "xl": "32px",
+                    "lg": "24px",
+                    "base": "4px",
+                    "sm": "8px",
+                    "margin": "32px",
+                    "gutter": "24px",
+                    "xs": "4px",
+                    "md": "16px"
+            },
+            "fontFamily": {
+                    "h1": ["Inter"],
+                    "label-md": ["Inter"],
+                    "body-lg": ["Inter"],
+                    "display": ["Inter"],
+                    "body-sm": ["Inter"],
+                    "mono-data": ["JetBrains Mono"],
+                    "h3": ["Inter"],
+                    "body-md": ["Inter"],
+                    "h2": ["Inter"]
+            },
+            "fontSize": {
+                    "h1": ["32px", {"lineHeight": "1.25", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "label-md": ["12px", {"lineHeight": "1", "letterSpacing": "0.02em", "fontWeight": "500"}],
+                    "body-lg": ["16px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                    "display": ["48px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "body-sm": ["12px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                    "mono-data": ["13px", {"lineHeight": "1", "letterSpacing": "-0.01em", "fontWeight": "400"}],
+                    "h3": ["20px", {"lineHeight": "1.4", "fontWeight": "600"}],
+                    "body-md": ["14px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                    "h2": ["24px", {"lineHeight": "1.3", "letterSpacing": "-0.01em", "fontWeight": "600"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            background-color: #0b1326;
+            color: #dae2fd;
+            font-family: 'Inter', sans-serif;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-panel {
+            background: rgba(23, 31, 51, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(141, 144, 160, 0.1);
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #434655;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body class="flex overflow-hidden h-screen">
+<!-- SideNavBar (Shared Component) -->
+<aside class="hidden md:flex flex-col h-full py-md px-sm bg-surface-container-lowest border-r border-outline-variant shadow-md w-64 shrink-0">
+<div class="px-md mb-xl">
+<h1 class="font-h3 text-h3 font-black text-on-surface">LogiCore Pro</h1>
+<p class="text-on-surface-variant font-label-md text-label-md opacity-70">Enterprise ERP</p>
+</div>
+<nav class="flex-1 space-y-1">
+<!-- Nav Item: Terminal -->
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-variant/50 transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="point_of_sale">point_of_sale</span>
+<span class="font-label-md text-label-md">Terminal</span>
+</a>
+<!-- Nav Item: History -->
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-variant/50 transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="receipt_long">receipt_long</span>
+<span class="font-label-md text-label-md">History</span>
+</a>
+<!-- Nav Item: Suspended -->
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-variant/50 transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="pause_circle">pause_circle</span>
+<span class="font-label-md text-label-md">Suspended</span>
+</a>
+<!-- Nav Item: Returns (ACTIVE) -->
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-secondary bg-secondary-container/10 border-r-4 border-secondary transition-transform scale-98" href="#">
+<span class="material-symbols-outlined" data-icon="assignment_return" style="font-variation-settings: 'FILL' 1;">assignment_return</span>
+<span class="font-label-md text-label-md">Returns</span>
+</a>
+<!-- Nav Item: Analytics -->
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-variant/50 transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="monitoring">monitoring</span>
+<span class="font-label-md text-label-md">Analytics</span>
+</a>
+<!-- Nav Item: Settings -->
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-variant/50 transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-label-md text-label-md">Settings</span>
+</a>
+</nav>
+<div class="mt-auto space-y-4 pt-md border-t border-outline-variant/30">
+<button class="w-full flex items-center justify-center gap-sm bg-primary text-on-primary font-label-md text-label-md py-md rounded-xl hover:opacity-90 transition-all active:scale-95">
+<span class="material-symbols-outlined text-[18px]" data-icon="qr_code_scanner">qr_code_scanner</span>
+                Quick Scan
+            </button>
+<div class="space-y-1">
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-variant/50 transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="help">help</span>
+<span class="font-label-md text-label-md">Help</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-variant/50 transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="lock">lock</span>
+<span class="font-label-md text-label-md">Lock</span>
+</a>
+</div>
+<div class="flex items-center gap-md px-md pt-sm">
+<div class="w-8 h-8 rounded-full bg-surface-variant overflow-hidden">
+<img alt="Warehouse Terminal 01" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida/AP1WRLtIuQLlS3vt1VjmNVbc-2GUPHg3VsjP4VjASiV3JguI-_vSyPt7kMQAFvZc9RUPCZpYrkZnUImO35C4rxj03K0v-xqFI8MHIpcGYxi_O0F7hsETH4rgFxAZOAsOqQC2Hfji7rEfr453L_BxhdhkZTVPmhdJ7hGdrldawtc0w8I7-_Ccbmg3_dOED8lwc-KTMBnvXBlHsPzms4fbWaIfE3cUjP_iF4ebEpTmoWCYrt-KzB5mT_BC0OlcVp8c"/>
+</div>
+<div>
+<p class="font-label-md text-label-md text-on-surface truncate">Whse-01</p>
+<p class="text-[10px] text-on-surface-variant opacity-60">Manager Active</p>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 flex flex-col min-w-0 bg-background relative">
+<!-- TopNavBar (Shared Component) -->
+<header class="flex justify-between items-center w-full px-lg h-16 bg-surface-container border-b border-outline-variant shadow-sm shrink-0 z-10">
+<div class="flex items-center gap-lg flex-1">
+<div class="relative w-full max-w-md">
+<span class="material-symbols-outlined absolute left-md top-1/2 -translate-y-1/2 text-on-surface-variant" data-icon="search">search</span>
+<input class="w-full bg-surface-variant/30 border-none rounded-full pl-xl pr-lg py-2 font-body-md text-body-md text-on-surface focus:ring-2 focus:ring-primary/50 transition-all" placeholder="Search by Receipt # or Customer..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-md">
+<button class="p-sm text-on-surface-variant hover:bg-surface-variant rounded-full transition-colors relative">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+<span class="absolute top-1 right-1 w-2 h-2 bg-error rounded-full border-2 border-surface-container"></span>
+</button>
+<button class="p-sm text-on-surface-variant hover:bg-surface-variant rounded-full transition-colors">
+<span class="material-symbols-outlined" data-icon="sync">sync</span>
+</button>
+<div class="h-6 w-px bg-outline-variant mx-sm"></div>
+<button class="px-md py-sm border border-outline-variant text-on-surface rounded-lg font-label-md text-label-md hover:bg-surface-variant transition-colors">
+                    End Session
+                </button>
+<button class="px-md py-sm bg-primary-container text-on-primary-container rounded-lg font-label-md text-label-md hover:opacity-90 transition-all active:scale-95 shadow-lg shadow-primary-container/20">
+                    New Sale
+                </button>
+</div>
+</header>
+<!-- Page Content -->
+<div class="flex-1 overflow-hidden flex flex-col md:flex-row p-lg gap-lg">
+<!-- Left Side: Transaction Details & Item Selection -->
+<div class="flex-[1.5] flex flex-col min-w-0 gap-lg overflow-y-auto custom-scrollbar">
+<!-- Receipt Header Card -->
+<div class="glass-panel p-lg rounded-xl flex flex-col md:flex-row gap-lg items-start justify-between">
+<div class="flex gap-lg items-center">
+<div class="w-12 h-12 rounded-xl bg-secondary-container/20 flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined text-[32px]" data-icon="receipt">receipt</span>
+</div>
+<div>
+<div class="flex items-center gap-sm">
+<h2 class="font-h2 text-h2 text-on-surface">RC-9842105</h2>
+<span class="px-sm py-0.5 bg-secondary/10 text-secondary text-[10px] uppercase font-bold rounded tracking-wider border border-secondary/20">Verified</span>
+</div>
+<p class="text-on-surface-variant font-body-sm text-body-sm mt-1">Transaction date: Oct 24, 2023 • 14:32 PM • Terminal 04</p>
+</div>
+</div>
+<div class="text-right">
+<p class="text-on-surface-variant font-label-md text-label-md uppercase opacity-60">Customer</p>
+<p class="font-h3 text-h3 text-primary mt-1">Alexander Wright</p>
+<p class="text-on-surface-variant font-body-sm text-body-sm">VIP Member • 1,240 pts</p>
+</div>
+</div>
+<!-- Product Selection Area (Bento-ish Layout) -->
+<div class="flex flex-col gap-sm">
+<div class="flex items-center justify-between mb-sm">
+<h3 class="font-h3 text-h3 text-on-surface">Original Items</h3>
+<p class="text-on-surface-variant font-body-sm text-body-sm">4 Items Total</p>
+</div>
+<div class="grid grid-cols-1 gap-md">
+<!-- Item 1: Selected for Return -->
+<div class="glass-panel p-md rounded-xl border-l-4 border-l-primary flex items-center gap-md group hover:bg-surface-variant/20 transition-all cursor-pointer">
+<div class="w-16 h-16 rounded-lg bg-surface-container-high relative overflow-hidden shrink-0">
+<img alt="Nike Air Max" class="w-full h-full object-cover" data-alt="High-end professional studio product photography of a vibrant red sports sneaker against a clean dark slate background with dramatic top-down lighting and sharp shadows to match the logistics dashboard aesthetic." src="https://lh3.googleusercontent.com/aida/AP1WRLsLcUkAsG6nF7uAxNRo2VyTHI5toq4nL01Ef1kF1KqB1SsXFeReWdX1oJ5cKUlrCu3zHeiHZN33RAPskjwY0MoRkeZ9F8TFILqBk8jRYT-qRqcr5XSOLC9YePQ00G3dsALyl7vRIEx7Ixfg0qNn60jMvGlWAEu3n15YRYON8bs470LzmbBQjB5GU12HSMFHOIKGNIekLpU3-btcHtHMGpPXpTwfW67kkXmOjyuYEHYSqEM4e-PBLgW5Uhsh"/>
+</div>
+<div class="flex-1">
+<div class="flex justify-between">
+<h4 class="font-body-lg text-body-lg font-semibold text-on-surface">Nike Air Max 270 - Crimson</h4>
+<p class="font-mono-data text-mono-data text-on-surface">$129.99</p>
+</div>
+<p class="text-on-surface-variant font-body-sm text-body-sm mt-0.5">SKU: NK-AM270-CRM | Size: 11</p>
+<div class="flex items-center gap-lg mt-md">
+<div class="flex items-center gap-sm">
+<label class="text-[10px] uppercase font-bold text-on-surface-variant opacity-60">Qty to Return</label>
+<div class="flex items-center bg-surface-container-high rounded-lg p-1 border border-outline-variant/30">
+<button class="w-6 h-6 flex items-center justify-center text-on-surface hover:bg-surface-variant rounded">-</button>
+<input class="w-8 text-center bg-transparent border-none p-0 text-primary font-bold" type="text" value="1"/>
+<button class="w-6 h-6 flex items-center justify-center text-on-surface hover:bg-surface-variant rounded">+</button>
+</div>
+</div>
+<div class="flex-1">
+<select class="w-full bg-surface-container-high border border-outline-variant/30 rounded-lg py-1 px-sm text-body-sm text-on-surface focus:ring-1 focus:ring-primary">
+<option>Reason: Sizing Issue</option>
+<option>Reason: Defective Item</option>
+<option>Reason: Changed Mind</option>
+<option>Reason: Wrong Item Shipped</option>
+</select>
+</div>
+</div>
+</div>
+<div class="ml-md">
+<div class="w-6 h-6 rounded-md bg-primary-container flex items-center justify-center text-on-primary-container">
+<span class="material-symbols-outlined text-[16px]" data-icon="check" style="font-variation-settings: 'FILL' 1;">check</span>
+</div>
+</div>
+</div>
+<!-- Item 2: Not Selected -->
+<div class="glass-panel p-md rounded-xl flex items-center gap-md opacity-60 hover:opacity-100 transition-all cursor-pointer">
+<div class="w-16 h-16 rounded-lg bg-surface-container-high relative overflow-hidden shrink-0">
+<img alt="Tech Watch" class="w-full h-full object-cover" data-alt="Close-up macro shot of a sleek white modern smartwatch on a dark reflective surface with cool blue ambient lighting, reflecting a high-tech warehouse efficiency theme." src="https://lh3.googleusercontent.com/aida/AP1WRLuuMrUS4sPC7MDMxItlXFoJqWHcz4zwTkQLXTtAemhs-iGTQGx9JQg2xoyHNNEHmakqrJ11jd7kNoLIxw0nNV7_oi31q3R7KiOENLo_3pqtyiXtFlrLjh8Q6WlFsa7ma5cmYl0iAn1Hd6pTa_yrJfexsk1YOod2loLaQnvrV0XJtIUfcm2pSzGCdNwKIwJvVZ5KxFi2WjalCYmo4xlh6sw9DHdomkqTaROx_m88tGlGjrngswfuWGpHVu4c"/>
+</div>
+<div class="flex-1">
+<div class="flex justify-between">
+<h4 class="font-body-lg text-body-lg font-semibold text-on-surface">LogiCore Wear OS Pro</h4>
+<p class="font-mono-data text-mono-data text-on-surface">$249.50</p>
+</div>
+<p class="text-on-surface-variant font-body-sm text-body-sm mt-0.5">SKU: LCW-OS-001 | Lunar White</p>
+</div>
+<div class="ml-md">
+<div class="w-6 h-6 rounded-md border border-outline-variant"></div>
+</div>
+</div>
+<!-- Item 3: Selected for Return (Defective) -->
+<div class="glass-panel p-md rounded-xl border-l-4 border-l-error flex items-center gap-md group hover:bg-surface-variant/20 transition-all cursor-pointer">
+<div class="w-16 h-16 rounded-lg bg-surface-container-high relative overflow-hidden shrink-0">
+<img alt="Wireless Headphones" class="w-full h-full object-cover" data-alt="Minimalist product design of black wireless headphones placed on a geometric pedestal, illuminated with soft cyan and slate grey light, emphasizing premium texture and engineering precision." src="https://lh3.googleusercontent.com/aida/AP1WRLuy9mWWZ5czaFDLtb4AvxQPLXHEDLebw9jgZhGHWaGUQPSL35iEbLayDNG2T06IqKHOI-C77X7y6OJnBfPypUTRR6f3v3SnFt31WimYrwHeYt6BNp9isrkhtdSlkw6RsOPxSIE6LQGlid943KUon1DUn85ZLZ9aJ5tPMse2AsBw5NIuWQIbjsuKZUwPAD13FB5HI-CKedPVPHkQpYEDGzYypE7sYZHVxCEA9MKc7pDfMwIV7598-bvTYMQ"/>
+</div>
+<div class="flex-1">
+<div class="flex justify-between">
+<h4 class="font-body-lg text-body-lg font-semibold text-on-surface">Precision Audio 4000</h4>
+<p class="font-mono-data text-mono-data text-on-surface">$89.00</p>
+</div>
+<p class="text-on-surface-variant font-body-sm text-body-sm mt-0.5">SKU: PA4-BK-009 | Noise Cancelling</p>
+<div class="flex items-center gap-lg mt-md">
+<div class="flex items-center gap-sm">
+<label class="text-[10px] uppercase font-bold text-on-surface-variant opacity-60">Qty to Return</label>
+<div class="flex items-center bg-surface-container-high rounded-lg p-1 border border-outline-variant/30">
+<button class="w-6 h-6 flex items-center justify-center text-on-surface hover:bg-surface-variant rounded">-</button>
+<input class="w-8 text-center bg-transparent border-none p-0 text-error font-bold" type="text" value="1"/>
+<button class="w-6 h-6 flex items-center justify-center text-on-surface hover:bg-surface-variant rounded">+</button>
+</div>
+</div>
+<div class="flex-1">
+<select class="w-full bg-error-container/20 border border-error/30 rounded-lg py-1 px-sm text-body-sm text-error focus:ring-1 focus:ring-error">
+<option selected="">Reason: Defective Item</option>
+<option>Reason: Sizing Issue</option>
+<option>Reason: Changed Mind</option>
+</select>
+</div>
+</div>
+</div>
+<div class="ml-md">
+<div class="w-6 h-6 rounded-md bg-error flex items-center justify-center text-on-error">
+<span class="material-symbols-outlined text-[16px]" data-icon="warning" style="font-variation-settings: 'FILL' 1;">warning</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Inventory Impact Visualization -->
+<div class="glass-panel p-lg rounded-xl mt-auto">
+<div class="flex items-center gap-sm mb-md">
+<span class="material-symbols-outlined text-secondary" data-icon="forklift">forklift</span>
+<h4 class="font-h3 text-h3 text-on-surface">Inventory Forecast</h4>
+</div>
+<div class="grid grid-cols-3 gap-lg">
+<div class="p-md rounded-lg bg-surface-container-low border border-outline-variant/20">
+<p class="text-on-surface-variant text-[10px] uppercase font-bold">Restock Target</p>
+<p class="font-h2 text-h2 text-secondary mt-1">+1 <span class="text-body-sm font-normal">unit</span></p>
+<div class="h-1 w-full bg-surface-variant rounded-full mt-2">
+<div class="h-full bg-secondary w-full rounded-full"></div>
+</div>
+<p class="text-[10px] text-on-surface-variant mt-2">Zone: A-42 North</p>
+</div>
+<div class="p-md rounded-lg bg-surface-container-low border border-outline-variant/20">
+<p class="text-on-surface-variant text-[10px] uppercase font-bold">Salvage/Defect</p>
+<p class="font-h2 text-h2 text-error mt-1">1 <span class="text-body-sm font-normal">unit</span></p>
+<div class="h-1 w-full bg-surface-variant rounded-full mt-2">
+<div class="h-full bg-error w-full rounded-full"></div>
+</div>
+<p class="text-[10px] text-on-surface-variant mt-2">To QC Inspect Lab</p>
+</div>
+<div class="p-md rounded-lg bg-surface-container-low border border-outline-variant/20">
+<p class="text-on-surface-variant text-[10px] uppercase font-bold">Stock Drift</p>
+<p class="font-h2 text-h2 text-primary mt-1">-0.02%</p>
+<div class="h-1 w-full bg-surface-variant rounded-full mt-2">
+<div class="h-full bg-primary w-4/5 rounded-full"></div>
+</div>
+<p class="text-[10px] text-on-surface-variant mt-2">Real-time update</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Side: Refund Summary & Actions -->
+<div class="flex-1 flex flex-col gap-lg">
+<!-- Financial Summary -->
+<div class="glass-panel p-lg rounded-xl bg-surface-container-high/50 border-primary/20">
+<h3 class="font-h3 text-h3 text-on-surface mb-lg">Refund Summary</h3>
+<div class="space-y-md">
+<div class="flex justify-between items-center text-on-surface-variant">
+<span class="font-body-md text-body-md">Subtotal (2 Items)</span>
+<span class="font-mono-data text-mono-data">$218.99</span>
+</div>
+<div class="flex justify-between items-center text-on-surface-variant">
+<span class="font-body-md text-body-md">Restocking Fee (0%)</span>
+<span class="font-mono-data text-mono-data text-secondary">$0.00</span>
+</div>
+<div class="flex justify-between items-center text-on-surface-variant">
+<span class="font-body-md text-body-md">Tax Refundable (8.5%)</span>
+<span class="font-mono-data text-mono-data">$18.61</span>
+</div>
+<div class="h-px bg-outline-variant my-md"></div>
+<div class="flex justify-between items-center">
+<span class="font-body-lg text-body-lg font-bold text-on-surface">Original Total Paid</span>
+<span class="font-mono-data text-mono-data text-on-surface opacity-60">$542.48</span>
+</div>
+<div class="flex justify-between items-end pt-md">
+<div>
+<p class="text-on-surface-variant text-[10px] uppercase font-bold tracking-widest">Total Refund Amount</p>
+<p class="font-display text-display text-primary leading-tight">$237.60</p>
+</div>
+<div class="flex flex-col items-end">
+<span class="material-symbols-outlined text-secondary" data-icon="trending_down">trending_down</span>
+<span class="text-[10px] text-secondary font-bold">-43.8%</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Refund Actions -->
+<div class="flex flex-col gap-md">
+<h4 class="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest px-1">Payment Channel</h4>
+<button class="flex items-center justify-between w-full p-lg bg-primary-container text-on-primary-container rounded-xl hover:opacity-90 active:scale-[0.98] transition-all shadow-xl shadow-primary-container/20 group">
+<div class="flex items-center gap-lg">
+<span class="material-symbols-outlined text-[32px]" data-icon="settings_backup_restore">settings_backup_restore</span>
+<div class="text-left">
+<p class="font-h3 text-h3 leading-none">Refund to Original Method</p>
+<p class="text-body-sm opacity-80 mt-1">Visa Ending in •••• 4492</p>
+</div>
+</div>
+<span class="material-symbols-outlined opacity-0 group-hover:opacity-100 transition-opacity" data-icon="chevron_right">chevron_right</span>
+</button>
+<div class="grid grid-cols-2 gap-md">
+<button class="flex flex-col items-center justify-center p-lg bg-surface-container border border-outline-variant/30 rounded-xl hover:bg-surface-variant transition-all active:scale-[0.98]">
+<span class="material-symbols-outlined text-on-surface-variant mb-md" data-icon="payments">payments</span>
+<span class="font-label-md text-label-md text-on-surface">Refund Cash</span>
+</button>
+<button class="flex flex-col items-center justify-center p-lg bg-surface-container border border-outline-variant/30 rounded-xl hover:bg-surface-variant transition-all active:scale-[0.98]">
+<span class="material-symbols-outlined text-on-surface-variant mb-md" data-icon="credit_card">credit_card</span>
+<span class="font-label-md text-label-md text-on-surface">Refund to Credit</span>
+</button>
+</div>
+<button class="mt-md p-md border border-dashed border-outline-variant/50 rounded-xl text-on-surface-variant font-label-md text-label-md hover:border-outline-variant hover:text-on-surface transition-all flex items-center justify-center gap-sm">
+<span class="material-symbols-outlined text-[18px]" data-icon="note_add">note_add</span>
+                        Add Internal Return Note
+                    </button>
+</div>
+<!-- Status Feedback Toast (Small Overlay) -->
+<div class="mt-auto p-md rounded-lg bg-surface-container-low flex items-center gap-md border border-outline-variant/10">
+<div class="w-2 h-2 rounded-full bg-secondary animate-pulse"></div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">System ready. Waiting for terminal authorization.</p>
+</div>
+</div>
+</div>
+</main>
+<!-- Floating Action Button (Only on Mobile-ish viewports or as Global Quick Action) -->
+<div class="fixed bottom-lg right-lg md:hidden">
+<button class="w-14 h-14 bg-primary text-on-primary rounded-full shadow-2xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all">
+<span class="material-symbols-outlined text-[32px]" data-icon="add">add</span>
+</button>
+</div>
+<script>
+        // Micro-interactions and Lightweight Atmospheric Effects
+        document.querySelectorAll('button').forEach(btn => {
+            btn.addEventListener('mouseenter', () => {
+                // Subtle tactile feedback hover sounds or visual shifts could go here
+            });
+        });
+
+        // Search bar interaction
+        const searchInput = document.querySelector('input[type="text"]');
+        searchInput.addEventListener('focus', () => {
+            searchInput.closest('.relative').classList.add('scale-[1.02]');
+        });
+        searchInput.addEventListener('blur', () => {
+            searchInput.closest('.relative').classList.remove('scale-[1.02]');
+        });
+
+        // Simulated product selection toggle
+        document.querySelectorAll('.glass-panel.cursor-pointer').forEach(item => {
+            item.addEventListener('click', (e) => {
+                // Ignore clicks on inputs or buttons
+                if (e.target.closest('button') || e.target.closest('select') || e.target.closest('input')) return;
+                
+                item.classList.toggle('opacity-60');
+                const checkbox = item.querySelector('.w-6.h-6.rounded-md');
+                if (checkbox.classList.contains('bg-primary-container') || checkbox.classList.contains('bg-error')) {
+                    checkbox.className = "w-6 h-6 rounded-md border border-outline-variant";
+                    checkbox.innerHTML = "";
+                    item.style.borderLeft = "none";
+                } else {
+                    checkbox.className = "w-6 h-6 rounded-md bg-primary-container flex items-center justify-center text-on-primary-container";
+                    checkbox.innerHTML = '<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: \'FILL\' 1;">check</span>';
+                    item.style.borderLeft = "4px solid #b4c5ff";
+                }
+            });
+        });
+    </script>
+</body></html>

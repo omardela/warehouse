@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>LogiCore Pro POS Terminal</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-tertiary-container": "#ffeedd",
+                    "surface-container": "#171f33",
+                    "error-container": "#93000a",
+                    "tertiary-container": "#996100",
+                    "tertiary": "#ffb95f",
+                    "surface-variant": "#2d3449",
+                    "on-primary-fixed": "#00174b",
+                    "inverse-on-surface": "#283044",
+                    "tertiary-fixed": "#ffddb8",
+                    "on-secondary-fixed-variant": "#005320",
+                    "surface-container-high": "#222a3d",
+                    "tertiary-fixed-dim": "#ffb95f",
+                    "on-tertiary": "#472a00",
+                    "surface-container-highest": "#2d3449",
+                    "surface-dim": "#0b1326",
+                    "surface-container-low": "#131b2e",
+                    "on-surface-variant": "#c3c6d7",
+                    "on-secondary": "#003914",
+                    "on-background": "#dae2fd",
+                    "on-tertiary-fixed-variant": "#653e00",
+                    "primary": "#b4c5ff",
+                    "on-primary-fixed-variant": "#003ea8",
+                    "surface-container-lowest": "#060e20",
+                    "primary-fixed": "#dbe1ff",
+                    "inverse-surface": "#dae2fd",
+                    "secondary": "#62df7d",
+                    "on-surface": "#dae2fd",
+                    "on-primary": "#002a78",
+                    "primary-fixed-dim": "#b4c5ff",
+                    "outline": "#8d90a0",
+                    "on-primary-container": "#eeefff",
+                    "on-secondary-fixed": "#002109",
+                    "inverse-primary": "#0053db",
+                    "secondary-container": "#1ca64d",
+                    "on-secondary-container": "#003111",
+                    "error": "#ffb4ab",
+                    "surface-bright": "#31394d",
+                    "background": "#0b1326",
+                    "secondary-fixed": "#7ffc97",
+                    "on-error": "#690005",
+                    "surface": "#0b1326",
+                    "on-tertiary-fixed": "#2a1700",
+                    "primary-container": "#2563eb",
+                    "outline-variant": "#434655",
+                    "surface-tint": "#b4c5ff",
+                    "on-error-container": "#ffdad6",
+                    "secondary-fixed-dim": "#62df7d"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "xl": "32px",
+                    "lg": "24px",
+                    "base": "4px",
+                    "sm": "8px",
+                    "margin": "32px",
+                    "gutter": "24px",
+                    "xs": "4px",
+                    "md": "16px"
+            },
+            "fontFamily": {
+                    "h1": ["Inter"],
+                    "label-md": ["Inter"],
+                    "body-lg": ["Inter"],
+                    "display": ["Inter"],
+                    "body-sm": ["Inter"],
+                    "mono-data": ["JetBrains Mono"],
+                    "h3": ["Inter"],
+                    "body-md": ["Inter"],
+                    "h2": ["Inter"]
+            },
+            "fontSize": {
+                    "h1": ["32px", {"lineHeight": "1.25", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "label-md": ["12px", {"lineHeight": "1", "letterSpacing": "0.02em", "fontWeight": "500"}],
+                    "body-lg": ["16px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                    "display": ["48px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "body-sm": ["12px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                    "mono-data": ["13px", {"lineHeight": "1", "letterSpacing": "-0.01em", "fontWeight": "400"}],
+                    "h3": ["20px", {"lineHeight": "1.4", "fontWeight": "600"}],
+                    "body-md": ["14px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                    "h2": ["24px", {"lineHeight": "1.3", "letterSpacing": "-0.01em", "fontWeight": "600"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { background-color: #0b1326; color: #dae2fd; font-family: 'Inter', sans-serif; overflow: hidden; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="flex h-screen w-full">
+<!-- SideNavBar -->
+<aside class="hidden md:flex flex-col h-full py-md px-sm bg-surface-container-lowest border-r border-outline-variant shadow-md w-64 shrink-0">
+<div class="px-md mb-xl">
+<h1 class="font-h3 text-h3 font-black text-on-surface">LogiCore Pro</h1>
+<p class="font-label-md text-label-md text-on-surface-variant">Enterprise ERP</p>
+</div>
+<nav class="flex-1 space-y-xs">
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-secondary bg-secondary-container/10 border-r-4 border-secondary active:scale-95 transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="point_of_sale">point_of_sale</span>
+<span class="font-label-md text-label-md">Terminal</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-variant/50 active:scale-95 transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="receipt_long">receipt_long</span>
+<span class="font-label-md text-label-md">History</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-variant/50 active:scale-95 transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="pause_circle">pause_circle</span>
+<span class="font-label-md text-label-md">Suspended</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-variant/50 active:scale-95 transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="assignment_return">assignment_return</span>
+<span class="font-label-md text-label-md">Returns</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-variant/50 active:scale-95 transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="monitoring">monitoring</span>
+<span class="font-label-md text-label-md">Analytics</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-variant/50 active:scale-95 transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-label-md text-label-md">Settings</span>
+</a>
+</nav>
+<div class="mt-auto pt-md border-t border-outline-variant space-y-xs">
+<button class="w-full mb-md py-sm bg-primary text-on-primary font-label-md text-label-md rounded-lg flex items-center justify-center gap-sm shadow-sm active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-[20px]" data-icon="barcode_scanner">barcode_scanner</span>
+                Quick Scan
+            </button>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-variant/50" href="#">
+<span class="material-symbols-outlined" data-icon="help">help</span>
+<span class="font-label-md text-label-md">Help</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-variant/50" href="#">
+<span class="material-symbols-outlined" data-icon="lock">lock</span>
+<span class="font-label-md text-label-md">Lock</span>
+</a>
+</div>
+</aside>
+<main class="flex-1 flex flex-col min-w-0 bg-background overflow-hidden">
+<!-- TopNavBar -->
+<header class="flex justify-between items-center w-full px-lg h-16 bg-surface-container dark:bg-surface-container-low border-b border-outline-variant shadow-sm shrink-0">
+<div class="flex items-center gap-md">
+<span class="font-h2 text-h2 font-bold text-primary">LogiCore Pro POS</span>
+<div class="h-8 w-[1px] bg-outline-variant ml-md"></div>
+<div class="flex items-center gap-sm text-on-surface-variant ml-md">
+<span class="material-symbols-outlined" data-icon="store">store</span>
+<span class="font-label-md text-label-md">Warehouse Terminal 01</span>
+</div>
+</div>
+<div class="flex items-center gap-lg">
+<div class="flex items-center gap-md">
+<button class="text-on-surface-variant hover:bg-surface-variant transition-colors p-sm rounded-full relative">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+<span class="absolute top-1 right-1 w-2 h-2 bg-error rounded-full"></span>
+</button>
+<button class="text-on-surface-variant hover:bg-surface-variant transition-colors p-sm rounded-full">
+<span class="material-symbols-outlined" data-icon="sync">sync</span>
+</button>
+<button class="text-on-surface-variant hover:bg-surface-variant transition-colors p-sm rounded-full">
+<span class="material-symbols-outlined" data-icon="account_balance_wallet">account_balance_wallet</span>
+</button>
+</div>
+<div class="flex items-center gap-md">
+<button class="px-md py-sm border border-outline text-on-surface font-label-md text-label-md rounded-lg hover:bg-surface-variant transition-colors">
+                        End Session
+                    </button>
+<button class="px-md py-sm bg-primary-container text-on-primary-container font-label-md text-label-md rounded-lg shadow-sm hover:opacity-90 active:scale-95 transition-all">
+                        New Sale
+                    </button>
+<img alt="Manager Avatar" class="w-8 h-8 rounded-full border border-outline-variant object-cover" data-alt="A professional warehouse manager portrait with a neutral expression, wearing a navy blue tech vest. The background is a blurred high-tech logistics center with soft industrial lighting. High-end professional photography style with sharp focus and deep color saturation." src="https://lh3.googleusercontent.com/aida/AP1WRLttfizikbAnhPrc9Gjs1iJtSGi3BWY8nc7gy0Z9OHjCaLqKM7LQ7I7MSj-Pt1SGJRHoKIO9L4zZvI6ClU8RkJGG1T-laWS763y3uSd1RREL5N3FNIh0Am1dNRWeD-f_88AOANLktRuScIn6FGCz9KbDiFqUC77UqdiFW9QhjmIgChBFoa0a6WlrdAz6L3R_3hN0uS9f5IFcjlZ4dfW9niGWAnBcNzB6ZE2bfu06rOKyM2bNnA1XAKOXdA_T"/>
+</div>
+</div>
+</header>
+<!-- Main Workspace -->
+<div class="flex flex-1 overflow-hidden">
+<!-- Left: Product Catalog (70%) -->
+<section class="w-[70%] flex flex-col border-r border-outline-variant h-full overflow-hidden">
+<!-- Search & Filter Bar -->
+<div class="p-lg space-y-md shrink-0">
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline" data-icon="search">search</span>
+<input class="w-full bg-surface-container-high border-none rounded-xl py-4 pl-12 pr-4 text-on-surface focus:ring-2 focus:ring-primary placeholder-on-surface-variant/50 transition-all font-body-md text-body-md" placeholder="Scan Barcode or Type SKU/Product Name..." type="text"/>
+<div class="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-sm">
+<span class="bg-surface-variant px-2 py-1 rounded text-[10px] font-mono-data text-on-surface-variant">F1</span>
+<span class="material-symbols-outlined text-outline cursor-pointer hover:text-primary" data-icon="barcode_scanner">barcode_scanner</span>
+</div>
+</div>
+<!-- Category Navigation -->
+<div class="flex items-center gap-sm overflow-x-auto no-scrollbar pb-sm">
+<button class="px-6 py-2 bg-primary text-on-primary rounded-full font-label-md text-label-md whitespace-nowrap shadow-sm">All Items</button>
+<button class="px-6 py-2 bg-surface-container-high text-on-surface-variant hover:bg-surface-variant rounded-full font-label-md text-label-md whitespace-nowrap border border-outline-variant/30 transition-colors">Electronics</button>
+<button class="px-6 py-2 bg-surface-container-high text-on-surface-variant hover:bg-surface-variant rounded-full font-label-md text-label-md whitespace-nowrap border border-outline-variant/30 transition-colors">Accessories</button>
+<button class="px-6 py-2 bg-surface-container-high text-on-surface-variant hover:bg-surface-variant rounded-full font-label-md text-label-md whitespace-nowrap border border-outline-variant/30 transition-colors">Storage</button>
+<button class="px-6 py-2 bg-surface-container-high text-on-surface-variant hover:bg-surface-variant rounded-full font-label-md text-label-md whitespace-nowrap border border-outline-variant/30 transition-colors">Network Gears</button>
+<button class="px-6 py-2 bg-surface-container-high text-on-surface-variant hover:bg-surface-variant rounded-full font-label-md text-label-md whitespace-nowrap border border-outline-variant/30 transition-colors">Power Systems</button>
+</div>
+</div>
+<!-- Product Grid -->
+<div class="flex-1 overflow-y-auto p-lg pt-0 grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-lg content-start">
+<!-- Product Card 1 -->
+<div class="group bg-surface-container rounded-xl overflow-hidden border border-outline-variant/50 hover:border-primary/50 transition-all shadow-sm active:scale-95 cursor-pointer">
+<div class="relative h-40 overflow-hidden">
+<img alt="Industrial Hub" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" data-alt="A high-performance industrial network hub with multiple ethernet ports and status LEDs glowing blue. The device is placed on a clean tech-bench with a dark, professional slate-gray aesthetic. Minimalist product photography, high-contrast, moody lighting." src="https://lh3.googleusercontent.com/aida/AP1WRLt-ljan-a_sNSAd9U9j_jHS8ToFIo9xBGm5-SB7FVnW-Q8gost1vpF9-HmuowKXh6gwgmlBsbrMHG9K9w1G8xcGNiqbaFYDiOJHOxHI93Z1gVRP5_prKC5KlnJpg4nkQkUa2fWNalr9dmByIGSCFCW4RwSnPGVMqIfqvJeCPCvHYR6Bk_Vo7Hbwl1gdh-Jw4m1_xcaiC8IPKhlcxmrUKe3byKKBBhE2TYK73MbqiS8VkPCAMZ7vcFsvg4ob"/>
+<div class="absolute top-2 right-2 bg-secondary/20 text-secondary border border-secondary/50 px-2 py-1 rounded text-[10px] font-bold">IN STOCK: 24</div>
+</div>
+<div class="p-md">
+<h3 class="font-body-lg text-body-lg font-bold text-on-surface truncate">Industrial Hub Gen 4</h3>
+<p class="font-mono-data text-mono-data text-on-surface-variant mt-1">SKU-IH4-9092</p>
+<div class="mt-4 flex items-center justify-between">
+<span class="font-h3 text-h3 text-primary">$299.00</span>
+<button class="p-2 bg-primary-container text-on-primary-container rounded-lg hover:opacity-80 transition-opacity">
+<span class="material-symbols-outlined" data-icon="add_shopping_cart">add_shopping_cart</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Product Card 2 -->
+<div class="group bg-surface-container rounded-xl overflow-hidden border border-outline-variant/50 hover:border-primary/50 transition-all shadow-sm active:scale-95 cursor-pointer">
+<div class="relative h-40 overflow-hidden">
+<img alt="Wireless Scanner" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" data-alt="A handheld wireless barcode scanner with a sleek ergonomic design and a bright red laser aiming beam. The scanner is set against a dark industrial warehouse background with blurred logistics shelves. Modern product render, volumetric lighting, high tech aesthetic." src="https://lh3.googleusercontent.com/aida/AP1WRLtOvGqX8xlDlFiTKi4GoAUV6S8nbTHULZemBl502BWrHagCfEt1odYUQdde-JSy78NMYAgXtb_uBlI85Cm88-DmFElnPGyqSCBf4XEVY43vISIU2eHC_-geNb-ZqEDuarg-o4m4-PSCTQYNsjc9FSpS5TufD8xSWTz-1Q1IRgrtKriqUhy33EM_Hty38thaOty4l7_DUndGKsrCLAuqr2lSnTJMwIPqkOKhZmEz8dSeqPqc2aGrteii4wq0"/>
+<div class="absolute top-2 right-2 bg-secondary/20 text-secondary border border-secondary/50 px-2 py-1 rounded text-[10px] font-bold">IN STOCK: 112</div>
+</div>
+<div class="p-md">
+<h3 class="font-body-lg text-body-lg font-bold text-on-surface truncate">Wireless Scanner X1</h3>
+<p class="font-mono-data text-mono-data text-on-surface-variant mt-1">SKU-WSX-881</p>
+<div class="mt-4 flex items-center justify-between">
+<span class="font-h3 text-h3 text-primary">$145.00</span>
+<button class="p-2 bg-primary-container text-on-primary-container rounded-lg">
+<span class="material-symbols-outlined" data-icon="add_shopping_cart">add_shopping_cart</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Product Card 3 -->
+<div class="group bg-surface-container rounded-xl overflow-hidden border border-outline-variant/50 hover:border-primary/50 transition-all shadow-sm active:scale-95 cursor-pointer">
+<div class="relative h-40 overflow-hidden">
+<img alt="Cable Rolls" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" data-alt="Large rolls of heavy-duty industrial Cat6 ethernet cables in vibrant blue and gray. The rolls are stacked neatly on a wooden pallet within a clean warehouse environment. Wide angle lens, bright neutral lighting, professional commercial photography." src="https://lh3.googleusercontent.com/aida/AP1WRLv3DPZjKIiJsqwGm-XyF-cJAgWcnf7fJZQ-8pFQShYseS5ihBFpgbaGGFd2k29re6z-KR0DuP-DXzYc3zFQTl4bai71yoVOuNf46HxXpHwDzcNOp3N9wuP5peOmMguH6jkJ5XUpYXUW-mOMiQwNMwHQz6cWBTTsxadomGeC1ySaXdWsqnotnwpouyibsSiRl5oosnDcwK8CVs-5LyJ5cKXdcQ8LdbFlLj32tFbN283znjruECJv07pGc8y7"/>
+<div class="absolute top-2 right-2 bg-error/20 text-error border border-error/50 px-2 py-1 rounded text-[10px] font-bold">LOW STOCK: 3</div>
+</div>
+<div class="p-md">
+<h3 class="font-body-lg text-body-lg font-bold text-on-surface truncate">Cat6 Cable Roll 100m</h3>
+<p class="font-mono-data text-mono-data text-on-surface-variant mt-1">SKU-CBL-6100</p>
+<div class="mt-4 flex items-center justify-between">
+<span class="font-h3 text-h3 text-primary">$89.50</span>
+<button class="p-2 bg-primary-container text-on-primary-container rounded-lg">
+<span class="material-symbols-outlined" data-icon="add_shopping_cart">add_shopping_cart</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Product Card 4 -->
+<div class="group bg-surface-container rounded-xl overflow-hidden border border-outline-variant/50 hover:border-primary/50 transition-all shadow-sm active:scale-95 cursor-pointer">
+<div class="relative h-40 overflow-hidden">
+<img alt="Rack UPS" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" data-alt="An enterprise-grade rack-mount uninterruptible power supply (UPS) system with a digital LCD display showing load status. Dark metal chassis, high-precision industrial design, cool blue LED accents. Studio lighting on a black background." src="https://lh3.googleusercontent.com/aida/AP1WRLviqZDdNqyag2levevdQzm6Ow6mnvwVAyj77o0ASHAbolTgTivslpQDR4ZMe_BgAGtXKQgdADX7evAAgd5xxi5yhofQJtMkdny9sN0sFGX7athsmJQnNsAHAwy4pwMc5xqSOUKbQbevMIEVo0O4A2M3zFNsuOC9Z0cigiDJEeOjxLkoOVc1JGrOyKZ12FCd1eGAzomUoTKZDYLXUZqu_CyvddyqX11SOdFtkr0KasThWx0FfusyZu5U1OwP"/>
+<div class="absolute top-2 right-2 bg-secondary/20 text-secondary border border-secondary/50 px-2 py-1 rounded text-[10px] font-bold">IN STOCK: 8</div>
+</div>
+<div class="p-md">
+<h3 class="font-body-lg text-body-lg font-bold text-on-surface truncate">Rack UPS 2000VA</h3>
+<p class="font-mono-data text-mono-data text-on-surface-variant mt-1">SKU-UPS-2000</p>
+<div class="mt-4 flex items-center justify-between">
+<span class="font-h3 text-h3 text-primary">$420.00</span>
+<button class="p-2 bg-primary-container text-on-primary-container rounded-lg">
+<span class="material-symbols-outlined" data-icon="add_shopping_cart">add_shopping_cart</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Product Card 5 -->
+<div class="group bg-surface-container rounded-xl overflow-hidden border border-outline-variant/50 hover:border-primary/50 transition-all shadow-sm active:scale-95 cursor-pointer">
+<div class="relative h-40 overflow-hidden">
+<img alt="Logic Controller" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" data-alt="A programmable logic controller (PLC) module with intricate circuit traces and golden connector pins. Macro photography focusing on the hardware details, neon circuit light effects, futuristic industrial tech style." src="https://lh3.googleusercontent.com/aida/AP1WRLumuMEKaaTBPsvUOADDyfxZOV1kMUlySnrxnkKR36XdrlNA9sQivr7lsNS0TCFIacR3ICUi-JiQsmqwjziYB5knzsRKjbQaShxkSstamh7QxZZYa4aYVEHz9juDM_phFc3JNS0wCjPBEU4h_0TURDO4buyP-C3IFJzkIgw5RmGbLWbMSG0g7F-2sAI2CU5hzZZMcLBLgaWXiLc42A6wRGvRfOxZHj_JeWWYyddLDuhZSZNS5NNl3RpvnH2B"/>
+<div class="absolute top-2 right-2 bg-secondary/20 text-secondary border border-secondary/50 px-2 py-1 rounded text-[10px] font-bold">IN STOCK: 45</div>
+</div>
+<div class="p-md">
+<h3 class="font-body-lg text-body-lg font-bold text-on-surface truncate">Logic Controller v2</h3>
+<p class="font-mono-data text-mono-data text-on-surface-variant mt-1">SKU-LGC-V2</p>
+<div class="mt-4 flex items-center justify-between">
+<span class="font-h3 text-h3 text-primary">$175.99</span>
+<button class="p-2 bg-primary-container text-on-primary-container rounded-lg">
+<span class="material-symbols-outlined" data-icon="add_shopping_cart">add_shopping_cart</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Product Card 6 -->
+<div class="group bg-surface-container rounded-xl overflow-hidden border border-outline-variant/50 hover:border-primary/50 transition-all shadow-sm active:scale-95 cursor-pointer">
+<div class="relative h-40 overflow-hidden">
+<img alt="Fiber Patch" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" data-alt="A bundle of high-speed fiber optic patch cables with yellow jackets and blue LC connectors. Glowing fiber ends, high-tech networking environment, crisp focus on the connector geometry. Digital modern aesthetics." src="https://lh3.googleusercontent.com/aida/AP1WRLs9_nKBJqHod4BzhNcSErhiSL6_4w2mKi1wE4V1q9OyYzjDXQbxhlbMvn8QN5UQPe-CyFxx331i8h4M01083uG4Ip5jDQUEH4R8a5yNLppKRXeZSXYcNRB_Uf_2yQNXvYL0XyBeqHWKxgCnOio6fdm2DGq6izrQHNXCuB6P9LXqYdZqzjYfCrQ4rqGRfusXdO8K4_JgqVQVDfIKlq7Kqzd0qSNB8dytVqMol2HlVOOWDixsDAS1FI9FbdDb"/>
+<div class="absolute top-2 right-2 bg-secondary/20 text-secondary border border-secondary/50 px-2 py-1 rounded text-[10px] font-bold">IN STOCK: 200+</div>
+</div>
+<div class="p-md">
+<h3 class="font-body-lg text-body-lg font-bold text-on-surface truncate">Fiber Patch LC-LC 2m</h3>
+<p class="font-mono-data text-mono-data text-on-surface-variant mt-1">SKU-FBR-LCLC2</p>
+<div class="mt-4 flex items-center justify-between">
+<span class="font-h3 text-h3 text-primary">$12.99</span>
+<button class="p-2 bg-primary-container text-on-primary-container rounded-lg">
+<span class="material-symbols-outlined" data-icon="add_shopping_cart">add_shopping_cart</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Right: Shopping Cart (30%) -->
+<section class="w-[30%] bg-surface-container-low flex flex-col h-full shadow-2xl relative z-10">
+<!-- Customer Selection -->
+<div class="p-lg border-b border-outline-variant">
+<div class="flex items-center justify-between mb-sm">
+<h2 class="font-h3 text-h3 text-on-surface">Customer</h2>
+<button class="text-primary font-label-md text-label-md hover:underline">Register New</button>
+</div>
+<div class="bg-surface-container-highest rounded-xl p-md flex items-center gap-md border border-outline-variant/30 group hover:border-primary transition-colors cursor-pointer">
+<div class="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center text-on-primary-container">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+</div>
+<div class="flex-1">
+<div class="font-body-md text-body-md font-bold text-on-surface">Walk-in Customer</div>
+<div class="font-label-md text-label-md text-on-surface-variant">Default Account</div>
+</div>
+<span class="material-symbols-outlined text-outline" data-icon="keyboard_arrow_right">keyboard_arrow_right</span>
+</div>
+</div>
+<!-- Cart Items List -->
+<div class="flex-1 overflow-y-auto p-lg no-scrollbar">
+<div class="flex items-center justify-between mb-lg">
+<span class="font-h3 text-h3 text-on-surface">Cart (3 items)</span>
+<button class="text-error font-label-md text-label-md hover:underline flex items-center gap-xs">
+<span class="material-symbols-outlined text-[16px]" data-icon="delete_sweep">delete_sweep</span>
+                            Clear
+                        </button>
+</div>
+<div class="space-y-lg">
+<!-- Item 1 -->
+<div class="flex gap-md group">
+<div class="w-16 h-16 rounded-lg bg-surface-container-high overflow-hidden shrink-0">
+<img alt="Product" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida/AP1WRLsXf9M7ZX0VS6NG7_qwtSqn34lYI1Zy45s8AWyGqvub_lr7BG4DnCreZpxUqLeaFaw0TH0yAQzT3tAfwSJRogrT7Z9O_v5QbVu76dbPTwm0dYCU599WKr0bV8DQ7ZDM2Hqy8Z-unkskSI10X_zdCo5KJ5sTc7KNCukid1nvqzNI67uieGmtGvSqWmnhDZfdV2wo2fgdVnVNYbKO0dYLTwQunsnyzbeFqZ55oZWZtdSp2QHf26K1GoRVhEsF"/>
+</div>
+<div class="flex-1 min-w-0">
+<div class="font-body-md text-body-md font-bold text-on-surface truncate">Industrial Hub Gen 4</div>
+<div class="flex items-center justify-between mt-sm">
+<div class="flex items-center bg-surface-container-high rounded-lg p-1">
+<button class="w-6 h-6 flex items-center justify-center text-on-surface hover:bg-surface-variant rounded">-</button>
+<span class="px-3 font-mono-data text-mono-data text-primary">01</span>
+<button class="w-6 h-6 flex items-center justify-center text-on-surface hover:bg-surface-variant rounded">+</button>
+</div>
+<div class="font-mono-data text-mono-data text-on-surface font-bold">$299.00</div>
+</div>
+</div>
+</div>
+<!-- Item 2 -->
+<div class="flex gap-md group">
+<div class="w-16 h-16 rounded-lg bg-surface-container-high overflow-hidden shrink-0">
+<img alt="Product" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida/AP1WRLsL18rQcPdAdvcPVE2rNw87DWiPukcTIICAjRg7U6IgpvO9PDD9Z7YS3Xyqt4uJ-sTnLqP7Wrm4JLYBqW3VmzyVp47eiEoVDMt0Pfhk4XmCTKF2gk6lNFICmsTo_bHJiB0RGJ1kHkOXSe5Gb_R14VdVOZnF73ZSWm0NkaDP4q-PgkIwRUBn--epEpv1s8JEIX3TRzHVFUDTfpPvt4ceS_hXQs4m48eTPJBpP9KWRz4Udr-x_YWvlcK0iPiv"/>
+</div>
+<div class="flex-1 min-w-0">
+<div class="font-body-md text-body-md font-bold text-on-surface truncate">Wireless Scanner X1</div>
+<div class="flex items-center justify-between mt-sm">
+<div class="flex items-center bg-surface-container-high rounded-lg p-1">
+<button class="w-6 h-6 flex items-center justify-center text-on-surface hover:bg-surface-variant rounded">-</button>
+<span class="px-3 font-mono-data text-mono-data text-primary">02</span>
+<button class="w-6 h-6 flex items-center justify-center text-on-surface hover:bg-surface-variant rounded">+</button>
+</div>
+<div class="font-mono-data text-mono-data text-on-surface font-bold">$290.00</div>
+</div>
+</div>
+</div>
+<!-- Item 3 -->
+<div class="flex gap-md group">
+<div class="w-16 h-16 rounded-lg bg-surface-container-high overflow-hidden shrink-0">
+<img alt="Product" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida/AP1WRLu_4ll34onQF4W8MgeDynG5SBoz0JZ-99Kme_9rB5dBIP9zRo0r9pN8Zq3YICNKwCliMsS9CF5wD5uh5fDlk3a5CCpeQ1k5qcs-BfemXi2OMlzhAsI0nCgjCCZS73OE-1bQgWqjXsNDjNgFxmp80nsd1HynWBGQmeD4X4l_WoJ6RwnF24VCdHRqKMhcKH5Kxxd1n8HoSwYj2xn5aBeCkA7OMAWH12dk84rlIQEWzKPoRKrJi65z5B6JAo7M"/>
+</div>
+<div class="flex-1 min-w-0">
+<div class="font-body-md text-body-md font-bold text-on-surface truncate">Cat6 Cable Roll 100m</div>
+<div class="flex items-center justify-between mt-sm">
+<div class="flex items-center bg-surface-container-high rounded-lg p-1">
+<button class="w-6 h-6 flex items-center justify-center text-on-surface hover:bg-surface-variant rounded">-</button>
+<span class="px-3 font-mono-data text-mono-data text-primary">01</span>
+<button class="w-6 h-6 flex items-center justify-center text-on-surface hover:bg-surface-variant rounded">+</button>
+</div>
+<div class="font-mono-data text-mono-data text-on-surface font-bold">$89.50</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Order Summary & Checkout -->
+<div class="p-lg bg-surface-container mt-auto border-t border-outline-variant shadow-[0_-8px_24px_rgba(0,0,0,0.2)]">
+<div class="space-y-sm mb-lg">
+<div class="flex justify-between text-on-surface-variant font-body-md text-body-md">
+<span>Subtotal</span>
+<span class="font-mono-data">$678.50</span>
+</div>
+<div class="flex justify-between text-on-surface-variant font-body-md text-body-md">
+<span>Tax (8%)</span>
+<span class="font-mono-data">$54.28</span>
+</div>
+<div class="flex justify-between text-on-surface font-h2 text-h2 font-extrabold mt-md">
+<span>Total</span>
+<span class="text-primary font-mono-data">$732.78</span>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-md mb-md">
+<button class="py-4 bg-surface-container-highest border border-outline-variant text-on-surface rounded-xl font-bold hover:bg-surface-variant transition-all active:scale-95 flex flex-col items-center gap-1">
+<span class="material-symbols-outlined" data-icon="pause">pause</span>
+<span class="font-label-md text-label-md">Suspend</span>
+</button>
+<button class="py-4 bg-surface-container-highest border border-outline-variant text-on-surface rounded-xl font-bold hover:bg-surface-variant transition-all active:scale-95 flex flex-col items-center gap-1">
+<span class="material-symbols-outlined" data-icon="local_activity">local_activity</span>
+<span class="font-label-md text-label-md">Discount</span>
+</button>
+</div>
+<button class="w-full py-5 bg-primary text-on-primary rounded-xl font-h2 text-h2 font-black shadow-lg shadow-primary/20 hover:brightness-110 active:scale-[0.98] transition-all flex items-center justify-center gap-md">
+                        PAY NOW
+                        <span class="material-symbols-outlined text-[32px]" data-icon="arrow_forward">arrow_forward</span>
+</button>
+</div>
+</section>
+</div>
+</main>
+<!-- Interactive Layer -->
+<script>
+        // Simple scale micro-interaction for product cards
+        document.querySelectorAll('.active\\:scale-95').forEach(button => {
+            button.addEventListener('mousedown', () => {
+                button.style.transform = 'scale(0.95)';
+            });
+            button.addEventListener('mouseup', () => {
+                button.style.transform = 'scale(1)';
+            });
+            button.addEventListener('mouseleave', () => {
+                button.style.transform = 'scale(1)';
+            });
+        });
+
+        // Search bar focus effect
+        const searchInput = document.querySelector('input[type="text"]');
+        searchInput.addEventListener('focus', () => {
+            searchInput.parentElement.classList.add('ring-2', 'ring-primary');
+        });
+        searchInput.addEventListener('blur', () => {
+            searchInput.parentElement.classList.remove('ring-2', 'ring-primary');
+        });
+    </script>
+</body></html>

@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Stock Adjustment - LogiCore Pro</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&amp;family=JetBrains+Mono:wght@400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary-fixed-dim": "#ffb95f",
+                        "outline-variant": "#434655",
+                        "tertiary-container": "#996100",
+                        "surface-container-high": "#222a3d",
+                        "on-error": "#690005",
+                        "on-surface": "#dae2fd",
+                        "background": "#0b1326",
+                        "surface-variant": "#2d3449",
+                        "error-container": "#93000a",
+                        "primary-container": "#2563eb",
+                        "surface-container": "#171f33",
+                        "secondary-fixed": "#7ffc97",
+                        "on-tertiary-container": "#ffeedd",
+                        "on-background": "#dae2fd",
+                        "on-primary-container": "#eeefff",
+                        "surface-container-lowest": "#060e20",
+                        "primary": "#b4c5ff",
+                        "on-tertiary-fixed": "#2a1700",
+                        "surface-bright": "#31394d",
+                        "surface-tint": "#b4c5ff",
+                        "inverse-on-surface": "#283044",
+                        "tertiary-fixed": "#ffddb8",
+                        "secondary": "#62df7d",
+                        "surface-container-low": "#131b2e",
+                        "outline": "#8d90a0",
+                        "on-secondary-container": "#003111",
+                        "on-secondary-fixed": "#002109",
+                        "on-primary-fixed": "#00174b",
+                        "inverse-surface": "#dae2fd",
+                        "on-secondary": "#003914",
+                        "error": "#ffb4ab",
+                        "primary-fixed-dim": "#b4c5ff",
+                        "on-tertiary": "#472a00",
+                        "tertiary": "#ffb95f",
+                        "surface": "#0b1326",
+                        "primary-fixed": "#dbe1ff",
+                        "secondary-fixed-dim": "#62df7d",
+                        "on-tertiary-fixed-variant": "#653e00",
+                        "on-primary": "#002a78",
+                        "on-secondary-fixed-variant": "#005320",
+                        "on-primary-fixed-variant": "#003ea8",
+                        "surface-container-highest": "#2d3449",
+                        "secondary-container": "#1ca64d",
+                        "on-surface-variant": "#c3c6d7",
+                        "inverse-primary": "#0053db",
+                        "surface-dim": "#0b1326",
+                        "on-error-container": "#ffdad6"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "xs": "4px",
+                        "gutter": "24px",
+                        "base": "4px",
+                        "sm": "8px",
+                        "lg": "24px",
+                        "md": "16px",
+                        "margin": "32px",
+                        "xl": "32px"
+                    },
+                    "fontFamily": {
+                        "label-md": ["Inter"],
+                        "h2": ["Inter"],
+                        "h3": ["Inter"],
+                        "display": ["Inter"],
+                        "body-md": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "h1": ["Inter"],
+                        "mono-data": ["JetBrains Mono"],
+                        "body-sm": ["Inter"]
+                    },
+                    "fontSize": {
+                        "label-md": ["12px", { "lineHeight": "1", "letterSpacing": "0.02em", "fontWeight": "500" }],
+                        "h2": ["24px", { "lineHeight": "1.3", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "h3": ["20px", { "lineHeight": "1.4", "fontWeight": "600" }],
+                        "display": ["48px", { "lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-md": ["14px", { "lineHeight": "1.5", "fontWeight": "400" }],
+                        "body-lg": ["16px", { "lineHeight": "1.5", "fontWeight": "400" }],
+                        "h1": ["32px", { "lineHeight": "1.25", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "mono-data": ["13px", { "lineHeight": "1", "letterSpacing": "-0.01em", "fontWeight": "400" }],
+                        "body-sm": ["12px", { "lineHeight": "1.5", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined[data-weight="fill"] {
+            font-variation-settings: 'FILL' 1;
+        }
+        
+        /* Custom scrollbar for data tables/containers */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(45, 52, 73, 0.5); /* surface-variant slightly transparent */
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #434655; /* outline-variant */
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #8d90a0; /* outline */
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background min-h-screen flex antialiased selection:bg-primary-container selection:text-on-primary-container">
+<!-- SideNavBar -->
+<nav class="fixed left-0 top-0 h-full flex flex-col p-4 z-40 docked w-64 border-r border-outline-variant shadow-md bg-surface-container-lowest dark:bg-surface-container-lowest hidden md:flex">
+<div class="mb-8 px-2 flex items-center gap-3">
+<div class="w-8 h-8 rounded bg-primary-container flex items-center justify-center text-on-primary-container font-bold">L</div>
+<div>
+<h1 class="font-h2 text-h2 font-bold text-primary dark:text-primary">LogiCore Pro</h1>
+<p class="font-label-md text-label-md text-on-surface-variant">Enterprise ERP</p>
+</div>
+</div>
+<ul class="flex flex-col gap-1 flex-1 overflow-y-auto">
+<li><a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface px-3 py-2 hover:bg-surface-container-high transition-colors duration-200 rounded-lg font-label-md text-label-md" href="#"><span class="material-symbols-outlined text-[20px]" data-icon="dashboard">dashboard</span>Dashboard</a></li>
+<li><a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface px-3 py-2 hover:bg-surface-container-high transition-colors duration-200 rounded-lg font-label-md text-label-md" href="#"><span class="material-symbols-outlined text-[20px]" data-icon="inventory_2">inventory_2</span>Products</a></li>
+<li><a class="flex items-center gap-3 bg-secondary-container text-on-secondary-container rounded-lg px-3 py-2 font-semibold hover:bg-surface-container-high transition-colors duration-200 font-label-md text-label-md" href="#"><span class="material-symbols-outlined text-[20px]" data-icon="warehouse" data-weight="fill">warehouse</span>Inventory</a></li>
+<li><a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface px-3 py-2 hover:bg-surface-container-high transition-colors duration-200 rounded-lg font-label-md text-label-md" href="#"><span class="material-symbols-outlined text-[20px]" data-icon="payments">payments</span>Sales</a></li>
+<li><a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface px-3 py-2 hover:bg-surface-container-high transition-colors duration-200 rounded-lg font-label-md text-label-md" href="#"><span class="material-symbols-outlined text-[20px]" data-icon="shopping_cart">shopping_cart</span>Purchases</a></li>
+<li><a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface px-3 py-2 hover:bg-surface-container-high transition-colors duration-200 rounded-lg font-label-md text-label-md" href="#"><span class="material-symbols-outlined text-[20px]" data-icon="group">group</span>Customers</a></li>
+<li><a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface px-3 py-2 hover:bg-surface-container-high transition-colors duration-200 rounded-lg font-label-md text-label-md" href="#"><span class="material-symbols-outlined text-[20px]" data-icon="local_shipping">local_shipping</span>Suppliers</a></li>
+<li><a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface px-3 py-2 hover:bg-surface-container-high transition-colors duration-200 rounded-lg font-label-md text-label-md" href="#"><span class="material-symbols-outlined text-[20px]" data-icon="badge">badge</span>Employees</a></li>
+<li><a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface px-3 py-2 hover:bg-surface-container-high transition-colors duration-200 rounded-lg font-label-md text-label-md" href="#"><span class="material-symbols-outlined text-[20px]" data-icon="domain">domain</span>Warehouses</a></li>
+<li><a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface px-3 py-2 hover:bg-surface-container-high transition-colors duration-200 rounded-lg font-label-md text-label-md" href="#"><span class="material-symbols-outlined text-[20px]" data-icon="analytics">analytics</span>Reports</a></li>
+<li><a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface px-3 py-2 hover:bg-surface-container-high transition-colors duration-200 rounded-lg font-label-md text-label-md" href="#"><span class="material-symbols-outlined text-[20px]" data-icon="history">history</span>Audit Logs</a></li>
+<li><a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface px-3 py-2 hover:bg-surface-container-high transition-colors duration-200 rounded-lg font-label-md text-label-md" href="#"><span class="material-symbols-outlined text-[20px]" data-icon="security">security</span>Roles</a></li>
+<li class="mt-auto"><a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface px-3 py-2 hover:bg-surface-container-high transition-colors duration-200 rounded-lg font-label-md text-label-md" href="#"><span class="material-symbols-outlined text-[20px]" data-icon="settings">settings</span>Settings</a></li>
+</ul>
+</nav>
+<!-- TopNavBar -->
+<header class="fixed top-0 right-0 left-0 md:left-64 h-16 flex justify-between items-center px-6 z-30 docked full-width border-b border-outline-variant shadow-sm bg-surface-container-lowest dark:bg-surface-container-lowest">
+<div class="flex items-center gap-4">
+<button class="md:hidden text-on-surface hover:bg-surface-container-high rounded-full p-2 transition-all"><span class="material-symbols-outlined" data-icon="menu">menu</span></button>
+<div class="relative hidden sm:block w-64">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[20px]" data-icon="search">search</span>
+<input class="w-full bg-surface-container h-10 pl-10 pr-4 rounded-full border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary text-body-sm font-body-sm text-on-surface placeholder:text-on-surface-variant transition-colors outline-none" placeholder="Search operations..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<button class="text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high rounded-full p-2 transition-all opacity-100 active:opacity-80"><span class="material-symbols-outlined" data-icon="notifications">notifications</span></button>
+<button class="text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high rounded-full p-2 transition-all opacity-100 active:opacity-80"><span class="material-symbols-outlined" data-icon="help">help</span></button>
+<button class="text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high rounded-full p-2 transition-all opacity-100 active:opacity-80"><span class="material-symbols-outlined" data-icon="apps">apps</span></button>
+<div class="h-8 w-[1px] bg-outline-variant mx-2"></div>
+<button class="flex items-center gap-2 hover:bg-surface-container-high rounded-full p-1 pr-3 transition-all">
+<img alt="User Profile" class="w-8 h-8 rounded-full border border-outline-variant" data-alt="A small circular profile picture placeholder showing a generic silhouette or subtle abstract gradient suitable for a professional corporate application avatar." src="https://lh3.googleusercontent.com/aida/ADBb0uiQLZdNGJ-t0bRiNymDQAe-PNQ3FuAxV4GSVX6g3x9YvlpykCwChK4z7vEB4nc2pbHzUPawAF8O2xSssD8oVFlfzNl39t129jER-SLYQRxUloGwH_jAIj9gHz04B3B91hdskRslMGJx1Jpayb2A1cEYGNxcxmxhp7mh-sxXjESyrVA0MWuayOSKcVIzp24VGsfsaWGcx93gLK-8QW1dsMd1KbfUUFrw5LQgBxg602IwIGeip3OttAVcGUVQ"/>
+<span class="font-label-md text-label-md text-on-surface hidden sm:block">Profile</span>
+</button>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-1 md:ml-64 pt-16 min-h-screen bg-background">
+<div class="p-6 md:p-8 lg:p-margin max-w-7xl mx-auto">
+<!-- Header Section -->
+<div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-lg">
+<div>
+<div class="flex items-center gap-2 mb-2 text-on-surface-variant font-label-md text-label-md">
+<a class="hover:text-primary transition-colors" href="#">Inventory</a>
+<span class="material-symbols-outlined text-[16px]" data-icon="chevron_right">chevron_right</span>
+<a class="hover:text-primary transition-colors" href="#">Stock Control</a>
+<span class="material-symbols-outlined text-[16px]" data-icon="chevron_right">chevron_right</span>
+<span class="text-on-surface">New Adjustment</span>
+</div>
+<h2 class="font-h1 text-h1 text-on-surface">Stock Adjustment</h2>
+<p class="font-body-md text-body-md text-on-surface-variant mt-1">Record physical inventory discrepancies to maintain system accuracy.</p>
+</div>
+<div class="flex gap-3">
+<button class="px-4 py-2 rounded-lg border border-outline-variant text-on-surface font-label-md text-label-md hover:bg-surface-container-high transition-colors">Cancel</button>
+<button class="px-4 py-2 rounded-lg bg-primary-container text-on-primary-container font-label-md text-label-md hover:bg-primary transition-colors flex items-center gap-2 shadow-sm">
+<span class="material-symbols-outlined text-[18px]" data-icon="save">save</span>
+                        Submit Adjustment
+                    </button>
+</div>
+</div>
+<!-- Main Form Bento Grid Layout -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+<!-- Left Column: Primary Input Form (8 cols) -->
+<div class="lg:col-span-8 flex flex-col gap-6">
+<!-- Selection Card -->
+<div class="bg-surface-container-low rounded-xl border border-outline-variant p-6 shadow-sm">
+<h3 class="font-h3 text-h3 text-on-surface mb-6 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary" data-icon="filter_alt">filter_alt</span>
+                            Target Identification
+                        </h3>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<!-- Warehouse Selection -->
+<div class="space-y-sm">
+<label class="font-label-md text-label-md text-on-surface-variant">Warehouse Location <span class="text-error">*</span></label>
+<div class="relative">
+<select class="w-full bg-surface h-10 px-3 pr-10 rounded-lg border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary text-body-md font-body-md text-on-surface appearance-none outline-none">
+<option disabled="" selected="" value="">Select Warehouse...</option>
+<option value="w1">WH-Alpha (New York)</option>
+<option value="w2">WH-Beta (Chicago)</option>
+<option value="w3">WH-Gamma (Los Angeles)</option>
+</select>
+<span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none text-[20px]" data-icon="expand_more">expand_more</span>
+</div>
+</div>
+<!-- Product Selection -->
+<div class="space-y-sm">
+<label class="font-label-md text-label-md text-on-surface-variant">Product SKU / Name <span class="text-error">*</span></label>
+<div class="relative">
+<input class="w-full bg-surface h-10 pl-3 pr-10 rounded-lg border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary text-body-md font-body-md text-on-surface outline-none" placeholder="Scan or type SKU..." type="text" value="SKU-8924-M"/>
+<span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-primary pointer-events-none text-[20px]" data-icon="barcode_scanner">barcode_scanner</span>
+</div>
+<div class="text-xs text-secondary mt-1 flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]" data-icon="check_circle">check_circle</span>
+                                    Product Found: Industrial Steel Bearing (12mm)
+                                </div>
+</div>
+</div>
+</div>
+<!-- Quantity Adjustment Card -->
+<div class="bg-surface-container-low rounded-xl border border-outline-variant p-6 shadow-sm">
+<h3 class="font-h3 text-h3 text-on-surface mb-6 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary" data-icon="calculate">calculate</span>
+                            Variance Calculation
+                        </h3>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-end bg-surface p-4 rounded-lg border border-surface-variant">
+<!-- System Quantity (Read-only) -->
+<div class="space-y-sm">
+<label class="font-label-md text-label-md text-on-surface-variant block">System Quantity</label>
+<div class="relative">
+<input class="w-full bg-surface-container-highest h-12 px-4 rounded-lg border border-outline-variant/50 text-h2 font-mono-data text-on-surface-variant opacity-70 cursor-not-allowed text-center" disabled="" type="number" value="150"/>
+<span class="absolute right-3 bottom-1 text-[10px] text-on-surface-variant uppercase">Units</span>
+</div>
+</div>
+<!-- Connector Icon -->
+<div class="hidden md:flex justify-center pb-3 text-outline">
+<span class="material-symbols-outlined" data-icon="arrow_forward">arrow_forward</span>
+</div>
+<!-- Physical Quantity (Input) -->
+<div class="space-y-sm">
+<label class="font-label-md text-label-md text-on-surface block">Physical Count <span class="text-error">*</span></label>
+<div class="relative">
+<input class="w-full bg-surface h-12 px-4 rounded-lg border-2 border-primary focus:border-primary-container focus:ring-4 focus:ring-primary/20 text-h2 font-mono-data text-on-surface text-center outline-none transition-all shadow-[0_0_10px_rgba(37,99,235,0.1)]" id="physicalQty" type="number" value="142"/>
+<span class="absolute right-3 bottom-1 text-[10px] text-primary uppercase">Units</span>
+</div>
+</div>
+</div>
+<!-- Real-time Delta Visualization -->
+<div class="mt-6 flex items-center justify-between p-4 rounded-lg bg-error-container/10 border border-error/20">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-error-container flex items-center justify-center text-error">
+<span class="material-symbols-outlined" data-icon="trending_down">trending_down</span>
+</div>
+<div>
+<p class="font-label-md text-label-md text-on-surface-variant">Calculated Variance</p>
+<p class="font-h3 text-h3 font-mono-data text-error">-8 Units</p>
+</div>
+</div>
+<div class="text-right">
+<p class="font-label-md text-label-md text-on-surface-variant">Value Impact</p>
+<p class="font-h3 text-h3 font-mono-data text-error">-$240.00</p>
+</div>
+</div>
+</div>
+<!-- Context & Justification Card -->
+<div class="bg-surface-container-low rounded-xl border border-outline-variant p-6 shadow-sm">
+<h3 class="font-h3 text-h3 text-on-surface mb-6 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary" data-icon="edit_document">edit_document</span>
+                            Justification
+                        </h3>
+<div class="space-y-6">
+<!-- Reason Dropdown -->
+<div class="space-y-sm">
+<label class="font-label-md text-label-md text-on-surface-variant">Adjustment Reason Code <span class="text-error">*</span></label>
+<div class="relative w-full md:w-1/2">
+<select class="w-full bg-surface h-10 px-3 pr-10 rounded-lg border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary text-body-md font-body-md text-on-surface appearance-none outline-none">
+<option disabled="" value="">Select Reason...</option>
+<option value="cycle">Cycle Count Discrepancy</option>
+<option selected="" value="damaged">Damaged in Storage</option>
+<option value="lost">Lost / Misplaced</option>
+<option value="found">Found Item</option>
+<option value="expired">Expired Shelf Life</option>
+</select>
+<span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none text-[20px]" data-icon="expand_more">expand_more</span>
+</div>
+</div>
+<!-- Notes Textarea -->
+<div class="space-y-sm">
+<label class="font-label-md text-label-md text-on-surface-variant">Detailed Notes</label>
+<textarea class="w-full bg-surface p-3 rounded-lg border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary text-body-md font-body-md text-on-surface outline-none resize-y" placeholder="Provide context for the adjustment..." rows="3">Pallet rack 4B was hit by forklift. 8 units of bearings crushed and unusable. Removed to scrap bin.</textarea>
+</div>
+<!-- Document Attachment (Optional UI element for realism) -->
+<div class="border-2 border-dashed border-outline-variant rounded-lg p-6 flex flex-col items-center justify-center text-center hover:bg-surface-container transition-colors cursor-pointer group">
+<div class="w-12 h-12 rounded-full bg-surface-variant flex items-center justify-center text-on-surface-variant group-hover:text-primary group-hover:bg-primary-container/20 mb-3 transition-colors">
+<span class="material-symbols-outlined text-[24px]" data-icon="upload_file">upload_file</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface">Drag &amp; drop photo evidence here</p>
+<p class="font-label-md text-label-md text-on-surface-variant mt-1">or click to browse files (JPEG, PNG, PDF)</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Column: Impact Summary & Context (4 cols) -->
+<div class="lg:col-span-4 flex flex-col gap-6">
+<!-- Impact Summary Panel -->
+<div class="bg-surface-container-high rounded-xl border border-outline-variant overflow-hidden shadow-sm sticky top-24">
+<div class="bg-surface-container-highest px-6 py-4 border-b border-outline-variant">
+<h3 class="font-h3 text-h3 text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-tertiary" data-icon="analytics">analytics</span>
+                                Financial Impact
+                            </h3>
+</div>
+<div class="p-6 space-y-6">
+<!-- Product Snapshot -->
+<div class="flex gap-4 items-start pb-4 border-b border-outline-variant/50">
+<div class="w-16 h-16 rounded bg-surface border border-outline-variant flex-shrink-0 flex items-center justify-center overflow-hidden">
+<span class="material-symbols-outlined text-3xl text-outline" data-icon="precision_manufacturing">precision_manufacturing</span>
+</div>
+<div>
+<p class="font-label-md text-label-md text-primary mb-1">SKU-8924-M</p>
+<p class="font-body-sm text-body-sm text-on-surface font-semibold leading-tight mb-1">Industrial Steel Bearing (12mm)</p>
+<p class="font-label-md text-label-md text-on-surface-variant">Unit Cost: <span class="font-mono-data">$30.00</span></p>
+</div>
+</div>
+<!-- Ledger Preview -->
+<div class="space-y-3">
+<h4 class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Ledger Preview</h4>
+<div class="flex justify-between items-center text-body-sm font-body-sm">
+<span class="text-on-surface">Current Value</span>
+<span class="font-mono-data text-on-surface">$4,500.00</span>
+</div>
+<div class="flex justify-between items-center text-body-sm font-body-sm text-error">
+<span>Adjustment Value</span>
+<span class="font-mono-data">-$240.00</span>
+</div>
+<div class="h-[1px] w-full bg-outline-variant my-1"></div>
+<div class="flex justify-between items-center font-h3 text-h3">
+<span class="text-on-surface">New Value</span>
+<span class="font-mono-data text-on-surface">$4,260.00</span>
+</div>
+</div>
+<!-- Approval Routing Info -->
+<div class="bg-surface-container p-4 rounded-lg border border-outline-variant mt-4">
+<div class="flex items-start gap-3">
+<span class="material-symbols-outlined text-tertiary mt-0.5" data-icon="info">info</span>
+<div>
+<p class="font-label-md text-label-md text-on-surface font-semibold">Manager Approval Required</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1">Adjustments exceeding -$100.00 value automatically route to operations manager for approval before ledger posting.</p>
+</div>
+</div>
+</div>
+<button class="w-full py-3 rounded-lg bg-primary-container text-on-primary-container font-label-md text-label-md hover:bg-primary transition-colors font-semibold mt-4 shadow-sm">
+                                Submit for Approval
+                            </button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<script>
+        // Simple script to demonstrate real-time delta calculation concept
+        document.addEventListener('DOMContentLoaded', () => {
+            const physicalInput = document.getElementById('physicalQty');
+            // In a real app, these would update the UI dynamically based on the system qty
+            physicalInput.addEventListener('input', (e) => {
+                // UI update logic would go here
+            });
+        });
+    </script>
+</body></html>

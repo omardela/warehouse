@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>LogiCore Pro - Product Categories</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&amp;family=JetBrains+Mono:wght@400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-secondary-container": "#003111",
+                      "on-surface": "#dae2fd",
+                      "primary-fixed": "#dbe1ff",
+                      "secondary-fixed-dim": "#62df7d",
+                      "surface-dim": "#0b1326",
+                      "tertiary-fixed": "#ffddb8",
+                      "error": "#ffb4ab",
+                      "primary-container": "#2563eb",
+                      "on-tertiary-fixed": "#2a1700",
+                      "on-tertiary": "#472a00",
+                      "on-primary": "#002a78",
+                      "primary": "#b4c5ff",
+                      "surface": "#0b1326",
+                      "on-surface-variant": "#c3c6d7",
+                      "surface-container-high": "#222a3d",
+                      "surface-variant": "#2d3449",
+                      "on-primary-container": "#eeefff",
+                      "on-primary-fixed": "#00174b",
+                      "surface-container": "#171f33",
+                      "on-secondary-fixed-variant": "#005320",
+                      "outline-variant": "#434655",
+                      "outline": "#8d90a0",
+                      "surface-container-low": "#131b2e",
+                      "on-secondary-fixed": "#002109",
+                      "inverse-on-surface": "#283044",
+                      "primary-fixed-dim": "#b4c5ff",
+                      "secondary-container": "#1ca64d",
+                      "error-container": "#93000a",
+                      "surface-container-highest": "#2d3449",
+                      "on-background": "#dae2fd",
+                      "on-secondary": "#003914",
+                      "inverse-surface": "#dae2fd",
+                      "secondary-fixed": "#7ffc97",
+                      "surface-bright": "#31394d",
+                      "tertiary-fixed-dim": "#ffb95f",
+                      "inverse-primary": "#0053db",
+                      "background": "#0b1326",
+                      "tertiary": "#ffb95f",
+                      "surface-tint": "#b4c5ff",
+                      "on-primary-fixed-variant": "#003ea8",
+                      "tertiary-container": "#996100",
+                      "on-tertiary-fixed-variant": "#653e00",
+                      "on-tertiary-container": "#ffeedd",
+                      "surface-container-lowest": "#060e20",
+                      "secondary": "#62df7d",
+                      "on-error": "#690005",
+                      "on-error-container": "#ffdad6"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "base": "4px",
+                      "xl": "32px",
+                      "sm": "8px",
+                      "margin": "32px",
+                      "lg": "24px",
+                      "md": "16px",
+                      "gutter": "24px",
+                      "xs": "4px"
+              },
+              "fontFamily": {
+                      "mono-data": [
+                              "JetBrains Mono"
+                      ],
+                      "body-sm": [
+                              "Inter"
+                      ],
+                      "display": [
+                              "Inter"
+                      ],
+                      "body-lg": [
+                              "Inter"
+                      ],
+                      "h3": [
+                              "Inter"
+                      ],
+                      "label-md": [
+                              "Inter"
+                      ],
+                      "h2": [
+                              "Inter"
+                      ],
+                      "body-md": [
+                              "Inter"
+                      ],
+                      "h1": [
+                              "Inter"
+                      ]
+              },
+              "fontSize": {
+                      "mono-data": [
+                              "13px",
+                              {
+                                      "lineHeight": "1",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "body-sm": [
+                              "12px",
+                              {
+                                      "lineHeight": "1.5",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "display": [
+                              "48px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "body-lg": [
+                              "16px",
+                              {
+                                      "lineHeight": "1.5",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "h3": [
+                              "20px",
+                              {
+                                      "lineHeight": "1.4",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "label-md": [
+                              "12px",
+                              {
+                                      "lineHeight": "1",
+                                      "letterSpacing": "0.02em",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "h2": [
+                              "24px",
+                              {
+                                      "lineHeight": "1.3",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-md": [
+                              "14px",
+                              {
+                                      "lineHeight": "1.5",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "h1": [
+                              "32px",
+                              {
+                                      "lineHeight": "1.25",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "600"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+    </script>
+</head>
+<body class="bg-background text-on-surface font-body-md min-h-screen flex">
+<!-- SideNavBar -->
+<nav class="bg-surface-dim dark:bg-surface-dim text-primary dark:text-primary font-label-md text-label-md docked left-0 h-full w-64 shadow-lg flex flex-col h-screen sticky top-0 py-lg gap-xs z-50 flex-shrink-0">
+<div class="px-lg pb-md mb-md">
+<h1 class="font-h3 text-h3 font-bold text-on-primary-fixed">LogiCore Pro</h1>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-xs">Enterprise ERP</p>
+</div>
+<div class="flex-1 overflow-y-auto flex flex-col gap-xs px-md">
+<div class="text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-all flex items-center gap-md px-md py-sm cursor-pointer rounded-lg">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+                Dashboard
+            </div>
+<div class="bg-primary-container text-on-primary-container rounded-lg hover:bg-surface-container-high transition-all flex items-center gap-md px-md py-sm cursor-pointer">
+<span class="material-symbols-outlined" data-icon="inventory_2" data-weight="fill" style="font-variation-settings: 'FILL' 1;">inventory_2</span>
+                Products
+            </div>
+<div class="text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-all flex items-center gap-md px-md py-sm cursor-pointer rounded-lg">
+<span class="material-symbols-outlined" data-icon="warehouse">warehouse</span>
+                Inventory
+            </div>
+<div class="text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-all flex items-center gap-md px-md py-sm cursor-pointer rounded-lg">
+<span class="material-symbols-outlined" data-icon="payments">payments</span>
+                Sales
+            </div>
+<div class="text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-all flex items-center gap-md px-md py-sm cursor-pointer rounded-lg">
+<span class="material-symbols-outlined" data-icon="shopping_cart">shopping_cart</span>
+                Purchases
+            </div>
+<div class="text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-all flex items-center gap-md px-md py-sm cursor-pointer rounded-lg">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+                Customers
+            </div>
+<div class="text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-all flex items-center gap-md px-md py-sm cursor-pointer rounded-lg">
+<span class="material-symbols-outlined" data-icon="local_shipping">local_shipping</span>
+                Suppliers
+            </div>
+<div class="text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-all flex items-center gap-md px-md py-sm cursor-pointer rounded-lg">
+<span class="material-symbols-outlined" data-icon="badge">badge</span>
+                Employees
+            </div>
+<div class="text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-all flex items-center gap-md px-md py-sm cursor-pointer rounded-lg">
+<span class="material-symbols-outlined" data-icon="domain">domain</span>
+                Warehouses
+            </div>
+<div class="text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-all flex items-center gap-md px-md py-sm cursor-pointer rounded-lg">
+<span class="material-symbols-outlined" data-icon="analytics">analytics</span>
+                Reports
+            </div>
+<div class="text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-all flex items-center gap-md px-md py-sm cursor-pointer rounded-lg">
+<span class="material-symbols-outlined" data-icon="history">history</span>
+                Audit Logs
+            </div>
+<div class="text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-all flex items-center gap-md px-md py-sm cursor-pointer rounded-lg">
+<span class="material-symbols-outlined" data-icon="security">security</span>
+                Roles
+            </div>
+<div class="text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-all flex items-center gap-md px-md py-sm cursor-pointer rounded-lg mt-auto">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+                Settings
+            </div>
+</div>
+</nav>
+<!-- Main Content Area -->
+<main class="flex-1 flex flex-col min-w-0 bg-[#f8fafc] text-[#0f172a] dark:bg-background dark:text-on-surface transition-colors duration-200">
+<!-- TopNavBar -->
+<header class="bg-surface-container dark:bg-surface-container text-primary dark:text-primary font-body-md text-body-md docked full-width top-0 border-b border-outline-variant shadow-sm flex justify-between items-center w-full px-lg h-16 z-40 sticky top-0">
+<div class="flex items-center gap-sm cursor-pointer active:scale-95 text-on-surface-variant hover:bg-surface-variant transition-colors p-sm rounded-lg invisible md:visible">
+<span class="material-symbols-outlined">menu</span>
+</div>
+<div class="flex-1 flex justify-center lg:justify-start lg:pl-lg">
+<div class="relative w-full max-w-md hidden md:block">
+<span class="material-symbols-outlined absolute left-sm top-1/2 transform -translate-y-1/2 text-outline">search</span>
+<input class="w-full bg-surface-container-high text-on-surface placeholder-outline border border-outline-variant rounded-full py-xs pl-[40px] pr-md focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary text-body-sm font-body-sm transition-all bg-transparent" placeholder="Search categories..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-sm">
+<div class="p-sm rounded-full cursor-pointer active:scale-95 text-on-surface-variant hover:bg-surface-variant transition-colors flex items-center justify-center">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</div>
+<div class="p-sm rounded-full cursor-pointer active:scale-95 text-on-surface-variant hover:bg-surface-variant transition-colors flex items-center justify-center">
+<span class="material-symbols-outlined" data-icon="warehouse">warehouse</span>
+</div>
+<div class="p-sm rounded-full cursor-pointer active:scale-95 text-on-surface-variant hover:bg-surface-variant transition-colors flex items-center justify-center mr-md">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+</div>
+<div class="h-8 w-8 rounded-full bg-surface-variant border border-outline-variant overflow-hidden cursor-pointer flex-shrink-0">
+<img alt="Administrator Profile" class="w-full h-full object-cover" data-alt="A professional headshot of a mature male administrator with short dark hair and a neat beard, wearing a dark blue suit jacket over a crisp white shirt, set against a neutral gray background. Soft studio lighting highlights his focused expression, evoking a sense of corporate authority and modern professionalism." src="https://lh3.googleusercontent.com/aida/ADBb0ug8k1z4QCTqIuEAHEZCsFteO0JhJIkfMJdWg7mt6huJNJiA97Rt5bRguPiUDIx99R0xS94EOeCJWRKfdMnp5GXP5yIWnVyNDgTU4QJZKVE4fgj9CQzbLfhpkCSg97euI22dp0srmDr6Y2WbBHl1omoYqphn_8pa8g0oykS926mZ9tod39YKeuImIqGHbFoWSkGlP2xHK_fsoLHWAxGHrsCJDmtxWXC97EtAGtoj2R3TYQspcSb7mlF8X9xd"/>
+</div>
+</div>
+</header>
+<!-- Page Content -->
+<div class="flex-1 overflow-y-auto p-lg md:p-margin">
+<!-- Page Header -->
+<div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-md mb-lg">
+<div>
+<h2 class="font-h1 text-h1 text-on-surface">Product Categories</h2>
+<p class="font-body-md text-body-md text-on-surface-variant mt-xs">Manage your inventory taxonomy and hierarchical structures.</p>
+</div>
+<button class="bg-primary-container text-on-primary-container font-label-md text-label-md px-md py-sm rounded-lg flex items-center gap-xs hover:brightness-110 active:scale-95 transition-all shadow-sm">
+<span class="material-symbols-outlined text-[18px]">add</span>
+                    Create Category
+                </button>
+</div>
+<!-- Data Table Card -->
+<div class="bg-surface-container-low border border-outline-variant rounded-xl shadow-sm overflow-hidden flex flex-col">
+<!-- Table Controls -->
+<div class="p-md border-b border-outline-variant flex flex-col sm:flex-row justify-between items-center gap-md bg-surface-container">
+<div class="flex items-center gap-sm w-full sm:w-auto">
+<div class="relative w-full sm:w-64">
+<span class="material-symbols-outlined absolute left-sm top-1/2 transform -translate-y-1/2 text-outline text-[18px]">filter_list</span>
+<input class="w-full bg-surface-container-high border border-outline-variant text-on-surface text-body-sm font-body-sm rounded-lg py-xs pl-[36px] pr-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors" placeholder="Filter categories..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-sm text-on-surface-variant font-body-sm text-body-sm">
+<span>Showing 1-10 of 42</span>
+<div class="flex gap-xs">
+<button class="p-xs rounded hover:bg-surface-variant transition-colors disabled:opacity-50" disabled="">
+<span class="material-symbols-outlined text-[18px]">chevron_left</span>
+</button>
+<button class="p-xs rounded hover:bg-surface-variant transition-colors">
+<span class="material-symbols-outlined text-[18px]">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Table Wrapper for horizontal scroll -->
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-highest border-b border-outline-variant text-on-surface-variant font-label-md text-label-md">
+<th class="p-sm pl-md w-[40px]">
+<input class="rounded border-outline-variant bg-transparent text-primary focus:ring-primary focus:ring-offset-0" type="checkbox"/>
+</th>
+<th class="p-sm font-medium">Category Name</th>
+<th class="p-sm font-medium">Parent Category</th>
+<th class="p-sm font-medium text-right">Product Count</th>
+<th class="p-sm font-medium">Status</th>
+<th class="p-sm font-medium text-right pr-md">Actions</th>
+</tr>
+</thead>
+<tbody class="font-body-sm text-body-sm text-on-surface divide-y divide-outline-variant/50">
+<!-- Row 1 -->
+<tr class="hover:bg-surface-variant/50 transition-colors group h-[40px]">
+<td class="p-sm pl-md">
+<input class="rounded border-outline-variant bg-transparent text-primary focus:ring-primary focus:ring-offset-0" type="checkbox"/>
+</td>
+<td class="p-sm font-medium flex items-center gap-sm">
+<span class="material-symbols-outlined text-on-surface-variant text-[16px]">folder</span>
+                                    Electronics
+                                </td>
+<td class="p-sm text-on-surface-variant">-</td>
+<td class="p-sm text-right font-mono-data text-mono-data">1,245</td>
+<td class="p-sm">
+<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-secondary-container/20 text-secondary-fixed">Active</span>
+</td>
+<td class="p-sm text-right pr-md">
+<div class="flex items-center justify-end gap-xs opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="text-on-surface-variant hover:text-primary transition-colors p-xs rounded hover:bg-surface-container-high" title="Edit">
+<span class="material-symbols-outlined text-[16px]">edit</span>
+</button>
+<button class="text-on-surface-variant hover:text-error transition-colors p-xs rounded hover:bg-surface-container-high" title="Archive">
+<span class="material-symbols-outlined text-[16px]">archive</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-surface-variant/50 transition-colors group h-[40px]">
+<td class="p-sm pl-md">
+<input class="rounded border-outline-variant bg-transparent text-primary focus:ring-primary focus:ring-offset-0" type="checkbox"/>
+</td>
+<td class="p-sm font-medium flex items-center gap-sm pl-[24px]">
+<span class="w-[12px] h-[1px] bg-outline-variant inline-block"></span>
+<span class="material-symbols-outlined text-on-surface-variant text-[16px]">laptop_mac</span>
+                                    Laptops
+                                </td>
+<td class="p-sm text-on-surface-variant">Electronics</td>
+<td class="p-sm text-right font-mono-data text-mono-data">432</td>
+<td class="p-sm">
+<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-secondary-container/20 text-secondary-fixed">Active</span>
+</td>
+<td class="p-sm text-right pr-md">
+<div class="flex items-center justify-end gap-xs opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="text-on-surface-variant hover:text-primary transition-colors p-xs rounded hover:bg-surface-container-high" title="Edit">
+<span class="material-symbols-outlined text-[16px]">edit</span>
+</button>
+<button class="text-on-surface-variant hover:text-error transition-colors p-xs rounded hover:bg-surface-container-high" title="Archive">
+<span class="material-symbols-outlined text-[16px]">archive</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-surface-variant/50 transition-colors group h-[40px]">
+<td class="p-sm pl-md">
+<input class="rounded border-outline-variant bg-transparent text-primary focus:ring-primary focus:ring-offset-0" type="checkbox"/>
+</td>
+<td class="p-sm font-medium flex items-center gap-sm">
+<span class="material-symbols-outlined text-on-surface-variant text-[16px]">folder</span>
+                                    Hardware
+                                </td>
+<td class="p-sm text-on-surface-variant">-</td>
+<td class="p-sm text-right font-mono-data text-mono-data">8,920</td>
+<td class="p-sm">
+<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-secondary-container/20 text-secondary-fixed">Active</span>
+</td>
+<td class="p-sm text-right pr-md">
+<div class="flex items-center justify-end gap-xs opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="text-on-surface-variant hover:text-primary transition-colors p-xs rounded hover:bg-surface-container-high" title="Edit">
+<span class="material-symbols-outlined text-[16px]">edit</span>
+</button>
+<button class="text-on-surface-variant hover:text-error transition-colors p-xs rounded hover:bg-surface-container-high" title="Archive">
+<span class="material-symbols-outlined text-[16px]">archive</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 4 -->
+<tr class="hover:bg-surface-variant/50 transition-colors group h-[40px]">
+<td class="p-sm pl-md">
+<input class="rounded border-outline-variant bg-transparent text-primary focus:ring-primary focus:ring-offset-0" type="checkbox"/>
+</td>
+<td class="p-sm font-medium flex items-center gap-sm pl-[24px]">
+<span class="w-[12px] h-[1px] bg-outline-variant inline-block"></span>
+<span class="material-symbols-outlined text-on-surface-variant text-[16px]">build</span>
+                                    Fasteners
+                                </td>
+<td class="p-sm text-on-surface-variant">Hardware</td>
+<td class="p-sm text-right font-mono-data text-mono-data">5,102</td>
+<td class="p-sm">
+<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-tertiary-container/20 text-tertiary-fixed">Review</span>
+</td>
+<td class="p-sm text-right pr-md">
+<div class="flex items-center justify-end gap-xs opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="text-on-surface-variant hover:text-primary transition-colors p-xs rounded hover:bg-surface-container-high" title="Edit">
+<span class="material-symbols-outlined text-[16px]">edit</span>
+</button>
+<button class="text-on-surface-variant hover:text-error transition-colors p-xs rounded hover:bg-surface-container-high" title="Archive">
+<span class="material-symbols-outlined text-[16px]">archive</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 5 -->
+<tr class="hover:bg-surface-variant/50 transition-colors group h-[40px]">
+<td class="p-sm pl-md">
+<input class="rounded border-outline-variant bg-transparent text-primary focus:ring-primary focus:ring-offset-0" type="checkbox"/>
+</td>
+<td class="p-sm font-medium flex items-center gap-sm">
+<span class="material-symbols-outlined text-on-surface-variant text-[16px]">folder</span>
+                                    Office Supplies
+                                </td>
+<td class="p-sm text-on-surface-variant">-</td>
+<td class="p-sm text-right font-mono-data text-mono-data">0</td>
+<td class="p-sm">
+<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-surface-variant text-on-surface-variant">Draft</span>
+</td>
+<td class="p-sm text-right pr-md">
+<div class="flex items-center justify-end gap-xs opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="text-on-surface-variant hover:text-primary transition-colors p-xs rounded hover:bg-surface-container-high" title="Edit">
+<span class="material-symbols-outlined text-[16px]">edit</span>
+</button>
+<button class="text-on-surface-variant hover:text-error transition-colors p-xs rounded hover:bg-surface-container-high" title="Archive">
+<span class="material-symbols-outlined text-[16px]">archive</span>
+</button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</main>
+</body></html>

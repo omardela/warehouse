@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Audit &amp; Security - LogiCore Pro</title>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&amp;family=JetBrains+Mono:wght@400&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Config -->
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "primary-fixed": "#dbe1ff",
+                      "secondary-container": "#1ca64d",
+                      "surface-container-highest": "#2d3449",
+                      "error-container": "#93000a",
+                      "on-tertiary": "#472a00",
+                      "inverse-primary": "#0053db",
+                      "surface-variant": "#2d3449",
+                      "secondary-fixed-dim": "#62df7d",
+                      "on-background": "#dae2fd",
+                      "primary-container": "#2563eb",
+                      "primary": "#b4c5ff",
+                      "tertiary-fixed-dim": "#ffb95f",
+                      "outline": "#8d90a0",
+                      "on-surface": "#dae2fd",
+                      "surface-container-low": "#131b2e",
+                      "on-tertiary-container": "#ffeedd",
+                      "inverse-surface": "#dae2fd",
+                      "outline-variant": "#434655",
+                      "on-secondary-fixed-variant": "#005320",
+                      "on-secondary-container": "#003111",
+                      "secondary": "#62df7d",
+                      "on-primary-container": "#eeefff",
+                      "on-primary": "#002a78",
+                      "surface-container-high": "#222a3d",
+                      "background": "#0b1326",
+                      "on-error": "#690005",
+                      "on-secondary": "#003914",
+                      "surface": "#0b1326",
+                      "on-surface-variant": "#c3c6d7",
+                      "on-primary-fixed": "#00174b",
+                      "secondary-fixed": "#7ffc97",
+                      "surface-dim": "#0b1326",
+                      "on-error-container": "#ffdad6",
+                      "surface-container-lowest": "#060e20",
+                      "on-tertiary-fixed-variant": "#653e00",
+                      "on-primary-fixed-variant": "#003ea8",
+                      "on-secondary-fixed": "#002109",
+                      "surface-tint": "#b4c5ff",
+                      "tertiary-container": "#996100",
+                      "surface-container": "#171f33",
+                      "on-tertiary-fixed": "#2a1700",
+                      "tertiary-fixed": "#ffddb8",
+                      "error": "#ffb4ab",
+                      "tertiary": "#ffb95f",
+                      "surface-bright": "#31394d",
+                      "primary-fixed-dim": "#b4c5ff",
+                      "inverse-on-surface": "#283044"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "gutter": "24px",
+                      "md": "16px",
+                      "lg": "24px",
+                      "xl": "32px",
+                      "sm": "8px",
+                      "margin": "32px",
+                      "xs": "4px",
+                      "base": "4px"
+              },
+              "fontFamily": {
+                      "h3": ["Inter"],
+                      "display": ["Inter"],
+                      "h2": ["Inter"],
+                      "h1": ["Inter"],
+                      "body-md": ["Inter"],
+                      "mono-data": ["JetBrains Mono"],
+                      "body-sm": ["Inter"],
+                      "label-md": ["Inter"],
+                      "body-lg": ["Inter"]
+              },
+              "fontSize": {
+                      "h3": ["20px", {"lineHeight": "1.4", "fontWeight": "600"}],
+                      "display": ["48px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                      "h2": ["24px", {"lineHeight": "1.3", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                      "h1": ["32px", {"lineHeight": "1.25", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                      "body-md": ["14px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                      "mono-data": ["13px", {"lineHeight": "1", "letterSpacing": "-0.01em", "fontWeight": "400"}],
+                      "body-sm": ["12px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                      "label-md": ["12px", {"lineHeight": "1", "letterSpacing": "0.02em", "fontWeight": "500"}],
+                      "body-lg": ["16px", {"lineHeight": "1.5", "fontWeight": "400"}]
+              }
+            }
+          }
+        }
+    </script>
+<style>
+        /* Base styles to ensure fonts render correctly based on config */
+        body { font-family: 'Inter', sans-serif; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .material-symbols-outlined.fill { font-variation-settings: 'FILL' 1; }
+    </style>
+</head>
+<body class="bg-background text-on-background min-h-screen flex w-full overflow-hidden">
+<!-- Shared Component: SideNavBar -->
+<nav class="fixed left-0 top-0 h-full flex flex-col border-r border-outline-variant dark:border-outline-variant bg-surface-container-lowest dark:bg-surface-container-lowest w-64 z-40">
+<!-- Header -->
+<div class="p-lg flex items-center gap-md border-b border-outline-variant/30">
+<div class="w-8 h-8 rounded bg-primary-container flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-on-primary-container fill font-h3 text-h3">inventory_2</span>
+</div>
+<div>
+<h1 class="font-h3 text-h3 font-black text-primary">LogiCore Pro</h1>
+<p class="font-label-md text-label-md text-on-surface-variant">Enterprise ERP</p>
+</div>
+</div>
+<!-- Main Tabs -->
+<div class="flex-1 overflow-y-auto py-md flex flex-col gap-xs px-sm">
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container dark:hover:bg-surface-container transition-all duration-200 ease-in-out font-label-md text-label-md group" href="#">
+<span class="material-symbols-outlined group-hover:text-on-surface">dashboard</span>
+                Dashboard
+            </a>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container dark:hover:bg-surface-container transition-all duration-200 ease-in-out font-label-md text-label-md group" href="#">
+<span class="material-symbols-outlined group-hover:text-on-surface">inventory_2</span>
+                Inventory
+            </a>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container dark:hover:bg-surface-container transition-all duration-200 ease-in-out font-label-md text-label-md group" href="#">
+<span class="material-symbols-outlined group-hover:text-on-surface">warehouse</span>
+                Warehouses
+            </a>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container dark:hover:bg-surface-container transition-all duration-200 ease-in-out font-label-md text-label-md group" href="#">
+<span class="material-symbols-outlined group-hover:text-on-surface">admin_panel_settings</span>
+                Roles &amp; Permissions
+            </a>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container dark:hover:bg-surface-container transition-all duration-200 ease-in-out font-label-md text-label-md group" href="#">
+<span class="material-symbols-outlined group-hover:text-on-surface">badge</span>
+                Employees
+            </a>
+<!-- Active Tab -->
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-primary dark:text-primary bg-primary-container/10 border-r-2 border-primary transition-all duration-200 ease-in-out font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined fill">security</span>
+                Audit Logs
+            </a>
+</div>
+<!-- Footer Tabs -->
+<div class="p-sm border-t border-outline-variant/30 flex flex-col gap-xs">
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container dark:hover:bg-surface-container transition-all duration-200 ease-in-out font-label-md text-label-md group" href="#">
+<span class="material-symbols-outlined group-hover:text-on-surface">contact_support</span>
+                Support
+            </a>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container dark:hover:bg-surface-container transition-all duration-200 ease-in-out font-label-md text-label-md group" href="#">
+<span class="material-symbols-outlined group-hover:text-on-surface">settings</span>
+                Settings
+            </a>
+</div>
+</nav>
+<!-- Main Content Area -->
+<main class="flex-1 ml-64 flex flex-col h-screen overflow-hidden bg-background">
+<!-- Shared Component: TopNavBar -->
+<header class="flex justify-between items-center w-full px-lg h-16 sticky top-0 z-50 bg-surface-container-low dark:bg-surface-container-low border-b border-outline-variant dark:border-outline-variant shadow-sm shrink-0">
+<div class="flex items-center gap-md">
+<!-- Search on left as per JSON -->
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-sm top-1/2 -translate-y-1/2 text-on-surface-variant group-focus-within:text-primary transition-colors">search</span>
+<input class="bg-surface-container border border-outline-variant rounded-lg pl-xl pr-md py-[6px] font-body-sm text-body-sm text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary w-64 transition-all bg-transparent" placeholder="Search logs, IPs, users..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-md">
+<button class="w-10 h-10 rounded-full flex items-center justify-center text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-highest dark:hover:bg-surface-container-highest transition-colors cursor-pointer active:opacity-80 relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-error rounded-full"></span>
+</button>
+<button class="w-10 h-10 rounded-full flex items-center justify-center text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-highest dark:hover:bg-surface-container-highest transition-colors cursor-pointer active:opacity-80">
+<span class="material-symbols-outlined">help</span>
+</button>
+<button class="w-10 h-10 rounded-full flex items-center justify-center text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-highest dark:hover:bg-surface-container-highest transition-colors cursor-pointer active:opacity-80">
+<span class="material-symbols-outlined">settings</span>
+</button>
+<div class="w-8 h-8 rounded-full overflow-hidden ml-sm border border-outline-variant cursor-pointer">
+<img alt="User profile" class="w-full h-full object-cover" data-alt="A highly detailed, professional headshot of a corporate logistics manager in a modern, dimly lit warehouse office. The lighting is dramatic and cinematic, emphasizing a serious, focused expression. The aesthetic aligns with a dark-mode enterprise UI, featuring cool blue and slate gray tones. The image is crisp, high-resolution, and devoid of distracting background elements." src="https://lh3.googleusercontent.com/aida/ADBb0ujY6MhAr65qsIZBLiYby0QghlOfl1Xn2a75o-NM3ln01jSxutTS_z7wCZURxHHFCQYU5g4jd6aVYejn_paOhtsVC1U98tVPcUsz2c9pgioUxuRGw2qKIkLeDhKX_IS1t1JybVGkntr_owb_BFXhtQAIIWdoToG9iG-6DPp8hEZrcKOObHqyh5ZWV64xSRaDkRExfwPoBltHXugdfsbcEdAsTFiM4IaQbxPWOkiM8ltzm7ZMYU-yCkVBbp_x"/>
+</div>
+</div>
+</header>
+<!-- Page Content -->
+<div class="flex-1 overflow-y-auto p-lg md:p-xl custom-scrollbar">
+<div class="max-w-[1200px] mx-auto flex flex-col gap-xl">
+<!-- Page Header -->
+<div>
+<h1 class="font-h1 text-h1 text-on-surface mb-sm tracking-tight">Audit &amp; Security</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant">Monitor system-wide permission changes and security events.</p>
+</div>
+<!-- KPI Cards -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-md">
+<div class="bg-surface-container-low border border-outline-variant rounded-xl p-md flex flex-col justify-between shadow-sm relative overflow-hidden group hover:border-outline transition-colors">
+<div class="flex justify-between items-start mb-lg">
+<span class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Recent Permission Changes</span>
+<div class="w-8 h-8 rounded bg-primary-container/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary text-[20px]">admin_panel_settings</span>
+</div>
+</div>
+<div class="flex items-baseline gap-sm">
+<span class="font-display text-display text-on-surface">142</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Last 7 days</span>
+</div>
+</div>
+<div class="bg-surface-container-low border border-outline-variant rounded-xl p-md flex flex-col justify-between shadow-sm relative overflow-hidden group hover:border-error/50 transition-colors">
+<div class="flex justify-between items-start mb-lg">
+<span class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Failed Login Attempts</span>
+<div class="w-8 h-8 rounded bg-error-container/30 flex items-center justify-center">
+<span class="material-symbols-outlined text-error text-[20px]">gpp_bad</span>
+</div>
+</div>
+<div class="flex items-baseline gap-sm">
+<span class="font-display text-display text-error">23</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Action required</span>
+</div>
+</div>
+<div class="bg-surface-container-low border border-outline-variant rounded-xl p-md flex flex-col justify-between shadow-sm relative overflow-hidden group hover:border-outline transition-colors">
+<div class="flex justify-between items-start mb-lg">
+<span class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">New Roles Created</span>
+<div class="w-8 h-8 rounded bg-secondary-container/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-secondary text-[20px]">group_add</span>
+</div>
+</div>
+<div class="flex items-baseline gap-sm">
+<span class="font-display text-display text-on-surface">4</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Last 30 days</span>
+</div>
+</div>
+</div>
+<!-- Filters & Controls -->
+<div class="flex flex-wrap items-center justify-between gap-md bg-surface-container border border-outline-variant rounded-lg p-sm shadow-sm">
+<div class="flex items-center gap-sm flex-wrap">
+<!-- Date Range -->
+<div class="relative">
+<span class="material-symbols-outlined absolute left-sm top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]">calendar_today</span>
+<select class="appearance-none bg-surface border border-outline-variant rounded-md pl-xl pr-lg py-xs font-label-md text-label-md text-on-surface focus:outline-none focus:border-primary cursor-pointer w-40">
+<option>Last 7 Days</option>
+<option>Last 30 Days</option>
+<option>This Month</option>
+<option>Custom Range...</option>
+</select>
+<span class="material-symbols-outlined absolute right-sm top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px] pointer-events-none">arrow_drop_down</span>
+</div>
+<!-- User Filter -->
+<div class="relative">
+<span class="material-symbols-outlined absolute left-sm top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]">person</span>
+<input class="bg-surface border border-outline-variant rounded-md pl-xl pr-sm py-xs font-label-md text-label-md text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:border-primary w-48" placeholder="Filter by User..." type="text"/>
+</div>
+<!-- Action Type -->
+<div class="relative">
+<span class="material-symbols-outlined absolute left-sm top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]">filter_list</span>
+<select class="appearance-none bg-surface border border-outline-variant rounded-md pl-xl pr-lg py-xs font-label-md text-label-md text-on-surface focus:outline-none focus:border-primary cursor-pointer w-48">
+<option value="all">All Action Types</option>
+<option value="auth">Authentication</option>
+<option value="role">Role Modifications</option>
+<option value="system">System Config</option>
+</select>
+<span class="material-symbols-outlined absolute right-sm top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px] pointer-events-none">arrow_drop_down</span>
+</div>
+</div>
+<button class="flex items-center gap-xs px-md py-xs bg-surface border border-outline-variant rounded-md hover:bg-surface-container-high transition-colors font-label-md text-label-md text-on-surface">
+<span class="material-symbols-outlined text-[18px]">download</span>
+                        Export CSV
+                    </button>
+</div>
+<!-- Timeline / Activity Log -->
+<div class="bg-surface-container-low border border-outline-variant rounded-xl shadow-sm overflow-hidden flex flex-col relative">
+<!-- Vertical Line for Timeline -->
+<div class="absolute left-[44px] md:left-[60px] top-0 bottom-0 w-[1px] bg-outline-variant/50 z-0"></div>
+<!-- Timeline Item 1 (Role Mod) -->
+<div class="relative z-10 flex gap-md p-md border-b border-outline-variant/50 hover:bg-surface-container/50 transition-colors">
+<div class="w-12 h-12 md:w-16 flex justify-center shrink-0 pt-xs">
+<div class="w-8 h-8 rounded-full overflow-hidden border-2 border-surface-container-low bg-surface-container-highest ring-1 ring-outline-variant z-10">
+<img alt="Avatar" class="w-full h-full object-cover" data-alt="A minimalist, geometric avatar representing a system administrator in a high-tech logistics interface. Deep blue and slate gray palette, sharp vector aesthetic, suited for a dark mode enterprise dashboard." src="https://lh3.googleusercontent.com/aida/ADBb0uhnP-pxOdV1Gc8Y81mlTYrPXzcO9Hq7WZCv6wbrRb0fVeeL86bkvsI5og6dsKXaRsW59hMfAzvpVj-4pAdFs9RGcWr5K7AvobJYB17_77aNyFpjLsLw30YtF78riTJRxbZDRnAMvkXa4rVUSTrs78VjZ-KsvKl1uhwe_G0UZn0J0NeMMVpYUF5KE2qxWyfFbftGZ0jGX_CEKks_r5hzUbBBNtzOVEC2skZOOpZ_2xO2pxdh7-GWJXB116c"/>
+</div>
+</div>
+<div class="flex-1 flex flex-col gap-xs pt-[2px]">
+<div class="flex justify-between items-start flex-wrap gap-sm">
+<div class="font-body-md text-body-md text-on-surface">
+<span class="font-600 text-primary">Sarah Jenkins</span> modified <span class="font-mono-data text-mono-data bg-surface-container px-1 py-[2px] rounded border border-outline-variant/50">"Warehouse Manager"</span> role
+                                </div>
+<span class="font-mono-data text-mono-data text-on-surface-variant whitespace-nowrap flex items-center gap-xs">
+<span class="material-symbols-outlined text-[14px]">schedule</span> 10:42 AM, Today
+                                </span>
+</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant max-w-3xl">
+                                Added permissions: `INVENTORY_WRITE`, `LOCATION_MANAGE`. Removed: `BILLING_VIEW`.
+                            </div>
+<div class="flex items-center gap-md mt-sm">
+<span class="font-mono-data text-mono-data text-outline flex items-center gap-xs text-[11px]">
+<span class="material-symbols-outlined text-[14px]">location_on</span> 192.168.1.45 (Seattle, WA)
+                                </span>
+<span class="px-2 py-[2px] rounded-full bg-secondary-container/20 text-secondary border border-secondary/30 font-label-md text-label-md text-[10px] uppercase">Role Update</span>
+</div>
+</div>
+</div>
+<!-- Timeline Item 2 (Assignment) -->
+<div class="relative z-10 flex gap-md p-md border-b border-outline-variant/50 hover:bg-surface-container/50 transition-colors">
+<div class="w-12 h-12 md:w-16 flex justify-center shrink-0 pt-xs">
+<div class="w-8 h-8 rounded-full overflow-hidden border-2 border-surface-container-low bg-surface-container-highest ring-1 ring-outline-variant z-10">
+<img alt="Avatar" class="w-full h-full object-cover" data-alt="A clean, highly professional portrait avatar of a logistics coordinator. The image is rendered with a dark, moody studio lighting setup, fitting a premium, developer-focused software interface." src="https://lh3.googleusercontent.com/aida/ADBb0ugyXkfqC_ZeHt6zH32eGRq40_NP0lDgGxoTragcusAGYi81GDvIY82OhhtFETuTOUeJfeJ6m9JlzByuerPEHIIaGu4quKMlSobIjYDfd1z-bicKK41tlOpmSpEZYtucDUAKW1czc0ZNRX7sOUe9ImjPQPpLYoJan22Pz50K6b8p1G7BztgkMW6EkY3mXEUi1tsN70QloVCbbA_yr5iCYmjj_c4RZ0rljXHC-9Gsl5t_qiSStFIaQU2pncoe"/>
+</div>
+</div>
+<div class="flex-1 flex flex-col gap-xs pt-[2px]">
+<div class="flex justify-between items-start flex-wrap gap-sm">
+<div class="font-body-md text-body-md text-on-surface">
+<span class="font-600 text-primary">David Chen</span> assigned <span class="font-mono-data text-mono-data bg-surface-container px-1 py-[2px] rounded border border-outline-variant/50">"Storekeeper"</span> role to 5 users
+                                </div>
+<span class="font-mono-data text-mono-data text-on-surface-variant whitespace-nowrap flex items-center gap-xs">
+<span class="material-symbols-outlined text-[14px]">schedule</span> 09:15 AM, Today
+                                </span>
+</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant max-w-3xl">
+                                Bulk assignment via Warehouse Alpha onboarding workflow.
+                            </div>
+<div class="flex items-center gap-md mt-sm">
+<span class="font-mono-data text-mono-data text-outline flex items-center gap-xs text-[11px]">
+<span class="material-symbols-outlined text-[14px]">location_on</span> 10.0.4.22 (Internal Network)
+                                </span>
+<span class="px-2 py-[2px] rounded-full bg-surface-bright text-on-surface-variant border border-outline-variant/50 font-label-md text-label-md text-[10px] uppercase">Assignment</span>
+</div>
+</div>
+</div>
+<!-- Timeline Item 3 (Security Alert) -->
+<div class="relative z-10 flex gap-md p-md border-b border-outline-variant/50 hover:bg-surface-container/50 transition-colors bg-error-container/5">
+<div class="w-12 h-12 md:w-16 flex justify-center shrink-0 pt-xs">
+<div class="w-8 h-8 rounded-full flex items-center justify-center border-2 border-surface-container-low bg-error-container text-error ring-1 ring-error/50 z-10">
+<span class="material-symbols-outlined text-[18px]">gpp_bad</span>
+</div>
+</div>
+<div class="flex-1 flex flex-col gap-xs pt-[2px]">
+<div class="flex justify-between items-start flex-wrap gap-sm">
+<div class="font-body-md text-body-md text-on-surface">
+                                    Multiple failed login attempts for <span class="font-mono-data text-mono-data bg-surface-container px-1 py-[2px] rounded border border-outline-variant/50">admin@logicore.pro</span>
+</div>
+<span class="font-mono-data text-mono-data text-error whitespace-nowrap flex items-center gap-xs">
+<span class="material-symbols-outlined text-[14px]">schedule</span> Yesterday, 23:45 PM
+                                </span>
+</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant max-w-3xl">
+                                Account locked after 5 sequential failures. IP automatically added to temporary blocklist for 60 minutes.
+                            </div>
+<div class="flex items-center gap-md mt-sm">
+<span class="font-mono-data text-mono-data text-error flex items-center gap-xs text-[11px]">
+<span class="material-symbols-outlined text-[14px]">public</span> 45.33.22.10 (Unknown Location)
+                                </span>
+<span class="px-2 py-[2px] rounded-full bg-error-container text-error border border-error/30 font-label-md text-label-md text-[10px] uppercase">Security Alert</span>
+</div>
+</div>
+</div>
+<!-- Timeline Item 4 (System) -->
+<div class="relative z-10 flex gap-md p-md hover:bg-surface-container/50 transition-colors">
+<div class="w-12 h-12 md:w-16 flex justify-center shrink-0 pt-xs">
+<div class="w-8 h-8 rounded-full flex items-center justify-center border-2 border-surface-container-low bg-surface-bright text-on-surface ring-1 ring-outline-variant z-10">
+<span class="material-symbols-outlined text-[18px]">settings_system_daydream</span>
+</div>
+</div>
+<div class="flex-1 flex flex-col gap-xs pt-[2px]">
+<div class="flex justify-between items-start flex-wrap gap-sm">
+<div class="font-body-md text-body-md text-on-surface">
+<span class="font-600 text-on-surface">System automated process</span> updated SSO Configuration
+                                </div>
+<span class="font-mono-data text-mono-data text-on-surface-variant whitespace-nowrap flex items-center gap-xs">
+<span class="material-symbols-outlined text-[14px]">schedule</span> Yesterday, 02:00 AM
+                                </span>
+</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant max-w-3xl">
+                                Synchronized identity provider certificates (Scheduled weekly task).
+                            </div>
+<div class="flex items-center gap-md mt-sm">
+<span class="font-mono-data text-mono-data text-outline flex items-center gap-xs text-[11px]">
+<span class="material-symbols-outlined text-[14px]">dns</span> localhost
+                                </span>
+<span class="px-2 py-[2px] rounded-full bg-surface-bright text-on-surface-variant border border-outline-variant/50 font-label-md text-label-md text-[10px] uppercase">System Event</span>
+</div>
+</div>
+</div>
+</div>
+<div class="flex justify-center mt-sm">
+<button class="font-label-md text-label-md text-primary hover:text-primary-fixed transition-colors py-sm px-md flex items-center gap-xs">
+                        Load More Events <span class="material-symbols-outlined text-[18px]">expand_more</span>
+</button>
+</div>
+</div>
+</div>
+</main>
+</body></html>

@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Nexus ERP - Edit Employee</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-primary-fixed-variant": "#003ea8",
+                      "primary": "#b4c5ff",
+                      "on-tertiary-fixed": "#2a1700",
+                      "surface-tint": "#b4c5ff",
+                      "secondary-fixed": "#7ffc97",
+                      "surface-container-highest": "#2d3449",
+                      "on-tertiary": "#472a00",
+                      "on-secondary-container": "#003111",
+                      "surface-bright": "#31394d",
+                      "surface-container-lowest": "#060e20",
+                      "on-surface-variant": "#c3c6d7",
+                      "surface-dim": "#0b1326",
+                      "on-tertiary-fixed-variant": "#653e00",
+                      "on-tertiary-container": "#ffeedd",
+                      "surface-container": "#171f33",
+                      "secondary-container": "#1ca64d",
+                      "primary-fixed": "#dbe1ff",
+                      "tertiary-fixed-dim": "#ffb95f",
+                      "surface-container-high": "#222a3d",
+                      "surface": "#0b1326",
+                      "primary-fixed-dim": "#b4c5ff",
+                      "inverse-primary": "#0053db",
+                      "outline-variant": "#434655",
+                      "outline": "#8d90a0",
+                      "primary-container": "#2563eb",
+                      "error-container": "#93000a",
+                      "tertiary": "#ffb95f",
+                      "error": "#ffb4ab",
+                      "on-secondary": "#003914",
+                      "secondary": "#62df7d",
+                      "on-primary-container": "#eeefff",
+                      "on-primary-fixed": "#00174b",
+                      "secondary-fixed-dim": "#62df7d",
+                      "on-secondary-fixed": "#002109",
+                      "on-background": "#dae2fd",
+                      "inverse-on-surface": "#283044",
+                      "inverse-surface": "#dae2fd",
+                      "tertiary-container": "#996100",
+                      "on-error-container": "#ffdad6",
+                      "background": "#0b1326",
+                      "surface-variant": "#2d3449",
+                      "on-secondary-fixed-variant": "#005320",
+                      "tertiary-fixed": "#ffddb8",
+                      "on-surface": "#dae2fd",
+                      "on-error": "#690005",
+                      "surface-container-low": "#131b2e",
+                      "on-primary": "#002a78"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "xl": "32px",
+                      "gutter": "24px",
+                      "sm": "8px",
+                      "base": "4px",
+                      "xs": "4px",
+                      "md": "16px",
+                      "margin": "32px",
+                      "lg": "24px"
+              },
+              "fontFamily": {
+                      "mono-data": [
+                              "JetBrains Mono"
+                      ],
+                      "label-md": [
+                              "Inter"
+                      ],
+                      "body-lg": [
+                              "Inter"
+                      ],
+                      "h3": [
+                              "Inter"
+                      ],
+                      "h1": [
+                              "Inter"
+                      ],
+                      "display": [
+                              "Inter"
+                      ],
+                      "body-md": [
+                              "Inter"
+                      ],
+                      "body-sm": [
+                              "Inter"
+                      ],
+                      "h2": [
+                              "Inter"
+                      ]
+              },
+              "fontSize": {
+                      "mono-data": [
+                              "13px",
+                              {
+                                      "lineHeight": "1",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "label-md": [
+                              "12px",
+                              {
+                                      "lineHeight": "1",
+                                      "letterSpacing": "0.02em",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "body-lg": [
+                              "16px",
+                              {
+                                      "lineHeight": "1.5",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "h3": [
+                              "20px",
+                              {
+                                      "lineHeight": "1.4",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "h1": [
+                              "32px",
+                              {
+                                      "lineHeight": "1.25",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "display": [
+                              "48px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "body-md": [
+                              "14px",
+                              {
+                                      "lineHeight": "1.5",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "body-sm": [
+                              "12px",
+                              {
+                                      "lineHeight": "1.5",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "h2": [
+                              "24px",
+                              {
+                                      "lineHeight": "1.3",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "600"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+          font-variation-settings:
+          'FILL' 0,
+          'wght' 400,
+          'GRAD' 0,
+          'opsz' 24
+        }
+        .material-symbols-outlined[data-weight="fill"] {
+            font-variation-settings: 'FILL' 1;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body-md min-h-screen flex">
+<!-- SideNavBar (Suppressed due to Task-Focused intent 'Edit Employee' implying a sub-page/form flow) -->
+<!-- Main Content Area -->
+<div class="flex-1 flex flex-col h-screen overflow-hidden">
+<!-- TopAppBar (Modified for context) -->
+<header class="bg-surface dark:bg-surface w-full h-16 flex items-center justify-between shadow-sm sticky top-0 z-50 px-md border-b border-outline-variant/30">
+<div class="flex items-center gap-sm">
+<button class="text-on-surface-variant hover:bg-surface-container-highest transition-colors rounded-full p-sm flex items-center justify-center cursor-pointer active:opacity-80">
+<span class="material-symbols-outlined" data-icon="arrow_back">arrow_back</span>
+</button>
+<h1 class="font-h2 text-h2 font-bold text-primary dark:text-primary">Edit Employee</h1>
+</div>
+<div class="flex items-center gap-md">
+<!-- Status Toggle -->
+<div class="flex items-center gap-sm bg-surface-container py-sm px-md rounded-full border border-outline-variant/50">
+<span class="font-label-md text-label-md text-on-surface-variant">Status</span>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox" value=""/>
+<div class="w-11 h-6 bg-surface-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-secondary-container"></div>
+</label>
+<span class="font-label-md text-label-md text-secondary-container">Active</span>
+</div>
+</div>
+</header>
+<!-- Canvas -->
+<main class="flex-1 overflow-y-auto p-margin">
+<div class="max-w-5xl mx-auto">
+<!-- Header Card / Profile Summary -->
+<div class="bg-surface-container-lowest border border-outline-variant/30 rounded-xl p-lg shadow-sm mb-lg flex items-start gap-lg relative overflow-hidden">
+<div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-primary to-secondary-container"></div>
+<div class="relative">
+<div class="w-24 h-24 rounded-full bg-surface-container-high border-2 border-primary overflow-hidden flex items-center justify-center">
+<span class="material-symbols-outlined text-display text-on-surface-variant" data-icon="person" data-weight="fill">person</span>
+</div>
+<button class="absolute bottom-0 right-0 bg-surface-container-highest border border-outline-variant rounded-full p-1 hover:bg-primary-container hover:text-on-primary-container transition-colors shadow-sm">
+<span class="material-symbols-outlined text-[16px]" data-icon="edit">edit</span>
+</button>
+</div>
+<div class="flex-1 pt-sm">
+<div class="flex justify-between items-start">
+<div>
+<h2 class="font-h1 text-h1 text-on-surface">Sarah Jenkins</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant mt-xs">ID: EMP-8492 • Warehouse Manager</p>
+</div>
+<div class="text-right">
+<span class="inline-flex items-center gap-xs px-sm py-1 rounded-md bg-secondary-container/10 text-secondary border border-secondary-container/20 font-label-md text-label-md">
+<span class="w-2 h-2 rounded-full bg-secondary"></span> Operational
+                                </span>
+</div>
+</div>
+</div>
+</div>
+<!-- Form Area - Bento Grid Layout -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-gutter">
+<!-- Left Column: Personal & Contact (8 cols) -->
+<div class="md:col-span-8 flex flex-col gap-gutter">
+<!-- Personal Info Section -->
+<div class="bg-surface-container-lowest border border-outline-variant/30 rounded-xl shadow-sm overflow-hidden">
+<div class="border-b border-outline-variant/30 p-md bg-surface-container/50 flex items-center gap-sm">
+<span class="material-symbols-outlined text-primary" data-icon="badge">badge</span>
+<h3 class="font-h3 text-h3">Personal Information</h3>
+</div>
+<div class="p-lg grid grid-cols-1 sm:grid-cols-2 gap-md">
+<!-- First Name -->
+<div>
+<label class="block font-label-md text-label-md text-on-surface-variant mb-sm">First Name</label>
+<input class="w-full bg-surface border border-outline-variant rounded-lg px-md py-sm font-body-md text-on-surface focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-shadow" type="text" value="Sarah"/>
+</div>
+<!-- Last Name -->
+<div>
+<label class="block font-label-md text-label-md text-on-surface-variant mb-sm">Last Name</label>
+<input class="w-full bg-surface border border-outline-variant rounded-lg px-md py-sm font-body-md text-on-surface focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-shadow" type="text" value="Jenkins"/>
+</div>
+<!-- Date of Birth -->
+<div>
+<label class="block font-label-md text-label-md text-on-surface-variant mb-sm">Date of Birth</label>
+<div class="relative">
+<input class="w-full bg-surface border border-outline-variant rounded-lg px-md py-sm font-body-md text-on-surface focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-shadow" type="date" value="1985-10-15"/>
+</div>
+</div>
+<!-- National ID -->
+<div>
+<label class="block font-label-md text-label-md text-on-surface-variant mb-sm">National ID / SSN</label>
+<input class="w-full bg-surface border border-outline-variant rounded-lg px-md py-sm font-mono-data text-mono-data text-on-surface focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-shadow" type="text" value="***-**-4921"/>
+</div>
+</div>
+</div>
+<!-- Contact Details Section -->
+<div class="bg-surface-container-lowest border border-outline-variant/30 rounded-xl shadow-sm overflow-hidden">
+<div class="border-b border-outline-variant/30 p-md bg-surface-container/50 flex items-center gap-sm">
+<span class="material-symbols-outlined text-primary" data-icon="contact_mail">contact_mail</span>
+<h3 class="font-h3 text-h3">Contact Details</h3>
+</div>
+<div class="p-lg grid grid-cols-1 sm:grid-cols-2 gap-md">
+<!-- Email -->
+<div class="sm:col-span-2">
+<label class="block font-label-md text-label-md text-on-surface-variant mb-sm">Email Address</label>
+<div class="relative">
+<span class="absolute left-md top-1/2 -translate-y-1/2 material-symbols-outlined text-outline">mail</span>
+<input class="w-full bg-surface border border-outline-variant rounded-lg pl-[40px] pr-md py-sm font-body-md text-on-surface focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-shadow" type="email" value="s.jenkins@logicore.com"/>
+</div>
+</div>
+<!-- Phone -->
+<div>
+<label class="block font-label-md text-label-md text-on-surface-variant mb-sm">Phone Number</label>
+<div class="relative">
+<span class="absolute left-md top-1/2 -translate-y-1/2 material-symbols-outlined text-outline">phone</span>
+<input class="w-full bg-surface border border-outline-variant rounded-lg pl-[40px] pr-md py-sm font-body-md text-on-surface focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-shadow" type="tel" value="+1 (555) 019-8234"/>
+</div>
+</div>
+<!-- Emergency Contact -->
+<div>
+<label class="block font-label-md text-label-md text-on-surface-variant mb-sm">Emergency Phone</label>
+<div class="relative">
+<span class="absolute left-md top-1/2 -translate-y-1/2 material-symbols-outlined text-outline">emergency</span>
+<input class="w-full bg-surface border border-outline-variant rounded-lg pl-[40px] pr-md py-sm font-body-md text-on-surface focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-shadow" type="tel" value="+1 (555) 019-9922"/>
+</div>
+</div>
+<!-- Address -->
+<div class="sm:col-span-2">
+<label class="block font-label-md text-label-md text-on-surface-variant mb-sm">Street Address</label>
+<input class="w-full bg-surface border border-outline-variant rounded-lg px-md py-sm font-body-md text-on-surface focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-shadow" type="text" value="482 Industrial Pkwy, Suite B"/>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Column: Role & Assignments (4 cols) -->
+<div class="md:col-span-4 flex flex-col gap-gutter">
+<!-- Role & Security Section -->
+<div class="bg-surface-container-lowest border border-outline-variant/30 rounded-xl shadow-sm overflow-hidden">
+<div class="border-b border-outline-variant/30 p-md bg-surface-container/50 flex items-center gap-sm">
+<span class="material-symbols-outlined text-tertiary" data-icon="admin_panel_settings">admin_panel_settings</span>
+<h3 class="font-h3 text-h3">Role &amp; Access</h3>
+</div>
+<div class="p-lg flex flex-col gap-md">
+<!-- Department -->
+<div>
+<label class="block font-label-md text-label-md text-on-surface-variant mb-sm">Department</label>
+<select class="w-full bg-surface border border-outline-variant rounded-lg px-md py-sm font-body-md text-on-surface focus:outline-none focus:border-primary appearance-none">
+<option>Operations</option>
+<option selected="">Warehouse Management</option>
+<option>Logistics</option>
+<option>HR</option>
+</select>
+</div>
+<!-- Title -->
+<div>
+<label class="block font-label-md text-label-md text-on-surface-variant mb-sm">Job Title</label>
+<input class="w-full bg-surface border border-outline-variant rounded-lg px-md py-sm font-body-md text-on-surface focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20" type="text" value="Warehouse Manager"/>
+</div>
+<!-- Access Level -->
+<div>
+<label class="block font-label-md text-label-md text-on-surface-variant mb-sm">System Access Level</label>
+<div class="p-sm bg-surface-container rounded-lg border border-outline-variant/30">
+<div class="flex items-center gap-sm mb-xs">
+<span class="material-symbols-outlined text-primary text-[18px]">security</span>
+<span class="font-body-md font-medium">L3 - Facility Admin</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant ml-7">Full read/write access to assigned warehouse nodes.</p>
+<button class="mt-sm ml-7 text-primary font-label-md hover:underline">Modify Access</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Warehouse Assignments Section -->
+<div class="bg-surface-container-lowest border border-outline-variant/30 rounded-xl shadow-sm overflow-hidden flex-1">
+<div class="border-b border-outline-variant/30 p-md bg-surface-container/50 flex items-center justify-between">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-primary" data-icon="warehouse">warehouse</span>
+<h3 class="font-h3 text-h3">Assignments</h3>
+</div>
+<button class="text-primary hover:bg-surface-container p-1 rounded transition-colors" title="Add Assignment">
+<span class="material-symbols-outlined text-[20px]" data-icon="add">add</span>
+</button>
+</div>
+<div class="p-md flex flex-col gap-sm">
+<!-- Assigned Node 1 -->
+<div class="bg-surface border border-outline-variant/50 rounded-lg p-sm flex items-center justify-between group">
+<div class="flex items-center gap-sm">
+<div class="w-8 h-8 rounded bg-primary-container/20 flex items-center justify-center">
+<span class="font-mono-data text-primary text-[10px]">ATL</span>
+</div>
+<div>
+<p class="font-body-md font-medium">Node 01 - Atlanta</p>
+<p class="font-body-sm text-on-surface-variant">Primary Hub</p>
+</div>
+</div>
+<button class="text-outline hover:text-error opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-[18px]" data-icon="close">close</span>
+</button>
+</div>
+<!-- Assigned Node 2 -->
+<div class="bg-surface border border-outline-variant/50 rounded-lg p-sm flex items-center justify-between group">
+<div class="flex items-center gap-sm">
+<div class="w-8 h-8 rounded bg-surface-container-highest flex items-center justify-center border border-outline-variant/30">
+<span class="font-mono-data text-on-surface-variant text-[10px]">MIA</span>
+</div>
+<div>
+<p class="font-body-md font-medium">Node 04 - Miami</p>
+<p class="font-body-sm text-on-surface-variant">Secondary Hub</p>
+</div>
+</div>
+<button class="text-outline hover:text-error opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-[18px]" data-icon="close">close</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Action Footer -->
+<div class="mt-xl flex items-center justify-end gap-md pt-lg border-t border-outline-variant/30 mb-xl">
+<button class="px-lg py-sm rounded-lg font-label-md text-label-md text-on-surface-variant border border-outline-variant hover:bg-surface-container-high transition-colors">
+                        Discard Changes
+                    </button>
+<button class="px-lg py-sm rounded-lg font-label-md text-label-md bg-primary text-on-primary hover:bg-primary-fixed transition-colors shadow-sm flex items-center gap-sm">
+<span class="material-symbols-outlined text-[18px]" data-icon="save">save</span>
+                        Update Profile
+                    </button>
+</div>
+</div>
+</main>
+</div>
+</body></html>

@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Roles &amp; Permissions - LogiCore Pro</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "primary-fixed": "#dbe1ff",
+                    "secondary-container": "#1ca64d",
+                    "surface-container-highest": "#2d3449",
+                    "error-container": "#93000a",
+                    "on-tertiary": "#472a00",
+                    "inverse-primary": "#0053db",
+                    "surface-variant": "#2d3449",
+                    "secondary-fixed-dim": "#62df7d",
+                    "on-background": "#dae2fd",
+                    "primary-container": "#2563eb",
+                    "primary": "#b4c5ff",
+                    "tertiary-fixed-dim": "#ffb95f",
+                    "outline": "#8d90a0",
+                    "on-surface": "#dae2fd",
+                    "surface-container-low": "#131b2e",
+                    "on-tertiary-container": "#ffeedd",
+                    "inverse-surface": "#dae2fd",
+                    "outline-variant": "#434655",
+                    "on-secondary-fixed-variant": "#005320",
+                    "on-secondary-container": "#003111",
+                    "secondary": "#62df7d",
+                    "on-primary-container": "#eeefff",
+                    "on-primary": "#002a78",
+                    "surface-container-high": "#222a3d",
+                    "background": "#0b1326",
+                    "on-error": "#690005",
+                    "on-secondary": "#003914",
+                    "surface": "#0b1326",
+                    "on-surface-variant": "#c3c6d7",
+                    "on-primary-fixed": "#00174b",
+                    "secondary-fixed": "#7ffc97",
+                    "surface-dim": "#0b1326",
+                    "on-error-container": "#ffdad6",
+                    "surface-container-lowest": "#060e20",
+                    "on-tertiary-fixed-variant": "#653e00",
+                    "on-primary-fixed-variant": "#003ea8",
+                    "on-secondary-fixed": "#002109",
+                    "surface-tint": "#b4c5ff",
+                    "tertiary-container": "#996100",
+                    "surface-container": "#171f33",
+                    "on-tertiary-fixed": "#2a1700",
+                    "tertiary-fixed": "#ffddb8",
+                    "error": "#ffb4ab",
+                    "tertiary": "#ffb95f",
+                    "surface-bright": "#31394d",
+                    "primary-fixed-dim": "#b4c5ff",
+                    "inverse-on-surface": "#283044"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "gutter": "24px",
+                    "md": "16px",
+                    "lg": "24px",
+                    "xl": "32px",
+                    "sm": "8px",
+                    "margin": "32px",
+                    "xs": "4px",
+                    "base": "4px"
+            },
+            "fontFamily": {
+                    "h3": ["Inter"],
+                    "display": ["Inter"],
+                    "h2": ["Inter"],
+                    "h1": ["Inter"],
+                    "body-md": ["Inter"],
+                    "mono-data": ["JetBrains Mono"],
+                    "body-sm": ["Inter"],
+                    "label-md": ["Inter"],
+                    "body-lg": ["Inter"]
+            },
+            "fontSize": {
+                    "h3": ["20px", { "lineHeight": "1.4", "fontWeight": "600" }],
+                    "display": ["48px", { "lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                    "h2": ["24px", { "lineHeight": "1.3", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                    "h1": ["32px", { "lineHeight": "1.25", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                    "body-md": ["14px", { "lineHeight": "1.5", "fontWeight": "400" }],
+                    "mono-data": ["13px", { "lineHeight": "1", "letterSpacing": "-0.01em", "fontWeight": "400" }],
+                    "body-sm": ["12px", { "lineHeight": "1.5", "fontWeight": "400" }],
+                    "label-md": ["12px", { "lineHeight": "1", "letterSpacing": "0.02em", "fontWeight": "500" }],
+                    "body-lg": ["16px", { "lineHeight": "1.5", "fontWeight": "400" }]
+            }
+          }
+        }
+      }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .icon-fill { font-variation-settings: 'FILL' 1; }
+        
+        /* Custom scrollbar for a cleaner look in dark mode */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #0b1326; }
+        ::-webkit-scrollbar-thumb { background: #2d3449; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #434655; }
+    </style>
+</head>
+<body class="bg-background text-on-background h-screen w-full flex overflow-hidden selection:bg-primary-container selection:text-on-primary-container">
+<!-- SideNavBar (from JSON) -->
+<aside class="hidden md:flex flex-col h-full border-r border-outline-variant dark:border-outline py-md docked left-0 w-64 shrink-0 z-40 bg-surface-container-lowest">
+<!-- Header -->
+<div class="px-md mb-xl flex items-center gap-md">
+<div class="w-10 h-10 rounded-lg bg-primary-container flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-on-primary-container">domain</span>
+</div>
+<div>
+<h2 class="font-h3 text-h3 truncate text-on-background">Global Ops</h2>
+<p class="font-body-sm text-body-sm opacity-80 text-on-surface-variant">Enterprise Tier</p>
+</div>
+</div>
+<!-- Navigation Links -->
+<nav class="flex-1 overflow-y-auto px-sm flex flex-col gap-xs">
+<a class="flex items-center gap-sm px-md py-sm cursor-pointer text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-surface-container-highest transition-all duration-200 rounded-lg group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors" data-icon="dashboard">dashboard</span>
+<span class="font-label-md text-label-md">Dashboard</span>
+</a>
+<a class="flex items-center gap-sm px-md py-sm cursor-pointer text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-surface-container-highest transition-all duration-200 rounded-lg group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors" data-icon="inventory_2">inventory_2</span>
+<span class="font-label-md text-label-md">Products</span>
+</a>
+<a class="flex items-center gap-sm px-md py-sm cursor-pointer text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-surface-container-highest transition-all duration-200 rounded-lg group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors" data-icon="warehouse">warehouse</span>
+<span class="font-label-md text-label-md">Inventory</span>
+</a>
+<a class="flex items-center gap-sm px-md py-sm cursor-pointer text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-surface-container-highest transition-all duration-200 rounded-lg group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors" data-icon="trending_up">trending_up</span>
+<span class="font-label-md text-label-md">Sales</span>
+</a>
+<a class="flex items-center gap-sm px-md py-sm cursor-pointer text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-surface-container-highest transition-all duration-200 rounded-lg group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors" data-icon="shopping_cart">shopping_cart</span>
+<span class="font-label-md text-label-md">Purchases</span>
+</a>
+<a class="flex items-center gap-sm px-md py-sm cursor-pointer text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-surface-container-highest transition-all duration-200 rounded-lg group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors" data-icon="group">group</span>
+<span class="font-label-md text-label-md">Customers</span>
+</a>
+<a class="flex items-center gap-sm px-md py-sm cursor-pointer text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-surface-container-highest transition-all duration-200 rounded-lg group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors" data-icon="local_shipping">local_shipping</span>
+<span class="font-label-md text-label-md">Suppliers</span>
+</a>
+<a class="flex items-center gap-sm px-md py-sm cursor-pointer text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-surface-container-highest transition-all duration-200 rounded-lg group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors" data-icon="badge">badge</span>
+<span class="font-label-md text-label-md">Employees</span>
+</a>
+<a class="flex items-center gap-sm px-md py-sm cursor-pointer text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-surface-container-highest transition-all duration-200 rounded-lg group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors" data-icon="domain">domain</span>
+<span class="font-label-md text-label-md">Warehouses</span>
+</a>
+<a class="flex items-center gap-sm px-md py-sm cursor-pointer text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-surface-container-highest transition-all duration-200 rounded-lg group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors" data-icon="analytics">analytics</span>
+<span class="font-label-md text-label-md">Reports</span>
+</a>
+<a class="flex items-center gap-sm px-md py-sm cursor-pointer text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-surface-container-highest transition-all duration-200 rounded-lg group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors" data-icon="history">history</span>
+<span class="font-label-md text-label-md">Audit Logs</span>
+</a>
+<!-- ACTIVE TAB: Roles -->
+<a class="flex items-center gap-sm px-md py-sm cursor-pointer bg-secondary-container dark:bg-secondary text-on-secondary-container dark:text-on-secondary rounded-lg font-bold" href="#">
+<span class="material-symbols-outlined icon-fill" data-icon="security">security</span>
+<span class="font-label-md text-label-md">Roles</span>
+</a>
+<a class="flex items-center gap-sm px-md py-sm cursor-pointer text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-surface-container-highest transition-all duration-200 rounded-lg group mt-auto mb-sm" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors" data-icon="settings">settings</span>
+<span class="font-label-md text-label-md">Settings</span>
+</a>
+</nav>
+</aside>
+<!-- Main Content Canvas -->
+<main class="flex-1 flex flex-col h-full overflow-hidden relative">
+<!-- TopNavBar (from JSON) -->
+<header class="flex justify-between items-center w-full px-md h-16 z-50 docked full-width top-0 border-b border-outline-variant dark:border-outline shadow-sm shrink-0 bg-surface-container-lowest">
+<!-- Left: Logo & Search -->
+<div class="flex items-center gap-lg h-full">
+<span class="md:hidden material-symbols-outlined cursor-pointer p-sm hover:bg-surface-container rounded-full text-on-background">menu</span>
+<h1 class="font-h2 text-h2 font-bold text-primary dark:text-inverse-primary tracking-tight">LogiCore Pro</h1>
+<div class="hidden md:flex items-center relative ml-xl w-64 group">
+<span class="material-symbols-outlined absolute left-sm text-outline group-focus-within:text-primary transition-colors pointer-events-none">search</span>
+<input class="w-full border border-outline-variant rounded-full py-xs pl-[36px] pr-md font-body-sm text-body-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-shadow placeholder:text-outline h-[32px]" placeholder="Search operations..." type="text"/>
+</div>
+</div>
+<!-- Right: Actions & Profile -->
+<div class="flex items-center gap-sm">
+<div class="hidden lg:flex items-center gap-xs px-sm py-xs rounded-md border border-outline-variant mr-sm cursor-pointer hover:bg-surface-container-highest transition-colors">
+<span class="material-symbols-outlined text-[18px] text-primary">warehouse</span>
+<span class="font-label-md text-label-md">Warehouse Alpha</span>
+<span class="material-symbols-outlined text-[16px] text-outline">expand_more</span>
+</div>
+<button class="w-10 h-10 flex items-center justify-center rounded-full dark:text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-surface-container-highest transition-colors cursor-pointer active:opacity-80 relative">
+<span class="material-symbols-outlined text-on-background" data-icon="notifications">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-error rounded-full border border-surface"></span>
+</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-full dark:text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-surface-container-highest transition-colors cursor-pointer active:opacity-80">
+<span class="material-symbols-outlined text-on-background" data-icon="apps">apps</span>
+</button>
+<div class="w-8 h-8 rounded-full ml-sm border-2 border-surface-variant overflow-hidden cursor-pointer">
+<img alt="User profile" class="w-full h-full object-cover" data-alt="A sleek, minimalist corporate headshot of a logistics manager against a dark studio background, featuring dramatic chiaroscuro lighting, subtle cool blue rim light, high resolution, sharp focus, capturing a professional and authoritative demeanor." src="https://lh3.googleusercontent.com/aida/ADBb0uiuDnwM-3acberWPS5jt_osLPFa81tRfhP06Hl7Mi04VASLShPfImElZFZwcQsn6VVFmJq8SKOBuUiG3ry87VbYzTPiKcQrRmz6mrB3we4RGLhxamei0V0JregY3ZFbjAPjdb_nyV_co0fCdx_adYGb48SqVUfgPpLR29NrdlM9cvpF2JtNTBqBfqvTpUFJgAZzXS4LgopoGGK2Kc2msDScO4ThZGWlxiMToIDyve593p2rFidXoJXKAYg"/>
+</div>
+</div>
+</header>
+<!-- Scrollable Page Content -->
+<div class="flex-1 overflow-y-auto p-md md:p-lg lg:p-xl flex flex-col gap-lg bg-surface-container-lowest">
+<!-- Page Header -->
+<div class="flex flex-col md:flex-row md:items-start justify-between gap-md mb-sm">
+<div class="max-w-2xl">
+<h1 class="font-h1 text-h1 text-on-surface mb-xs tracking-tight">Roles &amp; Permissions</h1>
+<p class="font-body-md text-body-md text-on-surface-variant">Manage system access levels, functional restrictions, and specialized security parameters for your enterprise workforce.</p>
+</div>
+<div class="flex items-center gap-sm shrink-0">
+<button class="h-10 px-md flex items-center gap-sm rounded-lg border border-outline-variant bg-surface hover:bg-surface-container-high text-on-surface font-label-md text-label-md transition-all shadow-sm">
+<span class="material-symbols-outlined text-[18px]">upload_file</span>
+                        Import Template
+                    </button>
+<button class="h-10 px-md flex items-center gap-sm rounded-lg bg-primary-container text-on-primary-container hover:bg-primary hover:text-on-primary font-label-md text-label-md transition-all shadow-sm">
+<span class="material-symbols-outlined text-[18px]">add</span>
+                        Create Role
+                    </button>
+</div>
+</div>
+<!-- KPI Cards Grid (Bento style) -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-md">
+<!-- KPI 1 -->
+<div class="bg-surface border border-outline-variant rounded-xl p-md flex flex-col justify-between h-32 relative overflow-hidden group hover:border-outline transition-colors shadow-sm">
+<div class="absolute top-0 right-0 w-24 h-24 bg-primary/5 rounded-bl-full -mr-4 -mt-4 transition-transform group-hover:scale-110"></div>
+<div class="flex justify-between items-start z-10">
+<span class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Total Roles</span>
+<div class="w-8 h-8 rounded-md bg-surface-container-high flex items-center justify-center border border-outline-variant/50">
+<span class="material-symbols-outlined text-on-surface text-[18px]">shield</span>
+</div>
+</div>
+<div class="z-10 flex items-baseline gap-sm">
+<span class="font-display text-display text-on-surface">12</span>
+</div>
+</div>
+<!-- KPI 2 -->
+<div class="bg-surface border border-outline-variant rounded-xl p-md flex flex-col justify-between h-32 relative overflow-hidden group hover:border-outline transition-colors shadow-sm">
+<div class="absolute top-0 right-0 w-24 h-24 bg-secondary/5 rounded-bl-full -mr-4 -mt-4 transition-transform group-hover:scale-110"></div>
+<div class="flex justify-between items-start z-10">
+<span class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Active Roles</span>
+<div class="w-8 h-8 rounded-md bg-secondary-container/20 flex items-center justify-center border border-secondary/20">
+<span class="material-symbols-outlined text-secondary text-[18px]">verified_user</span>
+</div>
+</div>
+<div class="z-10 flex items-baseline gap-sm">
+<span class="font-display text-display text-on-surface">10</span>
+<span class="font-body-sm text-body-sm text-secondary flex items-center"><span class="material-symbols-outlined text-[14px]">arrow_upward</span> 83%</span>
+</div>
+</div>
+<!-- KPI 3 -->
+<div class="bg-surface border border-outline-variant rounded-xl p-md flex flex-col justify-between h-32 relative overflow-hidden group hover:border-outline transition-colors shadow-sm">
+<div class="flex justify-between items-start z-10">
+<span class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Custom Roles</span>
+<div class="w-8 h-8 rounded-md bg-tertiary-container/20 flex items-center justify-center border border-tertiary/20">
+<span class="material-symbols-outlined text-tertiary text-[18px]">build_circle</span>
+</div>
+</div>
+<div class="z-10 flex items-baseline gap-sm">
+<span class="font-display text-display text-on-surface">4</span>
+</div>
+</div>
+<!-- KPI 4 -->
+<div class="bg-surface border border-outline-variant rounded-xl p-md flex flex-col justify-between h-32 relative overflow-hidden group hover:border-outline transition-colors shadow-sm">
+<div class="flex justify-between items-start z-10">
+<span class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Employees Assigned</span>
+<div class="w-8 h-8 rounded-md bg-surface-container-high flex items-center justify-center border border-outline-variant/50">
+<span class="material-symbols-outlined text-on-surface text-[18px]">group</span>
+</div>
+</div>
+<div class="z-10 flex items-baseline gap-sm">
+<span class="font-display text-display text-on-surface">248</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">across all</span>
+</div>
+</div>
+</div>
+<!-- Data Table Section (Glassmorphic touches) -->
+<div class="bg-surface/80 backdrop-blur-md border border-outline-variant rounded-xl shadow-sm flex flex-col mt-sm overflow-hidden relative">
+<!-- Table Toolbar -->
+<div class="p-md border-b border-outline-variant flex flex-col sm:flex-row items-center justify-between gap-md bg-surface-container-lowest/50">
+<div class="relative w-full sm:w-80">
+<span class="material-symbols-outlined absolute left-sm top-1/2 -translate-y-1/2 text-outline text-[18px] pointer-events-none">search</span>
+<input class="w-full bg-surface border border-outline-variant rounded-lg py-sm pl-xl pr-md font-body-sm text-body-sm text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-shadow placeholder:text-outline h-10" placeholder="Search roles by name or description..." type="text"/>
+</div>
+<div class="flex items-center gap-sm w-full sm:w-auto">
+<button class="h-10 px-md flex items-center gap-xs rounded-lg border border-outline-variant bg-surface hover:bg-surface-container-high text-on-surface font-label-md text-label-md transition-colors w-full sm:w-auto justify-center">
+<span class="material-symbols-outlined text-[18px]">filter_list</span>
+                            Filter
+                        </button>
+<button class="w-10 h-10 flex items-center justify-center rounded-lg border border-outline-variant bg-surface hover:bg-surface-container-high text-on-surface transition-colors shrink-0">
+<span class="material-symbols-outlined text-[18px]">view_column</span>
+</button>
+</div>
+</div>
+<!-- Table Content -->
+<div class="overflow-x-auto w-full">
+<table class="w-full text-left border-collapse min-w-[800px]">
+<thead>
+<tr class="bg-surface-container-low border-b border-outline-variant/60 h-12">
+<th class="px-md font-label-md text-label-md text-on-surface-variant font-medium whitespace-nowrap sticky left-0 z-10 bg-surface-container-low w-1/4">Role Name</th>
+<th class="px-md font-label-md text-label-md text-on-surface-variant font-medium whitespace-nowrap w-1/3">Description</th>
+<th class="px-md font-label-md text-label-md text-on-surface-variant font-medium whitespace-nowrap">Type</th>
+<th class="px-md font-label-md text-label-md text-on-surface-variant font-medium whitespace-nowrap text-right">Assigned</th>
+<th class="px-md font-label-md text-label-md text-on-surface-variant font-medium whitespace-nowrap text-right">Permissions</th>
+<th class="px-md font-label-md text-label-md text-on-surface-variant font-medium whitespace-nowrap text-center w-[80px]">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant/40 bg-surface">
+<!-- Row 1 -->
+<tr class="h-14 hover:bg-surface-container-highest transition-colors group cursor-default">
+<td class="px-md font-body-md text-body-md text-on-surface font-medium sticky left-0 z-10 bg-surface group-hover:bg-surface-container-highest transition-colors flex items-center gap-sm h-14">
+<div class="w-2 h-2 rounded-full bg-primary"></div>
+                                    Administrator
+                                </td>
+<td class="px-md font-body-sm text-body-sm text-on-surface-variant truncate max-w-[200px]" title="Full overarching access to all LogiCore Pro modules, billing, and system configuration.">Full overarching access to all LogiCore Pro modules, billing, and system configuration.</td>
+<td class="px-md">
+<span class="inline-flex items-center px-2 py-1 rounded-md bg-surface-variant text-on-surface-variant font-label-md text-label-md uppercase tracking-wider text-[10px] border border-outline-variant/30">System</span>
+</td>
+<td class="px-md font-mono-data text-mono-data text-on-surface text-right">3</td>
+<td class="px-md font-mono-data text-mono-data text-on-surface text-right">142</td>
+<td class="px-md text-center">
+<button class="w-8 h-8 rounded-full hover:bg-surface-container text-on-surface-variant hover:text-on-surface inline-flex items-center justify-center transition-colors">
+<span class="material-symbols-outlined text-[18px]">more_vert</span>
+</button>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="h-14 hover:bg-surface-container-highest transition-colors group cursor-default">
+<td class="px-md font-body-md text-body-md text-on-surface font-medium sticky left-0 z-10 bg-surface group-hover:bg-surface-container-highest transition-colors flex items-center gap-sm h-14">
+<div class="w-2 h-2 rounded-full bg-primary"></div>
+                                    Warehouse Manager
+                                </td>
+<td class="px-md font-body-sm text-body-sm text-on-surface-variant truncate max-w-[200px]">Complete operational control over specific facility inventory, staff, and localized reporting.</td>
+<td class="px-md">
+<span class="inline-flex items-center px-2 py-1 rounded-md bg-surface-variant text-on-surface-variant font-label-md text-label-md uppercase tracking-wider text-[10px] border border-outline-variant/30">System</span>
+</td>
+<td class="px-md font-mono-data text-mono-data text-on-surface text-right">12</td>
+<td class="px-md font-mono-data text-mono-data text-on-surface text-right">86</td>
+<td class="px-md text-center">
+<button class="w-8 h-8 rounded-full hover:bg-surface-container text-on-surface-variant hover:text-on-surface inline-flex items-center justify-center transition-colors">
+<span class="material-symbols-outlined text-[18px]">more_vert</span>
+</button>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="h-14 hover:bg-surface-container-highest transition-colors group cursor-default">
+<td class="px-md font-body-md text-body-md text-on-surface font-medium sticky left-0 z-10 bg-surface group-hover:bg-surface-container-highest transition-colors flex items-center gap-sm h-14">
+<div class="w-2 h-2 rounded-full bg-tertiary"></div>
+                                    Inventory Specialist
+                                </td>
+<td class="px-md font-body-sm text-body-sm text-on-surface-variant truncate max-w-[200px]">Read/Write access to product databases, stock adjustments, and cycle count execution.</td>
+<td class="px-md">
+<span class="inline-flex items-center px-2 py-1 rounded-md bg-tertiary-container/10 text-tertiary font-label-md text-label-md uppercase tracking-wider text-[10px] border border-tertiary/20">Custom</span>
+</td>
+<td class="px-md font-mono-data text-mono-data text-on-surface text-right">45</td>
+<td class="px-md font-mono-data text-mono-data text-on-surface text-right">34</td>
+<td class="px-md text-center">
+<button class="w-8 h-8 rounded-full hover:bg-surface-container text-on-surface-variant hover:text-on-surface inline-flex items-center justify-center transition-colors">
+<span class="material-symbols-outlined text-[18px]">more_vert</span>
+</button>
+</td>
+</tr>
+<!-- Row 4 -->
+<tr class="h-14 hover:bg-surface-container-highest transition-colors group cursor-default">
+<td class="px-md font-body-md text-body-md text-on-surface font-medium sticky left-0 z-10 bg-surface group-hover:bg-surface-container-highest transition-colors flex items-center gap-sm h-14">
+<div class="w-2 h-2 rounded-full bg-tertiary"></div>
+                                    Sales Associate
+                                </td>
+<td class="px-md font-body-sm text-body-sm text-on-surface-variant truncate max-w-[200px]">Restricted view of inventory availability, order creation, and basic customer profiles.</td>
+<td class="px-md">
+<span class="inline-flex items-center px-2 py-1 rounded-md bg-tertiary-container/10 text-tertiary font-label-md text-label-md uppercase tracking-wider text-[10px] border border-tertiary/20">Custom</span>
+</td>
+<td class="px-md font-mono-data text-mono-data text-on-surface text-right">188</td>
+<td class="px-md font-mono-data text-mono-data text-on-surface text-right">18</td>
+<td class="px-md text-center">
+<button class="w-8 h-8 rounded-full hover:bg-surface-container text-on-surface-variant hover:text-on-surface inline-flex items-center justify-center transition-colors">
+<span class="material-symbols-outlined text-[18px]">more_vert</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Table Footer / Pagination -->
+<div class="p-sm px-md border-t border-outline-variant flex items-center justify-between bg-surface-container-low text-on-surface-variant">
+<span class="font-body-sm text-body-sm">Showing 1 to 4 of 12 roles</span>
+<div class="flex items-center gap-xs">
+<button class="w-8 h-8 rounded-md flex items-center justify-center hover:bg-surface-container disabled:opacity-50" disabled="">
+<span class="material-symbols-outlined text-[18px]">chevron_left</span>
+</button>
+<button class="w-8 h-8 rounded-md flex items-center justify-center hover:bg-surface-container disabled:opacity-50">
+<span class="material-symbols-outlined text-[18px]">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</main>
+</body></html>

@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Activity Timeline - LogiTrack ERP</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;family=JetBrains+Mono:wght@400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "secondary-fixed": "#7ffc97",
+                    "surface-container-lowest": "#060e20",
+                    "primary-container": "#2563eb",
+                    "inverse-surface": "#dae2fd",
+                    "outline-variant": "#434655",
+                    "on-tertiary-fixed-variant": "#653e00",
+                    "on-primary-container": "#eeefff",
+                    "secondary": "#62df7d",
+                    "outline": "#8d90a0",
+                    "tertiary-fixed-dim": "#ffb95f",
+                    "surface": "#0b1326",
+                    "error": "#ffb4ab",
+                    "on-secondary-fixed-variant": "#005320",
+                    "on-surface-variant": "#c3c6d7",
+                    "tertiary-container": "#996100",
+                    "tertiary": "#ffb95f",
+                    "primary": "#b4c5ff",
+                    "inverse-primary": "#0053db",
+                    "secondary-fixed-dim": "#62df7d",
+                    "on-secondary": "#003914",
+                    "surface-bright": "#31394d",
+                    "surface-dim": "#0b1326",
+                    "on-tertiary-fixed": "#2a1700",
+                    "on-secondary-container": "#003111",
+                    "on-tertiary-container": "#ffeedd",
+                    "on-error-container": "#ffdad6",
+                    "tertiary-fixed": "#ffddb8",
+                    "error-container": "#93000a",
+                    "on-primary-fixed-variant": "#003ea8",
+                    "surface-container": "#171f33",
+                    "surface-tint": "#b4c5ff",
+                    "on-secondary-fixed": "#002109",
+                    "surface-container-highest": "#2d3449",
+                    "secondary-container": "#1ca64d",
+                    "on-primary-fixed": "#00174b",
+                    "on-surface": "#dae2fd",
+                    "background": "#0b1326",
+                    "on-error": "#690005",
+                    "on-primary": "#002a78",
+                    "primary-fixed": "#dbe1ff",
+                    "on-tertiary": "#472a00",
+                    "inverse-on-surface": "#283044",
+                    "surface-container-high": "#222a3d",
+                    "primary-fixed-dim": "#b4c5ff",
+                    "surface-variant": "#2d3449",
+                    "on-background": "#dae2fd",
+                    "surface-container-low": "#131b2e"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "lg": "24px",
+                    "md": "16px",
+                    "base": "4px",
+                    "xl": "32px",
+                    "gutter": "24px",
+                    "margin": "32px",
+                    "xs": "4px",
+                    "sm": "8px"
+            },
+            "fontFamily": {
+                    "h1": ["Inter"],
+                    "display": ["Inter"],
+                    "h3": ["Inter"],
+                    "h2": ["Inter"],
+                    "mono-data": ["JetBrains Mono"],
+                    "body-md": ["Inter"],
+                    "body-sm": ["Inter"],
+                    "body-lg": ["Inter"],
+                    "label-md": ["Inter"]
+            },
+            "fontSize": {
+                    "h1": ["32px", {"lineHeight": "1.25", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "display": ["48px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "h3": ["20px", {"lineHeight": "1.4", "fontWeight": "600"}],
+                    "h2": ["24px", {"lineHeight": "1.3", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "mono-data": ["13px", {"lineHeight": "1", "letterSpacing": "-0.01em", "fontWeight": "400"}],
+                    "body-md": ["14px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                    "body-sm": ["12px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                    "body-lg": ["16px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                    "label-md": ["12px", {"lineHeight": "1", "letterSpacing": "0.02em", "fontWeight": "500"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { background-color: #0b1326; color: #dae2fd; font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .timeline-line::before {
+            content: '';
+            position: absolute;
+            left: 23px;
+            top: 40px;
+            bottom: 0;
+            width: 2px;
+            background: #434655;
+            z-index: 0;
+        }
+        .timeline-item:last-child .timeline-line::before { display: none; }
+        .glass-card {
+            background: rgba(23, 31, 51, 0.7);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(67, 70, 85, 0.5);
+        }
+    </style>
+</head>
+<body class="overflow-hidden">
+<!-- SideNavBar (Shared Component) -->
+<aside class="h-screen w-64 flex flex-col fixed left-0 top-0 bg-surface-container-lowest border-r border-outline-variant shadow-sm py-lg px-md z-50">
+<div class="mb-xl px-md">
+<h2 class="font-h2 text-h2 font-bold text-primary">LogiTrack ERP</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Enterprise Admin</p>
+</div>
+<nav class="flex-1 space-y-xs overflow-y-auto">
+<a class="flex items-center gap-sm px-md py-sm text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-body-md text-body-md">Dashboard</span>
+</a>
+<a class="flex items-center gap-sm px-md py-sm text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">inventory_2</span>
+<span class="font-body-md text-body-md">Inventory</span>
+</a>
+<!-- ACTIVE: Purchasing -->
+<a class="flex items-center gap-sm px-md py-sm bg-primary-container text-on-primary-container rounded-lg transition-transform active:scale-[0.98]" href="#">
+<span class="material-symbols-outlined">receipt_long</span>
+<span class="font-body-md text-body-md">Purchasing</span>
+</a>
+<a class="flex items-center gap-sm px-md py-sm text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">warehouse</span>
+<span class="font-body-md text-body-md">Warehouses</span>
+</a>
+<a class="flex items-center gap-sm px-md py-sm text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">monitoring</span>
+<span class="font-body-md text-body-md">Analytics</span>
+</a>
+<a class="flex items-center gap-sm px-md py-sm text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-body-md text-body-md">Settings</span>
+</a>
+</nav>
+<div class="mt-auto space-y-xs border-t border-outline-variant pt-lg">
+<button class="w-full mb-md bg-primary text-on-primary py-sm rounded-lg font-label-md transition-transform hover:scale-[1.02] active:scale-[0.98]">
+                New Invoice
+            </button>
+<a class="flex items-center gap-sm px-md py-sm text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">help</span>
+<span class="font-body-md text-body-md">Support</span>
+</a>
+<a class="flex items-center gap-sm px-md py-sm text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">logout</span>
+<span class="font-body-md text-body-md">Logout</span>
+</a>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="ml-64 flex flex-col h-screen">
+<!-- TopAppBar (Shared Component) -->
+<header class="flex justify-between items-center h-16 px-gutter bg-surface border-b border-outline-variant sticky top-0 z-40 shadow-sm">
+<div class="flex items-center gap-lg">
+<h3 class="font-h3 text-h3 font-semibold text-on-surface">Purchase Activity</h3>
+<div class="relative">
+<span class="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-outline">search</span>
+<input class="bg-surface-container-low border border-outline-variant rounded-full py-1.5 pl-10 pr-4 text-body-sm w-80 focus:ring-2 focus:ring-primary-container outline-none" placeholder="Search activity..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-md">
+<button class="text-on-surface-variant hover:text-primary transition-colors focus:ring-2 focus:ring-primary-container p-1 rounded">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="text-on-surface-variant hover:text-primary transition-colors focus:ring-2 focus:ring-primary-container p-1 rounded">
+<span class="material-symbols-outlined">history</span>
+</button>
+<button class="text-on-surface-variant hover:text-primary transition-colors focus:ring-2 focus:ring-primary-container p-1 rounded">
+<span class="material-symbols-outlined">help_outline</span>
+</button>
+<div class="h-8 w-8 rounded-full overflow-hidden border border-outline-variant ml-sm">
+<img alt="Admin User Profile" data-alt="A professional headshot avatar of a logistics operations director, featuring a confident expression with minimalist aesthetic style and cool blue lighting against a deep slate background." src="https://lh3.googleusercontent.com/aida/ADBb0ugWuAex8-YIvnBJ78g5dYoJIsjFhLAoawre3zOx-Oc0M1POBgH0-E_pJA1mou54kvHx071_tnB3WIn6HAu85hFWkSw6s457Z-9sCVeOI5mSe_9OOhLSD8h1XKyvqDVjgrO47p9sWWv6AtKSWQi6tHrbqmRYyBwJ_PhlsZ6ZeHgCCloZErtLDUlweK5WQs061httB8ZRnHicRv1LBIbRKRPNEBzKPTK0AXX6uestHTkcG1Sr6XZdbKYH8xqN"/>
+</div>
+</div>
+</header>
+<!-- Timeline Content -->
+<section class="flex-1 overflow-y-auto p-gutter bg-background custom-scrollbar">
+<div class="max-w-4xl mx-auto">
+<!-- Timeline Header Filters -->
+<div class="flex items-center justify-between mb-xl">
+<div class="flex gap-sm">
+<span class="px-md py-1.5 rounded-full bg-secondary-container text-on-secondary-container font-label-md cursor-pointer hover:opacity-90 transition-opacity">All Events</span>
+<span class="px-md py-1.5 rounded-full border border-outline-variant text-on-surface-variant font-label-md cursor-pointer hover:bg-surface-container-high transition-colors">Invoices</span>
+<span class="px-md py-1.5 rounded-full border border-outline-variant text-on-surface-variant font-label-md cursor-pointer hover:bg-surface-container-high transition-colors">Shipments</span>
+<span class="px-md py-1.5 rounded-full border border-outline-variant text-on-surface-variant font-label-md cursor-pointer hover:bg-surface-container-high transition-colors">Approvals</span>
+</div>
+<button class="flex items-center gap-xs text-primary font-label-md hover:underline">
+<span class="material-symbols-outlined text-[18px]">filter_list</span>
+                        Advanced Filters
+                    </button>
+</div>
+<!-- Timeline Feed -->
+<div class="relative">
+<!-- Today Section -->
+<div class="mb-xl">
+<div class="flex items-center gap-md mb-lg">
+<span class="font-label-md uppercase tracking-widest text-outline">Today</span>
+<div class="h-[1px] flex-1 bg-outline-variant"></div>
+</div>
+<!-- Timeline Item 1 -->
+<div class="timeline-item timeline-line relative pb-xl last:pb-0">
+<div class="flex gap-lg">
+<!-- Avatar / Icon Column -->
+<div class="relative z-10">
+<div class="w-12 h-12 rounded-full border-2 border-surface bg-surface-container overflow-hidden">
+<img alt="Sarah L. avatar" data-alt="A detailed digital portrait of a professional female logistics manager with blonde hair and glasses, set in a clean modern workspace with soft ambient corporate lighting and deep blue accents." src="https://lh3.googleusercontent.com/aida/ADBb0ugr-nIa3dlWbEZK5YjQxTH7kBlO0r6YQH0HTM3BQBBm3Yi0Tc8ZPuaJixQDTwN43umjVxS0gRWM2hPTso-YKucb13ON8pm4doWt9L72sacn850d9QdP3lXTlTRUTzMru3kAFELuYLsfqNcxWWSGo9DhdgeM9jqawzDF-jMLQMWNJRPA4Pba2kAEOtroEYRnkB5dcqdvwvn7Rb2ShGVjp0xs3FI4uxMm1vXQbfEPaPtLE9PbDcflMLGUp714"/>
+</div>
+<div class="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-primary-container flex items-center justify-center border-2 border-surface">
+<span class="material-symbols-outlined text-[14px] text-white" style="font-variation-settings: 'FILL' 1;">add_notes</span>
+</div>
+</div>
+<!-- Content Column -->
+<div class="flex-1 glass-card p-md rounded-xl shadow-sm transition-all hover:border-primary/40">
+<div class="flex justify-between items-start mb-xs">
+<p class="font-body-lg text-on-surface">
+<span class="font-bold text-primary">Sarah L.</span> created Invoice <span class="font-mono-data text-secondary">#892</span>
+</p>
+<span class="font-mono-data text-body-sm text-outline">14:22 PM</span>
+</div>
+<p class="font-body-md text-on-surface-variant mb-md">Purchase requisition for 200x Intel Xeon Processors for the Frankfurt Datacenter hub. Priority: High.</p>
+<div class="flex gap-sm">
+<span class="px-sm py-0.5 rounded bg-surface-container-highest text-on-surface font-label-md">Hardware</span>
+<span class="px-sm py-0.5 rounded bg-surface-container-highest text-on-surface font-label-md">Urgent</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Timeline Item 2 -->
+<div class="timeline-item timeline-line relative pb-xl last:pb-0">
+<div class="flex gap-lg">
+<div class="relative z-10">
+<div class="w-12 h-12 rounded-full border-2 border-surface bg-secondary-container flex items-center justify-center">
+<span class="material-symbols-outlined text-on-secondary-container" style="font-variation-settings: 'FILL' 1;">warehouse</span>
+</div>
+</div>
+<div class="flex-1 glass-card p-md rounded-xl shadow-sm transition-all hover:border-secondary/40">
+<div class="flex justify-between items-start mb-xs">
+<p class="font-body-lg text-on-surface">
+<span class="font-bold text-secondary">Warehouse Alpha</span> received <span class="font-bold">50 units</span>
+</p>
+<span class="font-mono-data text-body-sm text-outline">11:05 AM</span>
+</div>
+<p class="font-body-md text-on-surface-variant">Batch receipt confirmed for order <span class="text-primary-fixed underline cursor-pointer">PO-4421</span>. SKU: LOG-998 (Hydraulic Pistons).</p>
+<div class="mt-md p-sm bg-surface-container-lowest rounded border border-outline-variant flex items-center justify-between">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-secondary">check_circle</span>
+<span class="font-body-sm">Inventory Synced</span>
+</div>
+<button class="text-primary font-label-md">View Manifest</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Timeline Item 3 -->
+<div class="timeline-item timeline-line relative pb-xl last:pb-0">
+<div class="flex gap-lg">
+<div class="relative z-10">
+<div class="w-12 h-12 rounded-full border-2 border-surface bg-surface-container overflow-hidden">
+<img alt="Manager avatar" data-alt="A portrait of a male corporate manager with dark skin and a sharp suit, designed in a high-contrast minimalist aesthetic with professional dark mode styling." src="https://lh3.googleusercontent.com/aida/ADBb0uiBag2IT32xtjDUKi6w2qIu5pqJm19SZLS_VoRVUgc1TgRn9O-Rep_Z3ZDBgMVvy3s2yKB0de7MwLJPyCq1uOrOJt7CGQLqr3Zvr81lw1UwD9V-Wq2IGJMLeakDKaGSw85wnEQKzf6Ghpm4cieMyDktHhtmgp4tUkzadBcWEz5uOMfh7eu8L9qyQmVZQM9qE9nWuLcvMnxfEfLkzZY4EkJzHZ_6Ej_jrzb9DgY4NgB3i57ts5364O5iSitx"/>
+</div>
+<div class="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-tertiary-container flex items-center justify-center border-2 border-surface">
+<span class="material-symbols-outlined text-[14px] text-white" style="font-variation-settings: 'FILL' 1;">verified</span>
+</div>
+</div>
+<div class="flex-1 glass-card p-md rounded-xl shadow-sm transition-all hover:border-tertiary/40">
+<div class="flex justify-between items-start mb-xs">
+<p class="font-body-lg text-on-surface">
+<span class="font-bold text-tertiary">Manager Marcus</span> approved <span class="font-mono-data">PI-101</span>
+</p>
+<span class="font-mono-data text-body-sm text-outline">09:15 AM</span>
+</div>
+<p class="font-body-md text-on-surface-variant italic font-light">"Budget allocated from Q3 reserves. Proceed with vendor contact."</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Yesterday Section -->
+<div class="mb-xl">
+<div class="flex items-center gap-md mb-lg">
+<span class="font-label-md uppercase tracking-widest text-outline">Yesterday</span>
+<div class="h-[1px] flex-1 bg-outline-variant"></div>
+</div>
+<!-- Timeline Item 4 -->
+<div class="timeline-item timeline-line relative pb-xl last:pb-0">
+<div class="flex gap-lg">
+<div class="relative z-10">
+<div class="w-12 h-12 rounded-full border-2 border-surface bg-error-container flex items-center justify-center">
+<span class="material-symbols-outlined text-on-error-container" style="font-variation-settings: 'FILL' 1;">warning</span>
+</div>
+</div>
+<div class="flex-1 glass-card p-md rounded-xl shadow-sm border-l-4 border-l-error">
+<div class="flex justify-between items-start mb-xs">
+<p class="font-body-lg text-on-surface">
+                                            Shipment <span class="font-bold text-error">Delayed</span> for PO-900
+                                        </p>
+<span class="font-mono-data text-body-sm text-outline">Yesterday, 17:45 PM</span>
+</div>
+<p class="font-body-md text-on-surface-variant">Logistics partner 'SwiftCargo' reported weather delays at Port of Singapore. New ETA: Oct 24th.</p>
+<button class="mt-md text-error font-label-md hover:underline flex items-center gap-xs">
+<span class="material-symbols-outlined text-[18px]">contact_phone</span>
+                                        Contact Carrier
+                                    </button>
+</div>
+</div>
+</div>
+<!-- Timeline Item 5 -->
+<div class="timeline-item timeline-line relative pb-xl last:pb-0">
+<div class="flex gap-lg">
+<div class="relative z-10">
+<div class="w-12 h-12 rounded-full border-2 border-surface bg-surface-container overflow-hidden">
+<img alt="Kevin avatar" data-alt="Digital representation of a younger procurement assistant with casual professional attire, rendered in a modern flat illustration style compatible with high-end tech dashboards." src="https://lh3.googleusercontent.com/aida/ADBb0uioCT4DTUPIom1Y9btRRComat-EYpCBOPbFYtFHWc8-EWBWL72RDw_Yc629rHhp4y3eVjNDP_mqVIVXAqSZkNUofTpkpI3uT2Djm0J5hXrOLJPdobrf9KLAcemNsgJlF-f-lxt-t1_SH0SOET3Wr8jyXspyEOa05qgCzSMPm-2TOCPu5_7pg-qkiW2Htt2A-5NC8_XxhmN_M2L8N2SM4Oba-RAWNxgDtUI7WNPebrKCe6R7rPKUaOauhnA"/>
+</div>
+</div>
+<div class="flex-1 glass-card p-md rounded-xl shadow-sm transition-all hover:border-outline">
+<div class="flex justify-between items-start mb-xs">
+<p class="font-body-lg text-on-surface">
+<span class="font-bold">Kevin T.</span> requested a quote
+                                        </p>
+<span class="font-mono-data text-body-sm text-outline">Yesterday, 14:10 PM</span>
+</div>
+<p class="font-body-md text-on-surface-variant">RFQ sent to 3 vendors for 'High-Tensile Steel Cables'. Expected response in 48h.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Load More -->
+<div class="flex justify-center py-xl">
+<button class="group flex items-center gap-sm px-xl py-md rounded-full bg-surface-container-high border border-outline-variant hover:bg-surface-container-highest transition-all">
+<span class="material-symbols-outlined group-hover:rotate-180 transition-transform duration-500">expand_more</span>
+<span class="font-label-md">Load older activity</span>
+</button>
+</div>
+</div>
+</section>
+</main>
+<!-- Contextual FAB (Hidden on details per mandate, but relevant for this Main Timeline) -->
+<button class="fixed bottom-lg right-lg h-14 w-14 rounded-full bg-primary-container text-white shadow-xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all z-50">
+<span class="material-symbols-outlined text-[28px]">add</span>
+</button>
+<script>
+        // Micro-interactions for timeline items
+        document.querySelectorAll('.glass-card').forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                card.style.transform = 'translateX(4px)';
+            });
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'translateX(0px)';
+            });
+        });
+
+        // Search bar focus effect
+        const searchInput = document.querySelector('input[type="text"]');
+        searchInput.addEventListener('focus', () => {
+            searchInput.parentElement.classList.add('scale-105');
+            searchInput.parentElement.style.transition = 'all 0.3s ease';
+        });
+        searchInput.addEventListener('blur', () => {
+            searchInput.parentElement.classList.remove('scale-105');
+        });
+    </script>
+</body></html>

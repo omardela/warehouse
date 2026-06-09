@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>LogiCore Pro - Archived Units</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&amp;family=JetBrains+Mono:wght@400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "surface-container": "#171f33",
+                      "on-tertiary-fixed-variant": "#653e00",
+                      "on-background": "#dae2fd",
+                      "on-tertiary-container": "#ffeedd",
+                      "outline-variant": "#434655",
+                      "on-error": "#690005",
+                      "secondary-container": "#1ca64d",
+                      "inverse-surface": "#dae2fd",
+                      "background": "#0b1326",
+                      "tertiary-container": "#996100",
+                      "on-error-container": "#ffdad6",
+                      "primary-fixed-dim": "#b4c5ff",
+                      "on-primary-fixed-variant": "#003ea8",
+                      "secondary": "#62df7d",
+                      "primary": "#b4c5ff",
+                      "surface-container-low": "#131b2e",
+                      "on-secondary-fixed-variant": "#005320",
+                      "on-secondary": "#003914",
+                      "on-surface": "#dae2fd",
+                      "primary-fixed": "#dbe1ff",
+                      "on-tertiary": "#472a00",
+                      "error": "#ffb4ab",
+                      "tertiary-fixed": "#ffddb8",
+                      "surface-container-high": "#222a3d",
+                      "surface-bright": "#31394d",
+                      "on-primary": "#002a78",
+                      "primary-container": "#2563eb",
+                      "surface-variant": "#2d3449",
+                      "inverse-primary": "#0053db",
+                      "secondary-fixed": "#7ffc97",
+                      "outline": "#8d90a0",
+                      "on-tertiary-fixed": "#2a1700",
+                      "surface-tint": "#b4c5ff",
+                      "error-container": "#93000a",
+                      "surface-container-highest": "#2d3449",
+                      "on-surface-variant": "#c3c6d7",
+                      "on-secondary-fixed": "#002109",
+                      "inverse-on-surface": "#283044",
+                      "secondary-fixed-dim": "#62df7d",
+                      "on-primary-container": "#eeefff",
+                      "tertiary-fixed-dim": "#ffb95f",
+                      "surface-container-lowest": "#060e20",
+                      "surface": "#0b1326",
+                      "tertiary": "#ffb95f",
+                      "surface-dim": "#0b1326",
+                      "on-secondary-container": "#003111",
+                      "on-primary-fixed": "#00174b"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "gutter": "24px",
+                      "margin": "32px",
+                      "md": "16px",
+                      "lg": "24px",
+                      "xl": "32px",
+                      "sm": "8px",
+                      "base": "4px",
+                      "xs": "4px"
+              },
+              "fontFamily": {
+                      "h3": ["Inter"],
+                      "h2": ["Inter"],
+                      "body-lg": ["Inter"],
+                      "display": ["Inter"],
+                      "body-sm": ["Inter"],
+                      "mono-data": ["JetBrains Mono"],
+                      "label-md": ["Inter"],
+                      "h1": ["Inter"],
+                      "body-md": ["Inter"]
+              },
+              "fontSize": {
+                      "h3": ["20px", {"lineHeight": "1.4", "fontWeight": "600"}],
+                      "h2": ["24px", {"lineHeight": "1.3", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                      "body-lg": ["16px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                      "display": ["48px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                      "body-sm": ["12px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                      "mono-data": ["13px", {"lineHeight": "1", "letterSpacing": "-0.01em", "fontWeight": "400"}],
+                      "label-md": ["12px", {"lineHeight": "1", "letterSpacing": "0.02em", "fontWeight": "500"}],
+                      "h1": ["32px", {"lineHeight": "1.25", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                      "body-md": ["14px", {"lineHeight": "1.5", "fontWeight": "400"}]
+              }
+            }
+          }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .icon-fill {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        
+        /* Custom Scrollbar for dark theme */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0b1326; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #2d3449; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #434655; 
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md text-body-md h-screen w-screen overflow-hidden flex selection:bg-primary-container selection:text-on-primary-container">
+<!-- SideNavBar Component -->
+<nav class="hidden md:flex flex-col h-screen py-lg px-md gap-xs bg-background dark:bg-background border-r border-outline-variant w-64 flex-shrink-0 z-20">
+<!-- Brand Header -->
+<div class="flex items-center gap-sm px-sm mb-lg">
+<div class="w-10 h-10 rounded-lg bg-primary-container flex items-center justify-center text-on-primary-container shrink-0">
+<span class="material-symbols-outlined icon-fill" data-icon="inventory_2">inventory_2</span>
+</div>
+<div class="flex flex-col">
+<span class="font-h3 text-h3 font-black text-on-background tracking-tight">LogiCore Pro</span>
+<span class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Enterprise ERP</span>
+</div>
+</div>
+<!-- Navigation Links -->
+<div class="flex flex-col gap-xs flex-1 overflow-y-auto">
+<a class="flex items-center gap-md px-sm py-2.5 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-variant transition-all duration-200 active:scale-[0.98] group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors" data-icon="dashboard">dashboard</span>
+<span class="font-body-md text-body-md">Dashboard</span>
+</a>
+<a class="flex items-center gap-md px-sm py-2.5 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-variant transition-all duration-200 active:scale-[0.98] group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors" data-icon="inventory_2">inventory_2</span>
+<span class="font-body-md text-body-md">Products</span>
+</a>
+<a class="flex items-center gap-md px-sm py-2.5 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-variant transition-all duration-200 active:scale-[0.98] group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors" data-icon="shelves">shelves</span>
+<span class="font-body-md text-body-md">Inventory</span>
+</a>
+<a class="flex items-center gap-md px-sm py-2.5 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-variant transition-all duration-200 active:scale-[0.98] group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors" data-icon="payments">payments</span>
+<span class="font-body-md text-body-md">Sales</span>
+</a>
+<a class="flex items-center gap-md px-sm py-2.5 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-variant transition-all duration-200 active:scale-[0.98] group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors" data-icon="shopping_cart">shopping_cart</span>
+<span class="font-body-md text-body-md">Purchases</span>
+</a>
+<a class="flex items-center gap-md px-sm py-2.5 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-variant transition-all duration-200 active:scale-[0.98] group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors" data-icon="group">group</span>
+<span class="font-body-md text-body-md">Customers</span>
+</a>
+<a class="flex items-center gap-md px-sm py-2.5 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-variant transition-all duration-200 active:scale-[0.98] group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors" data-icon="factory">factory</span>
+<span class="font-body-md text-body-md">Suppliers</span>
+</a>
+<a class="flex items-center gap-md px-sm py-2.5 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-variant transition-all duration-200 active:scale-[0.98] group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors" data-icon="badge">badge</span>
+<span class="font-body-md text-body-md">Employees</span>
+</a>
+<a class="flex items-center gap-md px-sm py-2.5 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-variant transition-all duration-200 active:scale-[0.98] group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors" data-icon="warehouse">warehouse</span>
+<span class="font-body-md text-body-md">Warehouses</span>
+</a>
+<a class="flex items-center gap-md px-sm py-2.5 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-variant transition-all duration-200 active:scale-[0.98] group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors" data-icon="assessment">assessment</span>
+<span class="font-body-md text-body-md">Reports</span>
+</a>
+<a class="flex items-center gap-md px-sm py-2.5 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-variant transition-all duration-200 active:scale-[0.98] group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors" data-icon="history">history</span>
+<span class="font-body-md text-body-md">Audit Logs</span>
+</a>
+<a class="flex items-center gap-md px-sm py-2.5 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-variant transition-all duration-200 active:scale-[0.98] group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors" data-icon="security">security</span>
+<span class="font-body-md text-body-md">Roles</span>
+</a>
+<!-- Active Tab: Settings -->
+<a class="flex items-center gap-md px-sm py-2.5 bg-secondary-container text-on-secondary-container rounded-lg font-semibold active:scale-[0.98] shadow-sm" href="#">
+<span class="material-symbols-outlined icon-fill" data-icon="settings">settings</span>
+<span class="font-body-md text-body-md">Settings</span>
+</a>
+</div>
+<!-- CTA -->
+<div class="mt-auto pt-md border-t border-outline-variant">
+<button class="w-full flex items-center justify-center gap-sm bg-primary-container text-on-primary-container font-label-md text-label-md py-2.5 rounded-lg hover:bg-blue-700 transition-colors shadow-sm active:scale-95">
+<span class="material-symbols-outlined text-[18px]" data-icon="qr_code_scanner">qr_code_scanner</span>
+                Quick Scan
+            </button>
+</div>
+</nav>
+<!-- Main Content Canvas -->
+<div class="flex flex-col flex-1 h-screen w-full overflow-hidden bg-background relative">
+<!-- TopNavBar Component -->
+<header class="flex justify-between items-center w-full px-lg py-sm bg-surface-container dark:bg-surface-container shadow-sm z-10 flex-shrink-0 min-h-[64px]">
+<!-- Left Side: Search (as per JSON search_bar: "on_left") -->
+<div class="flex items-center gap-md flex-1 max-w-md">
+<div class="relative w-full">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+<input class="w-full bg-background border border-outline-variant rounded-full py-2 pl-10 pr-4 text-body-sm font-body-sm text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all placeholder:text-on-surface-variant" placeholder="Search operations..." type="text"/>
+</div>
+</div>
+<!-- Right Side: Actions -->
+<div class="flex items-center gap-sm">
+<button class="p-2 text-on-surface-variant hover:bg-surface-variant transition-colors rounded-full active:scale-95 transition-transform flex items-center justify-center relative">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+<span class="absolute top-1.5 right-1.5 w-2 h-2 bg-error rounded-full border border-surface-container"></span>
+</button>
+<button class="p-2 text-on-surface-variant hover:bg-surface-variant transition-colors rounded-full active:scale-95 transition-transform flex items-center justify-center">
+<span class="material-symbols-outlined" data-icon="apps">apps</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:bg-surface-variant transition-colors rounded-full active:scale-95 transition-transform flex items-center justify-center">
+<span class="material-symbols-outlined" data-icon="warehouse">warehouse</span>
+</button>
+<div class="h-6 w-px bg-outline-variant mx-2"></div>
+<button class="flex items-center gap-2 pl-2 pr-1 py-1 rounded-full hover:bg-surface-variant transition-colors border border-transparent hover:border-outline-variant active:scale-95">
+<div class="w-8 h-8 rounded-full bg-primary-fixed-dim border border-outline-variant flex items-center justify-center overflow-hidden shrink-0">
+<img alt="User profile and warehouse switcher" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida/ADBb0uhwQ9i4fEP_DlrdwepDy51LJNkvZX9qRgRm7RbFniCW2hTf-0F2uUHCOTCQ28OdEC09nSu85gh2tq5jx3WZoySjSpfIJCQxThLje0PF3lK30Oz8FKBNuur43-6sfZJlDUU5g0rJzM87B8POSeA076CMD2BMbg59Y3qUJ5J9PHhiX6LzZ7x5oeFT3RT4Rmhg8hhed-BB95YdZD4KEB-BcOti-Xi2nNNwUOD4jA43Pqq5oX3d9LCYbUgzRbRr"/>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant text-[20px]">expand_more</span>
+</button>
+</div>
+</header>
+<!-- Page Content -->
+<main class="flex-1 overflow-y-auto p-lg lg:p-xl bg-surface-dim">
+<div class="max-w-7xl mx-auto flex flex-col gap-lg">
+<!-- Header Section -->
+<div class="flex flex-col md:flex-row md:items-start justify-between gap-md mb-md">
+<div class="flex flex-col gap-xs">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-outline text-[28px]">archive</span>
+<h1 class="font-h1 text-h1 text-on-background">Archived Units</h1>
+</div>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl">
+                            View and restore previously used measurement units. Archived units are hidden from active selection menus but remain attached to historical product records to ensure data integrity.
+                        </p>
+</div>
+<div class="flex items-center gap-3 shrink-0">
+<button class="flex items-center gap-2 px-4 py-2 bg-surface-container border border-outline-variant text-on-surface rounded-lg hover:bg-surface-variant transition-colors font-label-md text-label-md shadow-sm active:scale-95">
+<span class="material-symbols-outlined text-[18px]">arrow_back</span>
+                            Back to Units
+                        </button>
+</div>
+</div>
+<!-- Filters & Search Toolbar -->
+<div class="flex flex-col sm:flex-row items-center justify-between gap-md p-md bg-surface-container border border-outline-variant rounded-xl shadow-sm">
+<div class="relative w-full sm:w-96">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[20px]">search</span>
+<input class="w-full bg-background border border-outline-variant rounded-lg py-2 pl-10 pr-4 text-body-md font-body-md text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all placeholder:text-outline" placeholder="Search archived units by name or symbol..." type="text"/>
+</div>
+<div class="flex items-center gap-3 w-full sm:w-auto">
+<button class="flex items-center gap-2 px-3 py-2 bg-background border border-outline-variant text-on-surface-variant rounded-lg hover:text-on-surface hover:bg-surface-variant transition-colors font-label-md text-label-md w-full sm:w-auto justify-center">
+<span class="material-symbols-outlined text-[18px]">filter_list</span>
+                            Filter
+                        </button>
+</div>
+</div>
+<!-- Data Table Card -->
+<div class="bg-surface-container border border-outline-variant rounded-xl shadow-sm overflow-hidden flex flex-col">
+<div class="overflow-x-auto w-full">
+<table class="w-full text-left border-collapse whitespace-nowrap">
+<thead>
+<tr class="bg-surface-container-high border-b border-outline-variant">
+<th class="px-md py-3 font-label-md text-label-md text-on-surface-variant font-semibold sticky left-0 bg-surface-container-high z-10 w-64">Unit Name</th>
+<th class="px-md py-3 font-label-md text-label-md text-on-surface-variant font-semibold w-32">Symbol</th>
+<th class="px-md py-3 font-label-md text-label-md text-on-surface-variant font-semibold w-40">Date Archived</th>
+<th class="px-md py-3 font-label-md text-label-md text-on-surface-variant font-semibold min-w-[200px]">Reason for Archive</th>
+<th class="px-md py-3 font-label-md text-label-md text-on-surface-variant font-semibold text-right w-32">Products Count</th>
+<th class="px-md py-3 font-label-md text-label-md text-on-surface-variant font-semibold text-right w-32">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant/50">
+<!-- Row 1 (Dimmed/Muted Style) -->
+<tr class="bg-background/40 hover:bg-surface-variant/50 transition-colors group">
+<td class="px-md py-3 sticky left-0 bg-background/40 group-hover:bg-surface-variant/50 transition-colors">
+<div class="flex flex-col">
+<span class="font-body-md text-body-md text-on-surface-variant font-medium">Ounces (Fluid)</span>
+<span class="font-body-sm text-body-sm text-outline">System ID: U-1042</span>
+</div>
+</td>
+<td class="px-md py-3">
+<span class="inline-flex items-center px-2 py-1 rounded bg-surface-variant text-outline font-mono-data text-mono-data border border-outline-variant/50">fl oz</span>
+</td>
+<td class="px-md py-3 font-body-sm text-body-sm text-on-surface-variant">Oct 12, 2023</td>
+<td class="px-md py-3 font-body-sm text-body-sm text-outline truncate max-w-[250px]" title="Standardized to metric system globally">Standardized to metric system globally</td>
+<td class="px-md py-3 font-mono-data text-mono-data text-outline text-right">412</td>
+<td class="px-md py-3 text-right">
+<div class="flex items-center justify-end gap-1">
+<button class="p-1.5 text-outline hover:text-primary hover:bg-primary/10 rounded-md transition-colors" title="Restore Unit">
+<span class="material-symbols-outlined text-[18px]">unarchive</span>
+</button>
+<button class="p-1.5 text-outline hover:text-on-surface hover:bg-surface-variant rounded-md transition-colors" title="View History">
+<span class="material-symbols-outlined text-[18px]">history</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="bg-background/40 hover:bg-surface-variant/50 transition-colors group">
+<td class="px-md py-3 sticky left-0 bg-background/40 group-hover:bg-surface-variant/50 transition-colors">
+<div class="flex flex-col">
+<span class="font-body-md text-body-md text-on-surface-variant font-medium">Pounds</span>
+<span class="font-body-sm text-body-sm text-outline">System ID: U-1021</span>
+</div>
+</td>
+<td class="px-md py-3">
+<span class="inline-flex items-center px-2 py-1 rounded bg-surface-variant text-outline font-mono-data text-mono-data border border-outline-variant/50">lbs</span>
+</td>
+<td class="px-md py-3 font-body-sm text-body-sm text-on-surface-variant">Sep 04, 2023</td>
+<td class="px-md py-3 font-body-sm text-body-sm text-outline truncate max-w-[250px]" title="Migrated entirely to Kilograms per new compliance guidelines">Migrated entirely to Kilograms...</td>
+<td class="px-md py-3 font-mono-data text-mono-data text-outline text-right">1,204</td>
+<td class="px-md py-3 text-right">
+<div class="flex items-center justify-end gap-1">
+<button class="p-1.5 text-outline hover:text-primary hover:bg-primary/10 rounded-md transition-colors" title="Restore Unit">
+<span class="material-symbols-outlined text-[18px]">unarchive</span>
+</button>
+<button class="p-1.5 text-outline hover:text-on-surface hover:bg-surface-variant rounded-md transition-colors" title="View History">
+<span class="material-symbols-outlined text-[18px]">history</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="bg-background/40 hover:bg-surface-variant/50 transition-colors group">
+<td class="px-md py-3 sticky left-0 bg-background/40 group-hover:bg-surface-variant/50 transition-colors">
+<div class="flex flex-col">
+<span class="font-body-md text-body-md text-on-surface-variant font-medium">Gallons (US)</span>
+<span class="font-body-sm text-body-sm text-outline">System ID: U-1088</span>
+</div>
+</td>
+<td class="px-md py-3">
+<span class="inline-flex items-center px-2 py-1 rounded bg-surface-variant text-outline font-mono-data text-mono-data border border-outline-variant/50">gal</span>
+</td>
+<td class="px-md py-3 font-body-sm text-body-sm text-on-surface-variant">Aug 19, 2023</td>
+<td class="px-md py-3 font-body-sm text-body-sm text-outline truncate max-w-[250px]" title="Standardized to Liters">Standardized to Liters</td>
+<td class="px-md py-3 font-mono-data text-mono-data text-outline text-right">89</td>
+<td class="px-md py-3 text-right">
+<div class="flex items-center justify-end gap-1">
+<button class="p-1.5 text-outline hover:text-primary hover:bg-primary/10 rounded-md transition-colors" title="Restore Unit">
+<span class="material-symbols-outlined text-[18px]">unarchive</span>
+</button>
+<button class="p-1.5 text-outline hover:text-on-surface hover:bg-surface-variant rounded-md transition-colors" title="View History">
+<span class="material-symbols-outlined text-[18px]">history</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 4 -->
+<tr class="bg-background/40 hover:bg-surface-variant/50 transition-colors group">
+<td class="px-md py-3 sticky left-0 bg-background/40 group-hover:bg-surface-variant/50 transition-colors">
+<div class="flex flex-col">
+<span class="font-body-md text-body-md text-on-surface-variant font-medium">Dozen</span>
+<span class="font-body-sm text-body-sm text-outline">System ID: U-0045</span>
+</div>
+</td>
+<td class="px-md py-3">
+<span class="inline-flex items-center px-2 py-1 rounded bg-surface-variant text-outline font-mono-data text-mono-data border border-outline-variant/50">doz</span>
+</td>
+<td class="px-md py-3 font-body-sm text-body-sm text-on-surface-variant">Jun 11, 2022</td>
+<td class="px-md py-3 font-body-sm text-body-sm text-outline truncate max-w-[250px]" title="Replaced by individual 'Piece' count for better granularity">Replaced by individual 'Piece'...</td>
+<td class="px-md py-3 font-mono-data text-mono-data text-outline text-right">0</td>
+<td class="px-md py-3 text-right">
+<div class="flex items-center justify-end gap-1">
+<button class="p-1.5 text-outline hover:text-primary hover:bg-primary/10 rounded-md transition-colors" title="Restore Unit">
+<span class="material-symbols-outlined text-[18px]">unarchive</span>
+</button>
+<button class="p-1.5 text-outline hover:text-on-surface hover:bg-surface-variant rounded-md transition-colors" title="View History">
+<span class="material-symbols-outlined text-[18px]">history</span>
+</button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Table Footer / Pagination -->
+<div class="flex items-center justify-between px-md py-3 bg-surface-container border-t border-outline-variant text-body-sm font-body-sm text-on-surface-variant">
+<span>Showing 1 to 4 of 4 archived units</span>
+<div class="flex items-center gap-1">
+<button class="p-1 rounded text-outline hover:text-on-surface hover:bg-surface-variant disabled:opacity-50 disabled:cursor-not-allowed" disabled="">
+<span class="material-symbols-outlined text-[18px]">chevron_left</span>
+</button>
+<button class="p-1 rounded text-outline hover:text-on-surface hover:bg-surface-variant disabled:opacity-50 disabled:cursor-not-allowed" disabled="">
+<span class="material-symbols-outlined text-[18px]">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>

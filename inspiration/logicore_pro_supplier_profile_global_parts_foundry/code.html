@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Supplier Profile | LogiCore Pro</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #434655; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #8d90a0; }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "background": "#0b1326",
+                        "tertiary-container": "#996100",
+                        "inverse-surface": "#dae2fd",
+                        "on-secondary-container": "#003111",
+                        "inverse-on-surface": "#283044",
+                        "on-secondary": "#003914",
+                        "surface-dim": "#0b1326",
+                        "on-error": "#690005",
+                        "outline": "#8d90a0",
+                        "surface-container": "#171f33",
+                        "on-tertiary-fixed": "#2a1700",
+                        "on-primary-container": "#eeefff",
+                        "on-error-container": "#ffdad6",
+                        "surface-tint": "#b4c5ff",
+                        "on-background": "#dae2fd",
+                        "primary-container": "#2563eb",
+                        "inverse-primary": "#0053db",
+                        "surface-container-highest": "#2d3449",
+                        "surface-container-high": "#222a3d",
+                        "primary": "#b4c5ff",
+                        "on-primary-fixed": "#00174b",
+                        "outline-variant": "#434655",
+                        "on-tertiary": "#472a00",
+                        "tertiary-fixed-dim": "#ffb95f",
+                        "on-secondary-fixed-variant": "#005320",
+                        "tertiary": "#ffb95f",
+                        "surface": "#0b1326",
+                        "secondary-fixed": "#7ffc97",
+                        "primary-fixed": "#dbe1ff",
+                        "surface-bright": "#31394d",
+                        "on-surface": "#dae2fd",
+                        "surface-variant": "#2d3449",
+                        "on-tertiary-container": "#ffeedd",
+                        "secondary": "#62df7d",
+                        "on-secondary-fixed": "#002109",
+                        "surface-container-lowest": "#060e20",
+                        "on-primary-fixed-variant": "#003ea8",
+                        "error-container": "#93000a",
+                        "error": "#ffb4ab",
+                        "surface-container-low": "#131b2e",
+                        "secondary-fixed-dim": "#62df7d",
+                        "primary-fixed-dim": "#b4c5ff",
+                        "on-surface-variant": "#c3c6d7",
+                        "tertiary-fixed": "#ffddb8",
+                        "on-tertiary-fixed-variant": "#653e00",
+                        "secondary-container": "#1ca64d",
+                        "on-primary": "#002a78"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "xl": "32px",
+                        "xs": "4px",
+                        "sm": "8px",
+                        "margin": "32px",
+                        "md": "16px",
+                        "lg": "24px",
+                        "gutter": "24px",
+                        "base": "4px"
+                    },
+                    "fontFamily": {
+                        "display": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "h3": ["Inter"],
+                        "label-md": ["Inter"],
+                        "h2": ["Inter"],
+                        "body-sm": ["Inter"],
+                        "body-md": ["Inter"],
+                        "h1": ["Inter"],
+                        "mono-data": ["JetBrains Mono"]
+                    },
+                    "fontSize": {
+                        "display": ["48px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "body-lg": ["16px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                        "h3": ["20px", {"lineHeight": "1.4", "fontWeight": "600"}],
+                        "label-md": ["12px", {"lineHeight": "1", "letterSpacing": "0.02em", "fontWeight": "500"}],
+                        "h2": ["24px", {"lineHeight": "1.3", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "body-sm": ["12px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                        "body-md": ["14px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                        "h1": ["32px", {"lineHeight": "1.25", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "mono-data": ["13px", {"lineHeight": "1", "letterSpacing": "-0.01em", "fontWeight": "400"}]
+                    }
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-background text-on-surface font-body-md min-h-screen overflow-x-hidden selection:bg-primary-container selection:text-on-primary-container">
+<!-- TopNavBar -->
+<header class="flex justify-between items-center h-16 px-gutter w-full sticky top-0 z-50 bg-surface dark:bg-surface border-b border-outline-variant shadow-sm">
+<div class="flex items-center gap-md">
+<h1 class="font-display text-h2 font-bold text-primary">LogiCore Pro</h1>
+<div class="hidden md:flex ml-lg gap-lg">
+<nav class="flex gap-md h-full items-center">
+<a class="text-on-surface-variant font-medium hover:text-primary transition-colors duration-200 cursor-pointer" href="#">Dashboard</a>
+<a class="text-on-surface-variant font-medium hover:text-primary transition-colors duration-200 cursor-pointer" href="#">Inventory</a>
+<a class="text-primary font-semibold border-b-2 border-primary py-xs cursor-pointer" href="#">Suppliers</a>
+</nav>
+</div>
+</div>
+<div class="flex items-center gap-md">
+<div class="relative hidden sm:block">
+<span class="material-symbols-outlined absolute left-sm top-1/2 -translate-y-1/2 text-on-surface-variant text-body-md" data-icon="search">search</span>
+<input class="bg-surface-container text-on-surface text-body-md pl-xl pr-md py-xs rounded-lg border border-outline-variant focus:outline-none focus:ring-2 focus:ring-primary-container w-64" placeholder="Global search..." type="text"/>
+</div>
+<div class="flex gap-sm">
+<button class="p-xs hover:bg-surface-container-high rounded-full transition-colors cursor-pointer text-on-surface-variant active:opacity-70">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="p-xs hover:bg-surface-container-high rounded-full transition-colors cursor-pointer text-on-surface-variant active:opacity-70">
+<span class="material-symbols-outlined" data-icon="help">help</span>
+</button>
+<button class="p-xs hover:bg-surface-container-high rounded-full transition-colors cursor-pointer text-on-surface-variant active:opacity-70">
+<span class="material-symbols-outlined" data-icon="account_circle">account_circle</span>
+</button>
+</div>
+</div>
+</header>
+<div class="flex">
+<!-- SideNavBar -->
+<aside class="fixed left-0 top-0 h-screen w-64 flex flex-col p-md z-40 bg-surface-container-lowest dark:bg-surface-container-lowest border-r border-outline-variant hidden md:flex pt-20">
+<div class="mb-lg px-sm">
+<p class="font-display text-h3 font-bold text-on-surface">Operations</p>
+<p class="font-body-sm text-on-surface-variant">Global Operations</p>
+</div>
+<nav class="flex flex-col gap-xs flex-grow overflow-y-auto">
+<div class="flex items-center gap-md p-sm text-on-surface-variant hover:bg-surface-container-high rounded-lg cursor-pointer transition-all duration-150 active:scale-[0.98]">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-body-sm">Dashboard</span>
+</div>
+<div class="flex items-center gap-md p-sm text-on-surface-variant hover:bg-surface-container-high rounded-lg cursor-pointer transition-all duration-150 active:scale-[0.98]">
+<span class="material-symbols-outlined" data-icon="inventory_2">inventory_2</span>
+<span class="font-body-sm">Products</span>
+</div>
+<div class="flex items-center gap-md p-sm text-on-surface-variant hover:bg-surface-container-high rounded-lg cursor-pointer transition-all duration-150 active:scale-[0.98]">
+<span class="material-symbols-outlined" data-icon="warehouse">warehouse</span>
+<span class="font-body-sm">Inventory</span>
+</div>
+<div class="flex items-center gap-md p-sm text-on-surface-variant hover:bg-surface-container-high rounded-lg cursor-pointer transition-all duration-150 active:scale-[0.98]">
+<span class="material-symbols-outlined" data-icon="payments">payments</span>
+<span class="font-body-sm">Sales</span>
+</div>
+<div class="flex items-center gap-md p-sm text-on-surface-variant hover:bg-surface-container-high rounded-lg cursor-pointer transition-all duration-150 active:scale-[0.98]">
+<span class="material-symbols-outlined" data-icon="shopping_cart">shopping_cart</span>
+<span class="font-body-sm">Purchases</span>
+</div>
+<div class="flex items-center gap-md p-sm text-on-surface-variant hover:bg-surface-container-high rounded-lg cursor-pointer transition-all duration-150 active:scale-[0.98]">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+<span class="font-body-sm">Customers</span>
+</div>
+<div class="flex items-center gap-md p-sm bg-secondary-container text-on-secondary-container font-semibold rounded-lg cursor-pointer transition-all duration-150 active:scale-[0.98]">
+<span class="material-symbols-outlined" data-icon="local_shipping">local_shipping</span>
+<span class="font-body-sm">Suppliers</span>
+</div>
+<div class="flex items-center gap-md p-sm text-on-surface-variant hover:bg-surface-container-high rounded-lg cursor-pointer transition-all duration-150 active:scale-[0.98]">
+<span class="material-symbols-outlined" data-icon="badge">badge</span>
+<span class="font-body-sm">Employees</span>
+</div>
+<div class="flex items-center gap-md p-sm text-on-surface-variant hover:bg-surface-container-high rounded-lg cursor-pointer transition-all duration-150 active:scale-[0.98]">
+<span class="material-symbols-outlined" data-icon="bar_chart">bar_chart</span>
+<span class="font-body-sm">Reports</span>
+</div>
+<div class="flex items-center gap-md p-sm text-on-surface-variant hover:bg-surface-container-high rounded-lg cursor-pointer transition-all duration-150 active:scale-[0.98]">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-body-sm">Settings</span>
+</div>
+</nav>
+</aside>
+<!-- Main Content Canvas -->
+<main class="flex-grow md:ml-64 p-lg bg-background min-h-screen">
+<!-- Breadcrumbs -->
+<div class="flex items-center gap-xs text-on-surface-variant font-label-md mb-md">
+<span>Network</span>
+<span class="material-symbols-outlined text-[14px]" data-icon="chevron_right">chevron_right</span>
+<span>Suppliers</span>
+<span class="material-symbols-outlined text-[14px]" data-icon="chevron_right">chevron_right</span>
+<span class="text-primary">Global Parts Foundry</span>
+</div>
+<!-- Profile Header -->
+<div class="bg-surface-container-low border border-outline-variant p-lg rounded-xl mb-lg shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-md relative overflow-hidden">
+<div class="absolute top-0 right-0 p-lg opacity-10">
+<span class="material-symbols-outlined text-[120px]" data-icon="precision_manufacturing">precision_manufacturing</span>
+</div>
+<div class="flex items-center gap-lg relative z-10">
+<div class="w-16 h-16 rounded-lg bg-primary-container flex items-center justify-center text-on-primary-container">
+<span class="material-symbols-outlined text-[40px]" data-icon="factory">factory</span>
+</div>
+<div>
+<div class="flex items-center gap-sm">
+<h2 class="font-display text-h1 font-bold text-on-surface leading-tight">Global Parts Foundry</h2>
+<span class="bg-secondary-container/20 text-secondary text-label-md px-sm py-xs rounded-full border border-secondary-container/40">Active</span>
+</div>
+<div class="flex items-center gap-md mt-xs">
+<span class="font-mono-data text-on-surface-variant">SUP-ID: GPF-2024-X89</span>
+<span class="w-1 h-1 bg-outline rounded-full"></span>
+<span class="text-on-surface-variant font-body-sm">Tier 1 Strategic Partner</span>
+</div>
+</div>
+</div>
+<div class="flex gap-sm relative z-10">
+<button class="bg-surface-container-highest text-on-surface px-md py-sm rounded-lg border border-outline-variant font-body-md hover:bg-surface-bright transition-colors cursor-pointer active:scale-95 flex items-center gap-xs">
+<span class="material-symbols-outlined" data-icon="edit">edit</span>
+                        Edit Profile
+                    </button>
+<button class="bg-primary-container text-on-primary-container px-md py-sm rounded-lg font-body-md hover:opacity-90 transition-colors cursor-pointer active:scale-95 flex items-center gap-xs shadow-md">
+<span class="material-symbols-outlined" data-icon="add_shopping_cart">add_shopping_cart</span>
+                        New PO
+                    </button>
+</div>
+</div>
+<!-- KPI Row -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-md mb-lg">
+<div class="bg-surface-container p-md rounded-xl border border-outline-variant shadow-sm hover:border-primary/50 transition-colors">
+<div class="flex justify-between items-start mb-sm">
+<span class="text-on-surface-variant font-label-md uppercase tracking-wider">Total Purchases</span>
+<span class="material-symbols-outlined text-primary" data-icon="account_balance_wallet">account_balance_wallet</span>
+</div>
+<div class="font-mono-data text-h2 font-bold text-on-surface">$210,000.00</div>
+<div class="mt-xs flex items-center gap-xs text-secondary text-label-md">
+<span class="material-symbols-outlined text-[14px]" data-icon="trending_up">trending_up</span>
+<span>12.5% vs last year</span>
+</div>
+</div>
+<div class="bg-surface-container p-md rounded-xl border border-outline-variant shadow-sm hover:border-primary/50 transition-colors">
+<div class="flex justify-between items-start mb-sm">
+<span class="text-on-surface-variant font-label-md uppercase tracking-wider">Number of Orders</span>
+<span class="material-symbols-outlined text-primary" data-icon="receipt_long">receipt_long</span>
+</div>
+<div class="font-mono-data text-h2 font-bold text-on-surface">42</div>
+<div class="mt-xs text-on-surface-variant text-label-md">Avg. $5,000 per order</div>
+</div>
+<div class="bg-surface-container p-md rounded-xl border border-outline-variant shadow-sm hover:border-error/50 transition-colors">
+<div class="flex justify-between items-start mb-sm">
+<span class="text-on-surface-variant font-label-md uppercase tracking-wider">Outstanding Payables</span>
+<span class="material-symbols-outlined text-error" data-icon="pending_actions">pending_actions</span>
+</div>
+<div class="font-mono-data text-h2 font-bold text-error">$12,500.00</div>
+<div class="mt-xs text-on-surface-variant text-label-md">Next due: Oct 28, 2024</div>
+</div>
+<div class="bg-surface-container p-md rounded-xl border border-outline-variant shadow-sm hover:border-primary/50 transition-colors">
+<div class="flex justify-between items-start mb-sm">
+<span class="text-on-surface-variant font-label-md uppercase tracking-wider">Last Transaction</span>
+<span class="material-symbols-outlined text-primary" data-icon="calendar_today">calendar_today</span>
+</div>
+<div class="font-mono-data text-h2 font-bold text-on-surface">Oct 14, 2024</div>
+<div class="mt-xs text-on-surface-variant text-label-md">3 days ago</div>
+</div>
+</div>
+<!-- Bento Layout Content -->
+<div class="grid grid-cols-12 gap-lg">
+<!-- Left Column: Info Cards -->
+<div class="col-span-12 lg:col-span-4 flex flex-col gap-lg">
+<!-- Supplier Info -->
+<div class="bg-surface-container-low border border-outline-variant rounded-xl p-md">
+<div class="flex items-center gap-sm mb-md pb-sm border-b border-outline-variant">
+<span class="material-symbols-outlined text-primary" data-icon="info">info</span>
+<h3 class="font-h3 text-on-surface">Supplier Info</h3>
+</div>
+<div class="space-y-md">
+<div class="group">
+<label class="text-label-md text-on-surface-variant block mb-1">Company Entity</label>
+<p class="text-body-md text-on-surface">Global Parts Foundry, LLC</p>
+</div>
+<div>
+<label class="text-label-md text-on-surface-variant block mb-1">Tax ID / VAT</label>
+<p class="font-mono-data text-on-surface">US-98-3441092</p>
+</div>
+<div>
+<label class="text-label-md text-on-surface-variant block mb-1">Primary Category</label>
+<p class="text-body-md text-on-surface">Precision Mechanical Components</p>
+</div>
+<div>
+<label class="text-label-md text-on-surface-variant block mb-1">Payment Terms</label>
+<p class="text-body-md text-on-surface">Net 30, Wire Transfer</p>
+</div>
+</div>
+</div>
+<!-- Contact Info -->
+<div class="bg-surface-container-low border border-outline-variant rounded-xl p-md">
+<div class="flex items-center gap-sm mb-md pb-sm border-b border-outline-variant">
+<span class="material-symbols-outlined text-primary" data-icon="contact_mail">contact_mail</span>
+<h3 class="font-h3 text-on-surface">Contact Details</h3>
+</div>
+<div class="space-y-md">
+<div class="flex items-start gap-md">
+<div class="p-xs bg-surface-container-highest rounded text-on-surface-variant">
+<span class="material-symbols-outlined text-[20px]" data-icon="person">person</span>
+</div>
+<div>
+<p class="text-body-md font-semibold text-on-surface">Elena Rodriguez</p>
+<p class="text-body-sm text-on-surface-variant">Key Account Manager</p>
+</div>
+</div>
+<div class="flex items-start gap-md">
+<div class="p-xs bg-surface-container-highest rounded text-on-surface-variant">
+<span class="material-symbols-outlined text-[20px]" data-icon="alternate_email">alternate_email</span>
+</div>
+<div>
+<p class="text-body-md text-on-surface">e.rodriguez@partsfoundry.com</p>
+</div>
+</div>
+<div class="flex items-start gap-md">
+<div class="p-xs bg-surface-container-highest rounded text-on-surface-variant">
+<span class="material-symbols-outlined text-[20px]" data-icon="call">call</span>
+</div>
+<div>
+<p class="text-body-md text-on-surface">+1 (555) 012-9984</p>
+</div>
+</div>
+<div class="flex items-start gap-md">
+<div class="p-xs bg-surface-container-highest rounded text-on-surface-variant">
+<span class="material-symbols-outlined text-[20px]" data-icon="location_on">location_on</span>
+</div>
+<div>
+<p class="text-body-sm text-on-surface">1800 Silicon Parkway, Suite 200<br/>Austin, TX 78701, USA</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Purchase Summary Chart Placeholder -->
+<div class="bg-surface-container-low border border-outline-variant rounded-xl p-md flex-grow min-h-[200px] flex flex-col">
+<div class="flex justify-between items-center mb-md">
+<h3 class="font-h3 text-on-surface">Volume Trend</h3>
+<span class="text-label-md text-on-surface-variant">Last 6 Months</span>
+</div>
+<div class="flex-grow flex items-end gap-xs py-md">
+<div class="flex-grow bg-primary/20 hover:bg-primary transition-colors h-1/4 rounded-t" title="May: $12k"></div>
+<div class="flex-grow bg-primary/20 hover:bg-primary transition-colors h-2/4 rounded-t" title="Jun: $22k"></div>
+<div class="flex-grow bg-primary/20 hover:bg-primary transition-colors h-3/4 rounded-t" title="Jul: $35k"></div>
+<div class="flex-grow bg-primary/40 hover:bg-primary transition-colors h-2/4 rounded-t" title="Aug: $18k"></div>
+<div class="flex-grow bg-primary/20 hover:bg-primary transition-colors h-full rounded-t" title="Sep: $48k"></div>
+<div class="flex-grow bg-primary hover:bg-primary transition-colors h-4/6 rounded-t" title="Oct: $32k (Current)"></div>
+</div>
+</div>
+</div>
+<!-- Right Column: Tables and Timelines -->
+<div class="col-span-12 lg:col-span-8 flex flex-col gap-lg">
+<!-- Recent Purchase Orders Table -->
+<div class="bg-surface-container-low border border-outline-variant rounded-xl overflow-hidden shadow-sm">
+<div class="p-md flex justify-between items-center border-b border-outline-variant bg-surface-container-high/50">
+<h3 class="font-h3 text-on-surface">Recent Purchase Orders</h3>
+<button class="text-primary font-label-md hover:underline cursor-pointer">View All Orders</button>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container text-on-surface-variant font-label-md uppercase tracking-wide">
+<th class="px-md py-sm font-medium border-b border-outline-variant">Order ID</th>
+<th class="px-md py-sm font-medium border-b border-outline-variant">Date</th>
+<th class="px-md py-sm font-medium border-b border-outline-variant">Status</th>
+<th class="px-md py-sm font-medium border-b border-outline-variant text-right">Items</th>
+<th class="px-md py-sm font-medium border-b border-outline-variant text-right">Total</th>
+<th class="px-md py-sm font-medium border-b border-outline-variant"></th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant">
+<tr class="hover:bg-surface-container-high transition-colors">
+<td class="px-md py-md font-mono-data text-primary">PO-2024-1182</td>
+<td class="px-md py-md text-on-surface-variant">Oct 14, 2024</td>
+<td class="px-md py-md">
+<span class="bg-tertiary-container/10 text-tertiary-fixed-dim px-sm py-1 rounded text-[11px] font-bold uppercase tracking-tighter border border-tertiary-container/30">In Transit</span>
+</td>
+<td class="px-md py-md text-right text-on-surface-variant">12</td>
+<td class="px-md py-md text-right font-mono-data font-semibold text-on-surface">$8,450.00</td>
+<td class="px-md py-md text-right">
+<button class="material-symbols-outlined text-on-surface-variant hover:text-on-surface transition-colors" data-icon="more_vert">more_vert</button>
+</td>
+</tr>
+<tr class="hover:bg-surface-container-high transition-colors">
+<td class="px-md py-md font-mono-data text-primary">PO-2024-1045</td>
+<td class="px-md py-md text-on-surface-variant">Sep 28, 2024</td>
+<td class="px-md py-md">
+<span class="bg-secondary-container/10 text-secondary px-sm py-1 rounded text-[11px] font-bold uppercase tracking-tighter border border-secondary-container/30">Delivered</span>
+</td>
+<td class="px-md py-md text-right text-on-surface-variant">4</td>
+<td class="px-md py-md text-right font-mono-data font-semibold text-on-surface">$12,500.00</td>
+<td class="px-md py-md text-right">
+<button class="material-symbols-outlined text-on-surface-variant hover:text-on-surface transition-colors" data-icon="more_vert">more_vert</button>
+</td>
+</tr>
+<tr class="hover:bg-surface-container-high transition-colors">
+<td class="px-md py-md font-mono-data text-primary">PO-2024-0912</td>
+<td class="px-md py-md text-on-surface-variant">Sep 15, 2024</td>
+<td class="px-md py-md">
+<span class="bg-secondary-container/10 text-secondary px-sm py-1 rounded text-[11px] font-bold uppercase tracking-tighter border border-secondary-container/30">Delivered</span>
+</td>
+<td class="px-md py-md text-right text-on-surface-variant">28</td>
+<td class="px-md py-md text-right font-mono-data font-semibold text-on-surface">$3,120.50</td>
+<td class="px-md py-md text-right">
+<button class="material-symbols-outlined text-on-surface-variant hover:text-on-surface transition-colors" data-icon="more_vert">more_vert</button>
+</td>
+</tr>
+<tr class="hover:bg-surface-container-high transition-colors">
+<td class="px-md py-md font-mono-data text-primary">PO-2024-0855</td>
+<td class="px-md py-md text-on-surface-variant">Aug 30, 2024</td>
+<td class="px-md py-md">
+<span class="bg-on-error-container/10 text-error px-sm py-1 rounded text-[11px] font-bold uppercase tracking-tighter border border-error-container/30">Disputed</span>
+</td>
+<td class="px-md py-md text-right text-on-surface-variant">1</td>
+<td class="px-md py-md text-right font-mono-data font-semibold text-on-surface">$14,200.00</td>
+<td class="px-md py-md text-right">
+<button class="material-symbols-outlined text-on-surface-variant hover:text-on-surface transition-colors" data-icon="more_vert">more_vert</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<!-- Activity Timeline -->
+<div class="bg-surface-container-low border border-outline-variant rounded-xl p-md">
+<div class="flex items-center gap-sm mb-lg pb-sm border-b border-outline-variant">
+<span class="material-symbols-outlined text-primary" data-icon="history">history</span>
+<h3 class="font-h3 text-on-surface">Activity Timeline</h3>
+</div>
+<div class="relative pl-lg border-l-2 border-outline-variant space-y-lg ml-sm">
+<!-- Entry 1 -->
+<div class="relative">
+<div class="absolute -left-[2.35rem] top-0 w-8 h-8 rounded-full bg-surface-container flex items-center justify-center border-2 border-primary">
+<span class="material-symbols-outlined text-[16px] text-primary" data-icon="local_shipping">local_shipping</span>
+</div>
+<div class="flex justify-between items-start">
+<div>
+<p class="text-body-md font-semibold text-on-surface">Shipment Shipped</p>
+<p class="text-body-sm text-on-surface-variant mt-xs">Carrier 'ExpressFreight' picked up PO-2024-1182 from Austin Warehouse.</p>
+</div>
+<span class="text-label-md text-on-surface-variant whitespace-nowrap">Today, 2:45 PM</span>
+</div>
+</div>
+<!-- Entry 2 -->
+<div class="relative">
+<div class="absolute -left-[2.35rem] top-0 w-8 h-8 rounded-full bg-surface-container flex items-center justify-center border-2 border-outline-variant">
+<span class="material-symbols-outlined text-[16px] text-on-surface-variant" data-icon="edit_note">edit_note</span>
+</div>
+<div class="flex justify-between items-start">
+<div>
+<p class="text-body-md font-semibold text-on-surface">PO Amended</p>
+<p class="text-body-sm text-on-surface-variant mt-xs">Elena Rodriguez updated the delivery date for PO-2024-1182.</p>
+</div>
+<span class="text-label-md text-on-surface-variant whitespace-nowrap">Yesterday, 9:15 AM</span>
+</div>
+</div>
+<!-- Entry 3 -->
+<div class="relative">
+<div class="absolute -left-[2.35rem] top-0 w-8 h-8 rounded-full bg-surface-container flex items-center justify-center border-2 border-secondary">
+<span class="material-symbols-outlined text-[16px] text-secondary" data-icon="check_circle">check_circle</span>
+</div>
+<div class="flex justify-between items-start">
+<div>
+<p class="text-body-md font-semibold text-on-surface">Invoice Paid</p>
+<p class="text-body-sm text-on-surface-variant mt-xs">Payment of $4,200.00 confirmed for PO-2024-1002.</p>
+</div>
+<span class="text-label-md text-on-surface-variant whitespace-nowrap">Oct 12, 2024</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Inventory Snapshot (Asymmetric Add-on) -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-lg">
+<div class="bg-surface-container-low border border-outline-variant rounded-xl p-md flex items-center gap-md">
+<div class="w-12 h-12 rounded-lg bg-secondary-container/20 flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined text-[28px]" data-icon="verified">verified</span>
+</div>
+<div>
+<p class="text-label-md text-on-surface-variant uppercase">Quality Rating</p>
+<p class="text-h3 font-bold text-on-surface">98.4%</p>
+</div>
+</div>
+<div class="bg-surface-container-low border border-outline-variant rounded-xl p-md flex items-center gap-md">
+<div class="w-12 h-12 rounded-lg bg-primary-container/20 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[28px]" data-icon="speed">speed</span>
+</div>
+<div>
+<p class="text-label-md text-on-surface-variant uppercase">Lead Time Avg.</p>
+<p class="text-h3 font-bold text-on-surface">4.2 Days</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+<!-- Background Atmospheric Effect -->
+<div class="fixed inset-0 pointer-events-none z-0">
+<div class="absolute top-[-10%] left-[-5%] w-[40%] h-[40%] bg-primary/5 blur-[120px] rounded-full"></div>
+<div class="absolute bottom-[-10%] right-[-5%] w-[40%] h-[40%] bg-secondary/5 blur-[120px] rounded-full"></div>
+</div>
+<script>
+        // Micro-interactions
+        document.querySelectorAll('button, [role="button"]').forEach(btn => {
+            btn.addEventListener('mousedown', () => btn.classList.add('scale-95'));
+            btn.addEventListener('mouseup', () => btn.classList.remove('scale-95'));
+            btn.addEventListener('mouseleave', () => btn.classList.remove('scale-95'));
+        });
+
+        // Sticky header opacity change on scroll
+        window.addEventListener('scroll', () => {
+            const header = document.querySelector('header');
+            if (window.scrollY > 20) {
+                header.classList.add('backdrop-blur-md', 'bg-surface/90');
+            } else {
+                header.classList.remove('backdrop-blur-md', 'bg-surface/90');
+            }
+        });
+    </script>
+</body></html>

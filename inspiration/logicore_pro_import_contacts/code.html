@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Import Contacts | LogiCore Pro</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .glass-panel {
+            background: rgba(23, 31, 51, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(141, 144, 160, 0.2);
+        }
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0b1326;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #434655;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #8d90a0;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "background": "#0b1326",
+                        "tertiary-container": "#996100",
+                        "inverse-surface": "#dae2fd",
+                        "on-secondary-container": "#003111",
+                        "inverse-on-surface": "#283044",
+                        "on-secondary": "#003914",
+                        "surface-dim": "#0b1326",
+                        "on-error": "#690005",
+                        "outline": "#8d90a0",
+                        "surface-container": "#171f33",
+                        "on-tertiary-fixed": "#2a1700",
+                        "on-primary-container": "#eeefff",
+                        "on-error-container": "#ffdad6",
+                        "surface-tint": "#b4c5ff",
+                        "on-background": "#dae2fd",
+                        "primary-container": "#2563eb",
+                        "inverse-primary": "#0053db",
+                        "surface-container-highest": "#2d3449",
+                        "surface-container-high": "#222a3d",
+                        "primary": "#b4c5ff",
+                        "on-primary-fixed": "#00174b",
+                        "outline-variant": "#434655",
+                        "on-tertiary": "#472a00",
+                        "tertiary-fixed-dim": "#ffb95f",
+                        "on-secondary-fixed-variant": "#005320",
+                        "tertiary": "#ffb95f",
+                        "surface": "#0b1326",
+                        "secondary-fixed": "#7ffc97",
+                        "primary-fixed": "#dbe1ff",
+                        "surface-bright": "#31394d",
+                        "on-surface": "#dae2fd",
+                        "surface-variant": "#2d3449",
+                        "on-tertiary-container": "#ffeedd",
+                        "secondary": "#62df7d",
+                        "on-secondary-fixed": "#002109",
+                        "surface-container-lowest": "#060e20",
+                        "on-primary-fixed-variant": "#003ea8",
+                        "error-container": "#93000a",
+                        "error": "#ffb4ab",
+                        "surface-container-low": "#131b2e",
+                        "secondary-fixed-dim": "#62df7d",
+                        "primary-fixed-dim": "#b4c5ff",
+                        "on-surface-variant": "#c3c6d7",
+                        "tertiary-fixed": "#ffddb8",
+                        "on-tertiary-fixed-variant": "#653e00",
+                        "secondary-container": "#1ca64d",
+                        "on-primary": "#002a78"
+                    },
+                    "fontFamily": {
+                        "display": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "h3": ["Inter"],
+                        "label-md": ["Inter"],
+                        "h2": ["Inter"],
+                        "body-sm": ["Inter"],
+                        "body-md": ["Inter"],
+                        "h1": ["Inter"],
+                        "mono-data": ["JetBrains Mono"]
+                    },
+                    "fontSize": {
+                        "display": ["48px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "body-lg": ["16px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                        "h3": ["20px", {"lineHeight": "1.4", "fontWeight": "600"}],
+                        "label-md": ["12px", {"lineHeight": "1", "letterSpacing": "0.02em", "fontWeight": "500"}],
+                        "h2": ["24px", {"lineHeight": "1.3", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "body-sm": ["12px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                        "body-md": ["14px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                        "h1": ["32px", {"lineHeight": "1.25", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "mono-data": ["13px", {"lineHeight": "1", "letterSpacing": "-0.01em", "fontWeight": "400"}]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-background text-on-surface font-body-md selection:bg-primary/30 min-h-screen">
+<!-- Sidebar Navigation Shell -->
+<aside class="fixed left-0 top-0 h-screen w-64 flex flex-col p-md z-40 bg-surface-container-lowest border-r border-outline-variant">
+<div class="mb-xl px-sm">
+<h1 class="font-display text-h3 font-bold text-on-surface">LogiCore Pro</h1>
+<p class="text-body-sm text-on-surface-variant opacity-70">Global Operations</p>
+</div>
+<nav class="flex-1 space-y-xs overflow-y-auto">
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-all duration-150 cursor-pointer active:scale-[0.98]" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-body-sm">Dashboard</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm bg-secondary-container text-on-secondary-container font-semibold rounded-lg transition-all duration-150 cursor-pointer active:scale-[0.98]" href="#">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+<span class="font-body-sm">Customers</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-all duration-150 cursor-pointer active:scale-[0.98]" href="#">
+<span class="material-symbols-outlined" data-icon="inventory_2">inventory_2</span>
+<span class="font-body-sm">Products</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-all duration-150 cursor-pointer active:scale-[0.98]" href="#">
+<span class="material-symbols-outlined" data-icon="warehouse">warehouse</span>
+<span class="font-body-sm">Inventory</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-all duration-150 cursor-pointer active:scale-[0.98]" href="#">
+<span class="material-symbols-outlined" data-icon="payments">payments</span>
+<span class="font-body-sm">Sales</span>
+</a>
+<div class="pt-lg pb-sm border-t border-outline-variant/30 mx-md">
+<p class="text-[10px] font-bold uppercase tracking-wider text-outline">System</p>
+</div>
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-all duration-150 cursor-pointer active:scale-[0.98]" href="#">
+<span class="material-symbols-outlined" data-icon="bar_chart">bar_chart</span>
+<span class="font-body-sm">Reports</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-all duration-150 cursor-pointer active:scale-[0.98]" href="#">
+<span class="material-symbols-outlined" data-icon="history">history</span>
+<span class="font-body-sm">Audit Logs</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-all duration-150 cursor-pointer active:scale-[0.98]" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-body-sm">Settings</span>
+</a>
+</nav>
+<div class="mt-auto p-sm bg-surface-container-low rounded-xl flex items-center gap-md">
+<div class="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center text-on-primary-container font-bold">
+                JD
+            </div>
+<div class="overflow-hidden">
+<p class="font-body-sm font-semibold truncate">Jane Doe</p>
+<p class="text-[10px] text-on-surface-variant truncate">Ops Director</p>
+</div>
+</div>
+</aside>
+<!-- Main Canvas -->
+<main class="ml-64 min-h-screen">
+<!-- Top Bar Shell -->
+<header class="flex justify-between items-center h-16 px-gutter w-full sticky top-0 z-50 bg-surface border-b border-outline-variant shadow-sm">
+<div class="flex items-center gap-md">
+<span class="material-symbols-outlined text-outline cursor-pointer" data-icon="arrow_back">arrow_back</span>
+<h2 class="font-display text-h2 font-bold text-primary">Import Contacts</h2>
+</div>
+<div class="flex items-center gap-lg">
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-md top-1/2 -translate-y-1/2 text-outline-variant group-focus-within:text-primary transition-colors" data-icon="search">search</span>
+<input class="bg-surface-container-high border-none rounded-full pl-xl pr-lg py-sm text-body-sm w-64 focus:ring-2 focus:ring-primary/50 transition-all" placeholder="Search operations..." type="text"/>
+</div>
+<div class="flex items-center gap-md text-on-surface-variant">
+<span class="material-symbols-outlined cursor-pointer hover:text-primary transition-colors" data-icon="notifications">notifications</span>
+<span class="material-symbols-outlined cursor-pointer hover:text-primary transition-colors" data-icon="help">help</span>
+<span class="material-symbols-outlined cursor-pointer hover:text-primary transition-colors" data-icon="account_circle">account_circle</span>
+</div>
+</div>
+</header>
+<!-- Content Area -->
+<div class="p-gutter max-w-7xl mx-auto space-y-lg">
+<!-- Bento Layout Start -->
+<div class="grid grid-cols-12 gap-lg">
+<!-- Upload Area (Main Action) -->
+<section class="col-span-12 lg:col-span-8">
+<div class="glass-panel rounded-xl p-xl flex flex-col items-center justify-center border-2 border-dashed border-outline-variant hover:border-primary transition-all group relative overflow-hidden h-[400px]">
+<div class="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
+<div class="text-center z-10">
+<div class="mb-lg inline-flex items-center justify-center w-20 h-20 rounded-full bg-surface-container-highest text-primary">
+<span class="material-symbols-outlined !text-[48px]" data-icon="upload_file" style="font-variation-settings: 'FILL' 1;">upload_file</span>
+</div>
+<h3 class="font-h2 text-on-surface mb-sm">Drag and drop your spreadsheet</h3>
+<p class="text-on-surface-variant mb-xl max-w-md mx-auto">Upload contact lists in .csv or .xlsx format. Ensure your columns include Name, Email, and Company for optimal mapping.</p>
+<div class="flex flex-wrap items-center justify-center gap-md">
+<button class="px-xl py-md bg-primary-container text-on-primary-container rounded-lg font-semibold flex items-center gap-sm hover:brightness-110 active:scale-95 transition-all">
+<span class="material-symbols-outlined" data-icon="add">add</span>
+                                    Browse Files
+                                </button>
+<button class="px-xl py-md bg-surface-container-high text-on-surface rounded-lg font-semibold border border-outline-variant hover:bg-surface-variant transition-all">
+                                    Download Template
+                                </button>
+</div>
+</div>
+<!-- Mini Icons Decoration -->
+<div class="mt-xl flex items-center gap-lg opacity-40 grayscale group-hover:grayscale-0 transition-all">
+<div class="flex items-center gap-xs font-mono-data text-body-sm">
+<span class="material-symbols-outlined text-green-400" data-icon="description">description</span>
+                                CSV
+                            </div>
+<div class="flex items-center gap-xs font-mono-data text-body-sm">
+<span class="material-symbols-outlined text-blue-400" data-icon="table_chart">table_chart</span>
+                                XLSX
+                            </div>
+<div class="flex items-center gap-xs font-mono-data text-body-sm">
+<span class="material-symbols-outlined text-orange-400" data-icon="format_list_bulleted">format_list_bulleted</span>
+                                TXT
+                            </div>
+</div>
+</div>
+</section>
+<!-- Status & Stats Column -->
+<div class="col-span-12 lg:col-span-4 flex flex-col gap-lg">
+<div class="bg-surface-container-high rounded-xl p-lg border border-outline-variant shadow-sm">
+<div class="flex items-center justify-between mb-md">
+<h4 class="font-h3 text-primary">Validation Results</h4>
+<span class="px-sm py-xs bg-yellow-900/30 text-yellow-500 rounded text-[10px] font-bold uppercase tracking-widest">In Progress</span>
+</div>
+<div class="space-y-md">
+<div class="flex items-center justify-between">
+<span class="text-on-surface-variant text-body-sm">Total Contacts Found</span>
+<span class="font-mono-data text-h3">1,248</span>
+</div>
+<div class="w-full bg-surface-container-lowest h-2 rounded-full overflow-hidden">
+<div class="bg-secondary h-full" style="width: 82%"></div>
+</div>
+<div class="grid grid-cols-2 gap-md pt-sm">
+<div class="p-sm bg-surface-container-lowest rounded-lg border border-outline-variant/30">
+<p class="text-[10px] uppercase text-outline mb-xs">Valid Rows</p>
+<p class="text-secondary font-bold text-lg">1,023</p>
+</div>
+<div class="p-sm bg-surface-container-lowest rounded-lg border border-outline-variant/30">
+<p class="text-[10px] uppercase text-outline mb-xs">Error Flags</p>
+<p class="text-error font-bold text-lg">225</p>
+</div>
+</div>
+</div>
+</div>
+<div class="bg-surface-container-high rounded-xl p-lg border border-outline-variant shadow-sm">
+<h4 class="font-h3 text-on-surface mb-md">Quick Help</h4>
+<ul class="space-y-md">
+<li class="flex gap-md">
+<span class="material-symbols-outlined text-primary shrink-0" data-icon="info">info</span>
+<p class="text-body-sm text-on-surface-variant">Duplicate emails will be automatically merged into existing records.</p>
+</li>
+<li class="flex gap-md">
+<span class="material-symbols-outlined text-primary shrink-0" data-icon="security">security</span>
+<p class="text-body-sm text-on-surface-variant">All data is encrypted in transit and at rest during the staging phase.</p>
+</li>
+</ul>
+</div>
+</div>
+<!-- Error Summary Section -->
+<section class="col-span-12">
+<div class="bg-surface-container rounded-xl border border-outline-variant overflow-hidden">
+<div class="px-lg py-md bg-error-container/20 border-b border-outline-variant flex items-center justify-between">
+<div class="flex items-center gap-md">
+<span class="material-symbols-outlined text-error" data-icon="warning">warning</span>
+<h3 class="font-h3 text-on-surface">Error Summary</h3>
+</div>
+<button class="text-body-sm text-primary font-semibold hover:underline">Download Error Report</button>
+</div>
+<div class="p-lg grid grid-cols-1 md:grid-cols-3 gap-lg">
+<div class="flex items-start gap-md">
+<div class="w-10 h-10 rounded-lg bg-surface-container-highest flex items-center justify-center shrink-0">
+<span class="font-mono-data text-error font-bold">142</span>
+</div>
+<div>
+<p class="font-semibold text-on-surface">Invalid Email Format</p>
+<p class="text-body-sm text-on-surface-variant">Rows missing '@' or standard domain suffixes.</p>
+</div>
+</div>
+<div class="flex items-start gap-md">
+<div class="w-10 h-10 rounded-lg bg-surface-container-highest flex items-center justify-center shrink-0">
+<span class="font-mono-data text-error font-bold">48</span>
+</div>
+<div>
+<p class="font-semibold text-on-surface">Duplicate Entries</p>
+<p class="text-body-sm text-on-surface-variant">Email addresses already present in the primary database.</p>
+</div>
+</div>
+<div class="flex items-start gap-md">
+<div class="w-10 h-10 rounded-lg bg-surface-container-highest flex items-center justify-center shrink-0">
+<span class="font-mono-data text-error font-bold">35</span>
+</div>
+<div>
+<p class="font-semibold text-on-surface">Missing Required Fields</p>
+<p class="text-body-sm text-on-surface-variant">'Company Name' or 'Contact Type' field is empty.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Preview Table Section -->
+<section class="col-span-12">
+<div class="bg-surface-container-high rounded-xl border border-outline-variant overflow-hidden shadow-sm">
+<div class="px-lg py-md border-b border-outline-variant flex items-center justify-between">
+<h3 class="font-h3 text-on-surface">Import Preview</h3>
+<div class="flex gap-md">
+<div class="flex items-center gap-xs text-body-sm text-on-surface-variant">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+                                    Ready to Import
+                                </div>
+<div class="flex items-center gap-xs text-body-sm text-on-surface-variant">
+<span class="w-2 h-2 rounded-full bg-error"></span>
+                                    Requires Correction
+                                </div>
+</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse min-w-[800px]">
+<thead>
+<tr class="bg-surface-container-highest/50 border-b border-outline-variant">
+<th class="px-lg py-md font-label-md text-outline uppercase">Row</th>
+<th class="px-lg py-md font-label-md text-outline uppercase">Full Name</th>
+<th class="px-lg py-md font-label-md text-outline uppercase">Email Address</th>
+<th class="px-lg py-md font-label-md text-outline uppercase">Company</th>
+<th class="px-lg py-md font-label-md text-outline uppercase">Role</th>
+<th class="px-lg py-md font-label-md text-outline uppercase">Status</th>
+<th class="px-lg py-md font-label-md text-outline uppercase">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant/30">
+<tr class="hover:bg-surface-container-highest transition-colors">
+<td class="px-lg py-md font-mono-data text-outline">001</td>
+<td class="px-lg py-md font-semibold">Robert Sterling</td>
+<td class="px-lg py-md text-on-surface-variant">robert.s@global-logistics.com</td>
+<td class="px-lg py-md">Global Logistics Corp</td>
+<td class="px-lg py-md">Supply Chain Lead</td>
+<td class="px-lg py-md">
+<span class="px-md py-xs bg-secondary/10 text-secondary border border-secondary/20 rounded-full text-[10px] font-bold">READY</span>
+</td>
+<td class="px-lg py-md">
+<span class="material-symbols-outlined text-outline hover:text-primary cursor-pointer" data-icon="edit">edit</span>
+</td>
+</tr>
+<tr class="hover:bg-surface-container-highest transition-colors bg-error-container/5">
+<td class="px-lg py-md font-mono-data text-outline text-error">002</td>
+<td class="px-lg py-md font-semibold">Sarah Jenkins</td>
+<td class="px-lg py-md text-error flex items-center gap-xs">
+                                            sarah.jenkins_at_outlook.com
+                                            <span class="material-symbols-outlined text-sm" data-icon="error_outline">error_outline</span>
+</td>
+<td class="px-lg py-md">Swift Deliveries</td>
+<td class="px-lg py-md">Fleet Manager</td>
+<td class="px-lg py-md">
+<span class="px-md py-xs bg-error/10 text-error border border-error/20 rounded-full text-[10px] font-bold">ERROR</span>
+</td>
+<td class="px-lg py-md">
+<span class="material-symbols-outlined text-outline hover:text-primary cursor-pointer" data-icon="edit">edit</span>
+</td>
+</tr>
+<tr class="hover:bg-surface-container-highest transition-colors">
+<td class="px-lg py-md font-mono-data text-outline">003</td>
+<td class="px-lg py-md font-semibold">Michael Chen</td>
+<td class="px-lg py-md text-on-surface-variant">m.chen@apex-freight.net</td>
+<td class="px-lg py-md">Apex Freight Systems</td>
+<td class="px-lg py-md">Procurement</td>
+<td class="px-lg py-md">
+<span class="px-md py-xs bg-secondary/10 text-secondary border border-secondary/20 rounded-full text-[10px] font-bold">READY</span>
+</td>
+<td class="px-lg py-md">
+<span class="material-symbols-outlined text-outline hover:text-primary cursor-pointer" data-icon="edit">edit</span>
+</td>
+</tr>
+<tr class="hover:bg-surface-container-highest transition-colors bg-error-container/5">
+<td class="px-lg py-md font-mono-data text-outline text-error">004</td>
+<td class="px-lg py-md font-semibold">Unknown Contact</td>
+<td class="px-lg py-md text-on-surface-variant">h.mills@warehouse-plus.com</td>
+<td class="px-lg py-md text-error flex items-center gap-xs">
+                                            [MISSING]
+                                            <span class="material-symbols-outlined text-sm" data-icon="error_outline">error_outline</span>
+</td>
+<td class="px-lg py-md">Facility Lead</td>
+<td class="px-lg py-md">
+<span class="px-md py-xs bg-error/10 text-error border border-error/20 rounded-full text-[10px] font-bold">ERROR</span>
+</td>
+<td class="px-lg py-md">
+<span class="material-symbols-outlined text-outline hover:text-primary cursor-pointer" data-icon="edit">edit</span>
+</td>
+</tr>
+<tr class="hover:bg-surface-container-highest transition-colors">
+<td class="px-lg py-md font-mono-data text-outline">005</td>
+<td class="px-lg py-md font-semibold">Elena Rodriguez</td>
+<td class="px-lg py-md text-on-surface-variant">elena.r@maritime-ops.eu</td>
+<td class="px-lg py-md">Maritime Operations SA</td>
+<td class="px-lg py-md">Regional Director</td>
+<td class="px-lg py-md">
+<span class="px-md py-xs bg-secondary/10 text-secondary border border-secondary/20 rounded-full text-[10px] font-bold">READY</span>
+</td>
+<td class="px-lg py-md">
+<span class="material-symbols-outlined text-outline hover:text-primary cursor-pointer" data-icon="edit">edit</span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="px-lg py-md bg-surface-container-highest/30 border-t border-outline-variant flex items-center justify-between">
+<p class="text-body-sm text-on-surface-variant">Showing 5 of 1,248 contacts</p>
+<div class="flex items-center gap-md">
+<button class="px-md py-sm rounded-lg border border-outline-variant text-body-sm hover:bg-surface-container-high disabled:opacity-50" disabled="">Previous</button>
+<button class="px-md py-sm rounded-lg border border-outline-variant text-body-sm hover:bg-surface-container-high">Next</button>
+</div>
+</div>
+</div>
+</section>
+</div>
+<!-- Bento Layout End -->
+<!-- Bottom Action Dock -->
+<div class="sticky bottom-md left-0 right-0 z-40 bg-surface-container-high/90 backdrop-blur-md rounded-2xl border border-primary/20 p-md flex items-center justify-between shadow-2xl max-w-5xl mx-auto transform hover:scale-[1.01] transition-transform">
+<div class="flex items-center gap-lg">
+<div class="flex flex-col">
+<span class="text-[10px] uppercase font-bold text-primary tracking-widest">Selected Mode</span>
+<span class="font-semibold">Update Existing &amp; Append New</span>
+</div>
+<div class="h-8 w-px bg-outline-variant"></div>
+<div class="flex items-center gap-md">
+<label class="flex items-center gap-sm cursor-pointer group">
+<input class="rounded border-outline-variant bg-surface text-primary focus:ring-primary w-5 h-5" type="checkbox"/>
+<span class="text-body-sm text-on-surface-variant group-hover:text-on-surface transition-colors">Skip rows with errors</span>
+</label>
+</div>
+</div>
+<div class="flex items-center gap-md">
+<button class="px-xl py-md text-on-surface font-semibold hover:bg-surface-variant rounded-lg transition-all">Cancel Import</button>
+<button class="px-xl py-md bg-primary text-on-primary font-bold rounded-lg shadow-lg shadow-primary/20 hover:shadow-primary/40 active:scale-95 transition-all flex items-center gap-sm">
+                        Process 1,023 Records
+                        <span class="material-symbols-outlined" data-icon="chevron_right">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+</main>
+<script>
+        // Micro-interactions and drag-and-drop feedback
+        const uploadArea = document.querySelector('.border-dashed');
+        
+        ['dragenter', 'dragover'].forEach(eventName => {
+            uploadArea.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                uploadArea.classList.add('border-primary', 'bg-primary/5');
+            }, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            uploadArea.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                uploadArea.classList.remove('border-primary', 'bg-primary/5');
+            }, false);
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            console.log('Processing files:', files);
+            alert('File processing simulation started for: ' + files[0].name);
+        });
+    </script>
+</body></html>
