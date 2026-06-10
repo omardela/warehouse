@@ -1,21 +1,33 @@
 import { PrismaClient } from "@prisma/client";
+import { PrismaPg } from "@prisma/adapter-pg";
+import bcrypt from "bcryptjs";
+import { config } from "dotenv";
 
-const prisma = new PrismaClient();
+config({ path: ".env" });
+
+const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL! });
+const prisma = new PrismaClient({ adapter });
 
 async function main() {
   // -------------------------------------------------------------------------
   // RoleTemplate seeds
   // -------------------------------------------------------------------------
   const roleTemplates = [
-    { name: "Owner",      description: "Full access to all warehouse resources." },
-    { name: "Manager",    description: "Manages daily operations, employees, and inventory." },
-    { name: "Cashier",    description: "Handles sales invoices and payments." },
-    { name: "Accountant", description: "Reads financial reports and manages payments." },
+    { name: "Owner", description: "Full access to all warehouse resources." },
+    {
+      name: "Manager",
+      description: "Manages daily operations, employees, and inventory.",
+    },
+    { name: "Cashier", description: "Handles sales invoices and payments." },
+    {
+      name: "Accountant",
+      description: "Reads financial reports and manages payments.",
+    },
   ];
 
   for (const rt of roleTemplates) {
     await prisma.roleTemplate.upsert({
-      where:  { name: rt.name },
+      where: { name: rt.name },
       update: { description: rt.description },
       create: rt,
     });
@@ -28,68 +40,140 @@ async function main() {
   // -------------------------------------------------------------------------
   const permissions: { code: string; description: string }[] = [
     // Inventory — Products
-    { code: "inventory.product.create",   description: "Create products" },
-    { code: "inventory.product.read",     description: "Read products" },
-    { code: "inventory.product.update",   description: "Update products" },
-    { code: "inventory.product.delete",   description: "Archive/delete products" },
+    { code: "inventory.product.create", description: "Create products" },
+    { code: "inventory.product.read", description: "Read products" },
+    { code: "inventory.product.update", description: "Update products" },
+    {
+      code: "inventory.product.delete",
+      description: "Archive/delete products",
+    },
     // Inventory — Movements & Balance
-    { code: "inventory.movement.create",  description: "Create inventory movements" },
-    { code: "inventory.balance.read",     description: "Read inventory balances" },
+    {
+      code: "inventory.movement.create",
+      description: "Create inventory movements",
+    },
+    { code: "inventory.balance.read", description: "Read inventory balances" },
     // Sales Invoices
-    { code: "sales.invoice.create",       description: "Create sales invoices" },
-    { code: "sales.invoice.confirm",      description: "Confirm sales invoices" },
-    { code: "sales.invoice.cancel",       description: "Cancel sales invoices" },
-    { code: "sales.invoice.read",         description: "Read sales invoices" },
+    { code: "sales.invoice.create", description: "Create sales invoices" },
+    { code: "sales.invoice.confirm", description: "Confirm sales invoices" },
+    { code: "sales.invoice.cancel", description: "Cancel sales invoices" },
+    { code: "sales.invoice.read", description: "Read sales invoices" },
     // Purchase Invoices
-    { code: "purchase.invoice.create",    description: "Create purchase invoices" },
-    { code: "purchase.invoice.confirm",   description: "Confirm purchase invoices" },
-    { code: "purchase.invoice.cancel",    description: "Cancel purchase invoices" },
-    { code: "purchase.invoice.read",      description: "Read purchase invoices" },
+    {
+      code: "purchase.invoice.create",
+      description: "Create purchase invoices",
+    },
+    {
+      code: "purchase.invoice.confirm",
+      description: "Confirm purchase invoices",
+    },
+    {
+      code: "purchase.invoice.cancel",
+      description: "Cancel purchase invoices",
+    },
+    { code: "purchase.invoice.read", description: "Read purchase invoices" },
     // Payments
-    { code: "payments.payment.create",    description: "Create payments" },
-    { code: "payments.payment.read",      description: "Read payments" },
+    { code: "payments.payment.create", description: "Create payments" },
+    { code: "payments.payment.read", description: "Read payments" },
     // Employees
-    { code: "employees.employee.create",  description: "Create employees" },
-    { code: "employees.employee.read",    description: "Read employees" },
-    { code: "employees.employee.update",  description: "Update employees" },
+    { code: "employees.employee.create", description: "Create employees" },
+    { code: "employees.employee.read", description: "Read employees" },
+    { code: "employees.employee.update", description: "Update employees" },
     { code: "employees.employee.archive", description: "Archive employees" },
     // Customers
-    { code: "customers.customer.create",  description: "Create customers" },
-    { code: "customers.customer.read",    description: "Read customers" },
-    { code: "customers.customer.update",  description: "Update customers" },
+    { code: "customers.customer.create", description: "Create customers" },
+    { code: "customers.customer.read", description: "Read customers" },
+    { code: "customers.customer.update", description: "Update customers" },
     { code: "customers.customer.archive", description: "Archive customers" },
     // Suppliers
-    { code: "suppliers.supplier.create",  description: "Create suppliers" },
-    { code: "suppliers.supplier.read",    description: "Read suppliers" },
-    { code: "suppliers.supplier.update",  description: "Update suppliers" },
+    { code: "suppliers.supplier.create", description: "Create suppliers" },
+    { code: "suppliers.supplier.read", description: "Read suppliers" },
+    { code: "suppliers.supplier.update", description: "Update suppliers" },
     { code: "suppliers.supplier.archive", description: "Archive suppliers" },
     // Reports
-    { code: "reports.report.read",        description: "Read reports" },
+    { code: "reports.report.read", description: "Read reports" },
     // Audit
-    { code: "audit.log.read",             description: "Read audit logs" },
+    { code: "audit.log.read", description: "Read audit logs" },
     // Settings — Organization
-    { code: "settings.org.read",          description: "Read organization settings" },
-    { code: "settings.org.update",        description: "Update organization settings" },
+    { code: "settings.org.read", description: "Read organization settings" },
+    {
+      code: "settings.org.update",
+      description: "Update organization settings",
+    },
     // Settings — Warehouses
-    { code: "settings.warehouse.create",  description: "Create warehouses" },
-    { code: "settings.warehouse.read",    description: "Read warehouse settings" },
-    { code: "settings.warehouse.update",  description: "Update warehouse settings" },
+    { code: "settings.warehouse.create", description: "Create warehouses" },
+    { code: "settings.warehouse.read", description: "Read warehouse settings" },
+    {
+      code: "settings.warehouse.update",
+      description: "Update warehouse settings",
+    },
     // Roles
-    { code: "roles.role.create",          description: "Create roles" },
-    { code: "roles.role.read",            description: "Read roles" },
-    { code: "roles.role.update",          description: "Update roles" },
-    { code: "roles.role.delete",          description: "Delete roles" },
+    { code: "roles.role.create", description: "Create roles" },
+    { code: "roles.role.read", description: "Read roles" },
+    { code: "roles.role.update", description: "Update roles" },
+    { code: "roles.role.delete", description: "Delete roles" },
   ];
 
   for (const perm of permissions) {
     await prisma.permission.upsert({
-      where:  { code: perm.code },
+      where: { code: perm.code },
       update: { description: perm.description },
       create: perm,
     });
   }
 
   console.log(`Seeded ${permissions.length} permissions.`);
+
+  // -------------------------------------------------------------------------
+  // Dev test account: owner@logicore.dev / password: logicore123
+  // -------------------------------------------------------------------------
+  const ownerRole = await prisma.roleTemplate.findUnique({
+    where: { name: "Owner" },
+  });
+
+  const org = await prisma.organization.upsert({
+    where: { id: "dev-org-001" },
+    update: {},
+    create: { id: "dev-org-001", name: "LogiCore Demo Org" },
+  });
+
+  const warehouse = await prisma.warehouse.upsert({
+    where: { id: "dev-wh-001" },
+    update: {},
+    create: {
+      id: "dev-wh-001",
+      name: "Main Warehouse",
+      address: "123 Logistics Ave, New York, NY",
+      organizationId: org.id,
+    },
+  });
+
+  if (ownerRole) {
+    await prisma.warehouseRole.upsert({
+      where: {
+        warehouseId_roleTemplateId: {
+          warehouseId: warehouse.id,
+          roleTemplateId: ownerRole.id,
+        },
+      },
+      update: {},
+      create: { warehouseId: warehouse.id, roleTemplateId: ownerRole.id },
+    });
+  }
+
+  const passwordHash = await bcrypt.hash("logicore123", 12);
+  await prisma.employee.upsert({
+    where: { email: "owner@logicore.dev" },
+    update: {},
+    create: {
+      name: "Demo Owner",
+      email: "owner@logicore.dev",
+      passwordHash,
+      warehouseId: warehouse.id,
+    },
+  });
+
+  console.log("Dev account: owner@logicore.dev / logicore123");
 }
 
 main()
