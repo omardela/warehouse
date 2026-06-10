@@ -4,5 +4,378 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
+}
+
+// ---------------------------------------------------------------------------
+// Enums
+// ---------------------------------------------------------------------------
+
+enum MovementType {
+  PURCHASE_IN
+  SALE_OUT
+  TRANSFER_IN
+  TRANSFER_OUT
+  ADJUSTMENT
+  RETURN_IN
+  RETURN_OUT
+}
+
+enum InvoiceStatus {
+  DRAFT
+  CONFIRMED
+  CANCELLED
+}
+
+enum InvoiceType {
+  PURCHASE
+  SALE
+}
+
+enum PaymentMethod {
+  CASH
+  CARD
+  BANK_TRANSFER
+}
+
+// ---------------------------------------------------------------------------
+// Tenancy
+// ---------------------------------------------------------------------------
+
+model Organization {
+  id         String      @id @default(cuid())
+  name       String
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+
+  warehouses  Warehouse[]
+  products    Product[]
+  categories  ProductCategory[]
+  customers   Customer[]
+  suppliers   Supplier[]
+
+  @@map("organizations")
+}
+
+// ---------------------------------------------------------------------------
+// Warehouse & Employees
+// ---------------------------------------------------------------------------
+
+model Warehouse {
+  id             String    @id @default(cuid())
+  name           String
+  address        String?
+  organizationId String
+  archivedAt     DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  organization       Organization         @relation(fields: [organizationId], references: [id])
+  employees          Employee[]
+  warehouseRoles     WarehouseRole[]
+  inventoryMovements InventoryMovement[]
+  inventoryBalances  InventoryBalance[]
+  invoices           Invoice[]
+
+  @@map("warehouses")
+}
+
+model Employee {
+  id            String    @id @default(cuid())
+  name          String
+  email         String    @unique
+  passwordHash  String
+  warehouseId   String
+  archivedAt    DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  warehouse          Warehouse           @relation(fields: [warehouseId], references: [id])
+  inventoryMovements InventoryMovement[] @relation("MovementActor")
+  invoices           Invoice[]           @relation("InvoiceActor")
+  payments           Payment[]           @relation("PaymentActor")
+  auditLogs          AuditLog[]          @relation("AuditActor")
+
+  @@map("employees")
+}
+
+// ---------------------------------------------------------------------------
+// Roles & Permissions
+// ---------------------------------------------------------------------------
+
+model RoleTemplate {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String?
+  createdAt   DateTime @default(now())
+
+  warehouseRoles WarehouseRole[]
+
+  @@map("role_templates")
+}
+
+model WarehouseRole {
+  id             String @id @default(cuid())
+  warehouseId    String
+  roleTemplateId String
+
+  warehouse    Warehouse              @relation(fields: [warehouseId], references: [id])
+  roleTemplate RoleTemplate           @relation(fields: [roleTemplateId], references: [id])
+  permissions  WarehouseRolePermission[]
+
+  @@unique([warehouseId, roleTemplateId])
+  @@map("warehouse_roles")
+}
+
+model Permission {
+  id          String  @id @default(cuid())
+  code        String  @unique
+  description String?
+
+  warehouseRolePermissions WarehouseRolePermission[]
+
+  @@map("permissions")
+}
+
+model WarehouseRolePermission {
+  id              String @id @default(cuid())
+  warehouseRoleId String
+  permissionId    String
+
+  warehouseRole WarehouseRole @relation(fields: [warehouseRoleId], references: [id])
+  permission    Permission    @relation(fields: [permissionId], references: [id])
+
+  @@unique([warehouseRoleId, permissionId])
+  @@map("warehouse_role_permissions")
+}
+
+// ---------------------------------------------------------------------------
+// Products & Units
+// ---------------------------------------------------------------------------
+
+model ProductUnit {
+  id         String    @id @default(cuid())
+  name       String
+  symbol     String
+  isBase     Boolean   @default(false)
+  archivedAt DateTime?
+
+  products           Product[]
+  conversionsFrom    ProductUnitConversion[] @relation("ConversionFromUnit")
+  conversionsTo      ProductUnitConversion[] @relation("ConversionToUnit")
+  inventoryMovements InventoryMovement[]
+  invoiceLines       InvoiceLine[]
+
+  @@map("product_units")
+}
+
+model ProductCategory {
+  id             String   @id @default(cuid())
+  name           String
+  organizationId String
+  createdAt      DateTime @default(now())
+
+  organization Organization @relation(fields: [organizationId], references: [id])
+  products     Product[]
+
+  @@map("product_categories")
+}
+
+model Product {
+  id             String    @id @default(cuid())
+  name           String
+  sku            String    @unique
+  description    String?
+  categoryId     String?
+  defaultUnitId  String
+  organizationId String
+  archivedAt     DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  organization       Organization            @relation(fields: [organizationId], references: [id])
+  category           ProductCategory?        @relation(fields: [categoryId], references: [id])
+  defaultUnit        ProductUnit             @relation(fields: [defaultUnitId], references: [id])
+  conversions        ProductUnitConversion[]
+  inventoryMovements InventoryMovement[]
+  inventoryBalances  InventoryBalance[]
+  invoiceLines       InvoiceLine[]
+
+  @@map("products")
+}
+
+model ProductUnitConversion {
+  id         String   @id @default(cuid())
+  fromUnitId String
+  toUnitId   String
+  factor     Decimal  @db.Decimal(20, 10)
+  productId  String?
+
+  fromUnit ProductUnit @relation("ConversionFromUnit", fields: [fromUnitId], references: [id])
+  toUnit   ProductUnit @relation("ConversionToUnit",   fields: [toUnitId],   references: [id])
+  product  Product?    @relation(fields: [productId], references: [id])
+
+  @@map("product_unit_conversions")
+}
+
+// ---------------------------------------------------------------------------
+// Inventory
+// ---------------------------------------------------------------------------
+
+model InventoryMovement {
+  id            String       @id @default(cuid())
+  warehouseId   String
+  productId     String
+  unitId        String
+  quantity      Decimal      @db.Decimal(20, 6)
+  baseQuantity  Decimal      @db.Decimal(20, 6)
+  movementType  MovementType
+  referenceId   String?
+  referenceType String?
+  actorId       String
+  notes         String?
+  createdAt     DateTime     @default(now())
+
+  // No soft-delete (no archivedAt / deletedAt).
+  // No onDelete: Cascade — movements are immutable records.
+  warehouse Warehouse   @relation(fields: [warehouseId], references: [id])
+  product   Product     @relation(fields: [productId],   references: [id])
+  unit      ProductUnit @relation(fields: [unitId],      references: [id])
+  actor     Employee    @relation("MovementActor", fields: [actorId], references: [id])
+
+  @@map("inventory_movements")
+}
+
+model InventoryBalance {
+  id              String   @id @default(cuid())
+  warehouseId     String
+  productId       String
+  currentQuantity Decimal  @db.Decimal(20, 6)
+  updatedAt       DateTime @updatedAt
+
+  warehouse Warehouse @relation(fields: [warehouseId], references: [id])
+  product   Product   @relation(fields: [productId],   references: [id])
+
+  @@unique([warehouseId, productId])
+  @@map("inventory_balances")
+}
+
+// ---------------------------------------------------------------------------
+// Customers & Suppliers
+// ---------------------------------------------------------------------------
+
+model Customer {
+  id             String    @id @default(cuid())
+  name           String
+  email          String?
+  phone          String?
+  address        String?
+  organizationId String
+  archivedAt     DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id])
+  invoices     Invoice[]
+
+  @@map("customers")
+}
+
+model Supplier {
+  id             String    @id @default(cuid())
+  name           String
+  email          String?
+  phone          String?
+  address        String?
+  organizationId String
+  archivedAt     DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id])
+  invoices     Invoice[]
+
+  @@map("suppliers")
+}
+
+// ---------------------------------------------------------------------------
+// Invoices & Payments
+// ---------------------------------------------------------------------------
+
+model Invoice {
+  id           String        @id @default(cuid())
+  type         InvoiceType
+  status       InvoiceStatus @default(DRAFT)
+  warehouseId  String
+  customerId   String?
+  supplierId   String?
+  totalAmount  Decimal       @db.Decimal(20, 2)
+  notes        String?
+  actorId      String
+  confirmedAt  DateTime?
+  cancelledAt  DateTime?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  // NEVER hard-deleted — no cascade deletes.
+  warehouse Warehouse     @relation(fields: [warehouseId], references: [id])
+  customer  Customer?     @relation(fields: [customerId],  references: [id])
+  supplier  Supplier?     @relation(fields: [supplierId],  references: [id])
+  actor     Employee      @relation("InvoiceActor", fields: [actorId], references: [id])
+  lines     InvoiceLine[]
+  payments  Payment[]
+
+  @@map("invoices")
+}
+
+model InvoiceLine {
+  id         String  @id @default(cuid())
+  invoiceId  String
+  productId  String
+  unitId     String
+  quantity   Decimal @db.Decimal(20, 6)
+  unitPrice  Decimal @db.Decimal(20, 2)
+  totalPrice Decimal @db.Decimal(20, 2)
+
+  invoice Invoice     @relation(fields: [invoiceId], references: [id])
+  product Product     @relation(fields: [productId], references: [id])
+  unit    ProductUnit @relation(fields: [unitId],    references: [id])
+
+  @@map("invoice_lines")
+}
+
+model Payment {
+  id        String        @id @default(cuid())
+  invoiceId String
+  amount    Decimal       @db.Decimal(20, 2)
+  method    PaymentMethod
+  paidAt    DateTime
+  notes     String?
+  actorId   String
+
+  // NEVER hard-deleted — no cascade deletes.
+  invoice Invoice  @relation(fields: [invoiceId], references: [id])
+  actor   Employee @relation("PaymentActor", fields: [actorId], references: [id])
+
+  @@map("payments")
+}
+
+// ---------------------------------------------------------------------------
+// Audit
+// ---------------------------------------------------------------------------
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  actorId    String
+  action     String
+  entityType String
+  entityId   String
+  before     Json?
+  after      Json?
+  ipAddress  String?
+  createdAt  DateTime @default(now())
+
+  // Append-only: no updates, no deletes.
+  actor Employee @relation("AuditActor", fields: [actorId], references: [id])
+
+  @@map("audit_logs")
 }
