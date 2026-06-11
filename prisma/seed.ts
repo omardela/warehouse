@@ -149,7 +149,7 @@ async function main() {
   });
 
   if (ownerRole) {
-    await prisma.warehouseRole.upsert({
+    const ownerWr = await prisma.warehouseRole.upsert({
       where: {
         warehouseId_roleTemplateId: {
           warehouseId: warehouse.id,
@@ -159,6 +159,22 @@ async function main() {
       update: {},
       create: { warehouseId: warehouse.id, roleTemplateId: ownerRole.id },
     });
+
+    // Assign all permissions to the Owner warehouse role
+    const allPermissions = await prisma.permission.findMany();
+    for (const perm of allPermissions) {
+      await prisma.warehouseRolePermission.upsert({
+        where: {
+          warehouseRoleId_permissionId: {
+            warehouseRoleId: ownerWr.id,
+            permissionId: perm.id,
+          },
+        },
+        update: {},
+        create: { warehouseRoleId: ownerWr.id, permissionId: perm.id },
+      });
+    }
+    console.log(`Assigned ${allPermissions.length} permissions to Owner role.`);
   }
 
   const passwordHash = await bcrypt.hash("logicore123", 12);

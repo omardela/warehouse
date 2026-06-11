@@ -6,6 +6,7 @@ import bcrypt from "bcryptjs";
 import { SignJWT } from "jose";
 import { db } from "@/lib/db";
 import { SESSION_COOKIE_NAME } from "@/core/auth/session";
+import { writeAuditLog } from "@/core/audit/write-audit-log";
 
 type LoginResult = { error: string } | never;
 
@@ -46,13 +47,11 @@ export async function loginAction(
   if (!employee || !passwordMatches) {
     // Log failed attempt if the employee record was found
     if (employee) {
-      await db.auditLog.create({
-        data: {
-          actorId: employee.id,
-          action: "auth.login_failed",
-          entityType: "Employee",
-          entityId: employee.id,
-        },
+      await writeAuditLog({
+        actorId: employee.id,
+        action: "auth.login_failed",
+        entityType: "Employee",
+        entityId: employee.id,
       });
     }
     return { error: "Invalid email or password" };
@@ -98,15 +97,12 @@ export async function loginAction(
     maxAge: SEVEN_DAYS_IN_SECONDS,
   });
 
-  // TODO: replace with audit utility from issue #003
-  await db.auditLog.create({
-    data: {
-      actorId: employee.id,
-      action: "auth.login",
-      entityType: "Employee",
-      entityId: employee.id,
-      after: { email: employee.email },
-    },
+  await writeAuditLog({
+    actorId: employee.id,
+    action: "auth.login",
+    entityType: "Employee",
+    entityId: employee.id,
+    after: { email: employee.email },
   });
 
   redirect("/dashboard");
