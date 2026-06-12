@@ -6,6 +6,7 @@ import { db } from "@/lib/db";
 import { getSession } from "@/core/auth/session";
 import { writeAuditLog } from "@/core/audit/write-audit-log";
 import { requirePermission } from "@/core/auth/require-permission";
+import { isOwnerRole } from "@/core/auth/owner-guard";
 
 const createRoleSchema = z.object({
   roleTemplateId: z.string().min(1, "Please select a role template"),
@@ -51,6 +52,10 @@ export async function createWarehouseRoleAction(
 
   if (!template) {
     return { error: "Role template not found" };
+  }
+
+  if (isOwnerRole(template.name)) {
+    return { error: "The Owner role is system-protected and cannot be added via this form." };
   }
 
   const existing = await db.warehouseRole.findUnique({

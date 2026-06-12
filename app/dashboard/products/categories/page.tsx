@@ -3,12 +3,14 @@ import { getSession } from "@/core/auth/session";
 import { db } from "@/lib/db";
 import { CategoryInlineForm } from "./CategoryInlineForm";
 import { deleteCategoryAction } from "./actions";
+import { requirePagePermission } from "@/core/auth/require-page-permission";
 
 export const dynamic = "force-dynamic";
 
 export default async function ProductCategoriesPage() {
   const session = await getSession();
   if (!session) redirect("/login");
+  await requirePagePermission(session, "inventory.product.read");
 
   const categories = await db.productCategory.findMany({
     where: { organizationId: session.orgId },

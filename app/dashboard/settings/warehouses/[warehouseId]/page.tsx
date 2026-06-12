@@ -2,6 +2,7 @@ import { notFound, redirect } from "next/navigation";
 import { getSession } from "@/core/auth/session";
 import { db } from "@/lib/db";
 import { WarehouseForm } from "../WarehouseForm";
+import { requirePagePermission } from "@/core/auth/require-page-permission";
 
 interface EditWarehousePageProps {
   params: Promise<{ warehouseId: string }>;
@@ -14,6 +15,7 @@ export default async function EditWarehousePage({
   if (!session) {
     redirect("/login");
   }
+  await requirePagePermission(session, "settings.warehouse.update");
 
   const { warehouseId } = await params;
 

@@ -204,18 +204,87 @@ async function main() {
   }
 
   const passwordHash = await bcrypt.hash("logicore123", 12);
-  await prisma.employee.upsert({
-    where: { email: "owner@logicore.dev" },
-    update: {},
+
+  // Assign owner employee to the Owner warehouseRole
+  if (ownerRole) {
+    const ownerWr = await prisma.warehouseRole.findUnique({
+      where: {
+        warehouseId_roleTemplateId: {
+          warehouseId: warehouse.id,
+          roleTemplateId: ownerRole.id,
+        },
+      },
+    });
+    await prisma.employee.upsert({
+      where: { email: "owner@logicore.dev" },
+      update: { warehouseRoleId: ownerWr?.id },
+      create: {
+        name: "Demo Owner",
+        email: "owner@logicore.dev",
+        passwordHash,
+        warehouseId: warehouse.id,
+        warehouseRoleId: ownerWr?.id,
+      },
+    });
+  }
+
+  console.log("Dev account: owner@logicore.dev / logicore123");
+
+  // -------------------------------------------------------------------------
+  // Role Manager test account — only roles.* permissions
+  // -------------------------------------------------------------------------
+  const managerTemplate = await prisma.roleTemplate.upsert({
+    where: { name: "Role Manager" },
+    update: { description: "Can manage warehouse roles and permissions only." },
     create: {
-      name: "Demo Owner",
-      email: "owner@logicore.dev",
-      passwordHash,
-      warehouseId: warehouse.id,
+      name: "Role Manager",
+      description: "Can manage warehouse roles and permissions only.",
     },
   });
 
-  console.log("Dev account: owner@logicore.dev / logicore123");
+  const managerWr = await prisma.warehouseRole.upsert({
+    where: {
+      warehouseId_roleTemplateId: {
+        warehouseId: warehouse.id,
+        roleTemplateId: managerTemplate.id,
+      },
+    },
+    update: {},
+    create: { warehouseId: warehouse.id, roleTemplateId: managerTemplate.id },
+  });
+
+  // Grant only roles.* permissions to this role
+  const rolePermissions = await prisma.permission.findMany({
+    where: { code: { startsWith: "roles." } },
+  });
+  for (const perm of rolePermissions) {
+    await prisma.warehouseRolePermission.upsert({
+      where: {
+        warehouseRoleId_permissionId: {
+          warehouseRoleId: managerWr.id,
+          permissionId: perm.id,
+        },
+      },
+      update: {},
+      create: { warehouseRoleId: managerWr.id, permissionId: perm.id },
+    });
+  }
+
+  const rmHash = await bcrypt.hash("roles123", 12);
+  await prisma.employee.upsert({
+    where: { email: "rolemanager@logicore.dev" },
+    update: { warehouseRoleId: managerWr.id },
+    create: {
+      name: "Role Manager",
+      email: "rolemanager@logicore.dev",
+      passwordHash: rmHash,
+      warehouseId: warehouse.id,
+      warehouseRoleId: managerWr.id,
+    },
+  });
+
+  console.log("Role Manager account: rolemanager@logicore.dev / roles123");
+  console.log(`Assigned ${rolePermissions.length} roles.* permissions to Role Manager.`);
 }
 
 main()

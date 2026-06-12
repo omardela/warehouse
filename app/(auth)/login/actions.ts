@@ -37,6 +37,13 @@ export async function loginAction(
       email,
       archivedAt: null,
     },
+    select: {
+      id: true,
+      email: true,
+      passwordHash: true,
+      warehouseId: true,
+      warehouseRoleId: true,
+    },
   });
 
   // Verify password (always run compare to prevent timing side-channel)
@@ -67,13 +74,19 @@ export async function loginAction(
     return { error: "Invalid email or password" };
   }
 
-  // Fetch the first WarehouseRole for this warehouse to get roleId
-  const warehouseRole = await db.warehouseRole.findFirst({
-    where: { warehouseId: employee.warehouseId },
-    select: { roleTemplateId: true },
-  });
+  // Fetch the employee's assigned WarehouseRole
+  const warehouseRole = employee.warehouseRoleId
+    ? await db.warehouseRole.findUnique({
+        where: { id: employee.warehouseRoleId },
+        select: { id: true, roleTemplateId: true },
+      })
+    : await db.warehouseRole.findFirst({
+        where: { warehouseId: employee.warehouseId },
+        select: { id: true, roleTemplateId: true },
+      });
 
   const roleId = warehouseRole?.roleTemplateId ?? "";
+  const warehouseRoleId = warehouseRole?.id ?? "";
 
   // Sign JWT (HS256)
   const token = await new SignJWT({
@@ -81,6 +94,7 @@ export async function loginAction(
     warehouseId: employee.warehouseId,
     orgId: warehouse.organizationId,
     roleId,
+    warehouseRoleId,
   })
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()

@@ -8,6 +8,7 @@ export type SessionPayload = {
   warehouseId: string;
   orgId: string;
   roleId: string;
+  warehouseRoleId: string;
 };
 
 function getSecret(): Uint8Array {
@@ -34,13 +35,15 @@ export async function getSession(): Promise<SessionPayload | null> {
       warehouseId: payload.warehouseId as string,
       orgId: payload.orgId as string,
       roleId: payload.roleId as string,
+      warehouseRoleId: payload.warehouseRoleId as string,
     };
 
     if (
       !session.employeeId ||
       !session.warehouseId ||
       !session.orgId ||
-      !session.roleId
+      !session.roleId ||
+      !session.warehouseRoleId
     ) {
       return null;
     }

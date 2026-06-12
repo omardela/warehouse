@@ -2,12 +2,14 @@ import { redirect } from "next/navigation";
 import { getSession } from "@/core/auth/session";
 import { db } from "@/lib/db";
 import { OrgSettingsForm } from "./OrgSettingsForm";
+import { requirePagePermission } from "@/core/auth/require-page-permission";
 
 export default async function OrganizationSettingsPage() {
   const session = await getSession();
   if (!session) {
     redirect("/login");
   }
+  await requirePagePermission(session, "settings.org.read");
 
   const org = await db.organization.findUnique({
     where: { id: session.orgId },

@@ -3,10 +3,12 @@ import { getSession } from "@/core/auth/session";
 import { db } from "@/lib/db";
 import { ProductForm } from "../ProductForm";
 import { createProductAction } from "./actions";
+import { requirePagePermission } from "@/core/auth/require-page-permission";
 
 export default async function NewProductPage() {
   const session = await getSession();
   if (!session) redirect("/login");
+  await requirePagePermission(session, "inventory.product.create");
 
   const [units, categories] = await Promise.all([
     db.productUnit.findMany({

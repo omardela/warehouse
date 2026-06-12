@@ -3,6 +3,8 @@ import { redirect, notFound } from "next/navigation";
 import { getSession } from "@/core/auth/session";
 import { db } from "@/lib/db";
 import { RolePermissionForm } from "./RolePermissionForm";
+import { requirePagePermission } from "@/core/auth/require-page-permission";
+import { isOwnerRole } from "@/core/auth/owner-guard";
 
 export default async function RoleDetailPage({
   params,
@@ -15,6 +17,7 @@ export default async function RoleDetailPage({
   if (!session) {
     redirect("/login");
   }
+  await requirePagePermission(session, "roles.role.update");
 
   const warehouseRole = await db.warehouseRole.findUnique({
     where: { id: roleId },
@@ -38,6 +41,8 @@ export default async function RoleDetailPage({
   const assignedPermissionIds = warehouseRole.permissions.map(
     (p) => p.permissionId
   );
+
+  const isOwner = isOwnerRole(warehouseRole.roleTemplate.name);
 
   return (
     <div style={{ minHeight: "100vh" }}>
@@ -101,6 +106,22 @@ export default async function RoleDetailPage({
               >
                 {warehouseRole.permissions.length} permissions
               </span>
+              {isOwner && (
+                <span
+                  style={{
+                    fontSize: "11px",
+                    fontWeight: 600,
+                    padding: "2px 8px",
+                    borderRadius: "4px",
+                    backgroundColor: "rgba(245,158,11,0.15)",
+                    color: "#f59e0b",
+                    letterSpacing: "0.05em",
+                    textTransform: "uppercase",
+                  }}
+                >
+                  System-Protected
+                </span>
+              )}
             </div>
             {warehouseRole.roleTemplate.description && (
               <p
@@ -120,6 +141,7 @@ export default async function RoleDetailPage({
         <RolePermissionForm
           roleId={roleId}
           roleName={warehouseRole.roleTemplate.name}
+          isOwner={isOwner}
           allPermissions={allPermissions}
           assignedPermissionIds={assignedPermissionIds}
         />

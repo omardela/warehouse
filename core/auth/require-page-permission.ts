@@ -1,7 +1,16 @@
+import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import type { SessionPayload } from "@/core/auth/session";
 
-export async function requirePermission(
+/**
+ * Server-component permission guard.
+ * Fetches live permissions from the DB via employeeId on every call, so role
+ * reassignments and permission changes take effect immediately without re-login.
+ * Redirects archived employees to /login, unauthorised employees to /dashboard.
+ *
+ * Use requirePermission() (throws Response) for server actions instead.
+ */
+export async function requirePagePermission(
   session: SessionPayload,
   permission: string
 ): Promise<void> {
@@ -20,12 +29,12 @@ export async function requirePermission(
   });
 
   if (!employee || employee.archivedAt) {
-    throw new Response("Forbidden", { status: 403 });
+    redirect("/login");
   }
 
   const permissionCodes = employee.warehouseRole?.permissions.map((p) => p.permission.code) ?? [];
 
   if (!permissionCodes.includes(permission)) {
-    throw new Response("Forbidden", { status: 403 });
+    redirect("/dashboard");
   }
 }

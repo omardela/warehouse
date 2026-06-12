@@ -4,6 +4,7 @@ import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
 import { getSession } from "@/core/auth/session";
+import { requirePermission } from "@/core/auth/require-permission";
 import { writeAuditLog } from "@/core/audit/write-audit-log";
 
 const warehouseSchema = z.object({
@@ -24,6 +25,12 @@ export async function createWarehouseAction(
   const session = await getSession();
   if (!session) {
     return { error: "Unauthorized" };
+  }
+
+  try {
+    await requirePermission(session, "settings.warehouse.create");
+  } catch {
+    return { error: "You do not have permission to create warehouses." };
   }
 
   const rawAddress = formData.get("address");
@@ -53,6 +60,26 @@ export async function createWarehouseAction(
     select: { id: true },
   });
 
+  // Auto-create the creator's role in the new warehouse with the same permissions
+  const creatorRole = await db.warehouseRole.findUnique({
+    where: { id: session.warehouseRoleId },
+    include: { permissions: { select: { permissionId: true } } },
+  });
+  if (creatorRole) {
+    const newWR = await db.warehouseRole.create({
+      data: { warehouseId: warehouse.id, roleTemplateId: creatorRole.roleTemplateId },
+      select: { id: true },
+    });
+    if (creatorRole.permissions.length > 0) {
+      await db.warehouseRolePermission.createMany({
+        data: creatorRole.permissions.map((p) => ({
+          warehouseRoleId: newWR.id,
+          permissionId: p.permissionId,
+        })),
+      });
+    }
+  }
+
   await writeAuditLog({
     actorId: session.employeeId,
     action: "warehouse.create",
@@ -73,6 +100,12 @@ export async function updateWarehouseAction(
   const session = await getSession();
   if (!session) {
     return { error: "Unauthorized" };
+  }
+
+  try {
+    await requirePermission(session, "settings.warehouse.update");
+  } catch {
+    return { error: "You do not have permission to update warehouses." };
   }
 
   const warehouseId = formData.get("warehouseId");

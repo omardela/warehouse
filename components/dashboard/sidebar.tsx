@@ -134,6 +134,25 @@ function IconRoles() {
   );
 }
 
+function IconMovements() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+      <path d="M2 5H11.5M11.5 5L8.5 2M11.5 5L8.5 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M14 11H4.5M4.5 11L7.5 8M4.5 11L7.5 14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function IconAdjustment() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+      <rect x="1.5" y="3.5" width="13" height="9" rx="1" stroke="currentColor" strokeWidth="1.5" />
+      <path d="M8 6V10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+      <path d="M6 8H10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+    </svg>
+  );
+}
+
 function IconSettings() {
   return (
     <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
@@ -163,7 +182,9 @@ const NAV_GROUPS: NavGroup[] = [
     items: [
       { label: "Overview",   href: "/dashboard",             icon: <IconDashboard />, permission: null },
       { label: "Products",   href: "/dashboard/products",    icon: <IconProducts />,  permission: "inventory.product.read" },
-      { label: "Inventory",  href: "/dashboard/inventory",   icon: <IconInventory />, permission: "inventory.balance.read" },
+      { label: "Stock Levels",  href: "/dashboard/inventory/stock",       icon: <IconInventory />,   permission: "inventory.balance.read" },
+      { label: "Movements",     href: "/dashboard/inventory/movements",   icon: <IconMovements />,   permission: "inventory.balance.read" },
+      { label: "Adjustments",   href: "/dashboard/inventory/adjustments", icon: <IconAdjustment />,  permission: "inventory.movement.create" },
       { label: "Sales",      href: "/dashboard/sales",       icon: <IconSales />,     permission: "sales.invoice.read" },
       { label: "Purchases",  href: "/dashboard/purchases",   icon: <IconPurchases />, permission: "purchase.invoice.read" },
       { label: "Customers",  href: "/dashboard/customers",   icon: <IconCustomers />, permission: "customers.customer.read" },

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import type { SessionPayload } from "@/core/auth/session";
+import type { AvailableWarehouse } from "@/providers/warehouse-context";
 import { WarehouseProvider } from "@/providers/warehouse-context";
 import { Sidebar } from "@/components/dashboard/sidebar";
 import { Topbar } from "@/components/dashboard/topbar";
@@ -13,6 +14,7 @@ type DashboardShellProps = {
   employeeName: string;
   employeeEmail: string;
   warehouseName: string;
+  availableWarehouses: AvailableWarehouse[];
 };
 
 export function DashboardShell({
@@ -22,6 +24,7 @@ export function DashboardShell({
   employeeName,
   employeeEmail,
   warehouseName,
+  availableWarehouses,
 }: DashboardShellProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -33,6 +36,7 @@ export function DashboardShell({
         employeeName,
         employeeEmail,
         warehouseName,
+        availableWarehouses,
       }}
     >
       <div

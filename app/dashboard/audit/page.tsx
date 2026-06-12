@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import { getSession } from "@/core/auth/session";
+import { requirePagePermission } from "@/core/auth/require-page-permission";
 
 const LIMIT = 20;
 
@@ -87,6 +88,7 @@ export default async function AuditLogPage({
   if (!session) {
     redirect("/login");
   }
+  await requirePagePermission(session, "audit.log.read");
 
   const params = await searchParams;
 

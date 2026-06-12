@@ -5,6 +5,7 @@ import { db } from "@/lib/db";
 import { getSession } from "@/core/auth/session";
 import { writeAuditLog } from "@/core/audit/write-audit-log";
 import { requirePermission } from "@/core/auth/require-permission";
+import { isOwnerRole } from "@/core/auth/owner-guard";
 
 export type UpdateRolePermissionsState =
   | { success: true }
@@ -43,6 +44,10 @@ export async function updateRolePermissionsAction(
 
   if (!warehouseRole || warehouseRole.warehouseId !== session.warehouseId) {
     return { error: "Role not found or access denied" };
+  }
+
+  if (isOwnerRole(warehouseRole.roleTemplate.name)) {
+    return { error: "The Owner role is system-protected and its permissions cannot be modified." };
   }
 
   const checkedPermissionIds = formData.getAll("permissions") as string[];
@@ -95,6 +100,7 @@ export async function updateRolePermissionsAction(
     warehouseId: session.warehouseId,
   });
 
+  revalidatePath("/dashboard", "layout");
   revalidatePath("/dashboard/settings/roles");
   revalidatePath(`/dashboard/settings/roles/${roleId}`);
 

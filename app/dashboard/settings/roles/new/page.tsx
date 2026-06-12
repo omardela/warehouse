@@ -3,12 +3,15 @@ import { redirect } from "next/navigation";
 import { getSession } from "@/core/auth/session";
 import { db } from "@/lib/db";
 import { CreateRoleForm } from "./CreateRoleForm";
+import { requirePagePermission } from "@/core/auth/require-page-permission";
+import { OWNER_ROLE_NAME } from "@/core/auth/owner-guard";
 
 export default async function NewRolePage() {
   const session = await getSession();
   if (!session) {
     redirect("/login");
   }
+  await requirePagePermission(session, "roles.role.create");
 
   const assignedRoles = await db.warehouseRole.findMany({
     where: { warehouseId: session.warehouseId },
@@ -17,10 +20,10 @@ export default async function NewRolePage() {
   const assignedTemplateIds = assignedRoles.map((r) => r.roleTemplateId);
 
   const availableTemplates = await db.roleTemplate.findMany({
-    where:
-      assignedTemplateIds.length > 0
-        ? { id: { notIn: assignedTemplateIds } }
-        : {},
+    where: {
+      name: { not: OWNER_ROLE_NAME },
+      ...(assignedTemplateIds.length > 0 ? { id: { notIn: assignedTemplateIds } } : {}),
+    },
     orderBy: { name: "asc" },
     select: { id: true, name: true, description: true },
   });

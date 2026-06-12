@@ -151,11 +151,13 @@ function ModuleIcon({ module }: { module: string }) {
 export function RolePermissionForm({
   roleId,
   roleName,
+  isOwner = false,
   allPermissions,
   assignedPermissionIds,
 }: {
   roleId: string;
   roleName: string;
+  isOwner?: boolean;
   allPermissions: PermissionItem[];
   assignedPermissionIds: string[];
 }) {
@@ -204,12 +206,39 @@ export function RolePermissionForm({
     <form
       onSubmit={(e) => {
         e.preventDefault();
+        if (isOwner) return;
         const fd = new FormData();
         fd.set("roleId", roleId);
         checkedIds.forEach((id) => fd.append("permissions", id));
         startTransition(() => formAction(fd));
       }}
     >
+      {isOwner && (
+        <div
+          style={{
+            marginBottom: "16px",
+            padding: "12px 16px",
+            borderRadius: "8px",
+            backgroundColor: "rgba(245,158,11,0.08)",
+            border: "1px solid rgba(245,158,11,0.25)",
+            color: "#f59e0b",
+            fontSize: "13px",
+            display: "flex",
+            alignItems: "flex-start",
+            gap: "10px",
+          }}
+        >
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0, marginTop: "1px" }}>
+            <path d="M8 1.5C4.41 1.5 1.5 4.41 1.5 8C1.5 11.59 4.41 14.5 8 14.5C11.59 14.5 14.5 11.59 14.5 8C14.5 4.41 11.59 1.5 8 1.5Z" stroke="currentColor" strokeWidth="1.5" />
+            <path d="M8 5V8.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+            <circle cx="8" cy="11" r="0.75" fill="currentColor" />
+          </svg>
+          <span>
+            <strong>System-protected role.</strong> The Owner role always has full access to all
+            permissions. Its permissions cannot be modified or removed.
+          </span>
+        </div>
+      )}
       {state && "success" in state && (
         <div
           style={{
@@ -272,22 +301,24 @@ export function RolePermissionForm({
           </span>{" "}
           of {allPermissions.length} permissions selected
         </span>
-        <button
-          type="submit"
-          disabled={isPending}
-          style={{
-            padding: "7px 18px",
-            borderRadius: "7px",
-            backgroundColor: isPending ? "#1a2237" : "#0062ff",
-            color: isPending ? "#8c90a2" : "#fff",
-            fontSize: "12px",
-            fontWeight: 600,
-            border: "none",
-            cursor: isPending ? "not-allowed" : "pointer",
-          }}
-        >
-          {isPending ? "Saving..." : "Save Changes"}
-        </button>
+        {!isOwner && (
+          <button
+            type="submit"
+            disabled={isPending}
+            style={{
+              padding: "7px 18px",
+              borderRadius: "7px",
+              backgroundColor: isPending ? "#1a2237" : "#0062ff",
+              color: isPending ? "#8c90a2" : "#fff",
+              fontSize: "12px",
+              fontWeight: 600,
+              border: "none",
+              cursor: isPending ? "not-allowed" : "pointer",
+            }}
+          >
+            {isPending ? "Saving..." : "Save Changes"}
+          </button>
+        )}
       </div>
 
       {/* Permission groups */}
@@ -306,6 +337,7 @@ export function RolePermissionForm({
               someChecked={someChecked}
               onToggleModule={() => toggleModule(group)}
               onTogglePermission={togglePermission}
+              readOnly={isOwner}
             />
           );
         })}
@@ -313,22 +345,24 @@ export function RolePermissionForm({
 
       {/* Bottom save button */}
       <div style={{ marginTop: "24px", display: "flex", gap: "10px" }}>
-        <button
-          type="submit"
-          disabled={isPending}
-          style={{
-            padding: "9px 24px",
-            borderRadius: "8px",
-            backgroundColor: isPending ? "#1a2237" : "#0062ff",
-            color: isPending ? "#8c90a2" : "#fff",
-            fontSize: "13px",
-            fontWeight: 500,
-            border: "none",
-            cursor: isPending ? "not-allowed" : "pointer",
-          }}
-        >
-          {isPending ? "Saving..." : "Save Changes"}
-        </button>
+        {!isOwner && (
+          <button
+            type="submit"
+            disabled={isPending}
+            style={{
+              padding: "9px 24px",
+              borderRadius: "8px",
+              backgroundColor: isPending ? "#1a2237" : "#0062ff",
+              color: isPending ? "#8c90a2" : "#fff",
+              fontSize: "13px",
+              fontWeight: 500,
+              border: "none",
+              cursor: isPending ? "not-allowed" : "pointer",
+            }}
+          >
+            {isPending ? "Saving..." : "Save Changes"}
+          </button>
+        )}
         <a
           href="/dashboard/settings/roles"
           style={{
@@ -357,6 +391,7 @@ function ModuleCard({
   someChecked,
   onToggleModule,
   onTogglePermission,
+  readOnly = false,
 }: {
   group: ModuleGroup;
   checkedIds: Set<string>;
@@ -364,10 +399,10 @@ function ModuleCard({
   someChecked: boolean;
   onToggleModule: () => void;
   onTogglePermission: (id: string) => void;
+  readOnly?: boolean;
 }) {
   const [expanded, setExpanded] = useState(true);
 
-  // Suppress unused variable warning
   void someChecked;
 
   return (
@@ -412,24 +447,26 @@ function ModuleCard({
         </div>
 
         <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              onToggleModule();
-            }}
-            style={{
-              fontSize: "11px",
-              fontWeight: 500,
-              color: allChecked ? "#ffb4ab" : "#0062ff",
-              background: "none",
-              border: "none",
-              cursor: "pointer",
-              padding: "2px 0",
-            }}
-          >
-            {allChecked ? "Deselect All" : "Select All"}
-          </button>
+          {!readOnly && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onToggleModule();
+              }}
+              style={{
+                fontSize: "11px",
+                fontWeight: 500,
+                color: allChecked ? "#ffb4ab" : "#0062ff",
+                background: "none",
+                border: "none",
+                cursor: "pointer",
+                padding: "2px 0",
+              }}
+            >
+              {allChecked ? "Deselect All" : "Select All"}
+            </button>
+          )}
 
           <svg
             width="14"
@@ -484,18 +521,19 @@ function ModuleCard({
                 }
               >
                 <div
-                  onClick={() => onTogglePermission(perm.id)}
+                  onClick={() => { if (!readOnly) onTogglePermission(perm.id); }}
                   style={{
                     width: "16px",
                     height: "16px",
                     borderRadius: "4px",
                     border: checked ? "1.5px solid #0062ff" : "1.5px solid #2d3449",
-                    backgroundColor: checked ? "#0062ff" : "transparent",
+                    backgroundColor: checked ? (readOnly ? "#1a3a6b" : "#0062ff") : "transparent",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
                     flexShrink: 0,
-                    cursor: "pointer",
+                    cursor: readOnly ? "default" : "pointer",
+                    opacity: readOnly ? 0.6 : 1,
                   }}
                 >
                   {checked && (
@@ -517,7 +555,7 @@ function ModuleCard({
                       fontWeight: checked ? 500 : 400,
                       color: checked ? "#dbe2fd" : "#8c90a2",
                     }}
-                    onClick={() => onTogglePermission(perm.id)}
+                    onClick={() => { if (!readOnly) onTogglePermission(perm.id); }}
                   >
                     {formatPermissionLabel(perm.code)}
                   </div>

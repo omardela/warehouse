@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { getSession } from "@/core/auth/session";
 import { db } from "@/lib/db";
+import { requirePagePermission } from "@/core/auth/require-page-permission";
 
 export const dynamic = "force-dynamic";
 
@@ -25,6 +26,7 @@ function formatQty(val: { toString(): string } | null | undefined): string {
 export default async function ProductsPage({ searchParams }: PageProps) {
   const session = await getSession();
   if (!session) redirect("/login");
+  await requirePagePermission(session, "inventory.product.read");
 
   const params = await searchParams;
   const q = params.q?.trim() ?? "";

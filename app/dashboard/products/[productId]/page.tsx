@@ -3,6 +3,7 @@ import { getSession } from "@/core/auth/session";
 import { db } from "@/lib/db";
 import { ProductForm } from "../ProductForm";
 import { updateProductAction, archiveProductAction, unarchiveProductAction } from "./actions";
+import { requirePagePermission } from "@/core/auth/require-page-permission";
 
 interface PageProps {
   params: Promise<{ productId: string }>;
@@ -11,6 +12,7 @@ interface PageProps {
 export default async function EditProductPage({ params }: PageProps) {
   const session = await getSession();
   if (!session) redirect("/login");
+  await requirePagePermission(session, "inventory.product.update");
 
   const { productId } = await params;
 

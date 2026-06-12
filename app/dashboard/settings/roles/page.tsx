@@ -2,12 +2,14 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getSession } from "@/core/auth/session";
 import { db } from "@/lib/db";
+import { requirePagePermission } from "@/core/auth/require-page-permission";
 
 export default async function RolesPage() {
   const session = await getSession();
   if (!session) {
     redirect("/login");
   }
+  await requirePagePermission(session, "roles.role.read");
 
   const warehouseRoles = await db.warehouseRole.findMany({
     where: { warehouseId: session.warehouseId },
