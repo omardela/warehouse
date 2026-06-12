@@ -125,6 +125,32 @@ async function main() {
   console.log(`Seeded ${permissions.length} permissions.`);
 
   // -------------------------------------------------------------------------
+  // ProductUnit seeds (common units of measure)
+  // -------------------------------------------------------------------------
+  const productUnits = [
+    { name: "Piece",      symbol: "pcs", isBase: true  },
+    { name: "Kilogram",   symbol: "kg",  isBase: false },
+    { name: "Gram",       symbol: "g",   isBase: false },
+    { name: "Liter",      symbol: "L",   isBase: false },
+    { name: "Milliliter", symbol: "mL",  isBase: false },
+    { name: "Box",        symbol: "box", isBase: false },
+    { name: "Carton",     symbol: "ctn", isBase: false },
+    { name: "Bottle",     symbol: "btl", isBase: false },
+    { name: "Meter",      symbol: "m",   isBase: false },
+    { name: "Pack",       symbol: "pk",  isBase: false },
+  ];
+
+  for (const unit of productUnits) {
+    await prisma.productUnit.upsert({
+      where: { symbol: unit.symbol },
+      update: { name: unit.name, isBase: unit.isBase },
+      create: unit,
+    });
+  }
+
+  console.log(`Seeded ${productUnits.length} product units.`);
+
+  // -------------------------------------------------------------------------
   // Dev test account: owner@logicore.dev / password: logicore123
   // -------------------------------------------------------------------------
   const ownerRole = await prisma.roleTemplate.findUnique({

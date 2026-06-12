@@ -155,7 +155,7 @@ model WarehouseRolePermission {
 model ProductUnit {
   id         String    @id @default(cuid())
   name       String
-  symbol     String
+  symbol     String    @unique
   isBase     Boolean   @default(false)
   archivedAt DateTime?
 
@@ -181,16 +181,18 @@ model ProductCategory {
 }
 
 model Product {
-  id             String    @id @default(cuid())
-  name           String
-  sku            String    @unique
-  description    String?
-  categoryId     String?
-  defaultUnitId  String
-  organizationId String
-  archivedAt     DateTime?
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
+  id                String    @id @default(cuid())
+  name              String
+  sku               String    @unique
+  description       String?
+  categoryId        String?
+  defaultUnitId     String
+  organizationId    String
+  barcode           String?
+  lowStockThreshold Int       @default(10)
+  archivedAt        DateTime?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
 
   organization       Organization            @relation(fields: [organizationId], references: [id])
   category           ProductCategory?        @relation(fields: [categoryId], references: [id])

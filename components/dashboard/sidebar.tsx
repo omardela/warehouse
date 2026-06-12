@@ -176,7 +176,7 @@ const NAV_GROUPS: NavGroup[] = [
     heading: "Administration",
     items: [
       { label: "Audit Log",  href: "/dashboard/audit",       icon: <IconAuditLogs />, permission: "audit.log.read" },
-      { label: "Roles",      href: "/dashboard/roles",       icon: <IconRoles />,     permission: "roles.role.read" },
+      { label: "Roles",      href: "/dashboard/settings/roles",           icon: <IconRoles />,     permission: "roles.role.read" },
     ],
   },
   {
