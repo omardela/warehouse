@@ -19,18 +19,17 @@ export default function RootLayout({
       className="h-full antialiased"
       suppressHydrationWarning
     >
-      <head>
-        <Script id="theme-init" strategy="beforeInteractive">{`
-          try {
-            var t = localStorage.getItem('theme');
-            document.documentElement.classList.add(t === 'light' ? 'light' : 'dark');
-          } catch(e) {}
-        `}</Script>
-      </head>
       <body className="min-h-full flex flex-col">
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
           {children}
         </ThemeProvider>
+        <Script
+          id="theme-init"
+          strategy="beforeInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `try{var t=localStorage.getItem('theme');document.documentElement.classList.add(t==='light'?'light':'dark');}catch(e){}`,
+          }}
+        />
       </body>
     </html>
   );

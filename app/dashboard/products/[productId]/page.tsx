@@ -90,10 +90,10 @@ export default async function EditProductPage({ params }: PageProps) {
       {stockQty !== null && (
         <div style={{ background: "#171f33", borderBottom: "1px solid #222a3e", padding: "10px 24px", display: "flex", gap: "16px", alignItems: "center" }}>
           <span style={{ fontSize: "12px", color: "#8c90a2" }}>Current Stock:</span>
-          <span style={{ fontSize: "14px", fontWeight: 700, color: Number(stockQty) <= product.lowStockThreshold ? "#f59e0b" : "#62df7d" }}>
+          <span style={{ fontSize: "14px", fontWeight: 700, color: (product.lowStockThreshold != null && Number(stockQty) <= product.lowStockThreshold) ? "#f59e0b" : "#62df7d" }}>
             {Number(stockQty) % 1 === 0 ? Number(stockQty).toString() : Number(stockQty).toFixed(3)}{" "}{product.defaultUnit.symbol}
           </span>
-          {Number(stockQty) <= product.lowStockThreshold && (
+          {product.lowStockThreshold != null && Number(stockQty) <= product.lowStockThreshold && (
             <span style={{ padding: "2px 8px", borderRadius: "10px", background: "rgba(245,158,11,0.12)", color: "#f59e0b", fontSize: "11px", fontWeight: 600, border: "1px solid rgba(245,158,11,0.2)" }}>
               LOW STOCK
             </span>
@@ -113,7 +113,7 @@ export default async function EditProductPage({ params }: PageProps) {
           categoryId: product.categoryId ?? "",
           defaultUnitId: product.defaultUnitId,
           barcode: product.barcode ?? "",
-          lowStockThreshold: product.lowStockThreshold,
+          lowStockThreshold: product.lowStockThreshold ?? undefined,
           conversions: product.conversions.map((c) => ({
             fromUnitId: c.fromUnitId,
             toUnitId: c.toUnitId,

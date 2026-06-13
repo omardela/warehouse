@@ -1,6 +1,7 @@
 import { MovementType } from "@prisma/client";
 import { db } from "@/lib/db";
 import { writeAuditLog } from "@/core/audit/write-audit-log";
+import { emitter } from "@/core/realtime/emitter";
 
 export interface RecordMovementParams {
   warehouseId: string;
@@ -63,7 +64,7 @@ export async function recordMovement(
   const delta = getBalanceDelta(movementType, baseQuantity);
 
   // Run the balance upsert + movement insert atomically
-  const movement = await db.$transaction(async (tx) => {
+  const { movement, newQty } = await db.$transaction(async (tx) => {
     // Fetch current balance to validate the new quantity
     const existing = await tx.inventoryBalance.findUnique({
       where: { warehouseId_productId: { warehouseId, productId } },
@@ -96,7 +97,7 @@ export async function recordMovement(
     });
 
     // Create the immutable movement record
-    return tx.inventoryMovement.create({
+    const movement = await tx.inventoryMovement.create({
       data: {
         warehouseId,
         productId,
@@ -110,6 +111,8 @@ export async function recordMovement(
         notes: notes ?? null,
       },
     });
+
+    return { movement, newQty };
   });
 
   // Write audit log after the transaction commits so it is only written on success
@@ -129,5 +132,68 @@ export async function recordMovement(
     },
   });
 
-  return movement;
+  // Emit realtime event — wrapped in try/catch so SSE failure never breaks the movement
+  try {
+    emitter.emit(warehouseId, {
+      type: "stock.updated",
+      payload: { productId, warehouseId, newBalance: newQty },
+    });
+  } catch {
+    // SSE emit failure must not propagate
+  }
+
+  // Low-stock notification check — runs after transaction and audit log
+  let lowStockTriggered = false;
+  try {
+    const product = await db.product.findUnique({
+      where: { id: productId },
+      select: { name: true, lowStockThreshold: true },
+    });
+
+    if (product && product.lowStockThreshold != null && newQty <= product.lowStockThreshold) {
+      // Only create if no unread LOW_STOCK notification already exists for this product+warehouse
+      const existing = await db.notification.findFirst({
+        where: {
+          warehouseId,
+          type: "LOW_STOCK",
+          readAt: null,
+          payload: { path: ["productId"], equals: productId },
+        },
+      });
+
+      if (!existing) {
+        const notification = await db.notification.create({
+          data: {
+            warehouseId,
+            type: "LOW_STOCK",
+            payload: {
+              productId,
+              productName: product.name,
+              currentQuantity: newQty,
+              threshold: product.lowStockThreshold,
+            },
+          },
+        });
+        lowStockTriggered = true;
+
+        // Emit notification.new SSE event — wrapped so it never throws
+        try {
+          emitter.emit(warehouseId, {
+            type: "notification.new",
+            payload: {
+              notificationId: notification.id,
+              type: "LOW_STOCK",
+              summary: `Low stock: ${product.name}`,
+            },
+          });
+        } catch {
+          // SSE emit failure must not propagate
+        }
+      }
+    }
+  } catch {
+    // Low-stock notification failure must never break the movement creation
+  }
+
+  return { movement, lowStockTriggered };
 }

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { getSession } from "@/core/auth/session";
 import { db } from "@/lib/db";
 import { requirePagePermission } from "@/core/auth/require-page-permission";
+import { StockRealtimeWrapper } from "./StockRealtimeWrapper";
 
 export const dynamic = "force-dynamic";
 
@@ -59,7 +60,11 @@ export default async function StockPage({ searchParams }: PageProps) {
       const rawQty = p.inventoryBalances[0]?.currentQuantity ?? null;
       const qty = rawQty != null ? parseFloat(rawQty.toString()) : 0;
       const status: "out" | "low" | "healthy" =
-        qty <= 0 ? "out" : qty <= p.lowStockThreshold ? "low" : "healthy";
+        qty <= 0
+          ? "out"
+          : p.lowStockThreshold != null && qty <= p.lowStockThreshold
+          ? "low"
+          : "healthy";
       return { ...p, qty, status };
     })
     .filter((p) => {
@@ -78,11 +83,11 @@ export default async function StockPage({ searchParams }: PageProps) {
   const totalStockQty = allForStats.reduce((sum, p) => sum + p.qty, 0);
   const activeProductCount = products.filter((p) => !p.archivedAt).length;
   const lowStockCount = allForStats.filter(
-    (p) => p.qty > 0 && p.qty <= p.lowStockThreshold
+    (p) => p.lowStockThreshold != null && p.qty > 0 && p.qty <= p.lowStockThreshold
   ).length;
   const outOfStockCount = allForStats.filter((p) => p.qty <= 0).length;
   const healthyCount = allForStats.filter(
-    (p) => p.qty > p.lowStockThreshold
+    (p) => p.qty > 0 && (p.lowStockThreshold == null || p.qty > p.lowStockThreshold)
   ).length;
 
   return (
@@ -367,221 +372,21 @@ export default async function StockPage({ searchParams }: PageProps) {
           </form>
         </div>
 
-        {/* Table */}
-        <div
-          style={{
-            background: "#171f33",
-            border: "1px solid #222a3e",
-            borderRadius: "10px",
-            overflow: "hidden",
-          }}
-        >
-          <div style={{ overflowX: "auto" }}>
-            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "13px" }}>
-              <thead>
-                <tr style={{ borderBottom: "1px solid #222a3e", background: "#0d1627" }}>
-                  {["Product", "SKU", "Category", "Current Qty", "Low Stock Threshold", "Status"].map((h) => (
-                    <th
-                      key={h}
-                      style={{
-                        padding: "12px 16px",
-                        textAlign: "left",
-                        fontWeight: 600,
-                        color: "#8c90a2",
-                        fontSize: "11px",
-                        textTransform: "uppercase",
-                        letterSpacing: "0.06em",
-                        whiteSpace: "nowrap",
-                      }}
-                    >
-                      {h}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {enriched.length === 0 ? (
-                  <tr>
-                    <td
-                      colSpan={6}
-                      style={{ padding: "56px 24px", textAlign: "center", color: "#8c90a2", fontSize: "14px" }}
-                    >
-                      {q || statusFilter
-                        ? "No products match your filters."
-                        : "No products found for this warehouse."}
-                    </td>
-                  </tr>
-                ) : (
-                  enriched.map((product, idx) => {
-                    const isArchived = !!product.archivedAt;
-
-                    const statusBadge =
-                      product.status === "out"
-                        ? {
-                            label: "Out of Stock",
-                            color: "#f87171",
-                            bg: "rgba(127,29,29,0.15)",
-                          }
-                        : product.status === "low"
-                        ? {
-                            label: "Low Stock",
-                            color: "#fbbf24",
-                            bg: "rgba(120,90,0,0.15)",
-                          }
-                        : {
-                            label: "Healthy",
-                            color: "#62df7d",
-                            bg: "rgba(0,108,73,0.15)",
-                          };
-
-                    return (
-                      <tr
-                        key={product.id}
-                        style={{
-                          borderBottom: idx < enriched.length - 1 ? "1px solid #1a2237" : "none",
-                          background: isArchived ? "rgba(140,144,162,0.03)" : "transparent",
-                        }}
-                      >
-                        {/* Product */}
-                        <td style={{ padding: "12px 16px" }}>
-                          <div
-                            style={{
-                              fontWeight: 500,
-                              color: isArchived ? "#4a5068" : "#dbe2fd",
-                              textDecoration: isArchived ? "line-through" : "none",
-                            }}
-                          >
-                            {product.name}
-                          </div>
-                          {isArchived && (
-                            <div style={{ fontSize: "10px", color: "#4a5068", marginTop: "2px" }}>
-                              ARCHIVED
-                            </div>
-                          )}
-                        </td>
-
-                        {/* SKU */}
-                        <td style={{ padding: "12px 16px" }}>
-                          <span
-                            style={{
-                              fontFamily: "monospace",
-                              fontSize: "12px",
-                              color: isArchived ? "#4a5068" : "#8c90a2",
-                              background: "#0d1627",
-                              padding: "2px 6px",
-                              borderRadius: "4px",
-                              border: "1px solid #222a3e",
-                            }}
-                          >
-                            {product.sku}
-                          </span>
-                        </td>
-
-                        {/* Category */}
-                        <td style={{ padding: "12px 16px" }}>
-                          {product.category ? (
-                            <span
-                              style={{
-                                display: "inline-flex",
-                                alignItems: "center",
-                                padding: "2px 8px",
-                                borderRadius: "12px",
-                                background: "rgba(0,98,255,0.1)",
-                                color: isArchived ? "#4a5068" : "#6b9fff",
-                                fontSize: "11px",
-                                fontWeight: 500,
-                              }}
-                            >
-                              {product.category.name}
-                            </span>
-                          ) : (
-                            <span style={{ color: "#4a5068", fontSize: "12px" }}>—</span>
-                          )}
-                        </td>
-
-                        {/* Current Qty */}
-                        <td style={{ padding: "12px 16px" }}>
-                          <div style={{ display: "flex", alignItems: "baseline", gap: "4px" }}>
-                            <span
-                              style={{
-                                fontWeight: 700,
-                                fontSize: "15px",
-                                color: isArchived
-                                  ? "#4a5068"
-                                  : product.status === "out"
-                                  ? "#f87171"
-                                  : product.status === "low"
-                                  ? "#fbbf24"
-                                  : "#62df7d",
-                              }}
-                            >
-                              {formatQty(product.qty)}
-                            </span>
-                            <span style={{ fontSize: "11px", color: "#4a5068" }}>
-                              {product.defaultUnit.symbol}
-                            </span>
-                          </div>
-                        </td>
-
-                        {/* Low Stock Threshold */}
-                        <td style={{ padding: "12px 16px" }}>
-                          <span style={{ color: "#8c90a2", fontSize: "13px" }}>
-                            {product.lowStockThreshold}{" "}
-                            <span style={{ color: "#4a5068", fontSize: "11px" }}>
-                              {product.defaultUnit.symbol}
-                            </span>
-                          </span>
-                        </td>
-
-                        {/* Status */}
-                        <td style={{ padding: "12px 16px" }}>
-                          <span
-                            style={{
-                              display: "inline-flex",
-                              alignItems: "center",
-                              padding: "3px 8px",
-                              borderRadius: "10px",
-                              fontSize: "11px",
-                              fontWeight: 600,
-                              background: isArchived ? "rgba(140,144,162,0.1)" : statusBadge.bg,
-                              color: isArchived ? "#8c90a2" : statusBadge.color,
-                            }}
-                          >
-                            {isArchived ? "ARCHIVED" : statusBadge.label.toUpperCase()}
-                          </span>
-                        </td>
-                      </tr>
-                    );
-                  })
-                )}
-              </tbody>
-            </table>
-          </div>
-
-          {/* Footer count */}
-          <div
-            style={{
-              padding: "10px 16px",
-              borderTop: "1px solid #222a3e",
-              background: "#0d1627",
-              fontSize: "12px",
-              color: "#4a5068",
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-            }}
-          >
-            <span>
-              {enriched.length} product{enriched.length !== 1 ? "s" : ""} shown
-            </span>
-            <Link
-              href="/dashboard/inventory/movements"
-              style={{ color: "#6699ff", textDecoration: "none", fontSize: "12px" }}
-            >
-              View movement history →
-            </Link>
-          </div>
-        </div>
+        {/* Table — realtime wrapper handles live qty updates */}
+        <StockRealtimeWrapper
+          initialRows={enriched.map((p) => ({
+            id: p.id,
+            name: p.name,
+            sku: p.sku,
+            archivedAt: p.archivedAt,
+            lowStockThreshold: p.lowStockThreshold,
+            qty: p.qty,
+            status: p.status,
+            defaultUnit: p.defaultUnit,
+            category: p.category,
+          }))}
+          warehouseId={session.warehouseId}
+        />
       </div>
     </div>
   );

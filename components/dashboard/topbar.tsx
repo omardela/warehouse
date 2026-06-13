@@ -1,9 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import Link from "next/link";
 import { useTheme } from "@/providers/theme-provider";
 import { useWarehouseContext } from "@/providers/warehouse-context";
 import { switchWarehouseAction } from "@/app/actions/switch-warehouse";
+import { useRealtime } from "@/hooks/use-realtime";
 
 // ── Icons ─────────────────────────────────────────────────────────────────────
 
@@ -299,14 +301,64 @@ function WarehouseSwitcher() {
   );
 }
 
+// ── Notification Bell ─────────────────────────────────────────────────────────
+
+function NotificationBell({ initialCount }: { initialCount: number }) {
+  const [count, setCount] = useState(initialCount);
+  const { lastEvent } = useRealtime();
+
+  useEffect(() => {
+    if (!lastEvent) return;
+    if (lastEvent.type !== "notification.new") return;
+    setCount((c) => c + 1);
+  }, [lastEvent]);
+
+  return (
+    <Link
+      href="/dashboard/notifications"
+      style={{ position: "relative", display: "inline-flex", textDecoration: "none" }}
+    >
+      <IconButton label="Notifications">
+        <IconBell />
+      </IconButton>
+      {count > 0 && (
+        <span
+          style={{
+            position: "absolute",
+            top: "4px",
+            right: "4px",
+            minWidth: "16px",
+            height: "16px",
+            borderRadius: "8px",
+            background: "#f87171",
+            color: "#fff",
+            fontSize: "10px",
+            fontWeight: 700,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: "0 3px",
+            pointerEvents: "none",
+            lineHeight: 1,
+          }}
+        >
+          {count > 99 ? "99+" : count}
+        </span>
+      )}
+    </Link>
+  );
+}
+
 // ── Topbar (exported) ─────────────────────────────────────────────────────────
 
 export function Topbar({
   pageTitle,
   onMenuClick,
+  initialNotificationCount = 0,
 }: {
   pageTitle?: string;
   onMenuClick: () => void;
+  initialNotificationCount?: number;
 }) {
   const { employeeName } = useWarehouseContext();
   const { theme, setTheme } = useTheme();
@@ -352,9 +404,7 @@ export function Topbar({
       <div style={{ display: "flex", alignItems: "center", gap: "6px", flexShrink: 0 }}>
         <WarehouseSwitcher />
 
-        <IconButton label="Notifications">
-          <IconBell />
-        </IconButton>
+        <NotificationBell initialCount={initialNotificationCount} />
 
         <IconButton
           label="Toggle theme"

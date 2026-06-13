@@ -75,6 +75,7 @@ model Warehouse {
   inventoryMovements InventoryMovement[]
   inventoryBalances  InventoryBalance[]
   invoices           Invoice[]
+  notifications      Notification[]
 
   @@map("warehouses")
 }
@@ -192,7 +193,7 @@ model Product {
   defaultUnitId     String
   organizationId    String
   barcode           String?
-  lowStockThreshold Int       @default(10)
+  lowStockThreshold Int?
   archivedAt        DateTime?
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
@@ -318,6 +319,7 @@ model Invoice {
   actorId      String
   confirmedAt  DateTime?
   cancelledAt  DateTime?
+  deliveryDate DateTime?
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
 
@@ -333,13 +335,14 @@ model Invoice {
 }
 
 model InvoiceLine {
-  id         String  @id @default(cuid())
+  id         String   @id @default(cuid())
   invoiceId  String
   productId  String
   unitId     String
-  quantity   Decimal @db.Decimal(20, 6)
-  unitPrice  Decimal @db.Decimal(20, 2)
-  totalPrice Decimal @db.Decimal(20, 2)
+  quantity   Decimal  @db.Decimal(20, 6)
+  unitPrice  Decimal  @db.Decimal(20, 2)
+  totalPrice Decimal  @db.Decimal(20, 2)
+  discount   Decimal? @db.Decimal(5, 2)
 
   invoice Invoice     @relation(fields: [invoiceId], references: [id])
   product Product     @relation(fields: [productId], references: [id])
@@ -362,6 +365,23 @@ model Payment {
   actor   Employee @relation("PaymentActor", fields: [actorId], references: [id])
 
   @@map("payments")
+}
+
+// ---------------------------------------------------------------------------
+// Notifications
+// ---------------------------------------------------------------------------
+
+model Notification {
+  id          String    @id @default(cuid())
+  warehouseId String
+  type        String    // "LOW_STOCK"
+  payload     Json
+  readAt      DateTime?
+  createdAt   DateTime  @default(now())
+
+  warehouse Warehouse @relation(fields: [warehouseId], references: [id])
+
+  @@map("notifications")
 }
 
 // ---------------------------------------------------------------------------

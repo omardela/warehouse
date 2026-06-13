@@ -15,6 +15,7 @@ type DashboardShellProps = {
   employeeEmail: string;
   warehouseName: string;
   availableWarehouses: AvailableWarehouse[];
+  unreadNotificationCount: number;
 };
 
 export function DashboardShell({
@@ -25,6 +26,7 @@ export function DashboardShell({
   employeeEmail,
   warehouseName,
   availableWarehouses,
+  unreadNotificationCount,
 }: DashboardShellProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -48,7 +50,7 @@ export function DashboardShell({
       >
         <Sidebar isOpen={mobileOpen} onClose={() => setMobileOpen(false)} />
         <div style={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0 }}>
-          <Topbar onMenuClick={() => setMobileOpen(true)} />
+          <Topbar onMenuClick={() => setMobileOpen(true)} initialNotificationCount={unreadNotificationCount} />
           <main style={{ flex: 1, padding: "24px" }}>
             {children}
           </main>

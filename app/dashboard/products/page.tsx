@@ -292,7 +292,7 @@ export default async function ProductsPage({ searchParams }: PageProps) {
                   products.map((product) => {
                     const balance = product.inventoryBalances[0]?.currentQuantity ?? null;
                     const qty = balance ? Number(balance) : 0;
-                    const isLowStock = qty <= product.lowStockThreshold;
+                    const isLowStock = product.lowStockThreshold != null && qty <= product.lowStockThreshold;
                     const isArchived = !!product.archivedAt;
 
                     return (

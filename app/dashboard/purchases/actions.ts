@@ -1,0 +1,376 @@
+"use server";
+
+import { z } from "zod";
+import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
+import { db } from "@/lib/db";
+import { getSession } from "@/core/auth/session";
+import { requirePermission } from "@/core/auth/require-permission";
+import { writeAuditLog } from "@/core/audit/write-audit-log";
+import { MovementType } from "@prisma/client";
+
+// ─── Types ────────────────────────────────────────────────────────────────────
+
+export type PurchaseInvoiceActionState =
+  | { success: true; invoiceId?: string }
+  | { error: string; fieldErrors?: Record<string, string[]> }
+  | null;
+
+export type PaymentActionState =
+  | { success: true }
+  | { error: string; fieldErrors?: Record<string, string[]> }
+  | null;
+
+// ─── Create Purchase Invoice ───────────────────────────────────────────────
+
+const lineSchema = z.object({
+  productId: z.string().min(1, "Product is required"),
+  unitId: z.string().min(1, "Unit is required"),
+  quantity: z.coerce.number({ message: "Quantity must be a number" }).positive("Quantity must be positive"),
+  unitPrice: z.coerce.number({ message: "Unit price must be a number" }).min(0, "Unit price cannot be negative"),
+});
+
+const createInvoiceSchema = z.object({
+  supplierId: z.string().min(1, "Supplier is required"),
+  deliveryDate: z.string().optional(),
+  notes: z.string().max(2000).optional(),
+  lines: z.array(lineSchema).min(1, "At least one line item is required"),
+});
+
+export async function createPurchaseInvoiceAction(
+  _prevState: PurchaseInvoiceActionState,
+  formData: FormData
+): Promise<PurchaseInvoiceActionState> {
+  const session = await getSession();
+  if (!session) return { error: "Unauthorized" };
+
+  try {
+    await requirePermission(session, "purchase.invoice.create");
+  } catch {
+    return { error: "You do not have permission to create purchase invoices." };
+  }
+
+  const lineCount = parseInt((formData.get("lineCount") as string) ?? "0", 10);
+  const linesRaw = [];
+  for (let i = 0; i < lineCount; i++) {
+    const productId = (formData.get(`line_productId_${i}`) as string)?.trim();
+    const unitId = (formData.get(`line_unitId_${i}`) as string)?.trim();
+    const quantity = formData.get(`line_quantity_${i}`) as string;
+    const unitPrice = formData.get(`line_unitPrice_${i}`) as string;
+    if (productId && unitId && quantity && unitPrice) {
+      linesRaw.push({ productId, unitId, quantity, unitPrice });
+    }
+  }
+
+  const rawDeliveryDate = (formData.get("deliveryDate") as string)?.trim();
+  const rawNotes = (formData.get("notes") as string)?.trim();
+
+  const parsed = createInvoiceSchema.safeParse({
+    supplierId: formData.get("supplierId"),
+    deliveryDate: rawDeliveryDate || undefined,
+    notes: rawNotes || undefined,
+    lines: linesRaw,
+  });
+
+  if (!parsed.success) {
+    const fieldErrors = parsed.error.flatten().fieldErrors as Record<string, string[]>;
+    const firstMessage =
+      (parsed.error.flatten().formErrors[0]) ||
+      Object.values(fieldErrors).flat()[0] ||
+      "Validation failed";
+    return { error: firstMessage, fieldErrors };
+  }
+
+  const { supplierId, deliveryDate, notes, lines } = parsed.data;
+
+  // Validate supplier belongs to org
+  const supplier = await db.supplier.findFirst({
+    where: { id: supplierId, organizationId: session.orgId, archivedAt: null },
+    select: { id: true },
+  });
+  if (!supplier) return { error: "Supplier not found or archived." };
+
+  // Validate products belong to org
+  const productIds = [...new Set(lines.map((l) => l.productId))];
+  const products = await db.product.findMany({
+    where: { id: { in: productIds }, organizationId: session.orgId },
+    select: { id: true },
+  });
+  if (products.length !== productIds.length) {
+    return { error: "One or more products are invalid." };
+  }
+
+  // Compute totals
+  const lineData = lines.map((l) => ({
+    productId: l.productId,
+    unitId: l.unitId,
+    quantity: l.quantity,
+    unitPrice: l.unitPrice,
+    totalPrice: l.quantity * l.unitPrice,
+  }));
+  const totalAmount = lineData.reduce((sum, l) => sum + l.totalPrice, 0);
+
+  const invoice = await db.$transaction(async (tx) => {
+    const inv = await tx.invoice.create({
+      data: {
+        type: "PURCHASE",
+        status: "DRAFT",
+        warehouseId: session.warehouseId,
+        supplierId,
+        totalAmount,
+        notes: notes || null,
+        actorId: session.employeeId,
+        deliveryDate: deliveryDate ? new Date(deliveryDate) : null,
+      },
+      select: { id: true },
+    });
+
+    await tx.invoiceLine.createMany({
+      data: lineData.map((l) => ({
+        invoiceId: inv.id,
+        productId: l.productId,
+        unitId: l.unitId,
+        quantity: l.quantity,
+        unitPrice: l.unitPrice,
+        totalPrice: l.totalPrice,
+      })),
+    });
+
+    return inv;
+  });
+
+  await writeAuditLog({
+    actorId: session.employeeId,
+    action: "purchase.invoice.create",
+    entityType: "Invoice",
+    entityId: invoice.id,
+    after: { type: "PURCHASE", status: "DRAFT", supplierId, totalAmount, lines: lineData.length },
+  });
+
+  revalidatePath("/dashboard/purchases");
+  return { success: true, invoiceId: invoice.id };
+}
+
+// ─── Confirm Purchase Invoice ──────────────────────────────────────────────
+
+export async function confirmPurchaseInvoiceAction(formData: FormData): Promise<void> {
+  const session = await getSession();
+  if (!session) redirect("/login");
+
+  const invoiceId = formData.get("invoiceId") as string;
+  if (!invoiceId) return;
+
+  try {
+    await requirePermission(session, "purchase.invoice.confirm");
+  } catch {
+    throw new Error("You do not have permission to confirm purchase invoices.");
+  }
+
+  const invoice = await db.invoice.findUnique({
+    where: { id: invoiceId },
+    include: {
+      lines: {
+        include: {
+          product: { select: { id: true, defaultUnitId: true } },
+        },
+      },
+    },
+  });
+
+  if (!invoice) throw new Error("Invoice not found.");
+  if (invoice.warehouseId !== session.warehouseId) throw new Error("Access denied.");
+  if (invoice.status !== "DRAFT") throw new Error("Invoice is not in DRAFT status.");
+  if (invoice.type !== "PURCHASE") throw new Error("Not a purchase invoice.");
+
+  const beforeStatus = invoice.status;
+
+  await db.$transaction(async (tx) => {
+    // Update invoice status first
+    await tx.invoice.update({
+      where: { id: invoiceId },
+      data: { status: "CONFIRMED", confirmedAt: new Date() },
+    });
+
+    // For each line: create inventory movement + upsert balance atomically
+    for (const line of invoice.lines) {
+      const qty = Number(line.quantity);
+      const baseQty = qty; // Assuming 1:1 for simplicity; caller should convert if needed
+
+      // Upsert balance
+      const existing = await tx.inventoryBalance.findUnique({
+        where: { warehouseId_productId: { warehouseId: session.warehouseId, productId: line.productId } },
+        select: { currentQuantity: true },
+      });
+      const currentQty = existing ? Number(existing.currentQuantity) : 0;
+      const newQty = currentQty + baseQty;
+
+      await tx.inventoryBalance.upsert({
+        where: { warehouseId_productId: { warehouseId: session.warehouseId, productId: line.productId } },
+        create: { warehouseId: session.warehouseId, productId: line.productId, currentQuantity: newQty },
+        update: { currentQuantity: newQty },
+      });
+
+      // Create movement record
+      await tx.inventoryMovement.create({
+        data: {
+          warehouseId: session.warehouseId,
+          productId: line.productId,
+          unitId: line.unitId,
+          quantity: qty,
+          baseQuantity: baseQty,
+          movementType: MovementType.PURCHASE_IN,
+          actorId: session.employeeId,
+          referenceId: invoiceId,
+          referenceType: "Invoice",
+          notes: `Purchase invoice confirmed`,
+        },
+      });
+    }
+  });
+
+  await writeAuditLog({
+    actorId: session.employeeId,
+    action: "purchase.invoice.confirm",
+    entityType: "Invoice",
+    entityId: invoiceId,
+    before: { status: beforeStatus },
+    after: { status: "CONFIRMED", confirmedAt: new Date().toISOString() },
+  });
+
+  revalidatePath("/dashboard/purchases");
+  revalidatePath(`/dashboard/purchases/${invoiceId}`);
+  redirect(`/dashboard/purchases/${invoiceId}`);
+}
+
+// ─── Cancel Purchase Invoice ───────────────────────────────────────────────
+
+export async function cancelPurchaseInvoiceAction(formData: FormData): Promise<void> {
+  const session = await getSession();
+  if (!session) redirect("/login");
+
+  const invoiceId = formData.get("invoiceId") as string;
+  if (!invoiceId) return;
+
+  try {
+    await requirePermission(session, "purchase.invoice.cancel");
+  } catch {
+    throw new Error("You do not have permission to cancel purchase invoices.");
+  }
+
+  const invoice = await db.invoice.findUnique({
+    where: { id: invoiceId },
+    select: { id: true, status: true, warehouseId: true, type: true },
+  });
+
+  if (!invoice) throw new Error("Invoice not found.");
+  if (invoice.warehouseId !== session.warehouseId) throw new Error("Access denied.");
+  if (invoice.status === "CANCELLED") throw new Error("Invoice is already cancelled.");
+  if (invoice.type !== "PURCHASE") throw new Error("Not a purchase invoice.");
+
+  const beforeStatus = invoice.status;
+
+  await db.invoice.update({
+    where: { id: invoiceId },
+    data: { status: "CANCELLED", cancelledAt: new Date() },
+  });
+
+  await writeAuditLog({
+    actorId: session.employeeId,
+    action: "purchase.invoice.cancel",
+    entityType: "Invoice",
+    entityId: invoiceId,
+    before: { status: beforeStatus },
+    after: { status: "CANCELLED", cancelledAt: new Date().toISOString() },
+  });
+
+  revalidatePath("/dashboard/purchases");
+  revalidatePath(`/dashboard/purchases/${invoiceId}`);
+  redirect(`/dashboard/purchases/${invoiceId}`);
+}
+
+// ─── Create Purchase Payment ───────────────────────────────────────────────
+
+const paymentSchema = z.object({
+  invoiceId: z.string().min(1),
+  amount: z.coerce.number({ message: "Amount must be a number" }).positive("Amount must be positive"),
+  method: z.enum(["CASH", "CARD", "BANK_TRANSFER"], { message: "Invalid payment method" }),
+  paidAt: z.string().min(1, "Payment date is required"),
+  notes: z.string().max(500).optional(),
+});
+
+export async function createPurchasePaymentAction(
+  _prevState: PaymentActionState,
+  formData: FormData
+): Promise<PaymentActionState> {
+  const session = await getSession();
+  if (!session) return { error: "Unauthorized" };
+
+  try {
+    await requirePermission(session, "payments.payment.create");
+  } catch {
+    return { error: "You do not have permission to record payments." };
+  }
+
+  const rawNotes = (formData.get("notes") as string)?.trim();
+  const parsed = paymentSchema.safeParse({
+    invoiceId: formData.get("invoiceId"),
+    amount: formData.get("amount"),
+    method: formData.get("method"),
+    paidAt: formData.get("paidAt"),
+    notes: rawNotes || undefined,
+  });
+
+  if (!parsed.success) {
+    const fieldErrors = parsed.error.flatten().fieldErrors as Record<string, string[]>;
+    const firstMessage = Object.values(fieldErrors).flat()[0] ?? "Validation failed";
+    return { error: firstMessage, fieldErrors };
+  }
+
+  const { invoiceId, amount, method, paidAt, notes } = parsed.data;
+
+  const invoice = await db.invoice.findUnique({
+    where: { id: invoiceId },
+    select: {
+      id: true,
+      warehouseId: true,
+      type: true,
+      status: true,
+      totalAmount: true,
+      payments: { select: { amount: true } },
+    },
+  });
+
+  if (!invoice) return { error: "Invoice not found." };
+  if (invoice.warehouseId !== session.warehouseId) return { error: "Access denied." };
+  if (invoice.type !== "PURCHASE") return { error: "Not a purchase invoice." };
+  if (invoice.status !== "CONFIRMED") return { error: "Payments can only be recorded on confirmed invoices." };
+
+  const totalPaid = invoice.payments.reduce((sum, p) => sum + Number(p.amount), 0);
+  const remaining = Number(invoice.totalAmount) - totalPaid;
+  if (amount > remaining + 0.001) {
+    return { error: `Payment amount ($${amount.toFixed(2)}) exceeds remaining balance ($${remaining.toFixed(2)}).` };
+  }
+
+  const payment = await db.payment.create({
+    data: {
+      invoiceId,
+      amount,
+      method: method as "CASH" | "CARD" | "BANK_TRANSFER",
+      paidAt: new Date(paidAt),
+      notes: notes || null,
+      actorId: session.employeeId,
+    },
+    select: { id: true },
+  });
+
+  await writeAuditLog({
+    actorId: session.employeeId,
+    action: "payments.payment.create",
+    entityType: "Payment",
+    entityId: payment.id,
+    after: { invoiceId, amount, method, paidAt },
+  });
+
+  revalidatePath(`/dashboard/purchases/${invoiceId}`);
+  return { success: true };
+}

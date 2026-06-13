@@ -13,7 +13,7 @@ interface Product {
   sku: string;
   defaultUnit: { id: string; name: string; symbol: string };
   currentBalance: number | null;
-  lowStockThreshold: number;
+  lowStockThreshold: number | null;
 }
 
 interface AdjustmentFormProps {
@@ -179,7 +179,9 @@ export function AdjustmentForm({ products }: AdjustmentFormProps) {
                       Low Stock At
                     </div>
                     <div style={{ fontSize: "14px", fontWeight: 600, color: "#fbbf24" }}>
-                      {selectedProduct.lowStockThreshold} {selectedProduct.defaultUnit.symbol}
+                      {selectedProduct.lowStockThreshold != null
+                        ? `${selectedProduct.lowStockThreshold} ${selectedProduct.defaultUnit.symbol}`
+                        : "No threshold"}
                     </div>
                   </div>
                 </div>
@@ -303,7 +305,7 @@ export function AdjustmentForm({ products }: AdjustmentFormProps) {
                     style={{
                       fontSize: "18px",
                       fontWeight: 700,
-                      color: newBalance < 0 ? "#f87171" : newBalance <= selectedProduct.lowStockThreshold ? "#fbbf24" : "#62df7d",
+                      color: newBalance < 0 ? "#f87171" : (selectedProduct.lowStockThreshold != null && newBalance <= selectedProduct.lowStockThreshold) ? "#fbbf24" : "#62df7d",
                     }}
                   >
                     {newBalance < 0

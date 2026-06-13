@@ -14,10 +14,9 @@ export default async function DashboardLayout({
     redirect("/login");
   }
 
-  // Fetch employee (with live role+permissions), warehouse, and available warehouses
-  // in parallel. Permissions are resolved via employeeId so role reassignments
-  // and permission changes apply immediately without requiring re-login.
-  const [employee, warehouse, availableWarehouses] = await Promise.all([
+  // Fetch employee (with live role+permissions), warehouse, available warehouses,
+  // and unread notification count in parallel.
+  const [employee, warehouse, availableWarehouses, unreadNotificationCount] = await Promise.all([
     db.employee.findUnique({
       where: { id: session.employeeId },
       select: {
@@ -42,6 +41,9 @@ export default async function DashboardLayout({
       select: { id: true, name: true },
       orderBy: { name: "asc" },
     }),
+    db.notification.count({
+      where: { warehouseId: session.warehouseId, readAt: null },
+    }),
   ]);
 
   if (!employee || employee.archivedAt) {
@@ -58,6 +60,7 @@ export default async function DashboardLayout({
       employeeEmail={employee.email ?? ""}
       warehouseName={warehouse?.name ?? "Warehouse"}
       availableWarehouses={availableWarehouses}
+      unreadNotificationCount={unreadNotificationCount}
     >
       {children}
     </DashboardShell>
