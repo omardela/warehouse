@@ -23,6 +23,18 @@ async function main() {
       name: "Accountant",
       description: "Reads financial reports and manages payments.",
     },
+    {
+      name: "Sales Manager",
+      description: "Oversees all sales operations, customers, and payments.",
+    },
+    {
+      name: "Sales Representative",
+      description: "Creates and manages sales invoices and customer records.",
+    },
+    {
+      name: "Warehouse Keeper",
+      description: "Manages inventory, stock movements, and purchase receiving.",
+    },
   ];
 
   for (const rt of roleTemplates) {
@@ -285,6 +297,123 @@ async function main() {
 
   console.log("Role Manager account: rolemanager@logicore.dev / roles123");
   console.log(`Assigned ${rolePermissions.length} roles.* permissions to Role Manager.`);
+
+  // -------------------------------------------------------------------------
+  // Sales Manager role — full sales + payments + customer/supplier reads
+  // -------------------------------------------------------------------------
+  const salesManagerTemplate = await prisma.roleTemplate.findUnique({
+    where: { name: "Sales Manager" },
+  });
+  if (salesManagerTemplate) {
+    const smWr = await prisma.warehouseRole.upsert({
+      where: {
+        warehouseId_roleTemplateId: {
+          warehouseId: warehouse.id,
+          roleTemplateId: salesManagerTemplate.id,
+        },
+      },
+      update: {},
+      create: { warehouseId: warehouse.id, roleTemplateId: salesManagerTemplate.id },
+    });
+
+    const salesManagerPerms = [
+      "sales.invoice.create", "sales.invoice.confirm", "sales.invoice.cancel", "sales.invoice.read",
+      "payments.payment.create", "payments.payment.read",
+      "customers.customer.create", "customers.customer.read", "customers.customer.update", "customers.customer.archive",
+      "suppliers.supplier.read",
+      "purchase.invoice.read",
+      "inventory.product.read", "inventory.balance.read",
+      "employees.employee.read",
+      "reports.report.read",
+    ];
+    const smPerms = await prisma.permission.findMany({
+      where: { code: { in: salesManagerPerms } },
+    });
+    for (const perm of smPerms) {
+      await prisma.warehouseRolePermission.upsert({
+        where: { warehouseRoleId_permissionId: { warehouseRoleId: smWr.id, permissionId: perm.id } },
+        update: {},
+        create: { warehouseRoleId: smWr.id, permissionId: perm.id },
+      });
+    }
+    console.log(`Assigned ${smPerms.length} permissions to Sales Manager role.`);
+  }
+
+  // -------------------------------------------------------------------------
+  // Sales Representative role — create/read sales + customer management
+  // -------------------------------------------------------------------------
+  const salesRepTemplate = await prisma.roleTemplate.findUnique({
+    where: { name: "Sales Representative" },
+  });
+  if (salesRepTemplate) {
+    const srWr = await prisma.warehouseRole.upsert({
+      where: {
+        warehouseId_roleTemplateId: {
+          warehouseId: warehouse.id,
+          roleTemplateId: salesRepTemplate.id,
+        },
+      },
+      update: {},
+      create: { warehouseId: warehouse.id, roleTemplateId: salesRepTemplate.id },
+    });
+
+    const salesRepPerms = [
+      "sales.invoice.create", "sales.invoice.read",
+      "customers.customer.create", "customers.customer.read", "customers.customer.update",
+      "inventory.product.read", "inventory.balance.read",
+      "suppliers.supplier.read",
+      "payments.payment.read",
+    ];
+    const srPerms = await prisma.permission.findMany({
+      where: { code: { in: salesRepPerms } },
+    });
+    for (const perm of srPerms) {
+      await prisma.warehouseRolePermission.upsert({
+        where: { warehouseRoleId_permissionId: { warehouseRoleId: srWr.id, permissionId: perm.id } },
+        update: {},
+        create: { warehouseRoleId: srWr.id, permissionId: perm.id },
+      });
+    }
+    console.log(`Assigned ${srPerms.length} permissions to Sales Representative role.`);
+  }
+
+  // -------------------------------------------------------------------------
+  // Warehouse Keeper role — inventory, purchase receiving, supplier mgmt
+  // -------------------------------------------------------------------------
+  const warehouseKeeperTemplate = await prisma.roleTemplate.findUnique({
+    where: { name: "Warehouse Keeper" },
+  });
+  if (warehouseKeeperTemplate) {
+    const wkWr = await prisma.warehouseRole.upsert({
+      where: {
+        warehouseId_roleTemplateId: {
+          warehouseId: warehouse.id,
+          roleTemplateId: warehouseKeeperTemplate.id,
+        },
+      },
+      update: {},
+      create: { warehouseId: warehouse.id, roleTemplateId: warehouseKeeperTemplate.id },
+    });
+
+    const warehouseKeeperPerms = [
+      "inventory.product.create", "inventory.product.read", "inventory.product.update",
+      "inventory.movement.create", "inventory.balance.read",
+      "purchase.invoice.create", "purchase.invoice.confirm", "purchase.invoice.cancel", "purchase.invoice.read",
+      "suppliers.supplier.create", "suppliers.supplier.read", "suppliers.supplier.update",
+      "payments.payment.read",
+    ];
+    const wkPerms = await prisma.permission.findMany({
+      where: { code: { in: warehouseKeeperPerms } },
+    });
+    for (const perm of wkPerms) {
+      await prisma.warehouseRolePermission.upsert({
+        where: { warehouseRoleId_permissionId: { warehouseRoleId: wkWr.id, permissionId: perm.id } },
+        update: {},
+        create: { warehouseRoleId: wkWr.id, permissionId: perm.id },
+      });
+    }
+    console.log(`Assigned ${wkPerms.length} permissions to Warehouse Keeper role.`);
+  }
 }
 
 main()

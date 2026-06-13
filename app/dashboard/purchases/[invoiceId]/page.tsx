@@ -3,7 +3,8 @@ import Link from "next/link";
 import { getSession } from "@/core/auth/session";
 import { db } from "@/lib/db";
 import { requirePagePermission } from "@/core/auth/require-page-permission";
-import { confirmPurchaseInvoiceAction, cancelPurchaseInvoiceAction } from "../actions";
+import { confirmPurchaseInvoiceAction } from "../actions";
+import { CancelInvoiceButton } from "./CancelInvoiceButton";
 
 export const dynamic = "force-dynamic";
 
@@ -177,29 +178,7 @@ export default async function PurchaseInvoiceDetailPage({ params }: PageProps) {
                 >
                   Record Payment
                 </Link>
-                <form action={cancelPurchaseInvoiceAction} style={{ display: "inline" }}>
-                  <input type="hidden" name="invoiceId" value={invoice.id} />
-                  <button
-                    type="submit"
-                    style={{
-                      padding: "8px 16px",
-                      borderRadius: "8px",
-                      border: "1px solid rgba(255,180,171,0.3)",
-                      background: "rgba(255,180,171,0.08)",
-                      color: "#ffb4ab",
-                      fontSize: "13px",
-                      fontWeight: 500,
-                      cursor: "pointer",
-                    }}
-                    onClick={(e) => {
-                      if (!confirm("Are you sure you want to cancel this invoice? This action cannot be undone.")) {
-                        e.preventDefault();
-                      }
-                    }}
-                  >
-                    Cancel Invoice
-                  </button>
-                </form>
+                <CancelInvoiceButton invoiceId={invoice.id} />
               </>
             )}
           </div>

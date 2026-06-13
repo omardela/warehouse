@@ -8,6 +8,7 @@ import { getSession } from "@/core/auth/session";
 import { requirePermission } from "@/core/auth/require-permission";
 import { writeAuditLog } from "@/core/audit/write-audit-log";
 import { MovementType } from "@prisma/client";
+import { writeNotification } from "@/core/notifications/write-notification";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -237,6 +238,13 @@ export async function confirmPurchaseInvoiceAction(formData: FormData): Promise<
     after: { status: "CONFIRMED", confirmedAt: new Date().toISOString() },
   });
 
+  await writeNotification({
+    warehouseId: session.warehouseId,
+    type: "PURCHASE_INVOICE_CONFIRMED",
+    payload: { invoiceId, totalAmount: Number(invoice.totalAmount ?? 0) },
+    summary: `Purchase invoice confirmed`,
+  });
+
   revalidatePath("/dashboard/purchases");
   revalidatePath(`/dashboard/purchases/${invoiceId}`);
   redirect(`/dashboard/purchases/${invoiceId}`);
@@ -369,6 +377,13 @@ export async function createPurchasePaymentAction(
     entityType: "Payment",
     entityId: payment.id,
     after: { invoiceId, amount, method, paidAt },
+  });
+
+  await writeNotification({
+    warehouseId: session.warehouseId,
+    type: "PAYMENT_RECORDED",
+    payload: { invoiceId, paymentId: payment.id, amount, method, invoiceType: "PURCHASE" },
+    summary: `Payment of $${amount.toFixed(2)} recorded on purchase invoice`,
   });
 
   revalidatePath(`/dashboard/purchases/${invoiceId}`);

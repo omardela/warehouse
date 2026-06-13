@@ -50,7 +50,7 @@ function StatusBadge({ status }: { status: string }) {
 export default async function SalesPage({ searchParams }: PageProps) {
   const session = await getSession();
   if (!session) redirect("/login");
-  await requirePagePermission(session, "sales.invoices.read");
+  await requirePagePermission(session, "sales.invoice.read");
 
   const params = await searchParams;
   const statusFilter = params.status ?? "ALL";

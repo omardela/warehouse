@@ -3,7 +3,9 @@
 import { useActionState, useState, startTransition } from "react";
 import {
   updateRolePermissionsAction,
+  updateRoleNameAction,
   type UpdateRolePermissionsState,
+  type UpdateRoleNameState,
 } from "./actions";
 
 type PermissionItem = {
@@ -164,11 +166,17 @@ export function RolePermissionForm({
   const [checkedIds, setCheckedIds] = useState<Set<string>>(
     new Set(assignedPermissionIds)
   );
+  const [nameValue, setNameValue] = useState(roleName);
 
   const [state, formAction, isPending] = useActionState<
     UpdateRolePermissionsState,
     FormData
   >(updateRolePermissionsAction, null);
+
+  const [nameState, nameFormAction, nameIsPending] = useActionState<
+    UpdateRoleNameState,
+    FormData
+  >(updateRoleNameAction, null);
 
   const groups = groupPermissions(allPermissions);
 
@@ -199,10 +207,129 @@ export function RolePermissionForm({
 
   const totalSelected = checkedIds.size;
 
-  // Suppress unused variable warning
-  void roleName;
-
   return (
+    <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+      {/* ── Role Name editor ────────────────────────────────────────── */}
+      <div
+        style={{
+          backgroundColor: "#171f33",
+          border: "1px solid #222a3e",
+          borderRadius: "10px",
+          padding: "20px",
+        }}
+      >
+        <h2
+          style={{
+            fontSize: "13px",
+            fontWeight: 600,
+            color: "#8c90a2",
+            margin: "0 0 14px",
+            textTransform: "uppercase",
+            letterSpacing: "0.06em",
+          }}
+        >
+          Role Name
+        </h2>
+
+        {nameState && "success" in nameState && (
+          <div
+            style={{
+              marginBottom: "12px",
+              padding: "8px 12px",
+              borderRadius: "6px",
+              backgroundColor: "rgba(98,223,125,0.1)",
+              border: "1px solid rgba(98,223,125,0.25)",
+              color: "#62df7d",
+              fontSize: "12px",
+              display: "flex",
+              alignItems: "center",
+              gap: "6px",
+            }}
+          >
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+              <path d="M2 6L4.5 8.5L10 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+            Role renamed to &ldquo;{nameState.name}&rdquo;.
+          </div>
+        )}
+        {nameState && "error" in nameState && (
+          <div
+            style={{
+              marginBottom: "12px",
+              padding: "8px 12px",
+              borderRadius: "6px",
+              backgroundColor: "rgba(255,180,171,0.1)",
+              border: "1px solid rgba(255,180,171,0.3)",
+              color: "#ffb4ab",
+              fontSize: "12px",
+            }}
+          >
+            {nameState.error}
+          </div>
+        )}
+
+        {isOwner ? (
+          <div
+            style={{
+              padding: "9px 12px",
+              background: "#0b1326",
+              border: "1px solid #1e2639",
+              borderRadius: "8px",
+              color: "#8c90a2",
+              fontSize: "13px",
+            }}
+          >
+            {nameValue}
+          </div>
+        ) : (
+          <form action={nameFormAction} style={{ display: "flex", gap: "10px", alignItems: "flex-start" }}>
+            <input type="hidden" name="roleId" value={roleId} />
+            <input
+              name="roleName"
+              value={nameValue}
+              onChange={(e) => setNameValue(e.target.value)}
+              maxLength={50}
+              style={{
+                flex: 1,
+                padding: "9px 12px",
+                background: "#0d1627",
+                border: "1px solid #2d3449",
+                borderRadius: "8px",
+                color: "#dbe2fd",
+                fontSize: "13px",
+                outline: "none",
+              }}
+              onFocus={(e) => {
+                e.currentTarget.style.borderColor = "#0062ff";
+                e.currentTarget.style.boxShadow = "0 0 0 3px rgba(0,98,255,0.2)";
+              }}
+              onBlur={(e) => {
+                e.currentTarget.style.borderColor = "#2d3449";
+                e.currentTarget.style.boxShadow = "none";
+              }}
+            />
+            <button
+              type="submit"
+              disabled={nameIsPending || nameValue.trim() === ""}
+              style={{
+                padding: "9px 18px",
+                borderRadius: "8px",
+                backgroundColor: nameIsPending ? "#1a2237" : "#0062ff",
+                color: nameIsPending ? "#8c90a2" : "#fff",
+                fontSize: "13px",
+                fontWeight: 500,
+                border: "none",
+                cursor: nameIsPending ? "not-allowed" : "pointer",
+                whiteSpace: "nowrap",
+              }}
+            >
+              {nameIsPending ? "Saving..." : "Rename"}
+            </button>
+          </form>
+        )}
+      </div>
+
+      {/* ── Permissions form ─────────────────────────────────────────── */}
     <form
       onSubmit={(e) => {
         e.preventDefault();
@@ -381,6 +508,7 @@ export function RolePermissionForm({
         </a>
       </div>
     </form>
+    </div>
   );
 }
 

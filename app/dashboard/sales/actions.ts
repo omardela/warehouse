@@ -7,6 +7,7 @@ import { getSession } from "@/core/auth/session";
 import { requirePermission } from "@/core/auth/require-permission";
 import { writeAuditLog } from "@/core/audit/write-audit-log";
 import { Prisma } from "@prisma/client";
+import { writeNotification } from "@/core/notifications/write-notification";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -48,7 +49,7 @@ export async function createSalesInvoiceAction(
   if (!session) return { error: "Unauthorized" };
 
   try {
-    await requirePermission(session, "sales.invoices.create");
+    await requirePermission(session, "sales.invoice.create");
   } catch {
     return { error: "You do not have permission to create sales invoices." };
   }
@@ -157,7 +158,7 @@ export async function confirmSalesInvoiceAction(
   if (!session) return { error: "Unauthorized" };
 
   try {
-    await requirePermission(session, "sales.invoices.confirm");
+    await requirePermission(session, "sales.invoice.confirm");
   } catch {
     return { error: "You do not have permission to confirm sales invoices." };
   }
@@ -274,6 +275,13 @@ export async function confirmSalesInvoiceAction(
     return { error: message };
   }
 
+  await writeNotification({
+    warehouseId: session.warehouseId,
+    type: "SALE_INVOICE_CONFIRMED",
+    payload: { invoiceId },
+    summary: `Sales invoice confirmed`,
+  });
+
   revalidatePath("/dashboard/sales");
   revalidatePath(`/dashboard/sales/${invoiceId}`);
 
@@ -292,7 +300,7 @@ export async function cancelSalesInvoiceAction(
   if (!session) return { error: "Unauthorized" };
 
   try {
-    await requirePermission(session, "sales.invoices.cancel");
+    await requirePermission(session, "sales.invoice.cancel");
   } catch {
     return { error: "You do not have permission to cancel sales invoices." };
   }
@@ -354,7 +362,7 @@ export async function createSalesPaymentAction(
   if (!session) return { error: "Unauthorized" };
 
   try {
-    await requirePermission(session, "sales.payments.create");
+    await requirePermission(session, "payments.payment.create");
   } catch {
     return { error: "You do not have permission to record payments." };
   }
@@ -424,6 +432,13 @@ export async function createSalesPaymentAction(
       method: payMethod,
       paidAt,
     },
+  });
+
+  await writeNotification({
+    warehouseId: session.warehouseId,
+    type: "PAYMENT_RECORDED",
+    payload: { invoiceId, paymentId: payment.id, amount, method: payMethod, invoiceType: "SALE" },
+    summary: `Payment of $${amount.toFixed(2)} recorded on sales invoice`,
   });
 
   revalidatePath(`/dashboard/sales/${invoiceId}`);

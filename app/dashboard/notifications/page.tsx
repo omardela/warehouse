@@ -1,3 +1,4 @@
+import React from "react";
 import { redirect } from "next/navigation";
 import { getSession } from "@/core/auth/session";
 import { db } from "@/lib/db";
@@ -38,6 +39,24 @@ function IconWarning() {
   );
 }
 
+function IconCheck() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+      <path d="M3 8L6.5 11.5L13 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function IconPayment() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+      <rect x="1.5" y="3.5" width="13" height="9" rx="1.5" stroke="currentColor" strokeWidth="1.5" />
+      <path d="M1.5 6.5H14.5" stroke="currentColor" strokeWidth="1.5" />
+      <path d="M4.5 10H7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+    </svg>
+  );
+}
+
 function formatDate(date: Date): string {
   return new Intl.DateTimeFormat("en-US", {
     month: "short",
@@ -48,11 +67,127 @@ function formatDate(date: Date): string {
 }
 
 type NotificationPayload = {
+  // LOW_STOCK
   productId?: string;
   productName?: string;
   currentQuantity?: number;
   threshold?: number;
+  // SALE_INVOICE_CONFIRMED / PURCHASE_INVOICE_CONFIRMED
+  invoiceId?: string;
+  totalAmount?: number;
+  // PAYMENT_RECORDED
+  paymentId?: string;
+  amount?: number;
+  method?: string;
+  invoiceType?: "SALE" | "PURCHASE";
 };
+
+function formatCurrency(val: number): string {
+  return val.toLocaleString("en-US", { style: "currency", currency: "USD", minimumFractionDigits: 2 });
+}
+
+function getNotificationMeta(
+  type: string,
+  payload: NotificationPayload,
+  isRead: boolean
+): {
+  icon: React.ReactNode;
+  iconBg: string;
+  iconBorder: string;
+  iconColor: string;
+  rowBg: string;
+  title: string;
+  body: React.ReactNode;
+} {
+  const dim = isRead;
+
+  if (type === "LOW_STOCK") {
+    return {
+      icon: <IconWarning />,
+      iconBg: dim ? "rgba(140,144,162,0.08)" : "rgba(251,191,36,0.1)",
+      iconBorder: dim ? "#222a3e" : "rgba(251,191,36,0.2)",
+      iconColor: dim ? "#4a5068" : "#fbbf24",
+      rowBg: dim ? "transparent" : "rgba(251,191,36,0.03)",
+      title: "Low Stock Alert",
+      body: dim ? (
+        <span>
+          <span style={{ fontWeight: 500 }}>{payload.productName ?? "Unknown product"}</span>
+          {" "}was at{" "}
+          <span style={{ fontWeight: 600 }}>{payload.currentQuantity ?? 0} units</span>
+          {" "}(threshold: {payload.threshold ?? 0} units).
+        </span>
+      ) : (
+        <span>
+          <span style={{ color: "#dbe2fd", fontWeight: 500 }}>{payload.productName ?? "Unknown product"}</span>
+          {" "}has fallen to{" "}
+          <span style={{ color: "#fbbf24", fontWeight: 600 }}>{payload.currentQuantity ?? 0} units</span>
+          {" "}— below the threshold of{" "}
+          <span style={{ color: "#8c90a2" }}>{payload.threshold ?? 0} units</span>.
+        </span>
+      ),
+    };
+  }
+
+  if (type === "SALE_INVOICE_CONFIRMED" || type === "PURCHASE_INVOICE_CONFIRMED") {
+    const label = type === "SALE_INVOICE_CONFIRMED" ? "Sales" : "Purchase";
+    const shortId = payload.invoiceId ? payload.invoiceId.slice(0, 14) + "…" : "—";
+    return {
+      icon: <IconCheck />,
+      iconBg: dim ? "rgba(140,144,162,0.08)" : "rgba(98,223,125,0.1)",
+      iconBorder: dim ? "#222a3e" : "rgba(98,223,125,0.2)",
+      iconColor: dim ? "#4a5068" : "#62df7d",
+      rowBg: dim ? "transparent" : "rgba(98,223,125,0.02)",
+      title: `${label} Invoice Confirmed`,
+      body: (
+        <span>
+          Invoice{" "}
+          <span style={{ fontFamily: "monospace", fontSize: "11px", color: dim ? "#4a5068" : "#8c90a2" }}>{shortId}</span>
+          {payload.totalAmount != null && (
+            <>{" "}for{" "}
+              <span style={{ fontWeight: 600, color: dim ? undefined : "#62df7d" }}>{formatCurrency(payload.totalAmount)}</span>
+            </>
+          )}{" "}
+          has been confirmed.
+        </span>
+      ),
+    };
+  }
+
+  if (type === "PAYMENT_RECORDED") {
+    const label = payload.invoiceType === "PURCHASE" ? "purchase" : "sales";
+    const methodLabel: Record<string, string> = { CASH: "Cash", CARD: "Card", BANK_TRANSFER: "Bank Transfer" };
+    const shortId = payload.invoiceId ? payload.invoiceId.slice(0, 14) + "…" : "—";
+    return {
+      icon: <IconPayment />,
+      iconBg: dim ? "rgba(140,144,162,0.08)" : "rgba(0,98,255,0.1)",
+      iconBorder: dim ? "#222a3e" : "rgba(0,98,255,0.2)",
+      iconColor: dim ? "#4a5068" : "#6b9fff",
+      rowBg: dim ? "transparent" : "rgba(0,98,255,0.02)",
+      title: "Payment Recorded",
+      body: (
+        <span>
+          {payload.amount != null && (
+            <><span style={{ fontWeight: 600, color: dim ? undefined : "#6b9fff" }}>{formatCurrency(payload.amount)}</span>{" "}</>
+          )}
+          {payload.method && <>{methodLabel[payload.method] ?? payload.method} · </>}
+          recorded on {label} invoice{" "}
+          <span style={{ fontFamily: "monospace", fontSize: "11px", color: dim ? "#4a5068" : "#8c90a2" }}>{shortId}</span>.
+        </span>
+      ),
+    };
+  }
+
+  // Fallback for unknown types
+  return {
+    icon: <IconBell />,
+    iconBg: dim ? "rgba(140,144,162,0.08)" : "rgba(140,144,162,0.1)",
+    iconBorder: dim ? "#222a3e" : "#2d3449",
+    iconColor: dim ? "#4a5068" : "#8c90a2",
+    rowBg: "transparent",
+    title: type.replace(/_/g, " "),
+    body: <span>Notification received.</span>,
+  };
+}
 
 export default async function NotificationsPage() {
   const session = await getSession();
@@ -160,7 +295,7 @@ export default async function NotificationsPage() {
               No notifications yet.
             </p>
             <p style={{ color: "#4a5068", fontSize: "12px", marginTop: "6px" }}>
-              Low-stock alerts will appear here when products fall below their threshold.
+              Alerts for low stock, confirmed invoices, and recorded payments will appear here.
             </p>
           </div>
         )}
@@ -191,6 +326,7 @@ export default async function NotificationsPage() {
             >
               {unreadNotifications.map((notification, idx) => {
                 const payload = notification.payload as NotificationPayload;
+                const meta = getNotificationMeta(notification.type, payload, false);
                 return (
                   <div
                     key={notification.id}
@@ -199,11 +335,8 @@ export default async function NotificationsPage() {
                       alignItems: "flex-start",
                       gap: "14px",
                       padding: "16px 18px",
-                      borderBottom:
-                        idx < unreadNotifications.length - 1
-                          ? "1px solid #1a2237"
-                          : "none",
-                      background: "rgba(251,191,36,0.03)",
+                      borderBottom: idx < unreadNotifications.length - 1 ? "1px solid #1a2237" : "none",
+                      background: meta.rowBg,
                     }}
                   >
                     {/* Icon */}
@@ -212,74 +345,35 @@ export default async function NotificationsPage() {
                         width: "34px",
                         height: "34px",
                         borderRadius: "8px",
-                        background: "rgba(251,191,36,0.1)",
-                        border: "1px solid rgba(251,191,36,0.2)",
+                        background: meta.iconBg,
+                        border: `1px solid ${meta.iconBorder}`,
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
-                        color: "#fbbf24",
+                        color: meta.iconColor,
                         flexShrink: 0,
                         marginTop: "1px",
                       }}
                     >
-                      <IconWarning />
+                      {meta.icon}
                     </div>
 
                     {/* Content */}
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <div
-                        style={{
-                          fontSize: "13px",
-                          fontWeight: 600,
-                          color: "#dbe2fd",
-                          marginBottom: "4px",
-                        }}
-                      >
-                        Low Stock Alert
+                      <div style={{ fontSize: "13px", fontWeight: 600, color: "#dbe2fd", marginBottom: "4px" }}>
+                        {meta.title}
                       </div>
                       <div style={{ fontSize: "13px", color: "#8c90a2", lineHeight: "1.5" }}>
-                        <span style={{ color: "#dbe2fd", fontWeight: 500 }}>
-                          {payload.productName ?? "Unknown product"}
-                        </span>{" "}
-                        has fallen to{" "}
-                        <span style={{ color: "#fbbf24", fontWeight: 600 }}>
-                          {payload.currentQuantity ?? 0} units
-                        </span>{" "}
-                        — below the threshold of{" "}
-                        <span style={{ color: "#8c90a2" }}>
-                          {payload.threshold ?? 0} units
-                        </span>
-                        .
+                        {meta.body}
                       </div>
-                      <div
-                        style={{
-                          fontSize: "11px",
-                          color: "#4a5068",
-                          marginTop: "6px",
-                        }}
-                      >
+                      <div style={{ fontSize: "11px", color: "#4a5068", marginTop: "6px" }}>
                         {formatDate(notification.createdAt)}
                       </div>
                     </div>
 
                     {/* Unread dot + mark read */}
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "10px",
-                        flexShrink: 0,
-                      }}
-                    >
-                      <div
-                        style={{
-                          width: "8px",
-                          height: "8px",
-                          borderRadius: "50%",
-                          background: "#0062ff",
-                          flexShrink: 0,
-                        }}
-                      />
+                    <div style={{ display: "flex", alignItems: "center", gap: "10px", flexShrink: 0 }}>
+                      <div style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#0062ff", flexShrink: 0 }} />
                       <form action={markNotificationReadAction.bind(null, notification.id)}>
                         <button
                           type="submit"
@@ -332,6 +426,7 @@ export default async function NotificationsPage() {
             >
               {readNotifications.map((notification, idx) => {
                 const payload = notification.payload as NotificationPayload;
+                const meta = getNotificationMeta(notification.type, payload, true);
                 return (
                   <div
                     key={notification.id}
@@ -340,10 +435,7 @@ export default async function NotificationsPage() {
                       alignItems: "flex-start",
                       gap: "14px",
                       padding: "14px 18px",
-                      borderBottom:
-                        idx < readNotifications.length - 1
-                          ? "1px solid #1a2237"
-                          : "none",
+                      borderBottom: idx < readNotifications.length - 1 ? "1px solid #1a2237" : "none",
                       opacity: 0.6,
                     }}
                   >
@@ -353,54 +445,30 @@ export default async function NotificationsPage() {
                         width: "34px",
                         height: "34px",
                         borderRadius: "8px",
-                        background: "rgba(140,144,162,0.08)",
-                        border: "1px solid #222a3e",
+                        background: meta.iconBg,
+                        border: `1px solid ${meta.iconBorder}`,
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
-                        color: "#4a5068",
+                        color: meta.iconColor,
                         flexShrink: 0,
                         marginTop: "1px",
                       }}
                     >
-                      <IconWarning />
+                      {meta.icon}
                     </div>
 
                     {/* Content */}
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <div
-                        style={{
-                          fontSize: "13px",
-                          fontWeight: 500,
-                          color: "#8c90a2",
-                          marginBottom: "4px",
-                        }}
-                      >
-                        Low Stock Alert
+                      <div style={{ fontSize: "13px", fontWeight: 500, color: "#8c90a2", marginBottom: "4px" }}>
+                        {meta.title}
                       </div>
                       <div style={{ fontSize: "13px", color: "#4a5068", lineHeight: "1.5" }}>
-                        <span style={{ fontWeight: 500 }}>
-                          {payload.productName ?? "Unknown product"}
-                        </span>{" "}
-                        was at{" "}
-                        <span style={{ fontWeight: 600 }}>
-                          {payload.currentQuantity ?? 0} units
-                        </span>{" "}
-                        (threshold: {payload.threshold ?? 0} units).
+                        {meta.body}
                       </div>
-                      <div
-                        style={{
-                          fontSize: "11px",
-                          color: "#3a4058",
-                          marginTop: "6px",
-                          display: "flex",
-                          gap: "12px",
-                        }}
-                      >
+                      <div style={{ fontSize: "11px", color: "#3a4058", marginTop: "6px", display: "flex", gap: "12px" }}>
                         <span>Triggered: {formatDate(notification.createdAt)}</span>
-                        {notification.readAt && (
-                          <span>Read: {formatDate(notification.readAt)}</span>
-                        )}
+                        {notification.readAt && <span>Read: {formatDate(notification.readAt)}</span>}
                       </div>
                     </div>
                   </div>

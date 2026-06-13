@@ -180,24 +180,49 @@ const NAV_GROUPS: NavGroup[] = [
   {
     heading: "Dashboard",
     items: [
-      { label: "Overview",   href: "/dashboard",             icon: <IconDashboard />, permission: null },
-      { label: "Products",   href: "/dashboard/products",    icon: <IconProducts />,  permission: "inventory.product.read" },
-      { label: "Stock Levels",  href: "/dashboard/inventory/stock",       icon: <IconInventory />,   permission: "inventory.balance.read" },
-      { label: "Movements",     href: "/dashboard/inventory/movements",   icon: <IconMovements />,   permission: "inventory.balance.read" },
-      { label: "Adjustments",   href: "/dashboard/inventory/adjustments", icon: <IconAdjustment />,  permission: "inventory.movement.create" },
-      { label: "Sales",      href: "/dashboard/sales",       icon: <IconSales />,     permission: "sales.invoices.read" },
-      { label: "Purchases",  href: "/dashboard/purchases",   icon: <IconPurchases />, permission: "purchase.invoices.read" },
-      { label: "Customers",  href: "/dashboard/customers",   icon: <IconCustomers />, permission: "customers.customer.read" },
-      { label: "Suppliers",  href: "/dashboard/suppliers",   icon: <IconSuppliers />, permission: "suppliers.supplier.read" },
-      { label: "Employees",  href: "/dashboard/employees",   icon: <IconEmployees />, permission: "employees.employee.read" },
-      { label: "Reports",    href: "/dashboard/reports",     icon: <IconReports />,   permission: "reports.report.read" },
+      { label: "Overview", href: "/dashboard", icon: <IconDashboard />, permission: null },
+    ],
+  },
+  {
+    heading: "Catalog",
+    items: [
+      { label: "Products", href: "/dashboard/products", icon: <IconProducts />, permission: "inventory.product.read" },
+    ],
+  },
+  {
+    heading: "Inventory",
+    items: [
+      { label: "Stock Levels", href: "/dashboard/inventory/stock",       icon: <IconInventory />,  permission: "inventory.balance.read" },
+      { label: "Movements",    href: "/dashboard/inventory/movements",   icon: <IconMovements />,  permission: "inventory.balance.read" },
+      { label: "Adjustments",  href: "/dashboard/inventory/adjustments", icon: <IconAdjustment />, permission: "inventory.movement.create" },
+    ],
+  },
+  {
+    heading: "Sales",
+    items: [
+      { label: "Sales Invoices", href: "/dashboard/sales",     icon: <IconSales />,     permission: "sales.invoice.read" },
+      { label: "Customers",      href: "/dashboard/customers", icon: <IconCustomers />, permission: "customers.customer.read" },
+    ],
+  },
+  {
+    heading: "Purchases",
+    items: [
+      { label: "Purchase Invoices", href: "/dashboard/purchases", icon: <IconPurchases />, permission: "purchase.invoice.read" },
+      { label: "Suppliers",         href: "/dashboard/suppliers", icon: <IconSuppliers />, permission: "suppliers.supplier.read" },
     ],
   },
   {
     heading: "Administration",
     items: [
-      { label: "Audit Log",  href: "/dashboard/audit",       icon: <IconAuditLogs />, permission: "audit.log.read" },
-      { label: "Roles",      href: "/dashboard/settings/roles",           icon: <IconRoles />,     permission: "roles.role.read" },
+      { label: "Employees", href: "/dashboard/employees",      icon: <IconEmployees />, permission: "employees.employee.read" },
+      { label: "Roles",     href: "/dashboard/settings/roles", icon: <IconRoles />,     permission: "roles.role.read" },
+      { label: "Audit Log", href: "/dashboard/audit",          icon: <IconAuditLogs />, permission: "audit.log.read" },
+    ],
+  },
+  {
+    heading: "Reports",
+    items: [
+      { label: "Reports", href: "/dashboard/reports", icon: <IconReports />, permission: "reports.report.read" },
     ],
   },
   {

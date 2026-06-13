@@ -87,14 +87,17 @@ export async function createEmployeeAction(
     return { error: "An employee with this email already exists." };
   }
 
-  // If a role is provided, verify it belongs to this warehouse
+  // If a role is provided, verify it belongs to this warehouse and is not Owner
   if (warehouseRoleId) {
     const role = await db.warehouseRole.findUnique({
       where: { id: warehouseRoleId },
-      select: { warehouseId: true },
+      select: { warehouseId: true, roleTemplate: { select: { name: true } } },
     });
     if (!role || role.warehouseId !== session.warehouseId) {
       return { error: "Selected role is not valid for this warehouse." };
+    }
+    if (isOwnerRole(role.roleTemplate.name)) {
+      return { error: "The Owner role cannot be assigned to new employees." };
     }
   }
 

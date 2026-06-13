@@ -14,7 +14,7 @@ interface PageProps {
 export default async function NewPaymentPage({ params }: PageProps) {
   const session = await getSession();
   if (!session) redirect("/login");
-  await requirePagePermission(session, "sales.payments.create");
+  await requirePagePermission(session, "payments.payment.create");
 
   const { invoiceId } = await params;
 

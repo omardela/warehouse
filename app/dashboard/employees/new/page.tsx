@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { getSession } from "@/core/auth/session";
 import { db } from "@/lib/db";
 import { requirePagePermission } from "@/core/auth/require-page-permission";
+import { isOwnerRole } from "@/core/auth/owner-guard";
 import { EmployeeForm } from "../EmployeeForm";
 
 export default async function NewEmployeePage() {
@@ -16,10 +17,9 @@ export default async function NewEmployeePage() {
     orderBy: { roleTemplate: { name: "asc" } },
   });
 
-  const roles = warehouseRoles.map((wr) => ({
-    id: wr.id,
-    name: wr.roleTemplate.name,
-  }));
+  const roles = warehouseRoles
+    .map((wr) => ({ id: wr.id, name: wr.roleTemplate.name }))
+    .filter((r) => !isOwnerRole(r.name));
 
   return (
     <div

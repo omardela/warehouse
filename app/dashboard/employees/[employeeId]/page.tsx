@@ -43,10 +43,9 @@ export default async function EmployeeDetailPage({ params }: PageProps) {
     orderBy: { roleTemplate: { name: "asc" } },
   });
 
-  const roles = warehouseRoles.map((wr) => ({
-    id: wr.id,
-    name: wr.roleTemplate.name,
-  }));
+  const roles = warehouseRoles
+    .map((wr) => ({ id: wr.id, name: wr.roleTemplate.name }))
+    .filter((r) => !isOwnerRole(r.name));
 
   // Check permissions live from DB
   const sessionRole = await db.warehouseRole.findUnique({

@@ -10,7 +10,7 @@ export const dynamic = "force-dynamic";
 export default async function NewSalesInvoicePage() {
   const session = await getSession();
   if (!session) redirect("/login");
-  await requirePagePermission(session, "sales.invoices.create");
+  await requirePagePermission(session, "sales.invoice.create");
 
   const [products, units, customers] = await Promise.all([
     db.product.findMany({

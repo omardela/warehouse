@@ -57,7 +57,7 @@ function PaymentMethodBadge({ method }: { method: string }) {
 export default async function SalesInvoiceDetailPage({ params }: PageProps) {
   const session = await getSession();
   if (!session) redirect("/login");
-  await requirePagePermission(session, "sales.invoices.read");
+  await requirePagePermission(session, "sales.invoice.read");
 
   const { invoiceId } = await params;
 
@@ -74,8 +74,8 @@ export default async function SalesInvoiceDetailPage({ params }: PageProps) {
   });
 
   const permCodes = employeePerms?.warehouseRole?.permissions.map((p) => p.permission.code) ?? [];
-  const canCancel = permCodes.includes("sales.invoices.cancel");
-  const canConfirm = permCodes.includes("sales.invoices.confirm");
+  const canCancel = permCodes.includes("sales.invoice.cancel");
+  const canConfirm = permCodes.includes("sales.invoice.confirm");
 
   const invoice = await db.invoice.findUnique({
     where: { id: invoiceId },
