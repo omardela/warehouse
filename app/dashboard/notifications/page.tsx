@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { getSession } from "@/core/auth/session";
 import { db } from "@/lib/db";
 import { markNotificationReadAction, markAllNotificationsReadAction } from "./actions";
+import { getPermittedNotificationTypes } from "@/core/notifications/notification-permissions";
 
 export const dynamic = "force-dynamic";
 
@@ -193,10 +194,25 @@ export default async function NotificationsPage() {
   const session = await getSession();
   if (!session) redirect("/login");
 
-  const notifications = await db.notification.findMany({
-    where: { warehouseId: session.warehouseId },
-    orderBy: [{ readAt: "asc" }, { createdAt: "desc" }],
+  // Resolve which notification types this user is allowed to see.
+  const employee = await db.employee.findUnique({
+    where: { id: session.employeeId },
+    select: {
+      warehouseRole: {
+        select: { permissions: { select: { permission: { select: { code: true } } } } },
+      },
+    },
   });
+  const permissionCodes = employee?.warehouseRole?.permissions.map((p) => p.permission.code) ?? [];
+  const permittedTypes = getPermittedNotificationTypes(permissionCodes);
+
+  const notifications =
+    permittedTypes.length === 0
+      ? []
+      : await db.notification.findMany({
+          where: { warehouseId: session.warehouseId, type: { in: permittedTypes } },
+          orderBy: [{ readAt: "asc" }, { createdAt: "desc" }],
+        });
 
   const unreadNotifications = notifications.filter((n) => n.readAt === null);
   const readNotifications = notifications.filter((n) => n.readAt !== null);

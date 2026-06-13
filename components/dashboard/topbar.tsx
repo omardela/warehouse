@@ -306,12 +306,16 @@ function WarehouseSwitcher() {
 function NotificationBell({ initialCount }: { initialCount: number }) {
   const [count, setCount] = useState(initialCount);
   const { lastEvent } = useRealtime();
+  const { permissions } = useWarehouseContext();
 
   useEffect(() => {
     if (!lastEvent) return;
     if (lastEvent.type !== "notification.new") return;
+    const { requiredPermission } = lastEvent.payload;
+    // Only increment if the user holds the required permission (or the event has none).
+    if (requiredPermission && !permissions.includes(requiredPermission)) return;
     setCount((c) => c + 1);
-  }, [lastEvent]);
+  }, [lastEvent, permissions]);
 
   return (
     <Link

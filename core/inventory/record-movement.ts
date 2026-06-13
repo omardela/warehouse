@@ -2,6 +2,7 @@ import { MovementType } from "@prisma/client";
 import { db } from "@/lib/db";
 import { writeAuditLog } from "@/core/audit/write-audit-log";
 import { emitter } from "@/core/realtime/emitter";
+import { getNotificationPermission } from "@/core/notifications/notification-permissions";
 
 export interface RecordMovementParams {
   warehouseId: string;
@@ -184,6 +185,7 @@ export async function recordMovement(
               notificationId: notification.id,
               type: "LOW_STOCK",
               summary: `Low stock: ${product.name}`,
+              requiredPermission: getNotificationPermission("LOW_STOCK"),
             },
           });
         } catch {

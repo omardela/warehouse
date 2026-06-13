@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { getSession } from "@/core/auth/session";
 import { db } from "@/lib/db";
+import { getPermittedNotificationTypes } from "@/core/notifications/notification-permissions";
 
 export async function markNotificationReadAction(id: string): Promise<void> {
   const session = await getSession();
@@ -25,10 +26,24 @@ export async function markAllNotificationsReadAction(): Promise<void> {
   const session = await getSession();
   if (!session) return;
 
+  const employee = await db.employee.findUnique({
+    where: { id: session.employeeId },
+    select: {
+      warehouseRole: {
+        select: { permissions: { select: { permission: { select: { code: true } } } } },
+      },
+    },
+  });
+  const permissionCodes = employee?.warehouseRole?.permissions.map((p) => p.permission.code) ?? [];
+  const permittedTypes = getPermittedNotificationTypes(permissionCodes);
+
+  if (permittedTypes.length === 0) return;
+
   await db.notification.updateMany({
     where: {
       warehouseId: session.warehouseId,
       readAt: null,
+      type: { in: permittedTypes },
     },
     data: { readAt: new Date() },
   });

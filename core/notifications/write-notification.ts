@@ -1,6 +1,7 @@
 import { Prisma } from "@prisma/client";
 import { db } from "@/lib/db";
 import { emitter } from "@/core/realtime/emitter";
+import { getNotificationPermission } from "@/core/notifications/notification-permissions";
 
 interface WriteNotificationOptions {
   warehouseId: string;
@@ -23,7 +24,12 @@ export async function writeNotification({
     try {
       emitter.emit(warehouseId, {
         type: "notification.new",
-        payload: { notificationId: notification.id, type, summary },
+        payload: {
+          notificationId: notification.id,
+          type,
+          summary,
+          requiredPermission: getNotificationPermission(type),
+        },
       });
     } catch {
       // SSE emit failure must not propagate

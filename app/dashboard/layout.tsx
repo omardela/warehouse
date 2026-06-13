@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { getSession } from "@/core/auth/session";
 import { db } from "@/lib/db";
 import { DashboardShell } from "@/components/dashboard/shell";
+import { getPermittedNotificationTypes } from "@/core/notifications/notification-permissions";
 
 export default async function DashboardLayout({
   children,
@@ -14,9 +15,9 @@ export default async function DashboardLayout({
     redirect("/login");
   }
 
-  // Fetch employee (with live role+permissions), warehouse, available warehouses,
-  // and unread notification count in parallel.
-  const [employee, warehouse, availableWarehouses, unreadNotificationCount] = await Promise.all([
+  // Fetch employee (with live role+permissions), warehouse, and available warehouses.
+  // Notification count is fetched separately so it can be scoped to permitted types.
+  const [employee, warehouse, availableWarehouses] = await Promise.all([
     db.employee.findUnique({
       where: { id: session.employeeId },
       select: {
@@ -41,9 +42,6 @@ export default async function DashboardLayout({
       select: { id: true, name: true },
       orderBy: { name: "asc" },
     }),
-    db.notification.count({
-      where: { warehouseId: session.warehouseId, readAt: null },
-    }),
   ]);
 
   if (!employee || employee.archivedAt) {
@@ -51,6 +49,15 @@ export default async function DashboardLayout({
   }
 
   const permissionCodes = employee.warehouseRole?.permissions.map((p) => p.permission.code) ?? [];
+
+  // Only count notifications whose type the current user has permission to see.
+  const permittedTypes = getPermittedNotificationTypes(permissionCodes);
+  const unreadNotificationCount =
+    permittedTypes.length === 0
+      ? 0
+      : await db.notification.count({
+          where: { warehouseId: session.warehouseId, readAt: null, type: { in: permittedTypes } },
+        });
 
   return (
     <DashboardShell

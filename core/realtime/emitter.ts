@@ -23,6 +23,7 @@ export type SSEEvent =
         notificationId: string;
         type: string;
         summary: string;
+        requiredPermission: string | null;
       };
     };
 
