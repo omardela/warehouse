@@ -124,6 +124,8 @@ async function main() {
     { code: "roles.role.read", description: "Read roles" },
     { code: "roles.role.update", description: "Update roles" },
     { code: "roles.role.delete", description: "Delete roles" },
+    // POS
+    { code: "pos.sales.create", description: "Process POS sales transactions" },
   ];
 
   for (const perm of permissions) {
@@ -325,6 +327,7 @@ async function main() {
       "inventory.product.read", "inventory.balance.read",
       "employees.employee.read",
       "reports.report.read",
+      "pos.sales.create",
     ];
     const smPerms = await prisma.permission.findMany({
       where: { code: { in: salesManagerPerms } },
@@ -363,6 +366,7 @@ async function main() {
       "inventory.product.read", "inventory.balance.read",
       "suppliers.supplier.read",
       "payments.payment.read",
+      "pos.sales.create",
     ];
     const srPerms = await prisma.permission.findMany({
       where: { code: { in: salesRepPerms } },

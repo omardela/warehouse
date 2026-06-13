@@ -153,6 +153,17 @@ function IconAdjustment() {
   );
 }
 
+function IconPos() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+      <rect x="1.5" y="5" width="13" height="9.5" rx="1" stroke="currentColor" strokeWidth="1.5" />
+      <path d="M5 5V3.5C5 2.672 5.672 2 6.5 2H9.5C10.328 2 11 2.672 11 3.5V5" stroke="currentColor" strokeWidth="1.5" />
+      <path d="M5 9H8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+      <path d="M10.5 8.5L11.5 9.5L13 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
 function IconSettings() {
   return (
     <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
@@ -223,6 +234,12 @@ const NAV_GROUPS: NavGroup[] = [
     heading: "Reports",
     items: [
       { label: "Reports", href: "/dashboard/reports", icon: <IconReports />, permission: "reports.report.read" },
+    ],
+  },
+  {
+    heading: "Point of Sale",
+    items: [
+      { label: "POS Terminal", href: "/pos", icon: <IconPos />, permission: "pos.sales.create" },
     ],
   },
   {

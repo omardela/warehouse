@@ -28,6 +28,7 @@ const MODULE_ORDER = [
   { key: "employees",  label: "Employees" },
   { key: "customers",  label: "Customers" },
   { key: "suppliers",  label: "Suppliers" },
+  { key: "pos",        label: "Point of Sale" },
   { key: "reports",    label: "Reports" },
   { key: "audit",      label: "Audit Logs" },
   { key: "settings",   label: "Settings" },
@@ -111,6 +112,14 @@ function ModuleIcon({ module }: { module: string }) {
         <rect x="1" y="5.5" width="8" height="7" rx="1" stroke="currentColor" strokeWidth="1.2" />
         <path d="M9 8H11C11.55 8 12 8.45 12 9V12.5H9" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round" />
         <path d="M3.5 5.5V3.5C3.5 2.4 4.4 1.5 5.5 1.5H7.5C8.6 1.5 9.5 2.4 9.5 3.5V5.5" stroke="currentColor" strokeWidth="1.2" />
+      </svg>
+    ),
+    pos: (
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+        <rect x="1" y="4.5" width="12" height="8.5" rx="1" stroke="currentColor" strokeWidth="1.2" />
+        <path d="M4.5 4.5V3C4.5 2.172 5.172 1.5 6 1.5H8C8.828 1.5 9.5 2.172 9.5 3V4.5" stroke="currentColor" strokeWidth="1.2" />
+        <path d="M4.5 8H7" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+        <path d="M9.5 7.5L10.5 8.5L12 7" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
       </svg>
     ),
     reports: (

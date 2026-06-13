@@ -3,6 +3,7 @@
 import { z } from "zod";
 import { db } from "@/lib/db";
 import { getSession } from "@/core/auth/session";
+import { requirePermission } from "@/core/auth/require-permission";
 import { writeAuditLog } from "@/core/audit/write-audit-log";
 
 const orgSchema = z.object({
@@ -18,6 +19,12 @@ export async function updateOrganizationAction(
   const session = await getSession();
   if (!session) {
     return { error: "Unauthorized" };
+  }
+
+  try {
+    await requirePermission(session, "settings.org.update");
+  } catch {
+    return { error: "You do not have permission to update organization settings." };
   }
 
   const parsed = orgSchema.safeParse({

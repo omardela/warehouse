@@ -28,7 +28,8 @@ export type AuditAction =
   | "warehouse.update"
   | "roles.role.create"
   | "roles.role.update"
-  | "roles.role.delete";
+  | "roles.role.delete"
+  | "pos.sale.create";
 
 export async function writeAuditLog(params: {
   actorId: string;
