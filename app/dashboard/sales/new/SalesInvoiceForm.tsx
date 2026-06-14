@@ -4,13 +4,12 @@ import { useActionState, useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import type { SalesActionState } from "../actions";
 
-type Product = { id: string; name: string; sku: string; defaultUnitId: string };
-type Unit = { id: string; name: string; symbol: string };
+type ProductUnit = { id: string; name: string; symbol: string };
+type Product = { id: string; name: string; sku: string; defaultUnitId: string; units: ProductUnit[] };
 type Customer = { id: string; name: string };
 
 interface SalesInvoiceFormProps {
   products: Product[];
-  units: Unit[];
   customers: Customer[];
   action: (prevState: SalesActionState, formData: FormData) => Promise<SalesActionState>;
 }
@@ -75,7 +74,7 @@ const selectStyle: React.CSSProperties = {
   cursor: "default",
 };
 
-export function SalesInvoiceForm({ products, units, customers, action }: SalesInvoiceFormProps) {
+export function SalesInvoiceForm({ products, customers, action }: SalesInvoiceFormProps) {
   const router = useRouter();
   const [state, formAction, pending] = useActionState<SalesActionState, FormData>(action, null);
 
@@ -246,7 +245,6 @@ export function SalesInvoiceForm({ products, units, customers, action }: SalesIn
                     line={line}
                     index={index}
                     products={products}
-                    units={units}
                     onChange={updateLine}
                     onRemove={removeLine}
                     canRemove={lines.length > 1}
@@ -307,17 +305,18 @@ export function SalesInvoiceForm({ products, units, customers, action }: SalesIn
 }
 
 function LineRow({
-  line, index, products, units, onChange, onRemove, canRemove,
+  line, index, products, onChange, onRemove, canRemove,
 }: {
   line: LineItem;
   index: number;
   products: Product[];
-  units: Unit[];
   onChange: (id: string, field: keyof LineItem, value: string) => void;
   onRemove: (id: string) => void;
   canRemove: boolean;
 }) {
   const lineTotal = calcLineTotal(line);
+  const selectedProduct = products.find((p) => p.id === line.productId);
+  const availableUnits = selectedProduct?.units ?? [];
 
   return (
     <div
@@ -346,10 +345,15 @@ function LineRow({
           value={line.unitId}
           onChange={(e) => onChange(line.id, "unitId", e.target.value)}
           style={{ ...selectStyle, fontSize: "12px" }}
+          disabled={availableUnits.length === 0}
         >
-          {units.map((u) => (
-            <option key={u.id} value={u.id}>{u.symbol}</option>
-          ))}
+          {availableUnits.length === 0 ? (
+            <option value="">—</option>
+          ) : (
+            availableUnits.map((u) => (
+              <option key={u.id} value={u.id}>{u.symbol}</option>
+            ))
+          )}
         </select>
 
         {/* Quantity */}

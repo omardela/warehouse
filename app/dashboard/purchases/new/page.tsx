@@ -19,7 +19,7 @@ export default async function NewPurchaseInvoicePage({ searchParams }: PageProps
   const params = await searchParams;
   const defaultSupplierId = params.supplierId;
 
-  const [suppliers, products, units] = await Promise.all([
+  const [suppliers, rawProducts] = await Promise.all([
     db.supplier.findMany({
       where: { organizationId: session.orgId, archivedAt: null },
       orderBy: { name: "asc" },
@@ -28,21 +28,46 @@ export default async function NewPurchaseInvoicePage({ searchParams }: PageProps
     db.product.findMany({
       where: { organizationId: session.orgId, archivedAt: null },
       orderBy: { name: "asc" },
-      select: { id: true, name: true, sku: true },
-    }),
-    db.productUnit.findMany({
-      where: { archivedAt: null },
-      orderBy: { name: "asc" },
-      select: { id: true, name: true, symbol: true },
+      select: {
+        id: true,
+        name: true,
+        sku: true,
+        defaultUnitId: true,
+        defaultUnit: { select: { id: true, name: true, symbol: true } },
+        conversions: {
+          select: {
+            fromUnitId: true,
+            toUnitId: true,
+            fromUnit: { select: { id: true, name: true, symbol: true } },
+            toUnit: { select: { id: true, name: true, symbol: true } },
+          },
+        },
+      },
     }),
   ]);
+
+  // Build per-product unit list: default unit + all units referenced in product-specific conversions
+  const products = rawProducts.map((p) => {
+    const unitMap = new Map<string, { id: string; name: string; symbol: string }>();
+    unitMap.set(p.defaultUnit.id, p.defaultUnit);
+    for (const conv of p.conversions) {
+      unitMap.set(conv.fromUnit.id, conv.fromUnit);
+      unitMap.set(conv.toUnit.id, conv.toUnit);
+    }
+    return {
+      id: p.id,
+      name: p.name,
+      sku: p.sku,
+      defaultUnitId: p.defaultUnitId,
+      units: Array.from(unitMap.values()),
+    };
+  });
 
   return (
     <PurchaseInvoiceForm
       action={createPurchaseInvoiceAction}
       suppliers={suppliers}
       products={products}
-      units={units}
       defaultSupplierId={defaultSupplierId}
     />
   );

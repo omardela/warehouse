@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useActionState, startTransition } from "react";
 import { completeSaleAction, type PosActionState } from "./actions";
-import type { ProductForPos } from "./page";
+import type { ProductForPos, UnitForPos } from "./page";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -14,9 +14,11 @@ type CartItem = {
   sku: string;
   unitId: string;
   unitSymbol: string;
+  toBaseConversionFactor: number; // base units per 1 of the selected unit
   quantity: number;
   unitPrice: number;
-  maxQuantity: number; // current stock
+  baseStockQty: number; // total available stock in base units
+  availableUnits: UnitForPos[];
 };
 
 type SuccessPayload = {
@@ -175,23 +177,32 @@ export default function PosTerminal({ products }: { products: ProductForPos[] })
     setCart((prev) => {
       const existing = prev.find((c) => c.productId === product.id);
       if (existing) {
+        const maxQty = Math.floor(existing.baseStockQty / existing.toBaseConversionFactor);
         return prev.map((c) =>
           c.productId === product.id
-            ? { ...c, quantity: Math.min(c.quantity + 1, c.maxQuantity) }
+            ? { ...c, quantity: Math.min(c.quantity + 1, Math.max(1, maxQty)) }
             : c
         );
       }
+      const defaultUnit = product.availableUnits.find((u) => u.id === product.defaultUnitId) ?? {
+        id: product.defaultUnitId,
+        name: "",
+        symbol: product.defaultUnitSymbol,
+        toBaseConversionFactor: 1,
+      };
       return [
         ...prev,
         {
           productId: product.id,
           productName: product.name,
           sku: product.sku,
-          unitId: product.defaultUnitId,
-          unitSymbol: product.defaultUnitSymbol,
+          unitId: defaultUnit.id,
+          unitSymbol: defaultUnit.symbol,
+          toBaseConversionFactor: 1,
           quantity: 1,
           unitPrice: 0,
-          maxQuantity: product.currentQuantity,
+          baseStockQty: product.currentQuantity,
+          availableUnits: product.availableUnits,
         },
       ];
     });
@@ -201,8 +212,27 @@ export default function PosTerminal({ products }: { products: ProductForPos[] })
     setCart((prev) =>
       prev.map((c) => {
         if (c.productId !== productId) return c;
-        const safeQty = Math.max(1, Math.min(qty || 1, c.maxQuantity));
+        const maxQty = Math.max(1, Math.floor(c.baseStockQty / c.toBaseConversionFactor));
+        const safeQty = Math.max(1, Math.min(qty || 1, maxQty));
         return { ...c, quantity: safeQty };
+      })
+    );
+  }
+
+  function updateCartUnit(productId: string, unitId: string) {
+    setCart((prev) =>
+      prev.map((c) => {
+        if (c.productId !== productId) return c;
+        const unit = c.availableUnits.find((u) => u.id === unitId);
+        if (!unit) return c;
+        const maxQty = Math.max(1, Math.floor(c.baseStockQty / unit.toBaseConversionFactor));
+        return {
+          ...c,
+          unitId: unit.id,
+          unitSymbol: unit.symbol,
+          toBaseConversionFactor: unit.toBaseConversionFactor,
+          quantity: Math.min(c.quantity, maxQty),
+        };
       })
     );
   }
@@ -894,12 +924,12 @@ export default function PosTerminal({ products }: { products: ProductForPos[] })
                             letterSpacing: "0.04em",
                           }}
                         >
-                          Qty ({item.unitSymbol})
+                          Qty
                         </label>
                         <input
                           type="number"
                           min={1}
-                          max={item.maxQuantity}
+                          max={Math.floor(item.baseStockQty / item.toBaseConversionFactor)}
                           value={item.quantity}
                           onChange={(e) =>
                             updateCartQty(
@@ -922,47 +952,86 @@ export default function PosTerminal({ products }: { products: ProductForPos[] })
                         />
                       </div>
 
-                      {/* Unit Price input */}
-                      <div>
-                        <label
-                          style={{
-                            fontSize: "10px",
-                            color: hasError ? "#ff4d4f" : "#4a5068",
-                            fontWeight: 600,
-                            display: "block",
-                            marginBottom: "4px",
-                            textTransform: "uppercase",
-                            letterSpacing: "0.04em",
-                          }}
-                        >
-                          Unit Price ($)
-                          {hasError && " — Required"}
-                        </label>
-                        <input
-                          type="number"
-                          min={0}
-                          step={0.01}
-                          value={item.unitPrice === 0 ? "" : item.unitPrice}
-                          placeholder="0.00"
-                          onChange={(e) =>
-                            updateCartPrice(
-                              item.productId,
-                              parseFloat(e.target.value)
-                            )
-                          }
-                          disabled={isPending}
-                          style={{
-                            width: "100%",
-                            padding: "7px 10px",
-                            background: "#0d1627",
-                            border: `1px solid ${hasError ? "rgba(255,77,79,0.5)" : "#2d3449"}`,
-                            borderRadius: "6px",
-                            color: hasError ? "#ff4d4f" : "#dbe2fd",
-                            fontSize: "13px",
-                            outline: "none",
-                            boxSizing: "border-box",
-                          }}
-                        />
+                      {/* Unit selector + Unit Price */}
+                      <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                        {/* Unit selector */}
+                        <div>
+                          <label
+                            style={{
+                              fontSize: "10px",
+                              color: "#4a5068",
+                              fontWeight: 600,
+                              display: "block",
+                              marginBottom: "4px",
+                              textTransform: "uppercase",
+                              letterSpacing: "0.04em",
+                            }}
+                          >
+                            Unit
+                          </label>
+                          <select
+                            value={item.unitId}
+                            onChange={(e) => updateCartUnit(item.productId, e.target.value)}
+                            disabled={isPending || item.availableUnits.length <= 1}
+                            style={{
+                              width: "100%",
+                              padding: "7px 10px",
+                              background: "#0d1627",
+                              border: "1px solid #2d3449",
+                              borderRadius: "6px",
+                              color: "#dbe2fd",
+                              fontSize: "13px",
+                              outline: "none",
+                              boxSizing: "border-box",
+                            }}
+                          >
+                            {item.availableUnits.map((u) => (
+                              <option key={u.id} value={u.id}>{u.symbol}</option>
+                            ))}
+                          </select>
+                        </div>
+
+                        {/* Unit Price */}
+                        <div>
+                          <label
+                            style={{
+                              fontSize: "10px",
+                              color: hasError ? "#ff4d4f" : "#4a5068",
+                              fontWeight: 600,
+                              display: "block",
+                              marginBottom: "4px",
+                              textTransform: "uppercase",
+                              letterSpacing: "0.04em",
+                            }}
+                          >
+                            Price ($){hasError && " — Required"}
+                          </label>
+                          <input
+                            type="number"
+                            min={0}
+                            step={0.01}
+                            value={item.unitPrice === 0 ? "" : item.unitPrice}
+                            placeholder="0.00"
+                            onChange={(e) =>
+                              updateCartPrice(
+                                item.productId,
+                                parseFloat(e.target.value)
+                              )
+                            }
+                            disabled={isPending}
+                            style={{
+                              width: "100%",
+                              padding: "7px 10px",
+                              background: "#0d1627",
+                              border: `1px solid ${hasError ? "rgba(255,77,79,0.5)" : "#2d3449"}`,
+                              borderRadius: "6px",
+                              color: hasError ? "#ff4d4f" : "#dbe2fd",
+                              fontSize: "13px",
+                              outline: "none",
+                              boxSizing: "border-box",
+                            }}
+                          />
+                        </div>
                       </div>
                     </div>
 

@@ -7,6 +7,7 @@ import { getSession } from "@/core/auth/session";
 import { requirePermission } from "@/core/auth/require-permission";
 import { writeAuditLog } from "@/core/audit/write-audit-log";
 import { recordMovement } from "@/core/inventory/record-movement";
+import { resolveBaseQuantity } from "@/core/inventory/resolve-base-quantity";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -98,6 +99,7 @@ export async function completeSaleAction(
     select: { id: true, name: true, defaultUnitId: true },
   });
 
+
   const productMap = new Map(products.map((p) => [p.id, p]));
 
   // Validate all products belong to this org's warehouse
@@ -112,12 +114,19 @@ export async function completeSaleAction(
   for (const line of cart) {
     const product = productMap.get(line.productId)!;
     try {
+      const baseQuantity = await resolveBaseQuantity(
+        db,
+        line.productId,
+        product.defaultUnitId,
+        line.unitId,
+        line.quantity
+      );
       await recordMovement({
         warehouseId: session.warehouseId,
         productId: line.productId,
         unitId: line.unitId,
         quantity: line.quantity,
-        baseQuantity: line.quantity, // quantity is already in the default unit for POS
+        baseQuantity,
         movementType: "SALE_OUT",
         actorId: session.employeeId,
         referenceType: "POS_SALE",

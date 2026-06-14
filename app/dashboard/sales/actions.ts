@@ -8,6 +8,7 @@ import { requirePermission } from "@/core/auth/require-permission";
 import { writeAuditLog } from "@/core/audit/write-audit-log";
 import { Prisma } from "@prisma/client";
 import { writeNotification } from "@/core/notifications/write-notification";
+import { resolveBaseQuantity } from "@/core/inventory/resolve-base-quantity";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -189,8 +190,24 @@ export async function confirmSalesInvoiceAction(
       if (invoice.type !== "SALE") throw new Error("This is not a sales invoice.");
       if (invoice.status !== "DRAFT") throw new Error(`Invoice is already ${invoice.status.toLowerCase()}.`);
 
-      // 2. Pre-check: verify sufficient stock for all lines
+      // 2. Precompute base quantities for all lines (convert from invoice unit to default unit)
+      const baseQtys: number[] = [];
       for (const line of invoice.lines) {
+        const baseQty = await resolveBaseQuantity(
+          tx,
+          line.productId,
+          line.product.defaultUnitId,
+          line.unitId,
+          Number(line.quantity)
+        );
+        baseQtys.push(baseQty);
+      }
+
+      // 3. Pre-check: verify sufficient stock for all lines (balance is stored in default unit)
+      for (let i = 0; i < invoice.lines.length; i++) {
+        const line = invoice.lines[i];
+        const baseRequested = baseQtys[i];
+
         const balance = await tx.inventoryBalance.findUnique({
           where: {
             warehouseId_productId: {
@@ -202,19 +219,20 @@ export async function confirmSalesInvoiceAction(
         });
 
         const available = balance ? Number(balance.currentQuantity) : 0;
-        const requested = Number(line.quantity);
 
-        if (available < requested) {
+        if (available < baseRequested) {
           throw new Error(
-            `Insufficient stock for product: ${line.product.name} (available: ${available.toFixed(4)}, requested: ${requested.toFixed(4)})`
+            `Insufficient stock for product: ${line.product.name} (available: ${available.toFixed(4)}, requested: ${baseRequested.toFixed(4)})`
           );
         }
       }
 
-      // 3. Apply stock movements for each line (inline, atomic)
-      for (const line of invoice.lines) {
+      // 4. Apply stock movements for each line (inline, atomic)
+      for (let i = 0; i < invoice.lines.length; i++) {
+        const line = invoice.lines[i];
         const qty = Number(line.quantity);
-        const delta = -Math.abs(qty); // SALE_OUT decreases stock
+        const baseQty = baseQtys[i];
+        const delta = -Math.abs(baseQty); // SALE_OUT decreases stock in base units
 
         // Upsert balance
         await tx.inventoryBalance.upsert({
@@ -242,8 +260,8 @@ export async function confirmSalesInvoiceAction(
             warehouseId: session.warehouseId,
             productId: line.productId,
             unitId: line.unitId,
-            quantity: line.quantity,
-            baseQuantity: line.quantity, // same unit as default (caller converts if needed)
+            quantity: qty,
+            baseQuantity: baseQty,
             movementType: "SALE_OUT",
             actorId: session.employeeId,
             referenceId: invoiceId,
@@ -253,7 +271,7 @@ export async function confirmSalesInvoiceAction(
         });
       }
 
-      // 4. Confirm invoice
+      // 5. Confirm invoice
       confirmedAt = new Date();
       await tx.invoice.update({
         where: { id: invoiceId },
@@ -261,7 +279,7 @@ export async function confirmSalesInvoiceAction(
       });
     });
 
-    // 5. Audit log after transaction
+    // 6. Audit log after transaction
     await writeAuditLog({
       actorId: session.employeeId,
       action: "sales.invoice.confirm",

@@ -5,8 +5,8 @@ import { useRouter } from "next/navigation";
 import type { PurchaseInvoiceActionState } from "../actions";
 
 type Supplier = { id: string; name: string };
-type Product = { id: string; name: string; sku: string };
-type Unit = { id: string; name: string; symbol: string };
+type ProductUnit = { id: string; name: string; symbol: string };
+type Product = { id: string; name: string; sku: string; defaultUnitId: string; units: ProductUnit[] };
 
 type LineRow = {
   id: string;
@@ -20,7 +20,6 @@ interface PurchaseInvoiceFormProps {
   action: (state: PurchaseInvoiceActionState, formData: FormData) => Promise<PurchaseInvoiceActionState>;
   suppliers: Supplier[];
   products: Product[];
-  units: Unit[];
   defaultSupplierId?: string;
 }
 
@@ -99,17 +98,17 @@ function LineItem({
   row,
   index,
   products,
-  units,
   onRemove,
   onChange,
 }: {
   row: LineRow;
   index: number;
   products: Product[];
-  units: Unit[];
   onRemove: (id: string) => void;
   onChange: (id: string, field: keyof LineRow, value: string) => void;
 }) {
+  const selectedProduct = products.find((p) => p.id === row.productId);
+  const availableUnits = selectedProduct?.units ?? [];
   const selectStyle: React.CSSProperties = {
     padding: "8px 10px",
     background: "#0d1627",
@@ -164,11 +163,15 @@ function LineItem({
         value={row.unitId}
         onChange={(e) => onChange(row.id, "unitId", e.target.value)}
         style={selectStyle}
+        disabled={availableUnits.length === 0}
       >
-        <option value="">Unit…</option>
-        {units.map((u) => (
-          <option key={u.id} value={u.id}>{u.name} ({u.symbol})</option>
-        ))}
+        {availableUnits.length === 0 ? (
+          <option value="">Select product first…</option>
+        ) : (
+          availableUnits.map((u) => (
+            <option key={u.id} value={u.id}>{u.name} ({u.symbol})</option>
+          ))
+        )}
       </select>
 
       <input
@@ -223,7 +226,7 @@ function LineItem({
   );
 }
 
-export function PurchaseInvoiceForm({ action, suppliers, products, units, defaultSupplierId }: PurchaseInvoiceFormProps) {
+export function PurchaseInvoiceForm({ action, suppliers, products, defaultSupplierId }: PurchaseInvoiceFormProps) {
   const router = useRouter();
   const [state, formAction, pending] = useActionState<PurchaseInvoiceActionState, FormData>(
     action as (s: PurchaseInvoiceActionState, fd: FormData) => Promise<PurchaseInvoiceActionState>,
@@ -253,8 +256,18 @@ export function PurchaseInvoiceForm({ action, suppliers, products, units, defaul
   }, []);
 
   const updateLine = useCallback((id: string, field: keyof LineRow, value: string) => {
-    setLines((prev) => prev.map((r) => (r.id === id ? { ...r, [field]: value } : r)));
-  }, []);
+    setLines((prev) =>
+      prev.map((r) => {
+        if (r.id !== id) return r;
+        const updated = { ...r, [field]: value };
+        if (field === "productId") {
+          const product = products.find((p) => p.id === value);
+          updated.unitId = product?.defaultUnitId ?? "";
+        }
+        return updated;
+      })
+    );
+  }, [products]);
 
   const totalAmount = lines.reduce((sum, l) => {
     return sum + (parseFloat(l.quantity) || 0) * (parseFloat(l.unitPrice) || 0);
@@ -386,7 +399,6 @@ export function PurchaseInvoiceForm({ action, suppliers, products, units, defaul
                   row={row}
                   index={i}
                   products={products}
-                  units={units}
                   onRemove={removeLine}
                   onChange={updateLine}
                 />

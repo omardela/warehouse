@@ -9,6 +9,7 @@ import { requirePermission } from "@/core/auth/require-permission";
 import { writeAuditLog } from "@/core/audit/write-audit-log";
 import { MovementType } from "@prisma/client";
 import { writeNotification } from "@/core/notifications/write-notification";
+import { resolveBaseQuantity } from "@/core/inventory/resolve-base-quantity";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -192,10 +193,16 @@ export async function confirmPurchaseInvoiceAction(formData: FormData): Promise<
       data: { status: "CONFIRMED", confirmedAt: new Date() },
     });
 
-    // For each line: create inventory movement + upsert balance atomically
+    // For each line: convert to base unit, upsert balance, create movement
     for (const line of invoice.lines) {
       const qty = Number(line.quantity);
-      const baseQty = qty; // Assuming 1:1 for simplicity; caller should convert if needed
+      const baseQty = await resolveBaseQuantity(
+        tx,
+        line.productId,
+        line.product.defaultUnitId,
+        line.unitId,
+        qty
+      );
 
       // Upsert balance
       const existing = await tx.inventoryBalance.findUnique({
