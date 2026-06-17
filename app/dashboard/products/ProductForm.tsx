@@ -47,6 +47,7 @@ interface ProductFormProps {
   initialValues?: ProductFormInitialValues;
   action: typeof createProductAction | typeof updateProductAction;
   archiveButton?: React.ReactNode;
+  printLabelButton?: React.ReactNode;
 }
 
 function Input({
@@ -202,7 +203,7 @@ function ConversionRowItem({ row, units, index, onRemove, onChange }: {
   );
 }
 
-export function ProductForm({ mode, units, categories, initialValues = {}, action, archiveButton }: ProductFormProps) {
+export function ProductForm({ mode, units, categories, initialValues = {}, action, archiveButton, printLabelButton }: ProductFormProps) {
   const router = useRouter();
 
   const [state, formAction, pending] = useActionState<ProductActionState, FormData>(
@@ -261,6 +262,7 @@ export function ProductForm({ mode, units, categories, initialValues = {}, actio
             )}
           </div>
           <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+            {printLabelButton}
             {archiveButton}
             <a href="/dashboard/products" style={{ padding: "8px 16px", borderRadius: "8px", border: "1px solid #2d3449", color: "#8c90a2", fontSize: "13px", fontWeight: 500, textDecoration: "none" }}>
               Cancel

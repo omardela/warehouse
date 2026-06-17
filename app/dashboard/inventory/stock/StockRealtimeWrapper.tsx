@@ -13,6 +13,7 @@ export interface StockRow {
   archivedAt: Date | null;
   lowStockThreshold: number | null;
   qty: number;
+  onOrder: number;
   status: "out" | "low" | "healthy";
   defaultUnit: { id: string; name: string; symbol: string };
   category: { id: string; name: string } | null;
@@ -86,6 +87,7 @@ export function StockRealtimeWrapper({ initialRows, warehouseId }: Props) {
                 "SKU",
                 "Category",
                 "Current Qty",
+                "On Order",
                 "Low Stock Threshold",
                 "Status",
               ].map((h) => (
@@ -111,7 +113,7 @@ export function StockRealtimeWrapper({ initialRows, warehouseId }: Props) {
             {rows.length === 0 ? (
               <tr>
                 <td
-                  colSpan={6}
+                  colSpan={7}
                   style={{
                     padding: "56px 24px",
                     textAlign: "center",
@@ -252,6 +254,22 @@ export function StockRealtimeWrapper({ initialRows, warehouseId }: Props) {
                           {product.defaultUnit.symbol}
                         </span>
                       </div>
+                    </td>
+
+                    {/* On Order */}
+                    <td style={{ padding: "12px 16px" }}>
+                      {product.onOrder > 0 ? (
+                        <div style={{ display: "flex", alignItems: "baseline", gap: "4px" }}>
+                          <span style={{ fontWeight: 600, fontSize: "13px", color: "#a78bfa" }}>
+                            {formatQty(product.onOrder)}
+                          </span>
+                          <span style={{ fontSize: "11px", color: "#4a5068" }}>
+                            {product.defaultUnit.symbol}
+                          </span>
+                        </div>
+                      ) : (
+                        <span style={{ color: "#4a5068", fontSize: "12px" }}>—</span>
+                      )}
                     </td>
 
                     {/* Low Stock Threshold */}

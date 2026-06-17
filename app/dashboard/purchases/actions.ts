@@ -34,6 +34,7 @@ const lineSchema = z.object({
 
 const createInvoiceSchema = z.object({
   supplierId: z.string().min(1, "Supplier is required"),
+  purchaseOrderId: z.string().optional(),
   deliveryDate: z.string().optional(),
   notes: z.string().max(2000).optional(),
   lines: z.array(lineSchema).min(1, "At least one line item is required"),
@@ -66,9 +67,11 @@ export async function createPurchaseInvoiceAction(
 
   const rawDeliveryDate = (formData.get("deliveryDate") as string)?.trim();
   const rawNotes = (formData.get("notes") as string)?.trim();
+  const rawPurchaseOrderId = (formData.get("purchaseOrderId") as string)?.trim();
 
   const parsed = createInvoiceSchema.safeParse({
     supplierId: formData.get("supplierId"),
+    purchaseOrderId: rawPurchaseOrderId || undefined,
     deliveryDate: rawDeliveryDate || undefined,
     notes: rawNotes || undefined,
     lines: linesRaw,
@@ -83,7 +86,7 @@ export async function createPurchaseInvoiceAction(
     return { error: firstMessage, fieldErrors };
   }
 
-  const { supplierId, deliveryDate, notes, lines } = parsed.data;
+  const { supplierId, purchaseOrderId, deliveryDate, notes, lines } = parsed.data;
 
   // Validate supplier belongs to org
   const supplier = await db.supplier.findFirst({
@@ -91,6 +94,24 @@ export async function createPurchaseInvoiceAction(
     select: { id: true },
   });
   if (!supplier) return { error: "Supplier not found or archived." };
+
+  // Validate linked purchase order, if provided: must belong to this org/warehouse,
+  // the same supplier, and be RECEIVED or PARTIAL (i.e. goods have actually arrived).
+  if (purchaseOrderId) {
+    const po = await db.purchaseOrder.findFirst({
+      where: {
+        id: purchaseOrderId,
+        organizationId: session.orgId,
+        warehouseId: session.warehouseId,
+        supplierId,
+      },
+      select: { id: true, status: true },
+    });
+    if (!po) return { error: "Linked purchase order not found for this supplier." };
+    if (po.status !== "RECEIVED" && po.status !== "PARTIAL") {
+      return { error: "Purchase order must be partially or fully received before linking an invoice." };
+    }
+  }
 
   // Validate products belong to org
   const productIds = [...new Set(lines.map((l) => l.productId))];
@@ -119,6 +140,7 @@ export async function createPurchaseInvoiceAction(
         status: "DRAFT",
         warehouseId: session.warehouseId,
         supplierId,
+        purchaseOrderId: purchaseOrderId || null,
         totalAmount,
         notes: notes || null,
         actorId: session.employeeId,
@@ -146,7 +168,7 @@ export async function createPurchaseInvoiceAction(
     action: "purchase.invoice.create",
     entityType: "Invoice",
     entityId: invoice.id,
-    after: { type: "PURCHASE", status: "DRAFT", supplierId, totalAmount, lines: lineData.length },
+    after: { type: "PURCHASE", status: "DRAFT", supplierId, purchaseOrderId: purchaseOrderId ?? null, totalAmount, lines: lineData.length },
   });
 
   revalidatePath("/dashboard/purchases");
