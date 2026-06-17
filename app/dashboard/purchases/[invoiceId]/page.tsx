@@ -72,6 +72,7 @@ export default async function PurchaseInvoiceDetailPage({ params }: PageProps) {
     include: {
       supplier: { select: { id: true, name: true, email: true, phone: true } },
       actor: { select: { id: true, name: true } },
+      purchaseOrder: { select: { id: true, status: true } },
       lines: {
         include: {
           product: { select: { id: true, name: true, sku: true } },
@@ -215,6 +216,14 @@ export default async function PurchaseInvoiceDetailPage({ params }: PageProps) {
                   <div style={{ fontSize: "11px", color: "#4a5068", marginBottom: "3px", textTransform: "uppercase", letterSpacing: "0.05em" }}>Expected Delivery</div>
                   <div style={{ fontSize: "13px", color: "#dbe2fd" }}>{formatDate(invoice.deliveryDate)}</div>
                 </div>
+                {invoice.purchaseOrder && (
+                  <div>
+                    <div style={{ fontSize: "11px", color: "#4a5068", marginBottom: "3px", textTransform: "uppercase", letterSpacing: "0.05em" }}>Linked Purchase Order</div>
+                    <Link href={`/dashboard/purchases/orders/${invoice.purchaseOrder.id}`} style={{ color: "#6b9fff", textDecoration: "none", fontSize: "13px", fontWeight: 500, fontFamily: "monospace" }}>
+                      {invoice.purchaseOrder.id.slice(0, 8).toUpperCase()}
+                    </Link>
+                  </div>
+                )}
                 {invoice.confirmedAt && (
                   <div>
                     <div style={{ fontSize: "11px", color: "#4a5068", marginBottom: "3px", textTransform: "uppercase", letterSpacing: "0.05em" }}>Confirmed At</div>

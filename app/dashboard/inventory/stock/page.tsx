@@ -54,18 +54,37 @@ export default async function StockPage({ searchParams }: PageProps) {
     orderBy: { name: "asc" },
   });
 
+  // "On Order" = outstanding (not-yet-received) base quantity across open
+  // purchase order lines (SENT or PARTIAL) for this warehouse, summed per product.
+  const openPurchaseOrderLines = await db.purchaseOrderLine.findMany({
+    where: {
+      purchaseOrder: {
+        warehouseId: session.warehouseId,
+        status: { in: ["SENT", "PARTIAL"] },
+      },
+    },
+    select: { productId: true, baseQuantity: true, receivedBaseQuantity: true },
+  });
+  const onOrderByProduct = new Map<string, number>();
+  for (const line of openPurchaseOrderLines) {
+    const outstanding = Number(line.baseQuantity) - Number(line.receivedBaseQuantity);
+    if (outstanding <= 0) continue;
+    onOrderByProduct.set(line.productId, (onOrderByProduct.get(line.productId) ?? 0) + outstanding);
+  }
+
   // Enrich with computed status
   const enriched = products
     .map((p) => {
       const rawQty = p.inventoryBalances[0]?.currentQuantity ?? null;
       const qty = rawQty != null ? parseFloat(rawQty.toString()) : 0;
+      const onOrder = onOrderByProduct.get(p.id) ?? 0;
       const status: "out" | "low" | "healthy" =
         qty <= 0
           ? "out"
           : p.lowStockThreshold != null && qty <= p.lowStockThreshold
           ? "low"
           : "healthy";
-      return { ...p, qty, status };
+      return { ...p, qty, onOrder, status };
     })
     .filter((p) => {
       if (statusFilter === "low") return p.status === "low";
@@ -381,6 +400,7 @@ export default async function StockPage({ searchParams }: PageProps) {
             archivedAt: p.archivedAt,
             lowStockThreshold: p.lowStockThreshold,
             qty: p.qty,
+            onOrder: p.onOrder,
             status: p.status,
             defaultUnit: p.defaultUnit,
             category: p.category,

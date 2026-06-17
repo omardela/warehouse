@@ -37,6 +37,22 @@ enum PaymentMethod {
   BANK_TRANSFER
 }
 
+enum PaymentTerms {
+  COD
+  NET_15
+  NET_30
+  NET_60
+  NET_90
+}
+
+enum PurchaseOrderStatus {
+  DRAFT
+  SENT
+  PARTIAL
+  RECEIVED
+  CANCELLED
+}
+
 // ---------------------------------------------------------------------------
 // Tenancy
 // ---------------------------------------------------------------------------
@@ -52,8 +68,24 @@ model Organization {
   categories  ProductCategory[]
   customers   Customer[]
   suppliers   Supplier[]
+  purchaseOrders PurchaseOrder[]
+  modules     OrganisationModule[]
 
   @@map("organizations")
+}
+
+model OrganisationModule {
+  id             String   @id @default(cuid())
+  organizationId String
+  moduleKey      String
+  enabledAt      DateTime @default(now())
+  enabledById    String
+
+  organization Organization @relation(fields: [organizationId], references: [id])
+  enabledBy    Employee     @relation("ModuleEnabledBy", fields: [enabledById], references: [id])
+
+  @@unique([organizationId, moduleKey])
+  @@map("organisation_modules")
 }
 
 // ---------------------------------------------------------------------------
@@ -76,6 +108,10 @@ model Warehouse {
   inventoryBalances  InventoryBalance[]
   invoices           Invoice[]
   notifications      Notification[]
+  purchaseOrders     PurchaseOrder[]
+  goodsReceipts      GoodsReceipt[]
+  transfersOut       StockTransfer[]      @relation("TransferSource")
+  transfersIn        StockTransfer[]      @relation("TransferDestination")
 
   @@map("warehouses")
 }
@@ -97,6 +133,10 @@ model Employee {
   invoices           Invoice[]           @relation("InvoiceActor")
   payments           Payment[]           @relation("PaymentActor")
   auditLogs          AuditLog[]          @relation("AuditActor")
+  purchaseOrdersCreated PurchaseOrder[]  @relation("PurchaseOrderCreatedBy")
+  goodsReceiptsReceived GoodsReceipt[]   @relation("GoodsReceiptReceivedBy")
+  stockTransfers        StockTransfer[]  @relation("TransferActor")
+  enabledModules        OrganisationModule[] @relation("ModuleEnabledBy")
 
   @@map("employees")
 }
@@ -168,6 +208,9 @@ model ProductUnit {
   conversionsTo      ProductUnitConversion[] @relation("ConversionToUnit")
   inventoryMovements InventoryMovement[]
   invoiceLines       InvoiceLine[]
+  purchaseOrderLines PurchaseOrderLine[]
+  goodsReceiptLines  GoodsReceiptLine[]
+  stockTransferLines StockTransferLine[]
 
   @@map("product_units")
 }
@@ -205,6 +248,9 @@ model Product {
   inventoryMovements InventoryMovement[]
   inventoryBalances  InventoryBalance[]
   invoiceLines       InvoiceLine[]
+  purchaseOrderLines PurchaseOrderLine[]
+  goodsReceiptLines  GoodsReceiptLine[]
+  stockTransferLines StockTransferLine[]
 
   @@map("products")
 }
@@ -256,6 +302,8 @@ model InventoryBalance {
   warehouseId     String
   productId       String
   currentQuantity Decimal  @db.Decimal(20, 6)
+  reorderPoint    Int?
+  reorderQty      Int?
   updatedAt       DateTime @updatedAt
 
   warehouse Warehouse @relation(fields: [warehouseId], references: [id])
@@ -265,20 +313,53 @@ model InventoryBalance {
   @@map("inventory_balances")
 }
 
+model StockTransfer {
+  id                     String   @id @default(cuid())
+  sourceWarehouseId      String
+  destinationWarehouseId String
+  transferredById        String
+  note                   String?
+  createdAt              DateTime @default(now())
+
+  sourceWarehouse      Warehouse           @relation("TransferSource", fields: [sourceWarehouseId], references: [id])
+  destinationWarehouse Warehouse           @relation("TransferDestination", fields: [destinationWarehouseId], references: [id])
+  transferredBy        Employee            @relation("TransferActor", fields: [transferredById], references: [id])
+  lines                StockTransferLine[]
+
+  @@map("stock_transfers")
+}
+
+model StockTransferLine {
+  id              String  @id @default(cuid())
+  transferId      String
+  productId       String
+  unitId          String
+  displayQuantity Decimal @db.Decimal(20, 6)
+  baseQuantity    Decimal @db.Decimal(20, 6)
+
+  transfer StockTransfer @relation(fields: [transferId], references: [id])
+  product  Product       @relation(fields: [productId], references: [id])
+  unit     ProductUnit   @relation(fields: [unitId],    references: [id])
+
+  @@map("stock_transfer_lines")
+}
+
 // ---------------------------------------------------------------------------
 // Customers & Suppliers
 // ---------------------------------------------------------------------------
 
 model Customer {
-  id             String    @id @default(cuid())
+  id             String        @id @default(cuid())
   name           String
   email          String?
   phone          String?
   address        String?
   organizationId String
+  paymentTerms   PaymentTerms?
+  creditLimit    Decimal?      @db.Decimal(20, 2)
   archivedAt     DateTime?
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
 
   organization Organization @relation(fields: [organizationId], references: [id])
   invoices     Invoice[]
@@ -287,18 +368,20 @@ model Customer {
 }
 
 model Supplier {
-  id             String    @id @default(cuid())
+  id             String        @id @default(cuid())
   name           String
   email          String?
   phone          String?
   address        String?
   organizationId String
+  paymentTerms   PaymentTerms?
   archivedAt     DateTime?
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
 
-  organization Organization @relation(fields: [organizationId], references: [id])
-  invoices     Invoice[]
+  organization   Organization     @relation(fields: [organizationId], references: [id])
+  invoices       Invoice[]
+  purchaseOrders PurchaseOrder[]
 
   @@map("suppliers")
 }
@@ -308,28 +391,31 @@ model Supplier {
 // ---------------------------------------------------------------------------
 
 model Invoice {
-  id           String        @id @default(cuid())
-  type         InvoiceType
-  status       InvoiceStatus @default(DRAFT)
-  warehouseId  String
-  customerId   String?
-  supplierId   String?
-  totalAmount  Decimal       @db.Decimal(20, 2)
-  notes        String?
-  actorId      String
-  confirmedAt  DateTime?
-  cancelledAt  DateTime?
-  deliveryDate DateTime?
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
+  id             String        @id @default(cuid())
+  type           InvoiceType
+  status         InvoiceStatus @default(DRAFT)
+  warehouseId    String
+  customerId     String?
+  supplierId     String?
+  purchaseOrderId String?
+  totalAmount    Decimal       @db.Decimal(20, 2)
+  taxAmount      Decimal?      @db.Decimal(20, 2)
+  notes          String?
+  actorId        String
+  confirmedAt    DateTime?
+  cancelledAt    DateTime?
+  deliveryDate   DateTime?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
 
   // NEVER hard-deleted — no cascade deletes.
-  warehouse Warehouse     @relation(fields: [warehouseId], references: [id])
-  customer  Customer?     @relation(fields: [customerId],  references: [id])
-  supplier  Supplier?     @relation(fields: [supplierId],  references: [id])
-  actor     Employee      @relation("InvoiceActor", fields: [actorId], references: [id])
-  lines     InvoiceLine[]
-  payments  Payment[]
+  warehouse     Warehouse     @relation(fields: [warehouseId], references: [id])
+  customer      Customer?     @relation(fields: [customerId],  references: [id])
+  supplier      Supplier?     @relation(fields: [supplierId],  references: [id])
+  purchaseOrder PurchaseOrder? @relation(fields: [purchaseOrderId], references: [id])
+  actor         Employee      @relation("InvoiceActor", fields: [actorId], references: [id])
+  lines         InvoiceLine[]
+  payments      Payment[]
 
   @@map("invoices")
 }
@@ -365,6 +451,88 @@ model Payment {
   actor   Employee @relation("PaymentActor", fields: [actorId], references: [id])
 
   @@map("payments")
+}
+
+// ---------------------------------------------------------------------------
+// Purchase Orders & Goods Receipts
+// ---------------------------------------------------------------------------
+
+model PurchaseOrder {
+  id                   String              @id @default(cuid())
+  organizationId       String
+  warehouseId          String
+  supplierId           String
+  status               PurchaseOrderStatus @default(DRAFT)
+  expectedDeliveryDate DateTime?
+  note                 String?
+  createdById          String
+  sentAt               DateTime?
+  receivedAt           DateTime?
+  createdAt            DateTime            @default(now())
+  updatedAt            DateTime            @updatedAt
+
+  // NEVER hard-deleted — no cascade deletes.
+  organization Organization        @relation(fields: [organizationId], references: [id])
+  warehouse    Warehouse           @relation(fields: [warehouseId], references: [id])
+  supplier     Supplier            @relation(fields: [supplierId], references: [id])
+  createdBy    Employee            @relation("PurchaseOrderCreatedBy", fields: [createdById], references: [id])
+  lines        PurchaseOrderLine[]
+  receipts     GoodsReceipt[]
+  invoices     Invoice[]
+
+  @@map("purchase_orders")
+}
+
+model PurchaseOrderLine {
+  id                    String  @id @default(cuid())
+  purchaseOrderId       String
+  productId             String
+  unitId                String
+  displayQuantity       Decimal @db.Decimal(20, 6)
+  baseQuantity          Decimal @db.Decimal(20, 6)
+  unitCost              Decimal @db.Decimal(20, 2)
+  receivedBaseQuantity  Decimal @default(0) @db.Decimal(20, 6)
+
+  purchaseOrder      PurchaseOrder       @relation(fields: [purchaseOrderId], references: [id])
+  product             Product             @relation(fields: [productId], references: [id])
+  unit                ProductUnit         @relation(fields: [unitId], references: [id])
+  goodsReceiptLines   GoodsReceiptLine[]
+
+  @@map("purchase_order_lines")
+}
+
+model GoodsReceipt {
+  id              String   @id @default(cuid())
+  purchaseOrderId String
+  warehouseId     String
+  receivedById    String
+  note            String?
+  createdAt       DateTime @default(now())
+
+  // Append-only: no updates, no deletes.
+  purchaseOrder PurchaseOrder      @relation(fields: [purchaseOrderId], references: [id])
+  warehouse     Warehouse          @relation(fields: [warehouseId], references: [id])
+  receivedBy    Employee           @relation("GoodsReceiptReceivedBy", fields: [receivedById], references: [id])
+  lines         GoodsReceiptLine[]
+
+  @@map("goods_receipts")
+}
+
+model GoodsReceiptLine {
+  id                  String  @id @default(cuid())
+  goodsReceiptId      String
+  purchaseOrderLineId String
+  productId           String
+  unitId              String
+  displayQuantity     Decimal @db.Decimal(20, 6)
+  baseQuantity        Decimal @db.Decimal(20, 6)
+
+  goodsReceipt      GoodsReceipt      @relation(fields: [goodsReceiptId], references: [id])
+  purchaseOrderLine PurchaseOrderLine @relation(fields: [purchaseOrderLineId], references: [id])
+  product           Product           @relation(fields: [productId], references: [id])
+  unit              ProductUnit       @relation(fields: [unitId], references: [id])
+
+  @@map("goods_receipt_lines")
 }
 
 // ---------------------------------------------------------------------------

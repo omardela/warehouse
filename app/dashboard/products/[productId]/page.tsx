@@ -74,6 +74,29 @@ export default async function EditProductPage({ params }: PageProps) {
     </form>
   );
 
+  const printLabelButton = (
+    <a
+      href={`/dashboard/products/${product.id}/label`}
+      target="_blank"
+      rel="noopener noreferrer"
+      style={{
+        padding: "8px 16px",
+        borderRadius: "8px",
+        border: "1px solid #2d3449",
+        background: "rgba(0,98,255,0.08)",
+        color: "#0062ff",
+        fontSize: "13px",
+        fontWeight: 500,
+        textDecoration: "none",
+        display: "inline-flex",
+        alignItems: "center",
+        gap: "6px",
+      }}
+    >
+      Print Label
+    </a>
+  );
+
   return (
     <div>
       {isArchived && (
@@ -122,6 +145,7 @@ export default async function EditProductPage({ params }: PageProps) {
         }}
         action={updateProductAction}
         archiveButton={archiveButton}
+        printLabelButton={printLabelButton}
       />
     </div>
   );
