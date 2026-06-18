@@ -125,6 +125,29 @@ export function GoodsReceiptForm({ action, purchaseOrderId, supplierName, status
     );
   }
 
+  if (lines.length === 0) {
+    return (
+      <div style={{ minHeight: "100vh", background: "#0b1326", padding: "24px" }}>
+        <div style={{ maxWidth: "640px", margin: "80px auto", textAlign: "center" }}>
+          <div style={{ background: "#171f33", border: "1px solid #222a3e", borderRadius: "12px", padding: "40px" }}>
+            <h2 style={{ fontSize: "18px", fontWeight: 700, color: "#dbe2fd", margin: "0 0 8px" }}>
+              Nothing Left to Receive
+            </h2>
+            <p style={{ fontSize: "13px", color: "#8c90a2", margin: "0 0 24px" }}>
+              This purchase order has already been fully received, or is not in a receivable state.
+            </p>
+            <Link
+              href={`/dashboard/purchases/orders/${purchaseOrderId}`}
+              style={{ padding: "10px 20px", borderRadius: "8px", background: "#0062ff", color: "#fff", fontSize: "13px", fontWeight: 600, textDecoration: "none" }}
+            >
+              Back to Purchase Order
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div style={{ minHeight: "100vh", background: "#0b1326", padding: "24px" }}>
       <div style={{ maxWidth: "880px", margin: "0 auto" }}>

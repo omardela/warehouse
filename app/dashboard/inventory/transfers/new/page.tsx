@@ -5,7 +5,7 @@ import { requirePagePermission } from "@/core/auth/require-page-permission";
 import { TransferForm } from "./TransferForm";
 
 export const dynamic = "force-dynamic";
-
+// jjj
 export default async function NewStockTransferPage() {
   const session = await getSession();
   if (!session) redirect("/login");

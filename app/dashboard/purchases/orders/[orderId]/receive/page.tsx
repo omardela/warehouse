@@ -35,33 +35,34 @@ export default async function CreateGoodsReceiptPage({ params }: PageProps) {
     notFound();
   }
 
-  if (po.status !== "SENT" && po.status !== "PARTIAL") {
-    notFound();
-  }
+  // Note: do not notFound() based on status/outstanding quantity here. A
+  // successful submission flips the PO to RECEIVED and Next.js refreshes
+  // this route's server data immediately after, which would otherwise
+  // unmount the form (and its inline success state) into a 404. Instead,
+  // pass an empty line list and let the form render an appropriate state.
+  const canReceiveAgainst = po.status === "SENT" || po.status === "PARTIAL";
 
   // Only lines with outstanding quantity remaining can be received against.
-  const outstandingLines = po.lines
-    .map((line) => {
-      const outstandingBase = Number(line.baseQuantity) - Number(line.receivedBaseQuantity);
-      // displayQuantity / baseQuantity share the same ratio, so outstanding
-      // display qty scales the same way as outstanding base qty.
-      const ratio = Number(line.baseQuantity) > 0 ? Number(line.displayQuantity) / Number(line.baseQuantity) : 1;
-      const outstandingDisplay = outstandingBase * ratio;
-      return {
-        id: line.id,
-        product: line.product,
-        unit: line.unit,
-        orderedDisplay: Number(line.displayQuantity),
-        receivedBase: Number(line.receivedBaseQuantity),
-        outstandingBase,
-        outstandingDisplay,
-      };
-    })
-    .filter((line) => line.outstandingBase > 0.000001);
-
-  if (outstandingLines.length === 0) {
-    notFound();
-  }
+  const outstandingLines = canReceiveAgainst
+    ? po.lines
+        .map((line) => {
+          const outstandingBase = Number(line.baseQuantity) - Number(line.receivedBaseQuantity);
+          // displayQuantity / baseQuantity share the same ratio, so outstanding
+          // display qty scales the same way as outstanding base qty.
+          const ratio = Number(line.baseQuantity) > 0 ? Number(line.displayQuantity) / Number(line.baseQuantity) : 1;
+          const outstandingDisplay = outstandingBase * ratio;
+          return {
+            id: line.id,
+            product: line.product,
+            unit: line.unit,
+            orderedDisplay: Number(line.displayQuantity),
+            receivedBase: Number(line.receivedBaseQuantity),
+            outstandingBase,
+            outstandingDisplay,
+          };
+        })
+        .filter((line) => line.outstandingBase > 0.000001)
+    : [];
 
   return (
     <GoodsReceiptForm

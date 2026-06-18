@@ -143,12 +143,34 @@ function IconMovements() {
   );
 }
 
+function IconTransfers() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+      <rect x="1.5" y="2.5" width="5" height="5" rx="1" stroke="currentColor" strokeWidth="1.5" />
+      <rect x="9.5" y="8.5" width="5" height="5" rx="1" stroke="currentColor" strokeWidth="1.5" />
+      <path d="M6.5 5H10.5C11.328 5 12 5.672 12 6.5V8.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+      <path d="M9.5 11H5.5C4.672 11 4 10.328 4 9.5V7.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+      <path d="M10.5 4L12 5.5L10.5 7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M5.5 9L4 10.5L5.5 12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
 function IconAdjustment() {
   return (
     <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
       <rect x="1.5" y="3.5" width="13" height="9" rx="1" stroke="currentColor" strokeWidth="1.5" />
       <path d="M8 6V10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
       <path d="M6 8H10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function IconNotifications() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+      <path d="M8 1.5C5.79 1.5 4 3.29 4 5.5V9L2.5 11H13.5L12 9V5.5C12 3.29 10.21 1.5 8 1.5Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
+      <path d="M6.5 11C6.5 12.105 7.21 13 8 13C8.79 13 9.5 12.105 9.5 11" stroke="currentColor" strokeWidth="1.5" />
     </svg>
   );
 }
@@ -192,6 +214,7 @@ const NAV_GROUPS: NavGroup[] = [
     heading: "Dashboard",
     items: [
       { label: "Overview", href: "/dashboard", icon: <IconDashboard />, permission: null },
+      { label: "Notifications", href: "/dashboard/notifications", icon: <IconNotifications />, permission: null },
     ],
   },
   {
@@ -206,6 +229,7 @@ const NAV_GROUPS: NavGroup[] = [
       { label: "Stock Levels", href: "/dashboard/inventory/stock",       icon: <IconInventory />,  permission: "inventory.balance.read" },
       { label: "Movements",    href: "/dashboard/inventory/movements",   icon: <IconMovements />,  permission: "inventory.balance.read" },
       { label: "Adjustments",  href: "/dashboard/inventory/adjustments", icon: <IconAdjustment />, permission: "inventory.movement.create" },
+      { label: "Transfers",    href: "/dashboard/inventory/transfers",   icon: <IconTransfers />,  permission: "inventory.transfers.view" },
     ],
   },
   {
@@ -218,8 +242,9 @@ const NAV_GROUPS: NavGroup[] = [
   {
     heading: "Purchases",
     items: [
-      { label: "Purchase Invoices", href: "/dashboard/purchases", icon: <IconPurchases />, permission: "purchase.invoice.read" },
-      { label: "Suppliers",         href: "/dashboard/suppliers", icon: <IconSuppliers />, permission: "suppliers.supplier.read" },
+      { label: "Purchase Invoices", href: "/dashboard/purchases",        icon: <IconPurchases />, permission: "purchase.invoice.read" },
+      { label: "Purchase Orders",   href: "/dashboard/purchases/orders", icon: <IconPurchases />, permission: "purchases.orders.view" },
+      { label: "Suppliers",         href: "/dashboard/suppliers",        icon: <IconSuppliers />, permission: "suppliers.supplier.read" },
     ],
   },
   {
@@ -272,6 +297,12 @@ function SidebarContent({
       (item) => item.permission === null || hasPermission(permissions, item.permission)
     ),
   })).filter((group) => group.items.length > 0);
+
+  const activeHref = visibleGroups
+    .flatMap((group) => group.items)
+    .map((item) => item.href)
+    .filter((href) => pathname === href || (href !== "/dashboard" && pathname.startsWith(href + "/")))
+    .sort((a, b) => b.length - a.length)[0];
 
   return (
     <div
@@ -343,9 +374,7 @@ function SidebarContent({
               {group.heading}
             </div>
             {group.items.map((item) => {
-              const isActive =
-                pathname === item.href ||
-                (item.href !== "/dashboard" && pathname.startsWith(item.href));
+              const isActive = item.href === activeHref;
               return (
                 <Link
                   key={item.href}
