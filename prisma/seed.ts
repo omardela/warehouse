@@ -97,6 +97,9 @@ async function main() {
     { code: "purchases.orders.create", description: "Create purchase orders" },
     { code: "purchases.orders.view", description: "View purchase orders" },
     { code: "purchases.receipts.create", description: "Create goods receipts against purchase orders" },
+    // Credit Notes
+    { code: "purchases.creditnotes.create", description: "Create purchase credit notes (returns to supplier)" },
+    { code: "purchases.creditnotes.view", description: "View purchase credit notes" },
     // Payments
     { code: "payments.payment.create", description: "Create payments" },
     { code: "payments.payment.read", description: "Read payments" },
@@ -120,12 +123,16 @@ async function main() {
     { code: "reports.stock.view", description: "View stock valuation report" },
     // Audit
     { code: "audit.log.read", description: "Read audit logs" },
+    // Inventory management
+    { code: "inventory.stock.manage", description: "Set reorder point and reorder quantity for stock" },
     // Settings — Organization
     { code: "settings.org.read", description: "Read organization settings" },
     {
       code: "settings.org.update",
       description: "Update organization settings",
     },
+    // Settings — Import
+    { code: "settings.import", description: "Bulk import products, customers, and suppliers via CSV" },
     // Settings — Warehouses
     { code: "settings.warehouse.create", description: "Create warehouses" },
     { code: "settings.warehouse.read", description: "Read warehouse settings" },
@@ -419,8 +426,9 @@ async function main() {
       "inventory.transfers.create", "inventory.transfers.view",
       "purchase.invoice.create", "purchase.invoice.confirm", "purchase.invoice.cancel", "purchase.invoice.read",
       "purchases.orders.create", "purchases.orders.view", "purchases.receipts.create",
+      "purchases.creditnotes.create", "purchases.creditnotes.view",
       "suppliers.supplier.create", "suppliers.supplier.read", "suppliers.supplier.update",
-      "payments.payment.read",
+      "payments.payment.read", "inventory.stock.manage",
     ];
     const wkPerms = await prisma.permission.findMany({
       where: { code: { in: warehouseKeeperPerms } },

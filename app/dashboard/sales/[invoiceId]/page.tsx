@@ -45,6 +45,25 @@ function StatusBadge({ status }: { status: string }) {
   );
 }
 
+function OverdueBadge() {
+  return (
+    <span
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        padding: "4px 10px",
+        borderRadius: "10px",
+        background: "rgba(147,0,10,0.15)",
+        color: "#ffb4ab",
+        fontSize: "12px",
+        fontWeight: 600,
+      }}
+    >
+      OVERDUE
+    </span>
+  );
+}
+
 function PaymentMethodBadge({ method }: { method: string }) {
   const labels: Record<string, string> = { CASH: "Cash", CARD: "Card", BANK_TRANSFER: "Bank Transfer" };
   return (
@@ -101,6 +120,11 @@ export default async function SalesInvoiceDetailPage({ params }: PageProps) {
 
   const totalPaid = invoice.payments.reduce((sum, p) => sum + Number(p.amount), 0);
   const remaining = Number(invoice.totalAmount) - totalPaid;
+  const isOverdue =
+    invoice.dueDate != null &&
+    invoice.dueDate.getTime() < Date.now() &&
+    invoice.status === "CONFIRMED" &&
+    remaining > 0;
 
   return (
     <div style={{ minHeight: "100vh", background: "#0b1326", padding: "24px" }}>
@@ -120,11 +144,13 @@ export default async function SalesInvoiceDetailPage({ params }: PageProps) {
                 {invoiceId}
               </h1>
               <StatusBadge status={invoice.status} />
+              {isOverdue && <OverdueBadge />}
             </div>
             <p style={{ fontSize: "12px", color: "#4a5068", marginTop: "4px" }}>
               Created {formatDate(invoice.createdAt)} by {invoice.actor.name}
               {invoice.confirmedAt && ` · Confirmed ${formatDate(invoice.confirmedAt)}`}
               {invoice.cancelledAt && ` · Cancelled ${formatDate(invoice.cancelledAt)}`}
+              {invoice.dueDate && ` · Due ${formatDate(invoice.dueDate)}`}
             </p>
           </div>
 
@@ -154,6 +180,18 @@ export default async function SalesInvoiceDetailPage({ params }: PageProps) {
             </div>
           </div>
         </div>
+
+        {invoice.dueDate && (
+          <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "24px", marginTop: "-8px" }}>
+            <div style={{ background: "#171f33", border: "1px solid #222a3e", borderRadius: "10px", padding: "12px 16px", display: "flex", alignItems: "center", gap: "10px", flex: 1 }}>
+              <span style={{ fontSize: "11px", fontWeight: 600, color: "#8c90a2", textTransform: "uppercase", letterSpacing: "0.06em" }}>Due Date</span>
+              <span style={{ fontSize: "13px", fontWeight: 600, color: isOverdue ? "#ffb4ab" : "#dbe2fd" }}>
+                {formatDate(invoice.dueDate)}
+              </span>
+              {isOverdue && <OverdueBadge />}
+            </div>
+          </div>
+        )}
 
         <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: "20px", alignItems: "start" }}>
           <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>

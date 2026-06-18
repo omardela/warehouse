@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { writeAuditLog } from "@/core/audit/write-audit-log";
 import { emitter } from "@/core/realtime/emitter";
 import { getNotificationPermission } from "@/core/notifications/notification-permissions";
+import { writeNotification } from "@/core/notifications/write-notification";
 
 export interface RecordMovementParams {
   warehouseId: string;
@@ -195,6 +196,53 @@ export async function recordMovement(
     }
   } catch {
     // Low-stock notification failure must never break the movement creation
+  }
+
+  // Per-warehouse reorder point check — additive to the Product.lowStockThreshold
+  // check above. Operates on InventoryBalance.reorderPoint/reorderQty (set via the
+  // Stock page's reorder settings editor). Kept separate and independent so a
+  // failure here never affects the existing lowStockThreshold logic.
+  try {
+    const balance = await db.inventoryBalance.findUnique({
+      where: { warehouseId_productId: { warehouseId, productId } },
+      select: { reorderPoint: true, reorderQty: true },
+    });
+
+    if (balance && balance.reorderPoint != null && newQty <= balance.reorderPoint) {
+      const existingReorderNotification = await db.notification.findFirst({
+        where: {
+          warehouseId,
+          type: "LOW_STOCK",
+          readAt: null,
+          payload: { path: ["productId"], equals: productId },
+          AND: [{ payload: { path: ["reason"], equals: "reorder_point" } }],
+        },
+      });
+
+      if (!existingReorderNotification) {
+        const product = await db.product.findUnique({
+          where: { id: productId },
+          select: { name: true },
+        });
+
+        await writeNotification({
+          warehouseId,
+          type: "LOW_STOCK",
+          payload: {
+            reason: "reorder_point",
+            productId,
+            productName: product?.name ?? "",
+            warehouseId,
+            currentQuantity: newQty,
+            reorderPoint: balance.reorderPoint,
+            reorderQty: balance.reorderQty,
+          },
+          summary: `Reorder point reached: ${product?.name ?? "Product"}`,
+        });
+      }
+    }
+  } catch {
+    // Reorder-point notification failure must never break the movement creation
   }
 
   return { movement, lowStockTriggered };

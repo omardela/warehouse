@@ -182,6 +182,7 @@ export async function confirmSalesInvoiceAction(
               product: { select: { name: true, defaultUnitId: true } },
             },
           },
+          customer: { select: { paymentTerms: true } },
         },
       });
 
@@ -273,9 +274,28 @@ export async function confirmSalesInvoiceAction(
 
       // 5. Confirm invoice
       confirmedAt = new Date();
+
+      // Calculate due date from customer payment terms
+      let dueDate: Date | null = null;
+      const paymentTerms = invoice.customer?.paymentTerms ?? null;
+      if (paymentTerms === "COD") {
+        dueDate = confirmedAt;
+      } else if (paymentTerms) {
+        const termDays: Record<string, number> = {
+          NET_15: 15,
+          NET_30: 30,
+          NET_60: 60,
+          NET_90: 90,
+        };
+        const days = termDays[paymentTerms];
+        if (days != null) {
+          dueDate = new Date(confirmedAt.getTime() + days * 24 * 60 * 60 * 1000);
+        }
+      }
+
       await tx.invoice.update({
         where: { id: invoiceId },
-        data: { status: "CONFIRMED", confirmedAt },
+        data: { status: "CONFIRMED", confirmedAt, dueDate },
       });
     });
 

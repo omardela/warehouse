@@ -6,6 +6,7 @@ import { db } from "@/lib/db";
 import { getSession } from "@/core/auth/session";
 import { requirePermission } from "@/core/auth/require-permission";
 import { writeAuditLog } from "@/core/audit/write-audit-log";
+import { Prisma } from "@prisma/client";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -21,11 +22,20 @@ export type CustomerActionState =
 // Zod schemas
 // ---------------------------------------------------------------------------
 
+const paymentTermsEnum = z.enum(["COD", "NET_15", "NET_30", "NET_60", "NET_90"]);
+
+const creditLimitField = z
+  .union([z.coerce.number({ error: "Credit limit must be a number" }).min(0, "Credit limit must be non-negative"), z.literal("")])
+  .optional()
+  .transform((val) => (val === "" || val == null ? undefined : val));
+
 const createCustomerSchema = z.object({
   name: z.string().min(1, "Customer name is required").max(200),
   email: z.string().email("Invalid email address").max(255).optional().or(z.literal("")),
   phone: z.string().max(50).optional().or(z.literal("")),
   address: z.string().max(500).optional().or(z.literal("")),
+  paymentTerms: paymentTermsEnum.optional().or(z.literal("")),
+  creditLimit: creditLimitField,
 });
 
 const updateCustomerSchema = z.object({
@@ -34,6 +44,8 @@ const updateCustomerSchema = z.object({
   email: z.string().email("Invalid email address").max(255).optional().or(z.literal("")),
   phone: z.string().max(50).optional().or(z.literal("")),
   address: z.string().max(500).optional().or(z.literal("")),
+  paymentTerms: paymentTermsEnum.optional().or(z.literal("")),
+  creditLimit: creditLimitField,
 });
 
 // ---------------------------------------------------------------------------
@@ -58,15 +70,24 @@ export async function createCustomerAction(
     email: formData.get("email") || undefined,
     phone: formData.get("phone") || undefined,
     address: formData.get("address") || undefined,
+    paymentTerms: formData.get("paymentTerms") || undefined,
+    creditLimit: formData.get("creditLimit") || undefined,
   };
 
   const parsed = createCustomerSchema.safeParse(raw);
   if (!parsed.success) {
     const errors = parsed.error.flatten().fieldErrors;
-    return { error: errors.name?.[0] ?? errors.email?.[0] ?? "Invalid form data" };
+    return {
+      error:
+        errors.name?.[0] ??
+        errors.email?.[0] ??
+        errors.paymentTerms?.[0] ??
+        errors.creditLimit?.[0] ??
+        "Invalid form data",
+    };
   }
 
-  const { name, email, phone, address } = parsed.data;
+  const { name, email, phone, address, paymentTerms, creditLimit } = parsed.data;
 
   const customer = await db.customer.create({
     data: {
@@ -74,6 +95,8 @@ export async function createCustomerAction(
       email: email || null,
       phone: phone || null,
       address: address || null,
+      paymentTerms: paymentTerms || null,
+      creditLimit: creditLimit != null ? new Prisma.Decimal(creditLimit.toFixed(2)) : null,
       organizationId: session.orgId,
     },
     select: { id: true },
@@ -84,7 +107,14 @@ export async function createCustomerAction(
     action: "customers.customer.create",
     entityType: "Customer",
     entityId: customer.id,
-    after: { name, email: email || null, phone: phone || null, address: address || null },
+    after: {
+      name,
+      email: email || null,
+      phone: phone || null,
+      address: address || null,
+      paymentTerms: paymentTerms || null,
+      creditLimit: creditLimit != null ? creditLimit.toFixed(2) : null,
+    },
   });
 
   revalidatePath("/dashboard/customers");
@@ -115,18 +145,35 @@ export async function updateCustomerAction(
     email: formData.get("email") || undefined,
     phone: formData.get("phone") || undefined,
     address: formData.get("address") || undefined,
+    paymentTerms: formData.get("paymentTerms") || undefined,
+    creditLimit: formData.get("creditLimit") || undefined,
   });
 
   if (!parsed.success) {
     const errors = parsed.error.flatten().fieldErrors;
-    return { error: errors.name?.[0] ?? errors.email?.[0] ?? "Invalid form data" };
+    return {
+      error:
+        errors.name?.[0] ??
+        errors.email?.[0] ??
+        errors.paymentTerms?.[0] ??
+        errors.creditLimit?.[0] ??
+        "Invalid form data",
+    };
   }
 
-  const { customerId, name, email, phone, address } = parsed.data;
+  const { customerId, name, email, phone, address, paymentTerms, creditLimit } = parsed.data;
 
   const existing = await db.customer.findUnique({
     where: { id: customerId },
-    select: { organizationId: true, name: true, email: true, phone: true, address: true },
+    select: {
+      organizationId: true,
+      name: true,
+      email: true,
+      phone: true,
+      address: true,
+      paymentTerms: true,
+      creditLimit: true,
+    },
   });
 
   if (!existing || existing.organizationId !== session.orgId) {
@@ -140,6 +187,8 @@ export async function updateCustomerAction(
       email: email || null,
       phone: phone || null,
       address: address || null,
+      paymentTerms: paymentTerms || null,
+      creditLimit: creditLimit != null ? new Prisma.Decimal(creditLimit.toFixed(2)) : null,
     },
   });
 
@@ -148,8 +197,22 @@ export async function updateCustomerAction(
     action: "customers.customer.update",
     entityType: "Customer",
     entityId: customerId,
-    before: { name: existing.name, email: existing.email, phone: existing.phone, address: existing.address },
-    after: { name, email: email || null, phone: phone || null, address: address || null },
+    before: {
+      name: existing.name,
+      email: existing.email,
+      phone: existing.phone,
+      address: existing.address,
+      paymentTerms: existing.paymentTerms,
+      creditLimit: existing.creditLimit != null ? existing.creditLimit.toFixed(2) : null,
+    },
+    after: {
+      name,
+      email: email || null,
+      phone: phone || null,
+      address: address || null,
+      paymentTerms: paymentTerms || null,
+      creditLimit: creditLimit != null ? creditLimit.toFixed(2) : null,
+    },
   });
 
   revalidatePath("/dashboard/customers");

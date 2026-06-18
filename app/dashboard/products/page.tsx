@@ -99,6 +99,24 @@ export default async function ProductsPage({ searchParams }: PageProps) {
           </div>
           <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
             <Link
+              href="/dashboard/products/import"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "6px",
+                padding: "8px 14px",
+                borderRadius: "8px",
+                border: "1px solid #2d3449",
+                background: "transparent",
+                color: "#8c90a2",
+                fontSize: "13px",
+                fontWeight: 500,
+                textDecoration: "none",
+              }}
+            >
+              Import CSV
+            </Link>
+            <Link
               href="/dashboard/products/categories"
               style={{
                 display: "inline-flex",

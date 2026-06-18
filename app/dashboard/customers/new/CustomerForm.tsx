@@ -18,6 +18,8 @@ interface CustomerFormProps {
     email?: string;
     phone?: string;
     address?: string;
+    paymentTerms?: string;
+    creditLimit?: string;
   };
   archiveButton?: React.ReactNode;
   /** When true, renders only the card body without the outer page chrome */
@@ -43,10 +45,10 @@ function Label({ htmlFor, children, required, optional }: {
 }
 
 function Input({
-  id, name, type = "text", defaultValue, placeholder, required,
+  id, name, type = "text", defaultValue, placeholder, required, min, step,
 }: {
   id: string; name: string; type?: string; defaultValue?: string;
-  placeholder?: string; required?: boolean;
+  placeholder?: string; required?: boolean; min?: string | number; step?: string | number;
 }) {
   return (
     <input
@@ -56,6 +58,8 @@ function Input({
       defaultValue={defaultValue}
       placeholder={placeholder}
       required={required}
+      min={min}
+      step={step}
       style={{
         width: "100%",
         background: "#0d1627",
@@ -78,6 +82,51 @@ function Input({
     />
   );
 }
+
+function Select({
+  id, name, defaultValue, children,
+}: {
+  id: string; name: string; defaultValue?: string; children: React.ReactNode;
+}) {
+  return (
+    <select
+      id={id}
+      name={name}
+      defaultValue={defaultValue ?? ""}
+      style={{
+        width: "100%",
+        background: "#0d1627",
+        border: "1px solid #2d3449",
+        borderRadius: "8px",
+        padding: "8px 12px",
+        fontSize: "13px",
+        color: "#dbe2fd",
+        outline: "none",
+        boxSizing: "border-box",
+        appearance: "none",
+      }}
+      onFocus={(e) => {
+        e.currentTarget.style.borderColor = "#0062ff";
+        e.currentTarget.style.boxShadow = "0 0 0 3px rgba(0,98,255,0.2)";
+      }}
+      onBlur={(e) => {
+        e.currentTarget.style.borderColor = "#2d3449";
+        e.currentTarget.style.boxShadow = "none";
+      }}
+    >
+      {children}
+    </select>
+  );
+}
+
+const PAYMENT_TERMS_OPTIONS: { value: string; label: string }[] = [
+  { value: "", label: "Not set" },
+  { value: "COD", label: "COD (Cash on Delivery)" },
+  { value: "NET_15", label: "Net 15" },
+  { value: "NET_30", label: "Net 30" },
+  { value: "NET_60", label: "Net 60" },
+  { value: "NET_90", label: "Net 90" },
+];
 
 export function CustomerForm({ mode, action, initialValues = {}, archiveButton, embedded }: CustomerFormProps) {
   const router = useRouter();
@@ -185,6 +234,29 @@ export function CustomerForm({ mode, action, initialValues = {}, archiveButton, 
                   e.currentTarget.style.boxShadow = "none";
                 }}
               />
+            </div>
+
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
+              <div>
+                <Label htmlFor="paymentTerms" optional>Payment Terms</Label>
+                <Select id="paymentTerms" name="paymentTerms" defaultValue={initialValues.paymentTerms ?? ""}>
+                  {PAYMENT_TERMS_OPTIONS.map((opt) => (
+                    <option key={opt.value} value={opt.value}>{opt.label}</option>
+                  ))}
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="creditLimit" optional>Credit Limit</Label>
+                <Input
+                  id="creditLimit"
+                  name="creditLimit"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  defaultValue={initialValues.creditLimit ?? ""}
+                  placeholder="No limit"
+                />
+              </div>
             </div>
           </div>
         </div>

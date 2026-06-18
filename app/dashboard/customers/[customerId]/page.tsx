@@ -78,6 +78,17 @@ export default async function CustomerDetailPage({ params }: PageProps) {
   );
   const outstandingBalance = totalInvoiced - totalPaid;
 
+  const creditLimit = customer.creditLimit != null ? Number(customer.creditLimit) : null;
+  const availableCredit = creditLimit != null ? creditLimit - outstandingBalance : null;
+
+  const PAYMENT_TERMS_LABELS: Record<string, string> = {
+    COD: "COD (Cash on Delivery)",
+    NET_15: "Net 15",
+    NET_30: "Net 30",
+    NET_60: "Net 60",
+    NET_90: "Net 90",
+  };
+
   return (
     <div style={{ minHeight: "100vh", background: "#0b1326", padding: "24px" }}>
       <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
@@ -112,7 +123,7 @@ export default async function CustomerDetailPage({ params }: PageProps) {
           </div>
         </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "16px", marginBottom: "24px" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "16px", marginBottom: "16px" }}>
           <div style={{ background: "#171f33", border: "1px solid #222a3e", borderRadius: "10px", padding: "16px" }}>
             <div style={{ fontSize: "11px", fontWeight: 600, color: "#8c90a2", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: "8px" }}>Total Invoiced</div>
             <div style={{ fontSize: "20px", fontWeight: 700, color: "#dbe2fd" }}>{formatCurrency(totalInvoiced)}</div>
@@ -125,6 +136,27 @@ export default async function CustomerDetailPage({ params }: PageProps) {
             <div style={{ fontSize: "11px", fontWeight: 600, color: "#8c90a2", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: "8px" }}>Outstanding Balance</div>
             <div style={{ fontSize: "20px", fontWeight: 700, color: outstandingBalance > 0 ? "#f59e0b" : "#62df7d" }}>
               {formatCurrency(outstandingBalance)}
+            </div>
+          </div>
+        </div>
+
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "16px", marginBottom: "24px" }}>
+          <div style={{ background: "#171f33", border: "1px solid #222a3e", borderRadius: "10px", padding: "16px" }}>
+            <div style={{ fontSize: "11px", fontWeight: 600, color: "#8c90a2", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: "8px" }}>Credit Limit</div>
+            <div style={{ fontSize: "20px", fontWeight: 700, color: "#dbe2fd" }}>
+              {creditLimit != null ? formatCurrency(creditLimit) : <span style={{ color: "#4a5068", fontSize: "14px", fontWeight: 500 }}>No limit</span>}
+            </div>
+          </div>
+          <div style={{ background: "#171f33", border: "1px solid #222a3e", borderRadius: "10px", padding: "16px" }}>
+            <div style={{ fontSize: "11px", fontWeight: 600, color: "#8c90a2", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: "8px" }}>Available Credit</div>
+            <div style={{ fontSize: "20px", fontWeight: 700, color: availableCredit != null && availableCredit < 0 ? "#ffb4ab" : "#dbe2fd" }}>
+              {availableCredit != null ? formatCurrency(availableCredit) : <span style={{ color: "#4a5068", fontSize: "14px", fontWeight: 500 }}>N/A</span>}
+            </div>
+          </div>
+          <div style={{ background: "#171f33", border: "1px solid #222a3e", borderRadius: "10px", padding: "16px" }}>
+            <div style={{ fontSize: "11px", fontWeight: 600, color: "#8c90a2", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: "8px" }}>Payment Terms</div>
+            <div style={{ fontSize: "20px", fontWeight: 700, color: "#dbe2fd" }}>
+              {customer.paymentTerms ? PAYMENT_TERMS_LABELS[customer.paymentTerms] ?? customer.paymentTerms : <span style={{ color: "#4a5068", fontSize: "14px", fontWeight: 500 }}>Not set</span>}
             </div>
           </div>
         </div>
@@ -142,6 +174,8 @@ export default async function CustomerDetailPage({ params }: PageProps) {
                 email: customer.email ?? undefined,
                 phone: customer.phone ?? undefined,
                 address: customer.address ?? undefined,
+                paymentTerms: customer.paymentTerms ?? undefined,
+                creditLimit: customer.creditLimit != null ? customer.creditLimit.toString() : undefined,
               }}
             />
           </div>

@@ -9,6 +9,7 @@ export type AuditAction =
   | "inventory.product.delete"
   | "inventory.movement.create"
   | "inventory.transfers.create"
+  | "inventory.stock.reorder-settings.update"
   | "sales.invoice.create"
   | "sales.invoice.confirm"
   | "sales.invoice.cancel"
@@ -19,6 +20,9 @@ export type AuditAction =
   | "purchases.orders.send"
   | "purchases.orders.cancel"
   | "purchases.receipts.create"
+  | "purchases.creditnotes.create"
+  | "purchases.creditnotes.confirm"
+  | "purchases.creditnotes.cancel"
   | "payments.payment.create"
   | "employees.employee.create"
   | "employees.employee.update"
@@ -34,7 +38,10 @@ export type AuditAction =
   | "roles.role.create"
   | "roles.role.update"
   | "roles.role.delete"
-  | "pos.sale.create";
+  | "pos.sale.create"
+  | "settings.import.products"
+  | "settings.import.customers"
+  | "settings.import.suppliers";
 
 export async function writeAuditLog(params: {
   actorId: string;

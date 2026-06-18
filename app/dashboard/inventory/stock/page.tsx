@@ -3,6 +3,7 @@ import Link from "next/link";
 import { getSession } from "@/core/auth/session";
 import { db } from "@/lib/db";
 import { requirePagePermission } from "@/core/auth/require-page-permission";
+import { hasPermission } from "@/core/auth/permissions";
 import { StockRealtimeWrapper } from "./StockRealtimeWrapper";
 
 export const dynamic = "force-dynamic";
@@ -23,6 +24,22 @@ export default async function StockPage({ searchParams }: PageProps) {
   const session = await getSession();
   if (!session) redirect("/login");
   await requirePagePermission(session, "inventory.balance.read");
+
+  // Fetch permission codes for the current employee's role to decide whether
+  // to expose the reorder settings editor (requires inventory.stock.manage).
+  const employee = await db.employee.findUnique({
+    where: { id: session.employeeId },
+    select: {
+      warehouseRole: {
+        select: {
+          permissions: { select: { permission: { select: { code: true } } } },
+        },
+      },
+    },
+  });
+  const permissionCodes =
+    employee?.warehouseRole?.permissions.map((p) => p.permission.code) ?? [];
+  const canManageReorderSettings = hasPermission(permissionCodes, "inventory.stock.manage");
 
   const params = await searchParams;
   const statusFilter = params.status ?? "";
@@ -48,7 +65,7 @@ export default async function StockPage({ searchParams }: PageProps) {
       category: { select: { id: true, name: true } },
       inventoryBalances: {
         where: { warehouseId: session.warehouseId },
-        select: { currentQuantity: true },
+        select: { currentQuantity: true, reorderPoint: true, reorderQty: true },
       },
     },
     orderBy: { name: "asc" },
@@ -78,13 +95,15 @@ export default async function StockPage({ searchParams }: PageProps) {
       const rawQty = p.inventoryBalances[0]?.currentQuantity ?? null;
       const qty = rawQty != null ? parseFloat(rawQty.toString()) : 0;
       const onOrder = onOrderByProduct.get(p.id) ?? 0;
+      const reorderPoint = p.inventoryBalances[0]?.reorderPoint ?? null;
+      const reorderQty = p.inventoryBalances[0]?.reorderQty ?? null;
       const status: "out" | "low" | "healthy" =
         qty <= 0
           ? "out"
           : p.lowStockThreshold != null && qty <= p.lowStockThreshold
           ? "low"
           : "healthy";
-      return { ...p, qty, onOrder, status };
+      return { ...p, qty, onOrder, status, reorderPoint, reorderQty };
     })
     .filter((p) => {
       if (statusFilter === "low") return p.status === "low";
@@ -404,8 +423,11 @@ export default async function StockPage({ searchParams }: PageProps) {
             status: p.status,
             defaultUnit: p.defaultUnit,
             category: p.category,
+            reorderPoint: p.reorderPoint,
+            reorderQty: p.reorderQty,
           }))}
           warehouseId={session.warehouseId}
+          canManageReorderSettings={canManageReorderSettings}
         />
       </div>
     </div>

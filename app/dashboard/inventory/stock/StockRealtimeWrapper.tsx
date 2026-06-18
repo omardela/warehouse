@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useActionState, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRealtime } from "@/hooks/use-realtime";
+import { updateReorderSettingsAction, type UpdateReorderSettingsState } from "./actions";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -17,11 +18,14 @@ export interface StockRow {
   status: "out" | "low" | "healthy";
   defaultUnit: { id: string; name: string; symbol: string };
   category: { id: string; name: string } | null;
+  reorderPoint: number | null;
+  reorderQty: number | null;
 }
 
 interface Props {
   initialRows: StockRow[];
   warehouseId: string;
+  canManageReorderSettings: boolean;
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -39,10 +43,142 @@ function deriveStatus(
   return "healthy";
 }
 
+// ── Reorder Settings inline editor ──────────────────────────────────────────
+
+interface ReorderSettingsFormProps {
+  productId: string;
+  warehouseId: string;
+  reorderPoint: number | null;
+  reorderQty: number | null;
+  unitSymbol: string;
+  onDone: (updated: { reorderPoint: number | null; reorderQty: number | null } | null) => void;
+}
+
+function ReorderSettingsForm({
+  productId,
+  warehouseId,
+  reorderPoint,
+  reorderQty,
+  unitSymbol,
+  onDone,
+}: ReorderSettingsFormProps) {
+  const [state, formAction, isPending] = useActionState<UpdateReorderSettingsState, FormData>(
+    updateReorderSettingsAction,
+    null
+  );
+  const [pointInput, setPointInput] = useState(reorderPoint != null ? String(reorderPoint) : "");
+  const [qtyInput, setQtyInput] = useState(reorderQty != null ? String(reorderQty) : "");
+
+  useEffect(() => {
+    if (state && "success" in state && state.success) {
+      onDone({
+        reorderPoint: pointInput.trim() === "" ? null : Number(pointInput),
+        reorderQty: qtyInput.trim() === "" ? null : Number(qtyInput),
+      });
+    }
+    // Only react to state changes — input values are read at the time state resolves.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state]);
+
+  return (
+    <form
+      action={formAction}
+      style={{ display: "flex", flexDirection: "column", gap: "6px", minWidth: "200px" }}
+    >
+      <input type="hidden" name="productId" value={productId} />
+      <input type="hidden" name="warehouseId" value={warehouseId} />
+      <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+        <label style={{ fontSize: "11px", color: "#8c90a2", width: "70px" }}>Point</label>
+        <input
+          name="reorderPoint"
+          type="number"
+          min={0}
+          step={1}
+          value={pointInput}
+          onChange={(e) => setPointInput(e.target.value)}
+          placeholder="—"
+          style={{
+            width: "70px",
+            padding: "4px 6px",
+            background: "#0d1627",
+            border: "1px solid #2d3449",
+            borderRadius: "6px",
+            color: "#dbe2fd",
+            fontSize: "12px",
+            outline: "none",
+          }}
+        />
+        <span style={{ fontSize: "11px", color: "#4a5068" }}>{unitSymbol}</span>
+      </div>
+      <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+        <label style={{ fontSize: "11px", color: "#8c90a2", width: "70px" }}>Reorder Qty</label>
+        <input
+          name="reorderQty"
+          type="number"
+          min={0}
+          step={1}
+          value={qtyInput}
+          onChange={(e) => setQtyInput(e.target.value)}
+          placeholder="—"
+          style={{
+            width: "70px",
+            padding: "4px 6px",
+            background: "#0d1627",
+            border: "1px solid #2d3449",
+            borderRadius: "6px",
+            color: "#dbe2fd",
+            fontSize: "12px",
+            outline: "none",
+          }}
+        />
+        <span style={{ fontSize: "11px", color: "#4a5068" }}>{unitSymbol}</span>
+      </div>
+      {state && "error" in state && state.error && (
+        <div style={{ fontSize: "11px", color: "#f87171" }}>{state.error}</div>
+      )}
+      <div style={{ display: "flex", gap: "6px" }}>
+        <button
+          type="submit"
+          disabled={isPending}
+          style={{
+            padding: "4px 10px",
+            fontSize: "11px",
+            color: "#fff",
+            background: "#0062ff",
+            border: "none",
+            borderRadius: "6px",
+            cursor: isPending ? "default" : "pointer",
+            opacity: isPending ? 0.7 : 1,
+          }}
+        >
+          {isPending ? "Saving..." : "Save"}
+        </button>
+        <button
+          type="button"
+          onClick={() => onDone(null)}
+          disabled={isPending}
+          style={{
+            padding: "4px 10px",
+            fontSize: "11px",
+            color: "#8c90a2",
+            background: "transparent",
+            border: "1px solid #2d3449",
+            borderRadius: "6px",
+            cursor: isPending ? "default" : "pointer",
+          }}
+        >
+          Cancel
+        </button>
+      </div>
+    </form>
+  );
+}
+
 // ── Component ─────────────────────────────────────────────────────────────────
 
-export function StockRealtimeWrapper({ initialRows, warehouseId }: Props) {
+export function StockRealtimeWrapper({ initialRows, warehouseId, canManageReorderSettings }: Props) {
   const [rows, setRows] = useState<StockRow[]>(initialRows);
+  const [editingProductId, setEditingProductId] = useState<string | null>(null);
   const { lastEvent } = useRealtime();
 
   // Apply realtime stock updates
@@ -89,6 +225,7 @@ export function StockRealtimeWrapper({ initialRows, warehouseId }: Props) {
                 "Current Qty",
                 "On Order",
                 "Low Stock Threshold",
+                "Reorder Settings",
                 "Status",
               ].map((h) => (
                 <th
@@ -113,7 +250,7 @@ export function StockRealtimeWrapper({ initialRows, warehouseId }: Props) {
             {rows.length === 0 ? (
               <tr>
                 <td
-                  colSpan={7}
+                  colSpan={8}
                   style={{
                     padding: "56px 24px",
                     textAlign: "center",
@@ -285,6 +422,64 @@ export function StockRealtimeWrapper({ initialRows, warehouseId }: Props) {
                         <span style={{ color: "#4a5068", fontSize: "12px", fontStyle: "italic" }}>
                           No threshold
                         </span>
+                      )}
+                    </td>
+
+                    {/* Reorder Settings */}
+                    <td style={{ padding: "12px 16px" }}>
+                      {editingProductId === product.id ? (
+                        <ReorderSettingsForm
+                          productId={product.id}
+                          warehouseId={warehouseId}
+                          reorderPoint={product.reorderPoint}
+                          reorderQty={product.reorderQty}
+                          unitSymbol={product.defaultUnit.symbol}
+                          onDone={(updated) => {
+                            setEditingProductId(null);
+                            if (updated) {
+                              setRows((prev) =>
+                                prev.map((row) =>
+                                  row.id === product.id
+                                    ? {
+                                        ...row,
+                                        reorderPoint: updated.reorderPoint,
+                                        reorderQty: updated.reorderQty,
+                                      }
+                                    : row
+                                )
+                              );
+                            }
+                          }}
+                        />
+                      ) : (
+                        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                          {product.reorderPoint != null || product.reorderQty != null ? (
+                            <span style={{ color: "#8c90a2", fontSize: "12px" }}>
+                              Point: {product.reorderPoint ?? "—"} / Qty: {product.reorderQty ?? "—"}
+                            </span>
+                          ) : (
+                            <span style={{ color: "#4a5068", fontSize: "12px", fontStyle: "italic" }}>
+                              Not set
+                            </span>
+                          )}
+                          {canManageReorderSettings && (
+                            <button
+                              type="button"
+                              onClick={() => setEditingProductId(product.id)}
+                              style={{
+                                padding: "2px 8px",
+                                fontSize: "11px",
+                                color: "#6699ff",
+                                background: "transparent",
+                                border: "1px solid #2d3449",
+                                borderRadius: "6px",
+                                cursor: "pointer",
+                              }}
+                            >
+                              Edit
+                            </button>
+                          )}
+                        </div>
                       )}
                     </td>
 

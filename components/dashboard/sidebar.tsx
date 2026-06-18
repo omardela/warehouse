@@ -244,6 +244,7 @@ const NAV_GROUPS: NavGroup[] = [
     items: [
       { label: "Purchase Invoices", href: "/dashboard/purchases",        icon: <IconPurchases />, permission: "purchase.invoice.read" },
       { label: "Purchase Orders",   href: "/dashboard/purchases/orders", icon: <IconPurchases />, permission: "purchases.orders.view" },
+      { label: "Credit Notes",      href: "/dashboard/purchases/credit-notes", icon: <IconPurchases />, permission: "purchases.creditnotes.view" },
       { label: "Suppliers",         href: "/dashboard/suppliers",        icon: <IconSuppliers />, permission: "suppliers.supplier.read" },
     ],
   },

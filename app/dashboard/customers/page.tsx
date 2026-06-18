@@ -86,26 +86,46 @@ export default async function CustomersPage({ searchParams }: PageProps) {
               Manage your customers, view their outstanding balances, and track sales history.
             </p>
           </div>
-          <Link
-            href="/dashboard/customers/new"
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "6px",
-              padding: "8px 16px",
-              borderRadius: "8px",
-              background: "#0062ff",
-              color: "#fff",
-              fontSize: "13px",
-              fontWeight: 500,
-              textDecoration: "none",
-            }}
-          >
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-              <path d="M7 1.5V12.5M1.5 7H12.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-            </svg>
-            Add Customer
-          </Link>
+          <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+            <Link
+              href="/dashboard/customers/import"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "6px",
+                padding: "8px 14px",
+                borderRadius: "8px",
+                border: "1px solid #2d3449",
+                background: "transparent",
+                color: "#8c90a2",
+                fontSize: "13px",
+                fontWeight: 500,
+                textDecoration: "none",
+              }}
+            >
+              Import CSV
+            </Link>
+            <Link
+              href="/dashboard/customers/new"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "6px",
+                padding: "8px 16px",
+                borderRadius: "8px",
+                background: "#0062ff",
+                color: "#fff",
+                fontSize: "13px",
+                fontWeight: 500,
+                textDecoration: "none",
+              }}
+            >
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                <path d="M7 1.5V12.5M1.5 7H12.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+              </svg>
+              Add Customer
+            </Link>
+          </div>
         </div>
 
         {/* Filters */}
