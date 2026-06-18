@@ -7,12 +7,19 @@ import { createSalesInvoiceAction } from "../actions";
 
 export const dynamic = "force-dynamic";
 
-export default async function NewSalesInvoicePage() {
+interface PageProps {
+  searchParams: Promise<{ deliveryNoteId?: string }>;
+}
+
+export default async function NewSalesInvoicePage({ searchParams }: PageProps) {
   const session = await getSession();
   if (!session) redirect("/login");
   await requirePagePermission(session, "sales.invoice.create");
 
-  const [rawProducts, customers] = await Promise.all([
+  const params = await searchParams;
+  const deliveryNoteId = params.deliveryNoteId;
+
+  const [rawProducts, customers, recentDeliveryNotes] = await Promise.all([
     db.product.findMany({
       where: { organizationId: session.orgId, archivedAt: null },
       orderBy: { name: "asc" },
@@ -37,6 +44,16 @@ export default async function NewSalesInvoicePage() {
       orderBy: { name: "asc" },
       select: { id: true, name: true },
     }),
+    db.deliveryNote.findMany({
+      where: { warehouseId: session.warehouseId },
+      orderBy: { createdAt: "desc" },
+      take: 25,
+      select: {
+        id: true,
+        createdAt: true,
+        salesOrder: { select: { id: true, customer: { select: { id: true, name: true } } } },
+      },
+    }),
   ]);
 
   // Build per-product unit list: default unit + all units referenced in product-specific conversions
@@ -56,11 +73,63 @@ export default async function NewSalesInvoicePage() {
     };
   });
 
+  // If a deliveryNoteId is provided, fetch its lines to pre-fill the invoice form.
+  let prefill: {
+    deliveryNoteId: string;
+    customerId: string;
+    lines: { productId: string; unitId: string; quantity: number; unitPrice: number }[];
+  } | null = null;
+
+  if (deliveryNoteId) {
+    const deliveryNote = await db.deliveryNote.findUnique({
+      where: { id: deliveryNoteId },
+      include: {
+        salesOrder: {
+          select: {
+            customerId: true,
+            warehouseId: true,
+            lines: { select: { id: true, unitPrice: true, discount: true } },
+          },
+        },
+        lines: {
+          select: {
+            productId: true,
+            unitId: true,
+            displayQuantity: true,
+            salesOrderLineId: true,
+          },
+        },
+      },
+    });
+
+    if (deliveryNote && deliveryNote.salesOrder.warehouseId === session.warehouseId) {
+      const soLineMap = new Map(deliveryNote.salesOrder.lines.map((l) => [l.id, l]));
+      prefill = {
+        deliveryNoteId: deliveryNote.id,
+        customerId: deliveryNote.salesOrder.customerId,
+        lines: deliveryNote.lines.map((line) => {
+          const soLine = soLineMap.get(line.salesOrderLineId);
+          return {
+            productId: line.productId,
+            unitId: line.unitId,
+            quantity: Number(line.displayQuantity),
+            unitPrice: soLine ? Number(soLine.unitPrice) : 0,
+          };
+        }),
+      };
+    }
+  }
+
   return (
     <SalesInvoiceForm
       products={products}
       customers={customers}
       action={createSalesInvoiceAction}
+      recentDeliveryNotes={recentDeliveryNotes.map((dn) => ({
+        id: dn.id,
+        label: `${dn.id.slice(0, 8).toUpperCase()} · ${dn.salesOrder.customer.name} · ${dn.createdAt.toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })}`,
+      }))}
+      prefill={prefill}
     />
   );
 }

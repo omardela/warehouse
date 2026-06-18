@@ -3,6 +3,7 @@ import { Suspense } from "react";
 import { getSession } from "@/core/auth/session";
 import { requirePagePermission } from "@/core/auth/require-page-permission";
 import { db } from "@/lib/db";
+import Link from "next/link";
 import { ReportTabs } from "./components/ReportTabs";
 import { DateRangePicker } from "./components/DateRangePicker";
 import { SalesChart } from "./components/SalesChart";
@@ -794,6 +795,62 @@ export default async function ReportsPage({
               ? `Showing data for: ${rangeLabel}`
               : "Current inventory snapshot"}
           </p>
+        </div>
+
+        {/* Other standalone reports */}
+        <div
+          style={{
+            display: "flex",
+            gap: "8px",
+            flexWrap: "wrap",
+            marginBottom: "16px",
+          }}
+        >
+          <Link
+            href="/dashboard/reports/ar-aging"
+            style={{
+              padding: "8px 14px",
+              borderRadius: "8px",
+              border: "1px solid #222a3e",
+              backgroundColor: "#171f33",
+              color: "#8c90a2",
+              fontSize: "13px",
+              fontWeight: 500,
+              textDecoration: "none",
+            }}
+          >
+            AR Aging Report
+          </Link>
+          <Link
+            href="/dashboard/reports/stock-valuation"
+            style={{
+              padding: "8px 14px",
+              borderRadius: "8px",
+              border: "1px solid #222a3e",
+              backgroundColor: "#171f33",
+              color: "#8c90a2",
+              fontSize: "13px",
+              fontWeight: 500,
+              textDecoration: "none",
+            }}
+          >
+            Stock Valuation
+          </Link>
+          <Link
+            href="/dashboard/reports/low-stock"
+            style={{
+              padding: "8px 14px",
+              borderRadius: "8px",
+              border: "1px solid #222a3e",
+              backgroundColor: "#171f33",
+              color: "#8c90a2",
+              fontSize: "13px",
+              fontWeight: 500,
+              textDecoration: "none",
+            }}
+          >
+            Low Stock Report
+          </Link>
         </div>
 
         {/* Tabs */}

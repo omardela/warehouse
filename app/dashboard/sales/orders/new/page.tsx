@@ -1,0 +1,81 @@
+import { redirect } from "next/navigation";
+import { getSession } from "@/core/auth/session";
+import { db } from "@/lib/db";
+import { requirePagePermission } from "@/core/auth/require-page-permission";
+import { SalesOrderForm } from "./SalesOrderForm";
+import { createSalesOrderAction } from "../actions";
+
+export const dynamic = "force-dynamic";
+
+interface PageProps {
+  searchParams: Promise<{ customerId?: string }>;
+}
+
+export default async function NewSalesOrderPage({ searchParams }: PageProps) {
+  const session = await getSession();
+  if (!session) redirect("/login");
+  await requirePagePermission(session, "sales.orders.create");
+
+  const params = await searchParams;
+  const defaultCustomerId = params.customerId;
+
+  const [customers, warehouses, rawProducts] = await Promise.all([
+    db.customer.findMany({
+      where: { organizationId: session.orgId, archivedAt: null },
+      orderBy: { name: "asc" },
+      select: { id: true, name: true },
+    }),
+    db.warehouse.findMany({
+      where: { organizationId: session.orgId, archivedAt: null },
+      orderBy: { name: "asc" },
+      select: { id: true, name: true },
+    }),
+    db.product.findMany({
+      where: { organizationId: session.orgId, archivedAt: null },
+      orderBy: { name: "asc" },
+      select: {
+        id: true,
+        name: true,
+        sku: true,
+        defaultUnitId: true,
+        defaultUnit: { select: { id: true, name: true, symbol: true } },
+        conversions: {
+          select: {
+            fromUnitId: true,
+            toUnitId: true,
+            fromUnit: { select: { id: true, name: true, symbol: true } },
+            toUnit: { select: { id: true, name: true, symbol: true } },
+          },
+        },
+      },
+    }),
+  ]);
+
+  // Build per-product unit list: default unit + all units referenced in product-specific conversions
+  const products = rawProducts.map((p) => {
+    const unitMap = new Map<string, { id: string; name: string; symbol: string }>();
+    unitMap.set(p.defaultUnit.id, p.defaultUnit);
+    for (const conv of p.conversions) {
+      unitMap.set(conv.fromUnit.id, conv.fromUnit);
+      unitMap.set(conv.toUnit.id, conv.toUnit);
+    }
+    return {
+      id: p.id,
+      name: p.name,
+      sku: p.sku,
+      defaultUnitId: p.defaultUnitId,
+      units: Array.from(unitMap.values()),
+    };
+  });
+
+  return (
+    <SalesOrderForm
+      action={createSalesOrderAction}
+      customers={customers}
+      warehouses={warehouses}
+      products={products}
+      defaultCustomerId={defaultCustomerId}
+      defaultWarehouseId={session.warehouseId}
+    />
+  );
+}

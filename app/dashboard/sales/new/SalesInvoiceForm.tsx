@@ -7,11 +7,19 @@ import type { SalesActionState } from "../actions";
 type ProductUnit = { id: string; name: string; symbol: string };
 type Product = { id: string; name: string; sku: string; defaultUnitId: string; units: ProductUnit[] };
 type Customer = { id: string; name: string };
+type DeliveryNoteOption = { id: string; label: string };
+type InvoicePrefill = {
+  deliveryNoteId: string;
+  customerId: string;
+  lines: { productId: string; unitId: string; quantity: number; unitPrice: number }[];
+};
 
 interface SalesInvoiceFormProps {
   products: Product[];
   customers: Customer[];
   action: (prevState: SalesActionState, formData: FormData) => Promise<SalesActionState>;
+  recentDeliveryNotes?: DeliveryNoteOption[];
+  prefill?: InvoicePrefill | null;
 }
 
 type LineItem = {
@@ -74,12 +82,25 @@ const selectStyle: React.CSSProperties = {
   cursor: "default",
 };
 
-export function SalesInvoiceForm({ products, customers, action }: SalesInvoiceFormProps) {
+export function SalesInvoiceForm({ products, customers, action, recentDeliveryNotes = [], prefill = null }: SalesInvoiceFormProps) {
   const router = useRouter();
   const [state, formAction, pending] = useActionState<SalesActionState, FormData>(action, null);
 
-  const [lines, setLines] = useState<LineItem[]>(() => [newLine(products)]);
-  const [customerId, setCustomerId] = useState("");
+  const [lines, setLines] = useState<LineItem[]>(() => {
+    if (prefill && prefill.lines.length > 0) {
+      return prefill.lines.map((l, i) => ({
+        id: `line-prefill-${i}`,
+        productId: l.productId,
+        unitId: l.unitId,
+        quantity: String(l.quantity),
+        unitPrice: String(l.unitPrice),
+        discount: "",
+      }));
+    }
+    return [newLine(products)];
+  });
+  const [customerId, setCustomerId] = useState(prefill?.customerId ?? "");
+  const [deliveryNoteId, setDeliveryNoteId] = useState(prefill?.deliveryNoteId ?? "");
 
   useEffect(() => {
     if (state && "success" in state && "invoiceId" in state) {
@@ -186,12 +207,43 @@ export function SalesInvoiceForm({ products, customers, action }: SalesInvoiceFo
                     name="notes"
                     type="text"
                     placeholder="Internal notes..."
+                    defaultValue={prefill ? `Created from Delivery Note ${prefill.deliveryNoteId}` : undefined}
                     style={inputStyle}
                     onFocus={(e) => { e.currentTarget.style.borderColor = "#0062ff"; e.currentTarget.style.boxShadow = "0 0 0 3px rgba(0,98,255,0.2)"; }}
                     onBlur={(e) => { e.currentTarget.style.borderColor = "#2d3449"; e.currentTarget.style.boxShadow = "none"; }}
                   />
                 </div>
               </div>
+
+              {recentDeliveryNotes.length > 0 && (
+                <div style={{ marginTop: "16px" }}>
+                  <Label htmlFor="deliveryNoteLink" optional>Link to Delivery Note</Label>
+                  <select
+                    id="deliveryNoteLink"
+                    value={deliveryNoteId}
+                    onChange={(e) => setDeliveryNoteId(e.target.value)}
+                    style={selectStyle}
+                    onFocus={(e) => { e.currentTarget.style.borderColor = "#0062ff"; e.currentTarget.style.boxShadow = "0 0 0 3px rgba(0,98,255,0.2)"; }}
+                    onBlur={(e) => { e.currentTarget.style.borderColor = "#2d3449"; e.currentTarget.style.boxShadow = "none"; }}
+                  >
+                    <option value="">No delivery note link</option>
+                    {recentDeliveryNotes.map((dn) => (
+                      <option key={dn.id} value={dn.id}>{dn.label}</option>
+                    ))}
+                  </select>
+                  <p style={{ fontSize: "11px", color: "#4a5068", marginTop: "4px" }}>
+                    Selecting a delivery note reloads this page pre-filled with its lines.
+                  </p>
+                  {deliveryNoteId && deliveryNoteId !== (prefill?.deliveryNoteId ?? "") && (
+                    <a
+                      href={`/dashboard/sales/new?deliveryNoteId=${deliveryNoteId}`}
+                      style={{ display: "inline-block", marginTop: "8px", padding: "6px 12px", borderRadius: "6px", background: "rgba(0,98,255,0.12)", border: "1px solid rgba(0,98,255,0.3)", color: "#6b9fff", fontSize: "12px", fontWeight: 500, textDecoration: "none" }}
+                    >
+                      Load lines from selected delivery note
+                    </a>
+                  )}
+                </div>
+              )}
             </div>
 
             {/* Line Items */}

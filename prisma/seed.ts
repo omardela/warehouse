@@ -79,6 +79,10 @@ async function main() {
     { code: "sales.invoice.confirm", description: "Confirm sales invoices" },
     { code: "sales.invoice.cancel", description: "Cancel sales invoices" },
     { code: "sales.invoice.read", description: "Read sales invoices" },
+    // Sales Orders & Delivery Notes
+    { code: "sales.orders.create", description: "Create sales orders" },
+    { code: "sales.orders.view", description: "View sales orders" },
+    { code: "sales.deliverynotes.create", description: "Create delivery notes against sales orders" },
     // Purchase Invoices
     {
       code: "purchase.invoice.create",
@@ -121,6 +125,7 @@ async function main() {
     // Reports
     { code: "reports.report.read", description: "Read reports" },
     { code: "reports.stock.view", description: "View stock valuation report" },
+    { code: "reports.ar.view", description: "View AR aging report" },
     // Audit
     { code: "audit.log.read", description: "Read audit logs" },
     // Inventory management
@@ -341,13 +346,14 @@ async function main() {
 
     const salesManagerPerms = [
       "sales.invoice.create", "sales.invoice.confirm", "sales.invoice.cancel", "sales.invoice.read",
+      "sales.orders.create", "sales.orders.view", "sales.deliverynotes.create",
       "payments.payment.create", "payments.payment.read",
       "customers.customer.create", "customers.customer.read", "customers.customer.update", "customers.customer.archive",
       "suppliers.supplier.read",
       "purchase.invoice.read",
       "inventory.product.read", "inventory.balance.read",
       "employees.employee.read",
-      "reports.report.read",
+      "reports.report.read", "reports.ar.view",
       "pos.sales.create",
     ];
     const smPerms = await prisma.permission.findMany({
@@ -383,6 +389,7 @@ async function main() {
 
     const salesRepPerms = [
       "sales.invoice.create", "sales.invoice.read",
+      "sales.orders.create", "sales.orders.view", "sales.deliverynotes.create",
       "customers.customer.create", "customers.customer.read", "customers.customer.update",
       "inventory.product.read", "inventory.balance.read",
       "suppliers.supplier.read",

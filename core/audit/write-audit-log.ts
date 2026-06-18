@@ -41,7 +41,11 @@ export type AuditAction =
   | "pos.sale.create"
   | "settings.import.products"
   | "settings.import.customers"
-  | "settings.import.suppliers";
+  | "settings.import.suppliers"
+  | "sales.orders.create"
+  | "sales.orders.confirm"
+  | "sales.orders.cancel"
+  | "sales.deliverynotes.create";
 
 export async function writeAuditLog(params: {
   actorId: string;

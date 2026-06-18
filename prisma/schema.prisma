@@ -17,6 +17,7 @@ model Organization {
   categories     ProductCategory[]
   products       Product[]
   purchaseOrders PurchaseOrder[]
+  salesOrders    SalesOrder[]
   suppliers      Supplier[]
   warehouses     Warehouse[]
 
@@ -45,6 +46,7 @@ model Warehouse {
   createdAt          DateTime            @default(now())
   updatedAt          DateTime            @updatedAt
   creditNotes        CreditNote[]
+  deliveryNotes      DeliveryNote[]
   employees          Employee[]
   goodsReceipts      GoodsReceipt[]
   inventoryBalances  InventoryBalance[]
@@ -52,6 +54,7 @@ model Warehouse {
   invoices           Invoice[]
   notifications      Notification[]
   purchaseOrders     PurchaseOrder[]
+  salesOrders        SalesOrder[]
   transfersIn        StockTransfer[]     @relation("TransferDestination")
   transfersOut       StockTransfer[]     @relation("TransferSource")
   warehouseRoles     WarehouseRole[]
@@ -61,26 +64,28 @@ model Warehouse {
 }
 
 model Employee {
-  id                    String               @id @default(cuid())
-  name                  String
-  email                 String               @unique
-  passwordHash          String
-  warehouseId           String
-  archivedAt            DateTime?
-  createdAt             DateTime             @default(now())
-  updatedAt             DateTime             @updatedAt
-  warehouseRoleId       String?
-  auditLogs             AuditLog[]           @relation("AuditActor")
-  warehouse             Warehouse            @relation(fields: [warehouseId], references: [id])
-  warehouseRole         WarehouseRole?       @relation(fields: [warehouseRoleId], references: [id])
-  creditNotesCreated    CreditNote[]         @relation("CreditNoteCreatedBy")
-  goodsReceiptsReceived GoodsReceipt[]       @relation("GoodsReceiptReceivedBy")
-  inventoryMovements    InventoryMovement[]  @relation("MovementActor")
-  invoices              Invoice[]            @relation("InvoiceActor")
-  enabledModules        OrganisationModule[] @relation("ModuleEnabledBy")
-  payments              Payment[]            @relation("PaymentActor")
-  purchaseOrdersCreated PurchaseOrder[]      @relation("PurchaseOrderCreatedBy")
-  stockTransfers        StockTransfer[]      @relation("TransferActor")
+  id                      String               @id @default(cuid())
+  name                    String
+  email                   String               @unique
+  passwordHash            String
+  warehouseId             String
+  archivedAt              DateTime?
+  createdAt               DateTime             @default(now())
+  updatedAt               DateTime             @updatedAt
+  warehouseRoleId         String?
+  auditLogs               AuditLog[]           @relation("AuditActor")
+  warehouse               Warehouse            @relation(fields: [warehouseId], references: [id])
+  warehouseRole           WarehouseRole?       @relation(fields: [warehouseRoleId], references: [id])
+  creditNotesCreated      CreditNote[]         @relation("CreditNoteCreatedBy")
+  deliveryNotesDispatched DeliveryNote[]       @relation("DeliveryNoteDispatchedBy")
+  goodsReceiptsReceived   GoodsReceipt[]       @relation("GoodsReceiptReceivedBy")
+  inventoryMovements      InventoryMovement[]  @relation("MovementActor")
+  invoices                Invoice[]            @relation("InvoiceActor")
+  enabledModules          OrganisationModule[] @relation("ModuleEnabledBy")
+  payments                Payment[]            @relation("PaymentActor")
+  purchaseOrdersCreated   PurchaseOrder[]      @relation("PurchaseOrderCreatedBy")
+  salesOrdersCreated      SalesOrder[]         @relation("SalesOrderCreatedBy")
+  stockTransfers          StockTransfer[]      @relation("TransferActor")
 
   @@map("employees")
 }
@@ -135,9 +140,11 @@ model ProductUnit {
   isBase             Boolean                 @default(false)
   archivedAt         DateTime?
   creditNoteLines    CreditNoteLine[]
+  deliveryNoteLines  DeliveryNoteLine[]
   goodsReceiptLines  GoodsReceiptLine[]
   inventoryMovements InventoryMovement[]
   invoiceLines       InvoiceLine[]
+  salesOrderLines    SalesOrderLine[]
   conversionsFrom    ProductUnitConversion[] @relation("ConversionFromUnit")
   conversionsTo      ProductUnitConversion[] @relation("ConversionToUnit")
   products           Product[]
@@ -172,7 +179,9 @@ model Product {
   barcode            String?
   lowStockThreshold  Int?
   creditNoteLines    CreditNoteLine[]
+  deliveryNoteLines  DeliveryNoteLine[]
   goodsReceiptLines  GoodsReceiptLine[]
+  salesOrderLines    SalesOrderLine[]
   inventoryBalances  InventoryBalance[]
   inventoryMovements InventoryMovement[]
   invoiceLines       InvoiceLine[]
@@ -278,6 +287,7 @@ model Customer {
   paymentTerms   PaymentTerms?
   organization   Organization  @relation(fields: [organizationId], references: [id])
   invoices       Invoice[]
+  salesOrders    SalesOrder[]
 
   @@map("customers")
 }
@@ -468,6 +478,78 @@ model CreditNoteLine {
   @@map("credit_note_lines")
 }
 
+model SalesOrder {
+  id                   String           @id @default(cuid())
+  organizationId       String
+  warehouseId          String
+  customerId           String
+  status               SalesOrderStatus @default(DRAFT)
+  expectedDeliveryDate DateTime?
+  note                 String?
+  createdById          String
+  confirmedAt          DateTime?
+  fulfilledAt          DateTime?
+  createdAt            DateTime         @default(now())
+  updatedAt            DateTime         @updatedAt
+  lines                SalesOrderLine[]
+  deliveryNotes        DeliveryNote[]
+  organization         Organization     @relation(fields: [organizationId], references: [id])
+  warehouse            Warehouse        @relation(fields: [warehouseId], references: [id])
+  customer             Customer         @relation(fields: [customerId], references: [id])
+  createdBy            Employee         @relation("SalesOrderCreatedBy", fields: [createdById], references: [id])
+
+  @@map("sales_orders")
+}
+
+model SalesOrderLine {
+  id                    String             @id @default(cuid())
+  salesOrderId          String
+  productId             String
+  unitId                String
+  displayQuantity       Decimal            @db.Decimal(20, 6)
+  baseQuantity          Decimal            @db.Decimal(20, 6)
+  unitPrice             Decimal            @db.Decimal(20, 2)
+  discount              Decimal?           @db.Decimal(5, 2)
+  deliveredBaseQuantity Decimal            @default(0) @db.Decimal(20, 6)
+  deliveryNoteLines     DeliveryNoteLine[]
+  product               Product            @relation(fields: [productId], references: [id])
+  salesOrder            SalesOrder         @relation(fields: [salesOrderId], references: [id])
+  unit                  ProductUnit        @relation(fields: [unitId], references: [id])
+
+  @@map("sales_order_lines")
+}
+
+model DeliveryNote {
+  id             String             @id @default(cuid())
+  salesOrderId   String
+  warehouseId    String
+  dispatchedById String
+  note           String?
+  createdAt      DateTime           @default(now())
+  lines          DeliveryNoteLine[]
+  salesOrder     SalesOrder         @relation(fields: [salesOrderId], references: [id])
+  dispatchedBy   Employee           @relation("DeliveryNoteDispatchedBy", fields: [dispatchedById], references: [id])
+  warehouse      Warehouse          @relation(fields: [warehouseId], references: [id])
+
+  @@map("delivery_notes")
+}
+
+model DeliveryNoteLine {
+  id               String         @id @default(cuid())
+  deliveryNoteId   String
+  salesOrderLineId String
+  productId        String
+  unitId           String
+  displayQuantity  Decimal        @db.Decimal(20, 6)
+  baseQuantity     Decimal        @db.Decimal(20, 6)
+  deliveryNote     DeliveryNote   @relation(fields: [deliveryNoteId], references: [id])
+  product          Product        @relation(fields: [productId], references: [id])
+  salesOrderLine   SalesOrderLine @relation(fields: [salesOrderLineId], references: [id])
+  unit             ProductUnit    @relation(fields: [unitId], references: [id])
+
+  @@map("delivery_note_lines")
+}
+
 model Notification {
   id          String    @id @default(cuid())
   warehouseId String
@@ -546,5 +628,13 @@ enum CreditNoteType {
 enum CreditNoteStatus {
   DRAFT
   CONFIRMED
+  CANCELLED
+}
+
+enum SalesOrderStatus {
+  DRAFT
+  CONFIRMED
+  PARTIAL
+  FULFILLED
   CANCELLED
 }

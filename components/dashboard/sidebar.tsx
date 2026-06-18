@@ -235,8 +235,9 @@ const NAV_GROUPS: NavGroup[] = [
   {
     heading: "Sales",
     items: [
-      { label: "Sales Invoices", href: "/dashboard/sales",     icon: <IconSales />,     permission: "sales.invoice.read" },
-      { label: "Customers",      href: "/dashboard/customers", icon: <IconCustomers />, permission: "customers.customer.read" },
+      { label: "Sales Invoices", href: "/dashboard/sales",        icon: <IconSales />,     permission: "sales.invoice.read" },
+      { label: "Sales Orders",   href: "/dashboard/sales/orders", icon: <IconSales />,     permission: "sales.orders.view" },
+      { label: "Customers",      href: "/dashboard/customers",    icon: <IconCustomers />, permission: "customers.customer.read" },
     ],
   },
   {
