@@ -2,26 +2,24 @@
 
 import { useActionState, useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import type { PurchaseInvoiceActionState } from "../actions";
+import type { PurchaseOrderActionState } from "../actions";
 
 type Supplier = { id: string; name: string };
 type ProductUnit = { id: string; name: string; symbol: string };
 type Product = { id: string; name: string; sku: string; defaultUnitId: string; units: ProductUnit[] };
-type EligiblePurchaseOrder = { id: string; supplierId: string; status: string; label: string };
 
 type LineRow = {
   id: string;
   productId: string;
   unitId: string;
   quantity: string;
-  unitPrice: string;
+  unitCost: string;
 };
 
-interface PurchaseInvoiceFormProps {
-  action: (state: PurchaseInvoiceActionState, formData: FormData) => Promise<PurchaseInvoiceActionState>;
+interface PurchaseOrderFormProps {
+  action: (state: PurchaseOrderActionState, formData: FormData) => Promise<PurchaseOrderActionState>;
   suppliers: Supplier[];
   products: Product[];
-  purchaseOrders: EligiblePurchaseOrder[];
   defaultSupplierId?: string;
 }
 
@@ -134,8 +132,8 @@ function LineItem({
   };
 
   const qty = parseFloat(row.quantity) || 0;
-  const price = parseFloat(row.unitPrice) || 0;
-  const total = qty * price;
+  const cost = parseFloat(row.unitCost) || 0;
+  const total = qty * cost;
 
   return (
     <div
@@ -188,13 +186,13 @@ function LineItem({
       />
 
       <input
-        name={`line_unitPrice_${index}`}
+        name={`line_unitCost_${index}`}
         type="number"
         step="any"
         min="0"
-        value={row.unitPrice}
-        onChange={(e) => onChange(row.id, "unitPrice", e.target.value)}
-        placeholder="Unit price"
+        value={row.unitCost}
+        onChange={(e) => onChange(row.id, "unitCost", e.target.value)}
+        placeholder="Unit cost"
         style={inputStyle}
       />
 
@@ -228,34 +226,29 @@ function LineItem({
   );
 }
 
-export function PurchaseInvoiceForm({ action, suppliers, products, purchaseOrders, defaultSupplierId }: PurchaseInvoiceFormProps) {
+export function PurchaseOrderForm({ action, suppliers, products, defaultSupplierId }: PurchaseOrderFormProps) {
   const router = useRouter();
-  const [state, formAction, pending] = useActionState<PurchaseInvoiceActionState, FormData>(
-    action as (s: PurchaseInvoiceActionState, fd: FormData) => Promise<PurchaseInvoiceActionState>,
+  const [state, formAction, pending] = useActionState<PurchaseOrderActionState, FormData>(
+    action as (s: PurchaseOrderActionState, fd: FormData) => Promise<PurchaseOrderActionState>,
     null
   );
 
   const [lines, setLines] = useState<LineRow[]>([
-    { id: "line-0", productId: "", unitId: "", quantity: "1", unitPrice: "" },
+    { id: "line-0", productId: "", unitId: "", quantity: "1", unitCost: "" },
   ]);
-
-  const [supplierId, setSupplierId] = useState<string>(defaultSupplierId ?? "");
-  const [purchaseOrderId, setPurchaseOrderId] = useState<string>("");
-
-  const availablePurchaseOrders = purchaseOrders.filter((po) => po.supplierId === supplierId);
 
   useEffect(() => {
     if (state && "success" in state) {
-      if (state.invoiceId) {
-        router.push(`/dashboard/purchases/${state.invoiceId}`);
+      if (state.purchaseOrderId) {
+        router.push(`/dashboard/purchases/orders/${state.purchaseOrderId}`);
       } else {
-        router.push("/dashboard/purchases");
+        router.push("/dashboard/purchases/orders");
       }
     }
   }, [state, router]);
 
   const addLine = useCallback(() => {
-    setLines((prev) => [...prev, { id: `line-${Date.now()}`, productId: "", unitId: "", quantity: "1", unitPrice: "" }]);
+    setLines((prev) => [...prev, { id: `line-${Date.now()}`, productId: "", unitId: "", quantity: "1", unitCost: "" }]);
   }, []);
 
   const removeLine = useCallback((id: string) => {
@@ -277,7 +270,7 @@ export function PurchaseInvoiceForm({ action, suppliers, products, purchaseOrder
   }, [products]);
 
   const totalAmount = lines.reduce((sum, l) => {
-    return sum + (parseFloat(l.quantity) || 0) * (parseFloat(l.unitPrice) || 0);
+    return sum + (parseFloat(l.quantity) || 0) * (parseFloat(l.unitCost) || 0);
   }, 0);
 
   const fieldError = (field: string) =>
@@ -301,15 +294,15 @@ export function PurchaseInvoiceForm({ action, suppliers, products, purchaseOrder
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "24px", flexWrap: "wrap", gap: "12px" }}>
           <div>
             <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "4px" }}>
-              <a href="/dashboard/purchases" style={{ color: "#8c90a2", textDecoration: "none", fontSize: "13px" }}>Purchase Invoices</a>
+              <a href="/dashboard/purchases/orders" style={{ color: "#8c90a2", textDecoration: "none", fontSize: "13px" }}>Purchase Orders</a>
               <span style={{ color: "#4a5068" }}>/</span>
-              <span style={{ color: "#8c90a2", fontSize: "13px" }}>New Invoice</span>
+              <span style={{ color: "#8c90a2", fontSize: "13px" }}>New Order</span>
             </div>
             <h1 style={{ fontSize: "22px", fontWeight: 700, color: "#dbe2fd", margin: 0 }}>
-              Create Purchase Invoice
+              Create Purchase Order
             </h1>
           </div>
-          <a href="/dashboard/purchases" style={{ padding: "8px 16px", borderRadius: "8px", border: "1px solid #2d3449", color: "#8c90a2", fontSize: "13px", fontWeight: 500, textDecoration: "none" }}>
+          <a href="/dashboard/purchases/orders" style={{ padding: "8px 16px", borderRadius: "8px", border: "1px solid #2d3449", color: "#8c90a2", fontSize: "13px", fontWeight: 500, textDecoration: "none" }}>
             Cancel
           </a>
         </div>
@@ -325,19 +318,15 @@ export function PurchaseInvoiceForm({ action, suppliers, products, purchaseOrder
 
           <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
             {/* Header Info */}
-            <SectionCard title="Invoice Details">
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "16px" }}>
+            <SectionCard title="Order Details">
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
                 <Field label="Supplier" name="supplier-label" required error={fieldError("supplierId")}>
                   <select
                     id="supplierId"
                     name="supplierId"
-                    value={supplierId}
+                    defaultValue={defaultSupplierId ?? ""}
                     required
                     style={selectStyle}
-                    onChange={(e) => {
-                      setSupplierId(e.target.value);
-                      setPurchaseOrderId("");
-                    }}
                     onFocus={(e) => { e.currentTarget.style.borderColor = "#0062ff"; e.currentTarget.style.boxShadow = "0 0 0 3px rgba(0,98,255,0.2)"; }}
                     onBlur={(e) => { e.currentTarget.style.borderColor = fieldError("supplierId") ? "#ffb4ab" : "#2d3449"; e.currentTarget.style.boxShadow = "none"; }}
                   >
@@ -350,44 +339,20 @@ export function PurchaseInvoiceForm({ action, suppliers, products, purchaseOrder
 
                 <Field
                   label="Expected Delivery Date"
-                  name="deliveryDate"
+                  name="expectedDeliveryDate"
                   type="date"
-                  error={fieldError("deliveryDate")}
+                  error={fieldError("expectedDeliveryDate")}
                 />
-
-                <Field label="Link to Purchase Order" name="purchaseOrderId-label" error={fieldError("purchaseOrderId")}>
-                  <select
-                    id="purchaseOrderId"
-                    name="purchaseOrderId"
-                    value={purchaseOrderId}
-                    disabled={!supplierId || availablePurchaseOrders.length === 0}
-                    style={selectStyle}
-                    onChange={(e) => setPurchaseOrderId(e.target.value)}
-                    onFocus={(e) => { e.currentTarget.style.borderColor = "#0062ff"; e.currentTarget.style.boxShadow = "0 0 0 3px rgba(0,98,255,0.2)"; }}
-                    onBlur={(e) => { e.currentTarget.style.borderColor = "#2d3449"; e.currentTarget.style.boxShadow = "none"; }}
-                  >
-                    <option value="">
-                      {!supplierId
-                        ? "Select a supplier first…"
-                        : availablePurchaseOrders.length === 0
-                        ? "No received purchase orders for this supplier"
-                        : "None (not linked to a PO)"}
-                    </option>
-                    {availablePurchaseOrders.map((po) => (
-                      <option key={po.id} value={po.id}>{po.label}</option>
-                    ))}
-                  </select>
-                </Field>
               </div>
 
               <div style={{ marginTop: "16px" }}>
-                <label htmlFor="notes" style={{ display: "block", fontSize: "13px", fontWeight: 500, color: "#c2c6d9", marginBottom: "6px" }}>
+                <label htmlFor="note" style={{ display: "block", fontSize: "13px", fontWeight: 500, color: "#c2c6d9", marginBottom: "6px" }}>
                   Notes <span style={{ color: "#4a5068", fontSize: "11px", marginLeft: "4px" }}>(optional)</span>
                 </label>
                 <textarea
-                  id="notes"
-                  name="notes"
-                  placeholder="Any additional notes for this purchase…"
+                  id="note"
+                  name="note"
+                  placeholder="Any additional notes for this order…"
                   rows={2}
                   style={{
                     width: "100%",
@@ -421,7 +386,7 @@ export function PurchaseInvoiceForm({ action, suppliers, products, purchaseOrder
                   marginBottom: "4px",
                 }}
               >
-                {["Product", "Unit", "Quantity", "Unit Price", "Total", ""].map((h) => (
+                {["Product", "Unit", "Quantity", "Unit Cost", "Total", ""].map((h) => (
                   <div key={h} style={{ fontSize: "11px", fontWeight: 600, color: "#8c90a2", textTransform: "uppercase", letterSpacing: "0.06em" }}>
                     {h}
                   </div>
@@ -463,7 +428,7 @@ export function PurchaseInvoiceForm({ action, suppliers, products, purchaseOrder
                 </button>
 
                 <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                  <span style={{ fontSize: "13px", color: "#8c90a2" }}>Total Amount:</span>
+                  <span style={{ fontSize: "13px", color: "#8c90a2" }}>Total Value:</span>
                   <span style={{ fontSize: "18px", fontWeight: 700, color: "#dbe2fd" }}>
                     ${totalAmount.toFixed(2)}
                   </span>
@@ -487,9 +452,9 @@ export function PurchaseInvoiceForm({ action, suppliers, products, purchaseOrder
                   opacity: pending ? 0.8 : 1,
                 }}
               >
-                {pending ? "Creating…" : "Create Draft Invoice"}
+                {pending ? "Creating…" : "Create Draft Purchase Order"}
               </button>
-              <a href="/dashboard/purchases" style={{ padding: "10px 20px", borderRadius: "8px", border: "1px solid #2d3449", color: "#8c90a2", fontSize: "13px", fontWeight: 500, textDecoration: "none" }}>
+              <a href="/dashboard/purchases/orders" style={{ padding: "10px 20px", borderRadius: "8px", border: "1px solid #2d3449", color: "#8c90a2", fontSize: "13px", fontWeight: 500, textDecoration: "none" }}>
                 Cancel
               </a>
             </div>

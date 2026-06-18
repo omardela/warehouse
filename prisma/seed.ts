@@ -65,6 +65,15 @@ async function main() {
       description: "Create inventory movements",
     },
     { code: "inventory.balance.read", description: "Read inventory balances" },
+    // Inventory — Transfers
+    {
+      code: "inventory.transfers.create",
+      description: "Create stock transfers between warehouses",
+    },
+    {
+      code: "inventory.transfers.view",
+      description: "View stock transfers between warehouses",
+    },
     // Sales Invoices
     { code: "sales.invoice.create", description: "Create sales invoices" },
     { code: "sales.invoice.confirm", description: "Confirm sales invoices" },
@@ -84,6 +93,10 @@ async function main() {
       description: "Cancel purchase invoices",
     },
     { code: "purchase.invoice.read", description: "Read purchase invoices" },
+    // Purchase Orders & Goods Receipts
+    { code: "purchases.orders.create", description: "Create purchase orders" },
+    { code: "purchases.orders.view", description: "View purchase orders" },
+    { code: "purchases.receipts.create", description: "Create goods receipts against purchase orders" },
     // Payments
     { code: "payments.payment.create", description: "Create payments" },
     { code: "payments.payment.read", description: "Read payments" },
@@ -104,6 +117,7 @@ async function main() {
     { code: "suppliers.supplier.archive", description: "Archive suppliers" },
     // Reports
     { code: "reports.report.read", description: "Read reports" },
+    { code: "reports.stock.view", description: "View stock valuation report" },
     // Audit
     { code: "audit.log.read", description: "Read audit logs" },
     // Settings — Organization
@@ -402,7 +416,9 @@ async function main() {
     const warehouseKeeperPerms = [
       "inventory.product.create", "inventory.product.read", "inventory.product.update",
       "inventory.movement.create", "inventory.balance.read",
+      "inventory.transfers.create", "inventory.transfers.view",
       "purchase.invoice.create", "purchase.invoice.confirm", "purchase.invoice.cancel", "purchase.invoice.read",
+      "purchases.orders.create", "purchases.orders.view", "purchases.receipts.create",
       "suppliers.supplier.create", "suppliers.supplier.read", "suppliers.supplier.update",
       "payments.payment.read",
     ];

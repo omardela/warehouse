@@ -2,8 +2,8 @@ import { redirect } from "next/navigation";
 import { getSession } from "@/core/auth/session";
 import { db } from "@/lib/db";
 import { requirePagePermission } from "@/core/auth/require-page-permission";
-import { PurchaseInvoiceForm } from "./PurchaseInvoiceForm";
-import { createPurchaseInvoiceAction } from "../actions";
+import { PurchaseOrderForm } from "./PurchaseOrderForm";
+import { createPurchaseOrderAction } from "../actions";
 
 export const dynamic = "force-dynamic";
 
@@ -11,15 +11,15 @@ interface PageProps {
   searchParams: Promise<{ supplierId?: string }>;
 }
 
-export default async function NewPurchaseInvoicePage({ searchParams }: PageProps) {
+export default async function NewPurchaseOrderPage({ searchParams }: PageProps) {
   const session = await getSession();
   if (!session) redirect("/login");
-  await requirePagePermission(session, "purchase.invoice.create");
+  await requirePagePermission(session, "purchases.orders.create");
 
   const params = await searchParams;
   const defaultSupplierId = params.supplierId;
 
-  const [suppliers, rawProducts, eligiblePurchaseOrders] = await Promise.all([
+  const [suppliers, rawProducts] = await Promise.all([
     db.supplier.findMany({
       where: { organizationId: session.orgId, archivedAt: null },
       orderBy: { name: "asc" },
@@ -44,31 +44,7 @@ export default async function NewPurchaseInvoicePage({ searchParams }: PageProps
         },
       },
     }),
-    // Purchase orders eligible to be linked to a new invoice: goods have
-    // arrived (RECEIVED or PARTIAL) and not already linked to an invoice.
-    db.purchaseOrder.findMany({
-      where: {
-        organizationId: session.orgId,
-        warehouseId: session.warehouseId,
-        status: { in: ["RECEIVED", "PARTIAL"] },
-        invoices: { none: {} },
-      },
-      orderBy: { createdAt: "desc" },
-      select: {
-        id: true,
-        supplierId: true,
-        status: true,
-        createdAt: true,
-      },
-    }),
   ]);
-
-  const purchaseOrders = eligiblePurchaseOrders.map((po) => ({
-    id: po.id,
-    supplierId: po.supplierId,
-    status: po.status,
-    label: `${po.id.slice(0, 8).toUpperCase()} · ${po.status} · ${new Date(po.createdAt).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })}`,
-  }));
 
   // Build per-product unit list: default unit + all units referenced in product-specific conversions
   const products = rawProducts.map((p) => {
@@ -88,11 +64,10 @@ export default async function NewPurchaseInvoicePage({ searchParams }: PageProps
   });
 
   return (
-    <PurchaseInvoiceForm
-      action={createPurchaseInvoiceAction}
+    <PurchaseOrderForm
+      action={createPurchaseOrderAction}
       suppliers={suppliers}
       products={products}
-      purchaseOrders={purchaseOrders}
       defaultSupplierId={defaultSupplierId}
     />
   );
