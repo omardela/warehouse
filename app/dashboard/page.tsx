@@ -18,7 +18,7 @@ function fmtCurrency(n: number): string {
     maximumFractionDigits: 0,
   }).format(n);
 }
-
+// cococ
 function fmtPct(n: number): string {
   return `${n >= 0 ? "+" : ""}${n.toFixed(1)}%`;
 }
