@@ -1,0 +1,4 @@
+we should get the design from the @inspiration folder (the wireframe of project) for UI UX design
+
+now please start implement the wave of issues:
+on parallel (each one on subagent)

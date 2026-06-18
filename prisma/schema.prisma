@@ -6,9 +6,451 @@ datasource db {
   provider = "postgresql"
 }
 
-// ---------------------------------------------------------------------------
-// Enums
-// ---------------------------------------------------------------------------
+model Organization {
+  id             String               @id @default(cuid())
+  name           String
+  createdAt      DateTime             @default(now())
+  updatedAt      DateTime             @updatedAt
+  customers      Customer[]
+  modules        OrganisationModule[]
+  categories     ProductCategory[]
+  products       Product[]
+  purchaseOrders PurchaseOrder[]
+  suppliers      Supplier[]
+  warehouses     Warehouse[]
+
+  @@map("organizations")
+}
+
+model OrganisationModule {
+  id             String       @id @default(cuid())
+  moduleKey      String
+  enabledAt      DateTime     @default(now())
+  enabledById    String
+  organizationId String
+  enabledBy      Employee     @relation("ModuleEnabledBy", fields: [enabledById], references: [id])
+  organization   Organization @relation(fields: [organizationId], references: [id])
+
+  @@unique([organizationId, moduleKey])
+  @@map("organisation_modules")
+}
+
+model Warehouse {
+  id                 String              @id @default(cuid())
+  name               String
+  address            String?
+  organizationId     String
+  archivedAt         DateTime?
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  employees          Employee[]
+  goodsReceipts      GoodsReceipt[]
+  inventoryBalances  InventoryBalance[]
+  inventoryMovements InventoryMovement[]
+  invoices           Invoice[]
+  notifications      Notification[]
+  purchaseOrders     PurchaseOrder[]
+  transfersIn        StockTransfer[]     @relation("TransferDestination")
+  transfersOut       StockTransfer[]     @relation("TransferSource")
+  warehouseRoles     WarehouseRole[]
+  organization       Organization        @relation(fields: [organizationId], references: [id])
+
+  @@map("warehouses")
+}
+
+model Employee {
+  id                    String               @id @default(cuid())
+  name                  String
+  email                 String               @unique
+  passwordHash          String
+  warehouseId           String
+  archivedAt            DateTime?
+  createdAt             DateTime             @default(now())
+  updatedAt             DateTime             @updatedAt
+  warehouseRoleId       String?
+  auditLogs             AuditLog[]           @relation("AuditActor")
+  warehouse             Warehouse            @relation(fields: [warehouseId], references: [id])
+  warehouseRole         WarehouseRole?       @relation(fields: [warehouseRoleId], references: [id])
+  goodsReceiptsReceived GoodsReceipt[]       @relation("GoodsReceiptReceivedBy")
+  inventoryMovements    InventoryMovement[]  @relation("MovementActor")
+  invoices              Invoice[]            @relation("InvoiceActor")
+  enabledModules        OrganisationModule[] @relation("ModuleEnabledBy")
+  payments              Payment[]            @relation("PaymentActor")
+  purchaseOrdersCreated PurchaseOrder[]      @relation("PurchaseOrderCreatedBy")
+  stockTransfers        StockTransfer[]      @relation("TransferActor")
+
+  @@map("employees")
+}
+
+model RoleTemplate {
+  id             String          @id @default(cuid())
+  name           String          @unique
+  description    String?
+  createdAt      DateTime        @default(now())
+  warehouseRoles WarehouseRole[]
+
+  @@map("role_templates")
+}
+
+model WarehouseRole {
+  id             String                    @id @default(cuid())
+  warehouseId    String
+  roleTemplateId String
+  employees      Employee[]
+  permissions    WarehouseRolePermission[]
+  roleTemplate   RoleTemplate              @relation(fields: [roleTemplateId], references: [id])
+  warehouse      Warehouse                 @relation(fields: [warehouseId], references: [id])
+
+  @@unique([warehouseId, roleTemplateId])
+  @@map("warehouse_roles")
+}
+
+model Permission {
+  id                       String                    @id @default(cuid())
+  code                     String                    @unique
+  description              String?
+  warehouseRolePermissions WarehouseRolePermission[]
+
+  @@map("permissions")
+}
+
+model WarehouseRolePermission {
+  id              String        @id @default(cuid())
+  warehouseRoleId String
+  permissionId    String
+  permission      Permission    @relation(fields: [permissionId], references: [id])
+  warehouseRole   WarehouseRole @relation(fields: [warehouseRoleId], references: [id])
+
+  @@unique([warehouseRoleId, permissionId])
+  @@map("warehouse_role_permissions")
+}
+
+model ProductUnit {
+  id                 String                  @id @default(cuid())
+  name               String
+  symbol             String                  @unique
+  isBase             Boolean                 @default(false)
+  archivedAt         DateTime?
+  goodsReceiptLines  GoodsReceiptLine[]
+  inventoryMovements InventoryMovement[]
+  invoiceLines       InvoiceLine[]
+  conversionsFrom    ProductUnitConversion[] @relation("ConversionFromUnit")
+  conversionsTo      ProductUnitConversion[] @relation("ConversionToUnit")
+  products           Product[]
+  purchaseOrderLines PurchaseOrderLine[]
+  stockTransferLines StockTransferLine[]
+
+  @@map("product_units")
+}
+
+model ProductCategory {
+  id             String       @id @default(cuid())
+  name           String
+  organizationId String
+  createdAt      DateTime     @default(now())
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  products       Product[]
+
+  @@map("product_categories")
+}
+
+model Product {
+  id                 String                  @id @default(cuid())
+  name               String
+  sku                String                  @unique
+  description        String?
+  categoryId         String?
+  defaultUnitId      String
+  organizationId     String
+  archivedAt         DateTime?
+  createdAt          DateTime                @default(now())
+  updatedAt          DateTime                @updatedAt
+  barcode            String?
+  lowStockThreshold  Int?
+  goodsReceiptLines  GoodsReceiptLine[]
+  inventoryBalances  InventoryBalance[]
+  inventoryMovements InventoryMovement[]
+  invoiceLines       InvoiceLine[]
+  conversions        ProductUnitConversion[]
+  category           ProductCategory?        @relation(fields: [categoryId], references: [id])
+  defaultUnit        ProductUnit             @relation(fields: [defaultUnitId], references: [id])
+  organization       Organization            @relation(fields: [organizationId], references: [id])
+  purchaseOrderLines PurchaseOrderLine[]
+  stockTransferLines StockTransferLine[]
+
+  @@map("products")
+}
+
+model ProductUnitConversion {
+  id         String      @id @default(cuid())
+  fromUnitId String
+  toUnitId   String
+  factor     Decimal     @db.Decimal(20, 10)
+  productId  String?
+  fromUnit   ProductUnit @relation("ConversionFromUnit", fields: [fromUnitId], references: [id])
+  product    Product?    @relation(fields: [productId], references: [id])
+  toUnit     ProductUnit @relation("ConversionToUnit", fields: [toUnitId], references: [id])
+
+  @@map("product_unit_conversions")
+}
+
+model InventoryMovement {
+  id            String       @id @default(cuid())
+  warehouseId   String
+  productId     String
+  unitId        String
+  quantity      Decimal      @db.Decimal(20, 6)
+  baseQuantity  Decimal      @db.Decimal(20, 6)
+  movementType  MovementType
+  referenceId   String?
+  referenceType String?
+  actorId       String
+  notes         String?
+  createdAt     DateTime     @default(now())
+  actor         Employee     @relation("MovementActor", fields: [actorId], references: [id])
+  product       Product      @relation(fields: [productId], references: [id])
+  unit          ProductUnit  @relation(fields: [unitId], references: [id])
+  warehouse     Warehouse    @relation(fields: [warehouseId], references: [id])
+
+  @@map("inventory_movements")
+}
+
+model InventoryBalance {
+  id              String    @id @default(cuid())
+  warehouseId     String
+  productId       String
+  currentQuantity Decimal   @db.Decimal(20, 6)
+  updatedAt       DateTime  @updatedAt
+  reorderPoint    Int?
+  reorderQty      Int?
+  product         Product   @relation(fields: [productId], references: [id])
+  warehouse       Warehouse @relation(fields: [warehouseId], references: [id])
+
+  @@unique([warehouseId, productId])
+  @@map("inventory_balances")
+}
+
+model StockTransfer {
+  id                     String              @id @default(cuid())
+  sourceWarehouseId      String
+  destinationWarehouseId String
+  transferredById        String
+  note                   String?
+  createdAt              DateTime            @default(now())
+  lines                  StockTransferLine[]
+  destinationWarehouse   Warehouse           @relation("TransferDestination", fields: [destinationWarehouseId], references: [id])
+  sourceWarehouse        Warehouse           @relation("TransferSource", fields: [sourceWarehouseId], references: [id])
+  transferredBy          Employee            @relation("TransferActor", fields: [transferredById], references: [id])
+
+  @@map("stock_transfers")
+}
+
+model StockTransferLine {
+  id              String        @id @default(cuid())
+  transferId      String
+  productId       String
+  unitId          String
+  displayQuantity Decimal       @db.Decimal(20, 6)
+  baseQuantity    Decimal       @db.Decimal(20, 6)
+  product         Product       @relation(fields: [productId], references: [id])
+  transfer        StockTransfer @relation(fields: [transferId], references: [id])
+  unit            ProductUnit   @relation(fields: [unitId], references: [id])
+
+  @@map("stock_transfer_lines")
+}
+
+model Customer {
+  id             String        @id @default(cuid())
+  name           String
+  email          String?
+  phone          String?
+  address        String?
+  organizationId String
+  archivedAt     DateTime?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  creditLimit    Decimal?      @db.Decimal(20, 2)
+  paymentTerms   PaymentTerms?
+  organization   Organization  @relation(fields: [organizationId], references: [id])
+  invoices       Invoice[]
+
+  @@map("customers")
+}
+
+model Supplier {
+  id             String          @id @default(cuid())
+  name           String
+  email          String?
+  phone          String?
+  address        String?
+  organizationId String
+  archivedAt     DateTime?
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  paymentTerms   PaymentTerms?
+  invoices       Invoice[]
+  purchaseOrders PurchaseOrder[]
+  organization   Organization    @relation(fields: [organizationId], references: [id])
+
+  @@map("suppliers")
+}
+
+model Invoice {
+  id              String         @id @default(cuid())
+  type            InvoiceType
+  status          InvoiceStatus  @default(DRAFT)
+  warehouseId     String
+  customerId      String?
+  supplierId      String?
+  totalAmount     Decimal        @db.Decimal(20, 2)
+  notes           String?
+  actorId         String
+  confirmedAt     DateTime?
+  cancelledAt     DateTime?
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  deliveryDate    DateTime?
+  purchaseOrderId String?
+  taxAmount       Decimal?       @db.Decimal(20, 2)
+  lines           InvoiceLine[]
+  actor           Employee       @relation("InvoiceActor", fields: [actorId], references: [id])
+  customer        Customer?      @relation(fields: [customerId], references: [id])
+  purchaseOrder   PurchaseOrder? @relation(fields: [purchaseOrderId], references: [id])
+  supplier        Supplier?      @relation(fields: [supplierId], references: [id])
+  warehouse       Warehouse      @relation(fields: [warehouseId], references: [id])
+  payments        Payment[]
+
+  @@map("invoices")
+}
+
+model InvoiceLine {
+  id         String      @id @default(cuid())
+  invoiceId  String
+  productId  String
+  unitId     String
+  quantity   Decimal     @db.Decimal(20, 6)
+  unitPrice  Decimal     @db.Decimal(20, 2)
+  totalPrice Decimal     @db.Decimal(20, 2)
+  discount   Decimal?    @db.Decimal(5, 2)
+  invoice    Invoice     @relation(fields: [invoiceId], references: [id])
+  product    Product     @relation(fields: [productId], references: [id])
+  unit       ProductUnit @relation(fields: [unitId], references: [id])
+
+  @@map("invoice_lines")
+}
+
+model Payment {
+  id        String        @id @default(cuid())
+  invoiceId String
+  amount    Decimal       @db.Decimal(20, 2)
+  method    PaymentMethod
+  paidAt    DateTime
+  notes     String?
+  actorId   String
+  actor     Employee      @relation("PaymentActor", fields: [actorId], references: [id])
+  invoice   Invoice       @relation(fields: [invoiceId], references: [id])
+
+  @@map("payments")
+}
+
+model PurchaseOrder {
+  id                   String              @id @default(cuid())
+  warehouseId          String
+  supplierId           String
+  status               PurchaseOrderStatus @default(DRAFT)
+  expectedDeliveryDate DateTime?
+  note                 String?
+  createdById          String
+  sentAt               DateTime?
+  receivedAt           DateTime?
+  createdAt            DateTime            @default(now())
+  updatedAt            DateTime            @updatedAt
+  organizationId       String
+  receipts             GoodsReceipt[]
+  invoices             Invoice[]
+  lines                PurchaseOrderLine[]
+  createdBy            Employee            @relation("PurchaseOrderCreatedBy", fields: [createdById], references: [id])
+  organization         Organization        @relation(fields: [organizationId], references: [id])
+  supplier             Supplier            @relation(fields: [supplierId], references: [id])
+  warehouse            Warehouse           @relation(fields: [warehouseId], references: [id])
+
+  @@map("purchase_orders")
+}
+
+model PurchaseOrderLine {
+  id                   String             @id @default(cuid())
+  purchaseOrderId      String
+  productId            String
+  unitId               String
+  displayQuantity      Decimal            @db.Decimal(20, 6)
+  baseQuantity         Decimal            @db.Decimal(20, 6)
+  unitCost             Decimal            @db.Decimal(20, 2)
+  receivedBaseQuantity Decimal            @default(0) @db.Decimal(20, 6)
+  goodsReceiptLines    GoodsReceiptLine[]
+  product              Product            @relation(fields: [productId], references: [id])
+  purchaseOrder        PurchaseOrder      @relation(fields: [purchaseOrderId], references: [id])
+  unit                 ProductUnit        @relation(fields: [unitId], references: [id])
+
+  @@map("purchase_order_lines")
+}
+
+model GoodsReceipt {
+  id              String             @id @default(cuid())
+  purchaseOrderId String
+  warehouseId     String
+  receivedById    String
+  note            String?
+  createdAt       DateTime           @default(now())
+  lines           GoodsReceiptLine[]
+  purchaseOrder   PurchaseOrder      @relation(fields: [purchaseOrderId], references: [id])
+  receivedBy      Employee           @relation("GoodsReceiptReceivedBy", fields: [receivedById], references: [id])
+  warehouse       Warehouse          @relation(fields: [warehouseId], references: [id])
+
+  @@map("goods_receipts")
+}
+
+model GoodsReceiptLine {
+  id                  String            @id @default(cuid())
+  goodsReceiptId      String
+  purchaseOrderLineId String
+  productId           String
+  unitId              String
+  displayQuantity     Decimal           @db.Decimal(20, 6)
+  baseQuantity        Decimal           @db.Decimal(20, 6)
+  goodsReceipt        GoodsReceipt      @relation(fields: [goodsReceiptId], references: [id])
+  product             Product           @relation(fields: [productId], references: [id])
+  purchaseOrderLine   PurchaseOrderLine @relation(fields: [purchaseOrderLineId], references: [id])
+  unit                ProductUnit       @relation(fields: [unitId], references: [id])
+
+  @@map("goods_receipt_lines")
+}
+
+model Notification {
+  id          String    @id @default(cuid())
+  warehouseId String
+  type        String
+  payload     Json
+  readAt      DateTime?
+  createdAt   DateTime  @default(now())
+  warehouse   Warehouse @relation(fields: [warehouseId], references: [id])
+
+  @@map("notifications")
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  actorId    String
+  action     String
+  entityType String
+  entityId   String
+  before     Json?
+  after      Json?
+  ipAddress  String?
+  createdAt  DateTime @default(now())
+  actor      Employee @relation("AuditActor", fields: [actorId], references: [id])
+
+  @@map("audit_logs")
+}
 
 enum MovementType {
   PURCHASE_IN
@@ -51,524 +493,4 @@ enum PurchaseOrderStatus {
   PARTIAL
   RECEIVED
   CANCELLED
-}
-
-// ---------------------------------------------------------------------------
-// Tenancy
-// ---------------------------------------------------------------------------
-
-model Organization {
-  id         String      @id @default(cuid())
-  name       String
-  createdAt  DateTime    @default(now())
-  updatedAt  DateTime    @updatedAt
-
-  warehouses  Warehouse[]
-  products    Product[]
-  categories  ProductCategory[]
-  customers   Customer[]
-  suppliers   Supplier[]
-  purchaseOrders PurchaseOrder[]
-  modules     OrganisationModule[]
-
-  @@map("organizations")
-}
-
-model OrganisationModule {
-  id             String   @id @default(cuid())
-  organizationId String
-  moduleKey      String
-  enabledAt      DateTime @default(now())
-  enabledById    String
-
-  organization Organization @relation(fields: [organizationId], references: [id])
-  enabledBy    Employee     @relation("ModuleEnabledBy", fields: [enabledById], references: [id])
-
-  @@unique([organizationId, moduleKey])
-  @@map("organisation_modules")
-}
-
-// ---------------------------------------------------------------------------
-// Warehouse & Employees
-// ---------------------------------------------------------------------------
-
-model Warehouse {
-  id             String    @id @default(cuid())
-  name           String
-  address        String?
-  organizationId String
-  archivedAt     DateTime?
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
-
-  organization       Organization         @relation(fields: [organizationId], references: [id])
-  employees          Employee[]
-  warehouseRoles     WarehouseRole[]
-  inventoryMovements InventoryMovement[]
-  inventoryBalances  InventoryBalance[]
-  invoices           Invoice[]
-  notifications      Notification[]
-  purchaseOrders     PurchaseOrder[]
-  goodsReceipts      GoodsReceipt[]
-  transfersOut       StockTransfer[]      @relation("TransferSource")
-  transfersIn        StockTransfer[]      @relation("TransferDestination")
-
-  @@map("warehouses")
-}
-
-model Employee {
-  id               String    @id @default(cuid())
-  name             String
-  email            String    @unique
-  passwordHash     String
-  warehouseId      String
-  warehouseRoleId  String?
-  archivedAt       DateTime?
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @updatedAt
-
-  warehouse          Warehouse      @relation(fields: [warehouseId], references: [id])
-  warehouseRole      WarehouseRole? @relation(fields: [warehouseRoleId], references: [id])
-  inventoryMovements InventoryMovement[] @relation("MovementActor")
-  invoices           Invoice[]           @relation("InvoiceActor")
-  payments           Payment[]           @relation("PaymentActor")
-  auditLogs          AuditLog[]          @relation("AuditActor")
-  purchaseOrdersCreated PurchaseOrder[]  @relation("PurchaseOrderCreatedBy")
-  goodsReceiptsReceived GoodsReceipt[]   @relation("GoodsReceiptReceivedBy")
-  stockTransfers        StockTransfer[]  @relation("TransferActor")
-  enabledModules        OrganisationModule[] @relation("ModuleEnabledBy")
-
-  @@map("employees")
-}
-
-// ---------------------------------------------------------------------------
-// Roles & Permissions
-// ---------------------------------------------------------------------------
-
-model RoleTemplate {
-  id          String   @id @default(cuid())
-  name        String   @unique
-  description String?
-  createdAt   DateTime @default(now())
-
-  warehouseRoles WarehouseRole[]
-
-  @@map("role_templates")
-}
-
-model WarehouseRole {
-  id             String @id @default(cuid())
-  warehouseId    String
-  roleTemplateId String
-
-  warehouse    Warehouse              @relation(fields: [warehouseId], references: [id])
-  roleTemplate RoleTemplate           @relation(fields: [roleTemplateId], references: [id])
-  permissions  WarehouseRolePermission[]
-  employees    Employee[]
-
-  @@unique([warehouseId, roleTemplateId])
-  @@map("warehouse_roles")
-}
-
-model Permission {
-  id          String  @id @default(cuid())
-  code        String  @unique
-  description String?
-
-  warehouseRolePermissions WarehouseRolePermission[]
-
-  @@map("permissions")
-}
-
-model WarehouseRolePermission {
-  id              String @id @default(cuid())
-  warehouseRoleId String
-  permissionId    String
-
-  warehouseRole WarehouseRole @relation(fields: [warehouseRoleId], references: [id])
-  permission    Permission    @relation(fields: [permissionId], references: [id])
-
-  @@unique([warehouseRoleId, permissionId])
-  @@map("warehouse_role_permissions")
-}
-
-// ---------------------------------------------------------------------------
-// Products & Units
-// ---------------------------------------------------------------------------
-
-model ProductUnit {
-  id         String    @id @default(cuid())
-  name       String
-  symbol     String    @unique
-  isBase     Boolean   @default(false)
-  archivedAt DateTime?
-
-  products           Product[]
-  conversionsFrom    ProductUnitConversion[] @relation("ConversionFromUnit")
-  conversionsTo      ProductUnitConversion[] @relation("ConversionToUnit")
-  inventoryMovements InventoryMovement[]
-  invoiceLines       InvoiceLine[]
-  purchaseOrderLines PurchaseOrderLine[]
-  goodsReceiptLines  GoodsReceiptLine[]
-  stockTransferLines StockTransferLine[]
-
-  @@map("product_units")
-}
-
-model ProductCategory {
-  id             String   @id @default(cuid())
-  name           String
-  organizationId String
-  createdAt      DateTime @default(now())
-
-  organization Organization @relation(fields: [organizationId], references: [id])
-  products     Product[]
-
-  @@map("product_categories")
-}
-
-model Product {
-  id                String    @id @default(cuid())
-  name              String
-  sku               String    @unique
-  description       String?
-  categoryId        String?
-  defaultUnitId     String
-  organizationId    String
-  barcode           String?
-  lowStockThreshold Int?
-  archivedAt        DateTime?
-  createdAt         DateTime  @default(now())
-  updatedAt         DateTime  @updatedAt
-
-  organization       Organization            @relation(fields: [organizationId], references: [id])
-  category           ProductCategory?        @relation(fields: [categoryId], references: [id])
-  defaultUnit        ProductUnit             @relation(fields: [defaultUnitId], references: [id])
-  conversions        ProductUnitConversion[]
-  inventoryMovements InventoryMovement[]
-  inventoryBalances  InventoryBalance[]
-  invoiceLines       InvoiceLine[]
-  purchaseOrderLines PurchaseOrderLine[]
-  goodsReceiptLines  GoodsReceiptLine[]
-  stockTransferLines StockTransferLine[]
-
-  @@map("products")
-}
-
-model ProductUnitConversion {
-  id         String   @id @default(cuid())
-  fromUnitId String
-  toUnitId   String
-  factor     Decimal  @db.Decimal(20, 10)
-  productId  String?
-
-  fromUnit ProductUnit @relation("ConversionFromUnit", fields: [fromUnitId], references: [id])
-  toUnit   ProductUnit @relation("ConversionToUnit",   fields: [toUnitId],   references: [id])
-  product  Product?    @relation(fields: [productId], references: [id])
-
-  @@map("product_unit_conversions")
-}
-
-// ---------------------------------------------------------------------------
-// Inventory
-// ---------------------------------------------------------------------------
-
-model InventoryMovement {
-  id            String       @id @default(cuid())
-  warehouseId   String
-  productId     String
-  unitId        String
-  quantity      Decimal      @db.Decimal(20, 6)
-  baseQuantity  Decimal      @db.Decimal(20, 6)
-  movementType  MovementType
-  referenceId   String?
-  referenceType String?
-  actorId       String
-  notes         String?
-  createdAt     DateTime     @default(now())
-
-  // No soft-delete (no archivedAt / deletedAt).
-  // No onDelete: Cascade — movements are immutable records.
-  warehouse Warehouse   @relation(fields: [warehouseId], references: [id])
-  product   Product     @relation(fields: [productId],   references: [id])
-  unit      ProductUnit @relation(fields: [unitId],      references: [id])
-  actor     Employee    @relation("MovementActor", fields: [actorId], references: [id])
-
-  @@map("inventory_movements")
-}
-
-model InventoryBalance {
-  id              String   @id @default(cuid())
-  warehouseId     String
-  productId       String
-  currentQuantity Decimal  @db.Decimal(20, 6)
-  reorderPoint    Int?
-  reorderQty      Int?
-  updatedAt       DateTime @updatedAt
-
-  warehouse Warehouse @relation(fields: [warehouseId], references: [id])
-  product   Product   @relation(fields: [productId],   references: [id])
-
-  @@unique([warehouseId, productId])
-  @@map("inventory_balances")
-}
-
-model StockTransfer {
-  id                     String   @id @default(cuid())
-  sourceWarehouseId      String
-  destinationWarehouseId String
-  transferredById        String
-  note                   String?
-  createdAt              DateTime @default(now())
-
-  sourceWarehouse      Warehouse           @relation("TransferSource", fields: [sourceWarehouseId], references: [id])
-  destinationWarehouse Warehouse           @relation("TransferDestination", fields: [destinationWarehouseId], references: [id])
-  transferredBy        Employee            @relation("TransferActor", fields: [transferredById], references: [id])
-  lines                StockTransferLine[]
-
-  @@map("stock_transfers")
-}
-
-model StockTransferLine {
-  id              String  @id @default(cuid())
-  transferId      String
-  productId       String
-  unitId          String
-  displayQuantity Decimal @db.Decimal(20, 6)
-  baseQuantity    Decimal @db.Decimal(20, 6)
-
-  transfer StockTransfer @relation(fields: [transferId], references: [id])
-  product  Product       @relation(fields: [productId], references: [id])
-  unit     ProductUnit   @relation(fields: [unitId],    references: [id])
-
-  @@map("stock_transfer_lines")
-}
-
-// ---------------------------------------------------------------------------
-// Customers & Suppliers
-// ---------------------------------------------------------------------------
-
-model Customer {
-  id             String        @id @default(cuid())
-  name           String
-  email          String?
-  phone          String?
-  address        String?
-  organizationId String
-  paymentTerms   PaymentTerms?
-  creditLimit    Decimal?      @db.Decimal(20, 2)
-  archivedAt     DateTime?
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
-
-  organization Organization @relation(fields: [organizationId], references: [id])
-  invoices     Invoice[]
-
-  @@map("customers")
-}
-
-model Supplier {
-  id             String        @id @default(cuid())
-  name           String
-  email          String?
-  phone          String?
-  address        String?
-  organizationId String
-  paymentTerms   PaymentTerms?
-  archivedAt     DateTime?
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
-
-  organization   Organization     @relation(fields: [organizationId], references: [id])
-  invoices       Invoice[]
-  purchaseOrders PurchaseOrder[]
-
-  @@map("suppliers")
-}
-
-// ---------------------------------------------------------------------------
-// Invoices & Payments
-// ---------------------------------------------------------------------------
-
-model Invoice {
-  id             String        @id @default(cuid())
-  type           InvoiceType
-  status         InvoiceStatus @default(DRAFT)
-  warehouseId    String
-  customerId     String?
-  supplierId     String?
-  purchaseOrderId String?
-  totalAmount    Decimal       @db.Decimal(20, 2)
-  taxAmount      Decimal?      @db.Decimal(20, 2)
-  notes          String?
-  actorId        String
-  confirmedAt    DateTime?
-  cancelledAt    DateTime?
-  deliveryDate   DateTime?
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
-
-  // NEVER hard-deleted — no cascade deletes.
-  warehouse     Warehouse     @relation(fields: [warehouseId], references: [id])
-  customer      Customer?     @relation(fields: [customerId],  references: [id])
-  supplier      Supplier?     @relation(fields: [supplierId],  references: [id])
-  purchaseOrder PurchaseOrder? @relation(fields: [purchaseOrderId], references: [id])
-  actor         Employee      @relation("InvoiceActor", fields: [actorId], references: [id])
-  lines         InvoiceLine[]
-  payments      Payment[]
-
-  @@map("invoices")
-}
-
-model InvoiceLine {
-  id         String   @id @default(cuid())
-  invoiceId  String
-  productId  String
-  unitId     String
-  quantity   Decimal  @db.Decimal(20, 6)
-  unitPrice  Decimal  @db.Decimal(20, 2)
-  totalPrice Decimal  @db.Decimal(20, 2)
-  discount   Decimal? @db.Decimal(5, 2)
-
-  invoice Invoice     @relation(fields: [invoiceId], references: [id])
-  product Product     @relation(fields: [productId], references: [id])
-  unit    ProductUnit @relation(fields: [unitId],    references: [id])
-
-  @@map("invoice_lines")
-}
-
-model Payment {
-  id        String        @id @default(cuid())
-  invoiceId String
-  amount    Decimal       @db.Decimal(20, 2)
-  method    PaymentMethod
-  paidAt    DateTime
-  notes     String?
-  actorId   String
-
-  // NEVER hard-deleted — no cascade deletes.
-  invoice Invoice  @relation(fields: [invoiceId], references: [id])
-  actor   Employee @relation("PaymentActor", fields: [actorId], references: [id])
-
-  @@map("payments")
-}
-
-// ---------------------------------------------------------------------------
-// Purchase Orders & Goods Receipts
-// ---------------------------------------------------------------------------
-
-model PurchaseOrder {
-  id                   String              @id @default(cuid())
-  organizationId       String
-  warehouseId          String
-  supplierId           String
-  status               PurchaseOrderStatus @default(DRAFT)
-  expectedDeliveryDate DateTime?
-  note                 String?
-  createdById          String
-  sentAt               DateTime?
-  receivedAt           DateTime?
-  createdAt            DateTime            @default(now())
-  updatedAt            DateTime            @updatedAt
-
-  // NEVER hard-deleted — no cascade deletes.
-  organization Organization        @relation(fields: [organizationId], references: [id])
-  warehouse    Warehouse           @relation(fields: [warehouseId], references: [id])
-  supplier     Supplier            @relation(fields: [supplierId], references: [id])
-  createdBy    Employee            @relation("PurchaseOrderCreatedBy", fields: [createdById], references: [id])
-  lines        PurchaseOrderLine[]
-  receipts     GoodsReceipt[]
-  invoices     Invoice[]
-
-  @@map("purchase_orders")
-}
-
-model PurchaseOrderLine {
-  id                    String  @id @default(cuid())
-  purchaseOrderId       String
-  productId             String
-  unitId                String
-  displayQuantity       Decimal @db.Decimal(20, 6)
-  baseQuantity          Decimal @db.Decimal(20, 6)
-  unitCost              Decimal @db.Decimal(20, 2)
-  receivedBaseQuantity  Decimal @default(0) @db.Decimal(20, 6)
-
-  purchaseOrder      PurchaseOrder       @relation(fields: [purchaseOrderId], references: [id])
-  product             Product             @relation(fields: [productId], references: [id])
-  unit                ProductUnit         @relation(fields: [unitId], references: [id])
-  goodsReceiptLines   GoodsReceiptLine[]
-
-  @@map("purchase_order_lines")
-}
-
-model GoodsReceipt {
-  id              String   @id @default(cuid())
-  purchaseOrderId String
-  warehouseId     String
-  receivedById    String
-  note            String?
-  createdAt       DateTime @default(now())
-
-  // Append-only: no updates, no deletes.
-  purchaseOrder PurchaseOrder      @relation(fields: [purchaseOrderId], references: [id])
-  warehouse     Warehouse          @relation(fields: [warehouseId], references: [id])
-  receivedBy    Employee           @relation("GoodsReceiptReceivedBy", fields: [receivedById], references: [id])
-  lines         GoodsReceiptLine[]
-
-  @@map("goods_receipts")
-}
-
-model GoodsReceiptLine {
-  id                  String  @id @default(cuid())
-  goodsReceiptId      String
-  purchaseOrderLineId String
-  productId           String
-  unitId              String
-  displayQuantity     Decimal @db.Decimal(20, 6)
-  baseQuantity        Decimal @db.Decimal(20, 6)
-
-  goodsReceipt      GoodsReceipt      @relation(fields: [goodsReceiptId], references: [id])
-  purchaseOrderLine PurchaseOrderLine @relation(fields: [purchaseOrderLineId], references: [id])
-  product           Product           @relation(fields: [productId], references: [id])
-  unit              ProductUnit       @relation(fields: [unitId], references: [id])
-
-  @@map("goods_receipt_lines")
-}
-
-// ---------------------------------------------------------------------------
-// Notifications
-// ---------------------------------------------------------------------------
-
-model Notification {
-  id          String    @id @default(cuid())
-  warehouseId String
-  type        String    // "LOW_STOCK"
-  payload     Json
-  readAt      DateTime?
-  createdAt   DateTime  @default(now())
-
-  warehouse Warehouse @relation(fields: [warehouseId], references: [id])
-
-  @@map("notifications")
-}
-
-// ---------------------------------------------------------------------------
-// Audit
-// ---------------------------------------------------------------------------
-
-model AuditLog {
-  id         String   @id @default(cuid())
-  actorId    String
-  action     String
-  entityType String
-  entityId   String
-  before     Json?
-  after      Json?
-  ipAddress  String?
-  createdAt  DateTime @default(now())
-
-  // Append-only: no updates, no deletes.
-  actor Employee @relation("AuditActor", fields: [actorId], references: [id])
-
-  @@map("audit_logs")
 }
