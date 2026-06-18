@@ -4,7 +4,8 @@
       "PowerShell(Test-Path *)",
       "PowerShell(Get-Content \"C:\\\\Users\\\\DELL\\\\AppData\\\\Roaming\\\\Code\\\\logs\\\\20260612T044948\\\\cli.log\" -Tail 50 | ForEach-Object { Write-Host $_ })",
       "PowerShell(Get-ChildItem *)",
-      "PowerShell(Get-ChildItem \"C:\\\\Users\\\\DELL\\\\AppData\\\\Local\\\\Programs\\\\Microsoft VS Code\\\\\" | ForEach-Object { Write-Host $_.Name })"
+      "PowerShell(Get-ChildItem \"C:\\\\Users\\\\DELL\\\\AppData\\\\Local\\\\Programs\\\\Microsoft VS Code\\\\\" | ForEach-Object { Write-Host $_.Name })",
+      "Bash(git config *)"
     ]
   }
 }
