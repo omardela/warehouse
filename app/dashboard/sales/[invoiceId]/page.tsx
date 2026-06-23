@@ -154,14 +154,53 @@ export default async function SalesInvoiceDetailPage({ params }: PageProps) {
             </p>
           </div>
 
-          <InvoiceActionButtons
-            invoiceId={invoiceId}
-            status={invoice.status}
-            canConfirm={canConfirm}
-            canCancel={canCancel}
-            confirmAction={confirmSalesInvoiceAction}
-            cancelAction={cancelSalesInvoiceAction}
-          />
+          <div style={{ display: "flex", gap: "8px", alignItems: "flex-start", flexWrap: "wrap" }}>
+            <Link
+              href={`/dashboard/sales/${invoiceId}/print`}
+              target="_blank"
+              style={{
+                padding: "8px 16px",
+                borderRadius: "8px",
+                background: "rgba(140,144,162,0.08)",
+                border: "1px solid #2d3449",
+                color: "#8c90a2",
+                fontSize: "13px",
+                fontWeight: 500,
+                textDecoration: "none",
+                display: "inline-flex",
+                alignItems: "center",
+              }}
+            >
+              Print
+            </Link>
+            {invoice.status === "CONFIRMED" && (
+              <Link
+                href={`/dashboard/sales/${invoiceId}/credit-notes/new`}
+                style={{
+                  padding: "8px 16px",
+                  borderRadius: "8px",
+                  background: "rgba(245,158,11,0.12)",
+                  border: "1px solid rgba(245,158,11,0.3)",
+                  color: "#f59e0b",
+                  fontSize: "13px",
+                  fontWeight: 500,
+                  textDecoration: "none",
+                  display: "inline-flex",
+                  alignItems: "center",
+                }}
+              >
+                Return / Credit Note
+              </Link>
+            )}
+            <InvoiceActionButtons
+              invoiceId={invoiceId}
+              status={invoice.status}
+              canConfirm={canConfirm}
+              canCancel={canCancel}
+              confirmAction={confirmSalesInvoiceAction}
+              cancelAction={cancelSalesInvoiceAction}
+            />
+          </div>
         </div>
 
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "16px", marginBottom: "24px" }}>

@@ -83,6 +83,9 @@ async function main() {
     { code: "sales.orders.create", description: "Create sales orders" },
     { code: "sales.orders.view", description: "View sales orders" },
     { code: "sales.deliverynotes.create", description: "Create delivery notes against sales orders" },
+    // Sales Credit Notes
+    { code: "sales.creditnotes.create", description: "Create sales credit notes (returns from customer)" },
+    { code: "sales.creditnotes.view", description: "View sales credit notes" },
     // Purchase Invoices
     {
       code: "purchase.invoice.create",
@@ -347,6 +350,7 @@ async function main() {
     const salesManagerPerms = [
       "sales.invoice.create", "sales.invoice.confirm", "sales.invoice.cancel", "sales.invoice.read",
       "sales.orders.create", "sales.orders.view", "sales.deliverynotes.create",
+      "sales.creditnotes.create", "sales.creditnotes.view",
       "payments.payment.create", "payments.payment.read",
       "customers.customer.create", "customers.customer.read", "customers.customer.update", "customers.customer.archive",
       "suppliers.supplier.read",
@@ -390,6 +394,7 @@ async function main() {
     const salesRepPerms = [
       "sales.invoice.create", "sales.invoice.read",
       "sales.orders.create", "sales.orders.view", "sales.deliverynotes.create",
+      "sales.creditnotes.create", "sales.creditnotes.view",
       "customers.customer.create", "customers.customer.read", "customers.customer.update",
       "inventory.product.read", "inventory.balance.read",
       "suppliers.supplier.read",

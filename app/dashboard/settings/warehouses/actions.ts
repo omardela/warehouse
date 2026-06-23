@@ -6,11 +6,8 @@ import { db } from "@/lib/db";
 import { getSession } from "@/core/auth/session";
 import { requirePermission } from "@/core/auth/require-permission";
 import { writeAuditLog } from "@/core/audit/write-audit-log";
-
-const warehouseSchema = z.object({
-  name: z.string().min(1, "Facility name is required").max(100),
-  address: z.string().max(255).optional(),
-});
+import { getLocale } from "@/core/i18n/locale";
+import { getDictionary } from "@/core/i18n/get-dictionary";
 
 export type WarehouseActionState =
   | { success: true; warehouseId: string }
@@ -23,15 +20,21 @@ export async function createWarehouseAction(
   formData: FormData
 ): Promise<WarehouseActionState> {
   const session = await getSession();
+  const dict = getDictionary(await getLocale()).employees.warehouses;
   if (!session) {
-    return { error: "Unauthorized" };
+    return { error: dict.unauthorized };
   }
 
   try {
     await requirePermission(session, "settings.warehouse.create");
   } catch {
-    return { error: "You do not have permission to create warehouses." };
+    return { error: dict.noPermissionCreate };
   }
+
+  const warehouseSchema = z.object({
+    name: z.string().min(1, dict.nameRequired).max(100),
+    address: z.string().max(255).optional(),
+  });
 
   const rawAddress = formData.get("address");
   const parsed = warehouseSchema.safeParse({
@@ -45,7 +48,7 @@ export async function createWarehouseAction(
   if (!parsed.success) {
     const errors = parsed.error.flatten().fieldErrors;
     const firstError =
-      errors.name?.[0] ?? errors.address?.[0] ?? "Invalid form data";
+      errors.name?.[0] ?? errors.address?.[0] ?? dict.invalidFormData;
     return { error: firstError };
   }
 
@@ -98,20 +101,26 @@ export async function updateWarehouseAction(
   formData: FormData
 ): Promise<WarehouseActionState> {
   const session = await getSession();
+  const dict = getDictionary(await getLocale()).employees.warehouses;
   if (!session) {
-    return { error: "Unauthorized" };
+    return { error: dict.unauthorized };
   }
 
   try {
     await requirePermission(session, "settings.warehouse.update");
   } catch {
-    return { error: "You do not have permission to update warehouses." };
+    return { error: dict.noPermissionUpdate };
   }
 
   const warehouseId = formData.get("warehouseId");
   if (!warehouseId || typeof warehouseId !== "string") {
-    return { error: "Warehouse ID is required" };
+    return { error: dict.warehouseIdRequired };
   }
+
+  const warehouseSchema = z.object({
+    name: z.string().min(1, dict.nameRequired).max(100),
+    address: z.string().max(255).optional(),
+  });
 
   const rawAddress = formData.get("address");
   const parsed = warehouseSchema.safeParse({
@@ -125,7 +134,7 @@ export async function updateWarehouseAction(
   if (!parsed.success) {
     const errors = parsed.error.flatten().fieldErrors;
     const firstError =
-      errors.name?.[0] ?? errors.address?.[0] ?? "Invalid form data";
+      errors.name?.[0] ?? errors.address?.[0] ?? dict.invalidFormData;
     return { error: firstError };
   }
 
@@ -138,7 +147,7 @@ export async function updateWarehouseAction(
   });
 
   if (!existing || existing.organizationId !== session.orgId) {
-    return { error: "Warehouse not found" };
+    return { error: dict.warehouseNotFound };
   }
 
   await db.warehouse.update({

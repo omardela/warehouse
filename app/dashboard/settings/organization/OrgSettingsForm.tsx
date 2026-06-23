@@ -2,12 +2,14 @@
 
 import { useActionState } from "react";
 import { updateOrganizationAction, type OrgActionState } from "./actions";
+import { useTranslations } from "@/providers/locale-context";
 
 interface OrgSettingsFormProps {
   initialName: string;
 }
 
 export function OrgSettingsForm({ initialName }: OrgSettingsFormProps) {
+  const t = useTranslations().employees.organization;
   const [state, formAction, pending] = useActionState<OrgActionState, FormData>(
     updateOrganizationAction,
     null
@@ -26,7 +28,7 @@ export function OrgSettingsForm({ initialName }: OrgSettingsFormProps) {
             className="text-base font-semibold"
             style={{ color: "#dbe2fd" }}
           >
-            Organization Details
+            {t.organizationDetails}
           </h2>
         </div>
 
@@ -38,7 +40,7 @@ export function OrgSettingsForm({ initialName }: OrgSettingsFormProps) {
               className="block text-[13px] font-medium"
               style={{ color: "#c2c6d9" }}
             >
-              Organization Name <span style={{ color: "#ffb4ab" }}>*</span>
+              {t.organizationName} <span style={{ color: "#ffb4ab" }}>*</span>
             </label>
             <input
               id="name"
@@ -92,7 +94,7 @@ export function OrgSettingsForm({ initialName }: OrgSettingsFormProps) {
             border: "1px solid rgba(0,108,73,0.3)",
           }}
         >
-          Organization updated successfully.
+          {t.updatedSuccess}
         </p>
       )}
 
@@ -104,7 +106,7 @@ export function OrgSettingsForm({ initialName }: OrgSettingsFormProps) {
           className="rounded-lg px-5 py-2 text-sm font-medium text-white transition-opacity disabled:opacity-60"
           style={{ background: "#0062ff" }}
         >
-          {pending ? "Saving…" : "Save Changes"}
+          {pending ? t.saving : t.saveChanges}
         </button>
       </div>
     </form>

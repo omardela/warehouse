@@ -4,6 +4,8 @@ import { db } from "@/lib/db";
 import { ProductForm } from "../ProductForm";
 import { updateProductAction, archiveProductAction, unarchiveProductAction } from "./actions";
 import { requirePagePermission } from "@/core/auth/require-page-permission";
+import { getLocale } from "@/core/i18n/locale";
+import { getDictionary } from "@/core/i18n/get-dictionary";
 
 interface PageProps {
   params: Promise<{ productId: string }>;
@@ -13,6 +15,9 @@ export default async function EditProductPage({ params }: PageProps) {
   const session = await getSession();
   if (!session) redirect("/login");
   await requirePagePermission(session, "inventory.product.update");
+
+  const locale = await getLocale();
+  const t = getDictionary(locale);
 
   const { productId } = await params;
 
@@ -69,7 +74,7 @@ export default async function EditProductPage({ params }: PageProps) {
           cursor: "pointer",
         }}
       >
-        {isArchived ? "Unarchive" : "Archive Product"}
+        {isArchived ? t.products.unarchive : t.products.archiveProduct}
       </button>
     </form>
   );
@@ -93,7 +98,7 @@ export default async function EditProductPage({ params }: PageProps) {
         gap: "6px",
       }}
     >
-      Print Label
+      {t.products.printLabel}
     </a>
   );
 
@@ -106,19 +111,19 @@ export default async function EditProductPage({ params }: PageProps) {
             <path d="M7 4.5V7.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
             <circle cx="7" cy="9.5" r="0.5" fill="currentColor" />
           </svg>
-          This product is archived and will not appear in active product selectors.
+          {t.products.archiveNotice}
         </div>
       )}
 
       {stockQty !== null && (
         <div style={{ background: "#171f33", borderBottom: "1px solid #222a3e", padding: "10px 24px", display: "flex", gap: "16px", alignItems: "center" }}>
-          <span style={{ fontSize: "12px", color: "#8c90a2" }}>Current Stock:</span>
+          <span style={{ fontSize: "12px", color: "#8c90a2" }}>{t.products.currentStock}</span>
           <span style={{ fontSize: "14px", fontWeight: 700, color: (product.lowStockThreshold != null && Number(stockQty) <= product.lowStockThreshold) ? "#f59e0b" : "#62df7d" }}>
             {Number(stockQty) % 1 === 0 ? Number(stockQty).toString() : Number(stockQty).toFixed(3)}{" "}{product.defaultUnit.symbol}
           </span>
           {product.lowStockThreshold != null && Number(stockQty) <= product.lowStockThreshold && (
             <span style={{ padding: "2px 8px", borderRadius: "10px", background: "rgba(245,158,11,0.12)", color: "#f59e0b", fontSize: "11px", fontWeight: 600, border: "1px solid rgba(245,158,11,0.2)" }}>
-              LOW STOCK
+              {t.products.lowStockBadge}
             </span>
           )}
         </div>

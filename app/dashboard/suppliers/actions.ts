@@ -7,34 +7,39 @@ import { db } from "@/lib/db";
 import { getSession } from "@/core/auth/session";
 import { requirePermission } from "@/core/auth/require-permission";
 import { writeAuditLog } from "@/core/audit/write-audit-log";
+import { getLocale } from "@/core/i18n/locale";
+import { getDictionary, type Dictionary } from "@/core/i18n/get-dictionary";
 
 export type SupplierActionState =
   | { success: true; supplierId?: string }
   | { error: string; fieldErrors?: Record<string, string[]> }
   | null;
 
-const supplierSchema = z.object({
-  name: z.string().min(1, "Supplier name is required").max(200),
-  email: z.string().email("Invalid email address").optional().or(z.literal("")),
-  phone: z.string().max(50).optional(),
-  address: z.string().max(500).optional(),
-});
+function buildSupplierSchema(t: Dictionary) {
+  return z.object({
+    name: z.string().min(1, t.suppliers.errors.nameRequired).max(200),
+    email: z.string().email(t.suppliers.errors.invalidEmail).optional().or(z.literal("")),
+    phone: z.string().max(50).optional(),
+    address: z.string().max(500).optional(),
+  });
+}
 
 export async function createSupplierAction(
   _prevState: SupplierActionState,
   formData: FormData
 ): Promise<SupplierActionState> {
   const session = await getSession();
-  if (!session) return { error: "Unauthorized" };
+  const t = getDictionary(await getLocale());
+  if (!session) return { error: t.suppliers.errors.unauthorized };
 
   try {
     await requirePermission(session, "suppliers.supplier.create");
   } catch {
-    return { error: "You do not have permission to create suppliers." };
+    return { error: t.suppliers.errors.noCreatePermission };
   }
 
   const rawEmail = (formData.get("email") as string)?.trim();
-  const parsed = supplierSchema.safeParse({
+  const parsed = buildSupplierSchema(t).safeParse({
     name: formData.get("name"),
     email: rawEmail || undefined,
     phone: (formData.get("phone") as string)?.trim() || undefined,
@@ -43,7 +48,7 @@ export async function createSupplierAction(
 
   if (!parsed.success) {
     const fieldErrors = parsed.error.flatten().fieldErrors as Record<string, string[]>;
-    const firstMessage = Object.values(fieldErrors).flat()[0] ?? "Validation failed";
+    const firstMessage = Object.values(fieldErrors).flat()[0] ?? t.suppliers.errors.validationFailed;
     return { error: firstMessage, fieldErrors };
   }
 
@@ -77,19 +82,20 @@ export async function updateSupplierAction(
   formData: FormData
 ): Promise<SupplierActionState> {
   const session = await getSession();
-  if (!session) return { error: "Unauthorized" };
+  const t = getDictionary(await getLocale());
+  if (!session) return { error: t.suppliers.errors.unauthorized };
 
   try {
     await requirePermission(session, "suppliers.supplier.update");
   } catch {
-    return { error: "You do not have permission to update suppliers." };
+    return { error: t.suppliers.errors.noUpdatePermission };
   }
 
   const supplierId = formData.get("supplierId") as string;
-  if (!supplierId) return { error: "Supplier ID is required" };
+  if (!supplierId) return { error: t.suppliers.errors.supplierIdRequired };
 
   const rawEmail = (formData.get("email") as string)?.trim();
-  const parsed = supplierSchema.safeParse({
+  const parsed = buildSupplierSchema(t).safeParse({
     name: formData.get("name"),
     email: rawEmail || undefined,
     phone: (formData.get("phone") as string)?.trim() || undefined,
@@ -98,7 +104,7 @@ export async function updateSupplierAction(
 
   if (!parsed.success) {
     const fieldErrors = parsed.error.flatten().fieldErrors as Record<string, string[]>;
-    const firstMessage = Object.values(fieldErrors).flat()[0] ?? "Validation failed";
+    const firstMessage = Object.values(fieldErrors).flat()[0] ?? t.suppliers.errors.validationFailed;
     return { error: firstMessage, fieldErrors };
   }
 
@@ -110,7 +116,7 @@ export async function updateSupplierAction(
   });
 
   if (!existing || existing.organizationId !== session.orgId) {
-    return { error: "Supplier not found" };
+    return { error: t.suppliers.errors.supplierNotFound };
   }
 
   await db.supplier.update({

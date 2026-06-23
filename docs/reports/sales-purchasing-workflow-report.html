@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Sales &amp; Purchasing Workflows — System Reference</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<style>
+  @page {
+    size: A4;
+    margin: 22mm 18mm 20mm 18mm;
+  }
+
+  :root {
+    --navy: #0b1326;
+    --accent: #0062ff;
+    --text: #1a2237;
+    --muted: #5b6480;
+    --border: #d8deeb;
+    --warn-bg: #fff4e5;
+    --warn-border: #f59e0b;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    color: var(--text);
+    font-size: 10.5pt;
+    line-height: 1.55;
+    margin: 0;
+  }
+
+  /* ---------- Cover page ---------- */
+  .cover {
+    height: 257mm;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    page-break-after: always;
+  }
+  .cover-top { margin-top: 30mm; }
+  .cover-badge {
+    display: inline-block;
+    background: var(--navy);
+    color: #fff;
+    font-size: 10pt;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    padding: 6px 14px;
+    border-radius: 20px;
+    text-transform: uppercase;
+  }
+  .cover-title {
+    font-size: 30pt;
+    font-weight: 800;
+    color: var(--navy);
+    margin: 22px 0 6px;
+    line-height: 1.2;
+  }
+  .cover-subtitle {
+    font-size: 14pt;
+    color: var(--muted);
+    font-weight: 500;
+    margin-bottom: 4px;
+  }
+  .cover-subtitle-ar {
+    font-size: 13pt;
+    color: var(--muted);
+    direction: rtl;
+    margin-top: 4px;
+  }
+  .cover-meta {
+    margin-top: 40mm;
+    border-top: 2px solid var(--navy);
+    padding-top: 14px;
+    font-size: 10pt;
+    color: var(--muted);
+  }
+  .cover-meta div { margin-bottom: 4px; }
+  .cover-meta b { color: var(--text); }
+
+  /* ---------- TOC ---------- */
+  .toc-page { page-break-after: always; }
+  .toc-title {
+    font-size: 20pt;
+    font-weight: 800;
+    color: var(--navy);
+    margin-bottom: 18px;
+    border-bottom: 3px solid var(--accent);
+    padding-bottom: 8px;
+  }
+  .toc-list { list-style: none; padding: 0; margin: 0; }
+  .toc-list > li { margin-bottom: 10px; }
+  .toc-list a {
+    text-decoration: none;
+    color: var(--text);
+    font-weight: 700;
+    font-size: 11.5pt;
+  }
+  .toc-sub { list-style: none; padding-left: 22px; margin: 6px 0 0; }
+  .toc-sub li { margin-bottom: 4px; }
+  .toc-sub a {
+    text-decoration: none;
+    color: var(--muted);
+    font-weight: 400;
+    font-size: 10pt;
+  }
+  .toc-dots {
+    border-bottom: 1px dotted var(--border);
+    flex: 1;
+    margin: 0 6px;
+  }
+  .toc-row { display: flex; align-items: baseline; }
+
+  /* ---------- Section headings ---------- */
+  section { page-break-before: always; }
+  section:first-of-type { page-break-before: auto; }
+
+  h1.section-title {
+    font-size: 18pt;
+    font-weight: 800;
+    color: var(--navy);
+    border-bottom: 3px solid var(--accent);
+    padding-bottom: 8px;
+    margin: 0 0 16px;
+  }
+  h2 {
+    font-size: 13pt;
+    font-weight: 700;
+    color: var(--navy);
+    margin: 22px 0 8px;
+  }
+  h3 {
+    font-size: 11.5pt;
+    font-weight: 700;
+    color: var(--accent);
+    margin: 16px 0 6px;
+  }
+  p { margin: 6px 0; }
+
+  /* ---------- Tables ---------- */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 10px 0 14px;
+    font-size: 9.5pt;
+  }
+  th, td {
+    border: 1px solid var(--border);
+    padding: 6px 9px;
+    text-align: left;
+    vertical-align: top;
+  }
+  th {
+    background: var(--navy);
+    color: #fff;
+    font-weight: 600;
+    font-size: 9pt;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+  tr:nth-child(even) td { background: #f5f7fb; }
+
+  /* ---------- Code / inline ---------- */
+  code {
+    background: #eef1f8;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1px 5px;
+    font-family: "Consolas", "SF Mono", monospace;
+    font-size: 9pt;
+    color: #1a2237;
+  }
+  pre {
+    background: #0d1627;
+    color: #dbe2fd;
+    padding: 12px 14px;
+    border-radius: 8px;
+    overflow-x: auto;
+    font-size: 9pt;
+    line-height: 1.5;
+  }
+  pre code { background: none; border: none; color: inherit; padding: 0; }
+
+  /* ---------- Callouts ---------- */
+  .callout {
+    border-left: 4px solid var(--warn-border);
+    background: var(--warn-bg);
+    padding: 10px 14px;
+    margin: 12px 0;
+    font-size: 10pt;
+    border-radius: 4px;
+  }
+  .callout b { color: #92400e; }
+
+  .gap-list li { margin-bottom: 8px; }
+
+  /* ---------- Diagrams ---------- */
+  .diagram-wrap {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px;
+    margin: 14px 0;
+    background: #fafbfd;
+    text-align: center;
+    page-break-inside: avoid;
+  }
+  .diagram-caption {
+    font-size: 9pt;
+    color: var(--muted);
+    margin-top: 8px;
+    font-style: italic;
+  }
+
+  .badge {
+    display: inline-block;
+    font-size: 8pt;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 10px;
+    margin-left: 6px;
+  }
+  .badge-done { background: #dcfce7; color: #166534; }
+  .badge-gap { background: #fee2e2; color: #991b1b; }
+</style>
+</head>
+<body>
+
+<!-- ============ COVER PAGE ============ -->
+<div class="cover">
+  <div class="cover-top">
+    <span class="cover-badge">LogiCore ERP — System Reference</span>
+    <div class="cover-title">Sales &amp; Purchasing<br/>Workflows</div>
+    <div class="cover-subtitle">A Business-Analyst &amp; System-Architect Reference for Product Ownership</div>
+    <div class="cover-subtitle-ar">دليل مرجعي لمسارات المبيعات والمشتريات لإدارة المنتج</div>
+  </div>
+  <div class="cover-meta">
+    <div><b>Scope:</b> Sales Orders, Delivery Notes, Sales Invoices, Sales Credit Notes, Purchase Orders, Goods Receipts, Purchase Invoices, Purchase Credit Notes</div>
+    <div><b>Covers:</b> Document lifecycles, inventory impact, financial impact, permissions, database structure, implementation status</div>
+    <div><b>Prepared for:</b> Incoming Product Owner</div>
+    <div><b>Document type:</b> As-built system analysis (read-only review, no code changes)</div>
+  </div>
+</div>
+
+<!-- ============ TABLE OF CONTENTS ============ -->
+<div class="toc-page">
+  <div class="toc-title">Table of Contents</div>
+  <ul class="toc-list">
+    <li><a href="#sec1">1. Business Process Overview</a></li>
+    <li>
+      <a href="#sec2">2. Sales Workflow</a>
+      <ul class="toc-sub">
+        <li><a href="#sec2-1">2.1 Sales Order Lifecycle</a></li>
+        <li><a href="#sec2-2">2.2 Delivery Note Lifecycle</a></li>
+        <li><a href="#sec2-3">2.3 Sales Invoice Lifecycle</a></li>
+        <li><a href="#sec2-4">2.4 Sales Credit Note / Return Lifecycle</a></li>
+        <li><a href="#sec2-5">2.5 Customer Balance &amp; Credit-Limit Logic</a></li>
+        <li><a href="#sec2-6">2.6 Stock Movements Summary</a></li>
+        <li><a href="#sec2-7">2.7 Document Relationships &amp; Status-Flow Diagrams</a></li>
+      </ul>
+    </li>
+    <li>
+      <a href="#sec3">3. Purchasing Workflow</a>
+      <ul class="toc-sub">
+        <li><a href="#sec3-1">3.1 Purchase Order Lifecycle</a></li>
+        <li><a href="#sec3-2">3.2 Goods Receipt Process</a></li>
+        <li><a href="#sec3-3">3.3 Purchase Invoice Lifecycle</a></li>
+        <li><a href="#sec3-4">3.4 Purchase Credit Note / Return Lifecycle</a></li>
+        <li><a href="#sec3-5">3.5 Supplier Balance</a></li>
+        <li><a href="#sec3-6">3.6 Stock Movements Summary &amp; Status-Flow Diagram</a></li>
+      </ul>
+    </li>
+    <li><a href="#sec4">4. Inventory Impact</a></li>
+    <li><a href="#sec5">5. Financial Impact</a></li>
+    <li><a href="#sec6">6. Permissions</a></li>
+    <li><a href="#sec7">7. Database Structure</a></li>
+    <li><a href="#sec8">8. Current Implementation Status</a></li>
+  </ul>
+</div>
+
+<!-- ============ SECTION 1 ============ -->
+<section id="sec1">
+  <h1 class="section-title">1. Business Process Overview</h1>
+  <p>The system runs two parallel commercial workflows that both ultimately move physical stock and money: the <b>Sales</b> side (selling stock, collecting receivables from customers) and the <b>Purchasing</b> side (buying stock, paying payables to suppliers).</p>
+
+  <table>
+    <tr><th></th><th>Sales side</th><th>Purchasing side</th></tr>
+    <tr><td><b>Counterparty</b></td><td>Customer</td><td>Supplier</td></tr>
+    <tr><td><b>Goal</b></td><td>Sell stock, collect receivables</td><td>Buy stock, pay payables</td></tr>
+    <tr><td><b>Pre-invoice document</b></td><td>Sales Order → Delivery Note</td><td>Purchase Order → Goods Receipt</td></tr>
+    <tr><td><b>Invoice document</b></td><td>Sales Invoice</td><td>Purchase Invoice</td></tr>
+    <tr><td><b>Return document</b></td><td>Sales Credit Note</td><td>Purchase Credit Note</td></tr>
+    <tr><td><b>Stock direction</b></td><td>Decreases (SALE_OUT), increases on return (RETURN_IN)</td><td>Increases (PURCHASE_IN), decreases on return (RETURN_OUT)</td></tr>
+  </table>
+
+  <p>Both sides share <b>one</b> <code>Invoice</code> table (<code>type: SALE | PURCHASE</code>) and <b>one</b> <code>CreditNote</code> table (<code>type: SALE | PURCHASE</code>) — they are the same schema, branched by type, not separate models.</p>
+
+  <h2>Status Transitions at a Glance</h2>
+  <table>
+    <tr><th>Document</th><th>Status enum values</th></tr>
+    <tr><td>Sales Order</td><td><code>DRAFT → CONFIRMED → PARTIAL → FULFILLED</code>, or <code>CANCELLED</code></td></tr>
+    <tr><td>Sales / Purchase Invoice</td><td><code>DRAFT → CONFIRMED → CANCELLED</code></td></tr>
+    <tr><td>Sales / Purchase Credit Note</td><td><code>DRAFT → CONFIRMED</code> / <code>CANCELLED</code> (CONFIRMED is immutable)</td></tr>
+    <tr><td>Purchase Order</td><td><code>DRAFT → SENT → PARTIAL → RECEIVED</code>, or <code>CANCELLED</code></td></tr>
+  </table>
+</section>
+
+<!-- ============ SECTION 2 ============ -->
+<section id="sec2">
+  <h1 class="section-title">2. Sales Workflow</h1>
+
+  <h2 id="sec2-1">2.1 Sales Order Lifecycle</h2>
+  <p><code>SalesOrderStatus</code>: <code>DRAFT → CONFIRMED → PARTIAL → FULFILLED</code>, or <code>CANCELLED</code> at DRAFT/CONFIRMED.</p>
+  <ul>
+    <li><b>Create</b> (<code>createSalesOrderAction</code>): status DRAFT; lines store <code>displayQuantity</code>/<code>baseQuantity</code>/<code>unitPrice</code>/<code>discount</code>; <code>deliveredBaseQuantity = 0</code>.</li>
+    <li><b>Confirm</b> (<code>confirmSalesOrderAction</code>): runs the credit-limit check (see 2.5). <b>No stock movement here</b> — confirming an SO never touches inventory.</li>
+    <li><b>Deliver</b> (<code>createDeliveryNoteAction</code>): the only place SO stock actually leaves the warehouse. Recomputes status to <code>PARTIAL</code> (some lines short) or <code>FULFILLED</code> (all lines fully delivered).</li>
+    <li><b>Cancel</b>: only DRAFT/CONFIRMED, and only if no delivery notes exist yet.</li>
+  </ul>
+
+  <h2 id="sec2-2">2.2 Delivery Note Lifecycle</h2>
+  <p>No own status field — it is an append-only event tied to a Sales Order. Each <code>DeliveryNoteLine</code> references a <code>SalesOrderLine</code> and carries the dispatched quantity. Creating one:</p>
+  <ol>
+    <li>Validates dispatched qty ≤ remaining (<code>baseQuantity - deliveredBaseQuantity</code>).</li>
+    <li>Calls <code>recordMovement(SALE_OUT)</code> per line — <b>this is where stock actually decreases</b>.</li>
+    <li>Increments <code>SalesOrderLine.deliveredBaseQuantity</code>.</li>
+    <li>Recomputes the parent SO status.</li>
+  </ol>
+
+  <h2 id="sec2-3">2.3 Sales Invoice Lifecycle</h2>
+  <p><code>InvoiceStatus</code>: <code>DRAFT → CONFIRMED → CANCELLED</code>.</p>
+  <ul>
+    <li><b>Confirm</b> (<code>confirmSalesInvoiceAction</code>): checks stock sufficiency and calls <code>recordMovement(SALE_OUT)</code> per line, then sets <code>dueDate</code> from the customer's <code>paymentTerms</code>.</li>
+    <li><b>Cancel</b>: any DRAFT/CONFIRMED invoice; stock is <b>not</b> automatically reversed on cancel.</li>
+  </ul>
+  <div class="callout">
+    <b>Design risk — double stock movement:</b> this is a second, independent path to <code>SALE_OUT</code>, separate from the SO → Delivery Note path. A direct walk-in sale (no SO) decrements stock at invoice confirmation. An SO-driven sale decrements stock at the Delivery Note step. There is no <code>Invoice ↔ DeliveryNote</code> link in the schema and no guard preventing a manually created invoice from re-decrementing stock that an SO's delivery note already moved.
+  </div>
+
+  <h2 id="sec2-4">2.4 Sales Credit Note / Return Lifecycle</h2>
+  <p><code>CreditNoteStatus</code>: <code>DRAFT → CONFIRMED</code> / <code>CANCELLED</code> (CONFIRMED is immutable).</p>
+  <ul>
+    <li>Created only against a <code>CONFIRMED</code> sales Invoice (<code>originalInvoiceId</code>), with lines pre-filled from the invoice and quantity-capped at "invoiced minus already-credited" — matched by <code>productId + unitId</code>, since <code>CreditNoteLine</code> has no direct invoice-line foreign key.</li>
+    <li><b>Confirm</b>: <code>recordMovement(RETURN_IN)</code> per line — restocks the warehouse — then becomes immutable.</li>
+    <li><b>Cancel</b>: DRAFT only.</li>
+  </ul>
+
+  <h2 id="sec2-5">2.5 Customer Balance &amp; Credit-Limit Logic</h2>
+  <p>Both the customer detail page and the Sales-Order credit check use the same formula:</p>
+  <pre><code>outstandingBalance = totalInvoiced(confirmed SALE invoices)
+                    - totalPaid(payments on those invoices)
+                    - totalCredited(confirmed SALE credit notes,
+                                    value = Σ displayQuantity × unitPrice)</code></pre>
+  <p>Credit check on SO confirm: <code>outstandingBalance + thisSOValue &gt; customer.creditLimit</code> → blocked with an error showing all three numbers and the limit. <code>creditLimit == null</code> means no check (unlimited).</p>
+
+  <h2 id="sec2-6">2.6 Stock Movements Summary (Sales)</h2>
+  <table>
+    <tr><th>Event</th><th>Movement type</th><th>Direction</th></tr>
+    <tr><td>Delivery Note created</td><td><code>SALE_OUT</code></td><td>− decrease</td></tr>
+    <tr><td>Sales Invoice confirmed (direct, no SO)</td><td><code>SALE_OUT</code></td><td>− decrease</td></tr>
+    <tr><td>Sales Credit Note confirmed</td><td><code>RETURN_IN</code></td><td>+ increase</td></tr>
+  </table>
+
+  <h2 id="sec2-7">2.7 Document Relationships &amp; Status-Flow Diagrams</h2>
+  <div class="diagram-wrap">
+    <pre class="mermaid">
+flowchart LR
+    SO[Sales Order] -->|creates| DN[Delivery Note]
+    DN -.->|lines pre-fillable into| INV[Sales Invoice]
+    SO -.->|or direct invoice, no SO| INV
+    INV -->|return against| CN[Sales Credit Note]
+    INV -->|has many| PAY[Payments]
+    CN -.->|restocks| STOCK[(Inventory Balance)]
+    DN -->|decrements| STOCK
+    INV -.->|decrements if no prior DN| STOCK
+    </pre>
+    <div class="diagram-caption">Figure 2.1 — Sales document relationships</div>
+  </div>
+
+  <div class="diagram-wrap">
+    <pre class="mermaid">
+flowchart TD
+    subgraph SalesOrder
+        SO_D[DRAFT] -->|confirm + credit check| SO_C[CONFIRMED]
+        SO_C -->|partial delivery| SO_P[PARTIAL]
+        SO_P -->|remaining delivered| SO_F[FULFILLED]
+        SO_C -->|fully delivered in one note| SO_F
+        SO_D -->|cancel, no deliveries yet| SO_X[CANCELLED]
+        SO_C -->|cancel, no deliveries yet| SO_X
+    end
+    SO_C -->|create delivery note| DN[Delivery Note SALE_OUT]
+    SO_P -->|create delivery note| DN
+    DN --> INV_D
+
+    subgraph SalesInvoice
+        INV_D[DRAFT] -->|confirm: stock check + SALE_OUT| INV_C[CONFIRMED]
+        INV_D -->|cancel| INV_X[CANCELLED]
+        INV_C -->|cancel, stock NOT reversed| INV_X
+    end
+
+    INV_C -->|raise return| CN_D
+    subgraph SalesCreditNote
+        CN_D[DRAFT] -->|confirm: RETURN_IN, immutable| CN_C[CONFIRMED]
+        CN_D -->|cancel| CN_X[CANCELLED]
+    end
+    </pre>
+    <div class="diagram-caption">Figure 2.2 — Complete Sales workflow status flow</div>
+  </div>
+</section>
+
+<!-- ============ SECTION 3 ============ -->
+<section id="sec3">
+  <h1 class="section-title">3. Purchasing Workflow</h1>
+
+  <h2 id="sec3-1">3.1 Purchase Order Lifecycle</h2>
+  <p><code>PurchaseOrderStatus</code>: <code>DRAFT → SENT → PARTIAL/RECEIVED</code>, or <code>CANCELLED</code> at DRAFT/SENT.</p>
+  <ul>
+    <li><b>Create</b>: status DRAFT, lines carry <code>unitCost</code>, <code>receivedBaseQuantity = 0</code>.</li>
+    <li><b>Mark Sent</b>: DRAFT → SENT, sets <code>sentAt</code>.</li>
+    <li><b>Cancel</b>: DRAFT/SENT only.</li>
+  </ul>
+
+  <h2 id="sec3-2">3.2 Goods Receipt Process</h2>
+  <p>This is where purchasing stock actually arrives:</p>
+  <ol>
+    <li>Only against <code>SENT</code>/<code>PARTIAL</code> POs.</li>
+    <li>Per line, validates received qty ≤ outstanding (<code>baseQuantity - receivedBaseQuantity</code>).</li>
+    <li><code>recordMovement(PURCHASE_IN)</code> per line.</li>
+    <li>Increments <code>PurchaseOrderLine.receivedBaseQuantity</code>.</li>
+    <li>Recomputes PO status: all lines fully received → <code>RECEIVED</code> (+ <code>receivedAt</code>); some → <code>PARTIAL</code>.</li>
+  </ol>
+
+  <h2 id="sec3-3">3.3 Purchase Invoice Lifecycle <span class="badge badge-gap">GAP</span></h2>
+  <p><code>DRAFT → CONFIRMED → CANCELLED</code>, optionally linked to a PO via <code>Invoice.purchaseOrderId</code> (only allowed once that PO is <code>PARTIAL</code>/<code>RECEIVED</code>).</p>
+  <div class="callout">
+    <b>Confirming a Purchase Invoice also calls <code>recordMovement(PURCHASE_IN)</code> per line</b> — independently of whatever the Goods Receipt already moved. There is no quantity-matching guard between "already received via Goods Receipt" and "this invoice's lines." If a PO-linked invoice is confirmed for the same goods a Goods Receipt already recorded, <b>stock is double-counted</b>.
+  </div>
+
+  <h2 id="sec3-4">3.4 Purchase Credit Note / Return Lifecycle</h2>
+  <p>Same shape as the sales side: <code>DRAFT → CONFIRMED</code>/<code>CANCELLED</code>, created against a <code>CONFIRMED</code> purchase Invoice; confirm → <code>recordMovement(RETURN_OUT)</code> (stock leaves, going back to the supplier), then immutable.</p>
+
+  <h2 id="sec3-5">3.5 Supplier Balance <span class="badge badge-gap">GAP</span></h2>
+  <pre><code>balance = totalInvoiced(confirmed PURCHASE invoices) - totalPaid</code></pre>
+  <div class="callout">
+    This does <b>not</b> subtract confirmed PURCHASE credit notes. It is the exact gap that existed on the customer side before being fixed this session — a supplier return currently lowers stock but does not lower what the system shows as owed to that supplier. Same fix pattern (subtract <code>Σ creditNote.lines.displayQuantity × unitPrice</code> for confirmed PURCHASE credit notes) would close it.
+  </div>
+
+  <h2 id="sec3-6">3.6 Stock Movements Summary &amp; Status-Flow Diagram</h2>
+  <table>
+    <tr><th>Event</th><th>Movement type</th><th>Direction</th></tr>
+    <tr><td>Goods Receipt created</td><td><code>PURCHASE_IN</code></td><td>+ increase</td></tr>
+    <tr><td>Purchase Invoice confirmed</td><td><code>PURCHASE_IN</code></td><td>+ increase ⚠️ possible double-count</td></tr>
+    <tr><td>Purchase Credit Note confirmed</td><td><code>RETURN_OUT</code></td><td>− decrease</td></tr>
+  </table>
+
+  <div class="diagram-wrap">
+    <pre class="mermaid">
+flowchart TD
+    subgraph PurchaseOrder
+        PO_D[DRAFT] -->|mark sent| PO_S[SENT]
+        PO_S -->|partial receipt| PO_P[PARTIAL]
+        PO_P -->|remaining received| PO_R[RECEIVED]
+        PO_S -->|fully received in one go| PO_R
+        PO_D -->|cancel| PO_X[CANCELLED]
+        PO_S -->|cancel| PO_X
+    end
+    PO_S -->|goods receipt: PURCHASE_IN| GR[Goods Receipt]
+    PO_P -->|goods receipt: PURCHASE_IN| GR
+    PO_P -.->|optional link, once Partial/Received| INV_D
+    PO_R -.->|optional link| INV_D
+
+    subgraph PurchaseInvoice
+        INV_D[DRAFT] -->|confirm: PURCHASE_IN again| INV_C[CONFIRMED]
+        INV_D -->|cancel| INV_X[CANCELLED]
+        INV_C -->|cancel| INV_X
+    end
+
+    INV_C -->|raise return| CN_D
+    subgraph PurchaseCreditNote
+        CN_D[DRAFT] -->|confirm: RETURN_OUT, immutable| CN_C[CONFIRMED]
+        CN_D -->|cancel| CN_X[CANCELLED]
+    end
+    </pre>
+    <div class="diagram-caption">Figure 3.1 — Complete Purchasing workflow status flow</div>
+  </div>
+</section>
+
+<!-- ============ SECTION 4 ============ -->
+<section id="sec4">
+  <h1 class="section-title">4. Inventory Impact</h1>
+  <p>All stock-affecting actions funnel through one function, <code>recordMovement()</code> (<code>core/inventory/record-movement.ts</code>), which atomically updates <code>InventoryBalance.currentQuantity</code> and appends an immutable <code>InventoryMovement</code> row, then fires low-stock / reorder-point notifications.</p>
+
+  <table>
+    <tr><th>Document / Action</th><th>Movement type</th><th>Stock effect</th></tr>
+    <tr><td>Delivery Note created</td><td><code>SALE_OUT</code></td><td>Decreases</td></tr>
+    <tr><td>Sales Invoice confirmed (no prior delivery)</td><td><code>SALE_OUT</code></td><td>Decreases</td></tr>
+    <tr><td>Sales Credit Note confirmed</td><td><code>RETURN_IN</code></td><td>Increases (return from customer)</td></tr>
+    <tr><td>Goods Receipt created</td><td><code>PURCHASE_IN</code></td><td>Increases</td></tr>
+    <tr><td>Purchase Invoice confirmed</td><td><code>PURCHASE_IN</code></td><td>Increases ⚠️</td></tr>
+    <tr><td>Purchase Credit Note confirmed</td><td><code>RETURN_OUT</code></td><td>Decreases (return to supplier)</td></tr>
+    <tr><td>Stock Transfer</td><td><code>TRANSFER_OUT</code> / <code>TRANSFER_IN</code></td><td>Moves between warehouses</td></tr>
+    <tr><td>Manual adjustment</td><td><code>ADJUSTMENT</code></td><td>Sign follows input</td></tr>
+  </table>
+  <p>This centralization is a strength: every stock-affecting action is auditable from one trail and shares one negative-balance guard (<code>allowNegative</code> defaults to <code>false</code>).</p>
+</section>
+
+<!-- ============ SECTION 5 ============ -->
+<section id="sec5">
+  <h1 class="section-title">5. Financial Impact</h1>
+  <table>
+    <tr><th>Document</th><th>Affects</th></tr>
+    <tr><td>Sales Invoice (confirmed)</td><td>Receivables (+)</td></tr>
+    <tr><td>Payment (against sales invoice)</td><td>Receivables (−)</td></tr>
+    <tr><td>Sales Credit Note (confirmed)</td><td>Receivables (−)</td></tr>
+    <tr><td>Purchase Invoice (confirmed)</td><td>Payables (+)</td></tr>
+    <tr><td>Payment (against purchase invoice)</td><td>Payables (−)</td></tr>
+    <tr><td>Purchase Credit Note (confirmed)</td><td>Payables (−) <span class="badge badge-gap">not wired in yet</span></td></tr>
+  </table>
+  <p>The outstanding-balance formula is identical in shape on both sides (<code>invoiced − paid − credited</code>), but only the sales side currently includes the credit-note term in code.</p>
+  <div class="callout">
+    The AR Aging report computes balance as <code>originalAmount − paidAmount</code> per invoice, <b>without</b> crediting any sales-credit-note value against it — so the report and the customer-detail page can disagree once returns exist. Worth reconciling onto one shared helper rather than three separate inline formulas (customer page, SO credit check, AR aging export).
+  </div>
+</section>
+
+<!-- ============ SECTION 6 ============ -->
+<section id="sec6">
+  <h1 class="section-title">6. Permissions</h1>
+
+  <h2>Sales-related permissions</h2>
+  <p><code>sales.invoice.create</code>, <code>sales.invoice.confirm</code>, <code>sales.invoice.cancel</code>, <code>sales.invoice.read</code>, <code>sales.orders.create</code>, <code>sales.orders.view</code>, <code>sales.deliverynotes.create</code>, <code>sales.creditnotes.create</code>, <code>sales.creditnotes.view</code></p>
+
+  <h2>Purchasing-related permissions</h2>
+  <p><code>purchase.invoice.create</code>, <code>purchase.invoice.confirm</code>, <code>purchase.invoice.cancel</code>, <code>purchase.invoice.read</code>, <code>purchases.orders.create</code>, <code>purchases.orders.view</code>, <code>purchases.receipts.create</code>, <code>purchases.creditnotes.create</code>, <code>purchases.creditnotes.view</code></p>
+
+  <h2>Default role grants</h2>
+  <table>
+    <tr><th>Role</th><th>Sales permissions</th><th>Purchasing permissions</th></tr>
+    <tr><td>Owner</td><td>All</td><td>All</td></tr>
+    <tr><td>Sales Manager</td><td>invoice create/confirm/cancel/read, orders create/view, deliverynotes create, creditnotes create/view</td><td>purchase.invoice.read only</td></tr>
+    <tr><td>Sales Representative</td><td>invoice create/read, orders create/view, deliverynotes create, creditnotes create/view</td><td>—</td></tr>
+    <tr><td>Warehouse Keeper</td><td>—</td><td>invoice create/confirm/cancel/read, orders create/view, receipts create, creditnotes create/view</td></tr>
+    <tr><td>Manager / Cashier / Accountant</td><td colspan="2">Role templates exist but <b>no permissions seeded</b> — must be assigned manually via the Roles UI</td></tr>
+  </table>
+</section>
+
+<!-- ============ SECTION 7 ============ -->
+<section id="sec7">
+  <h1 class="section-title">7. Database Structure</h1>
+  <p>Sales/purchasing-relevant entity relationships:</p>
+
+  <div class="diagram-wrap">
+    <pre class="mermaid">
+erDiagram
+    Customer ||--o{ Invoice : "type=SALE"
+    Customer ||--o{ SalesOrder : has
+    SalesOrder ||--o{ SalesOrderLine : has
+    SalesOrder ||--o{ DeliveryNote : has
+    DeliveryNote ||--o{ DeliveryNoteLine : has
+    DeliveryNoteLine }o--|| SalesOrderLine : fulfills
+    Invoice ||--o{ InvoiceLine : has
+    Invoice ||--o{ Payment : has
+    Invoice ||--o{ CreditNote : originalInvoiceId
+    CreditNote ||--o{ CreditNoteLine : has
+
+    Supplier ||--o{ Invoice : "type=PURCHASE"
+    Supplier ||--o{ PurchaseOrder : has
+    PurchaseOrder ||--o{ PurchaseOrderLine : has
+    PurchaseOrder ||--o{ GoodsReceipt : has
+    GoodsReceipt ||--o{ GoodsReceiptLine : has
+    GoodsReceiptLine }o--|| PurchaseOrderLine : receives
+    PurchaseOrder ||--o{ Invoice : "optional purchaseOrderId"
+
+    Product ||--o{ InventoryBalance : "per warehouse"
+    Product ||--o{ InventoryMovement : "audit trail"
+    </pre>
+    <div class="diagram-caption">Figure 7.1 — Sales &amp; Purchasing entity relationships</div>
+  </div>
+
+  <h2>Key Enums</h2>
+  <table>
+    <tr><th>Enum</th><th>Values</th></tr>
+    <tr><td><code>InvoiceStatus</code></td><td>DRAFT, CONFIRMED, CANCELLED</td></tr>
+    <tr><td><code>InvoiceType</code></td><td>SALE, PURCHASE</td></tr>
+    <tr><td><code>SalesOrderStatus</code></td><td>DRAFT, CONFIRMED, PARTIAL, FULFILLED, CANCELLED</td></tr>
+    <tr><td><code>PurchaseOrderStatus</code></td><td>DRAFT, SENT, PARTIAL, RECEIVED, CANCELLED</td></tr>
+    <tr><td><code>CreditNoteStatus</code></td><td>DRAFT, CONFIRMED, CANCELLED</td></tr>
+    <tr><td><code>CreditNoteType</code></td><td>SALE, PURCHASE</td></tr>
+    <tr><td><code>MovementType</code></td><td>PURCHASE_IN, SALE_OUT, TRANSFER_IN, TRANSFER_OUT, ADJUSTMENT, RETURN_IN, RETURN_OUT</td></tr>
+  </table>
+</section>
+
+<!-- ============ SECTION 8 ============ -->
+<section id="sec8">
+  <h1 class="section-title">8. Current Implementation Status</h1>
+
+  <h2>Fully implemented and consistent <span class="badge badge-done">DONE</span></h2>
+  <ul>
+    <li>PO → Goods Receipt → status recompute</li>
+    <li>SO → Delivery Note → status recompute</li>
+    <li>Both Credit Note flows (create / confirm / cancel) with correct movement direction</li>
+    <li>Centralized <code>recordMovement()</code> for all stock changes, plus low-stock notifications</li>
+    <li>Customer balance correctly nets credit notes</li>
+    <li>AR Aging, Stock Valuation, and Low-Stock reports all implemented</li>
+  </ul>
+
+  <h2>Gaps / technical debt for the roadmap <span class="badge badge-gap">OPEN</span></h2>
+  <ol class="gap-list">
+    <li><b>Purchase-invoice / goods-receipt double stock-increment risk</b> — no guard against confirming a PO-linked invoice for quantities already received via Goods Receipt.</li>
+    <li><b>Supplier balance does not subtract purchase credit notes</b> — mirrors a bug already fixed on the customer side; same fix pattern needed.</li>
+    <li><b>AR Aging report's balance formula does not account for credit notes</b> — will drift from the customer-detail balance once returns are used.</li>
+    <li><b>No Invoice ↔ DeliveryNote link in schema</b> — makes it impossible to mechanically prevent the sales-side equivalent double-<code>SALE_OUT</code> risk.</li>
+    <li><b>Manager / Cashier / Accountant role templates have zero seeded permissions</b> — a functional gap if anyone assigns those roles expecting default access.</li>
+    <li><b><code>CreditNoteLine</code> has no direct foreign key to the source invoice line</b> — return-quantity tracking relies on matching <code>productId + unitId</code>, which could misattribute returns if an invoice ever has two lines for the same product+unit (currently prevented only by convention, not a database constraint).</li>
+  </ol>
+</section>
+
+<script>
+  mermaid.initialize({ startOnLoad: true, theme: "neutral", securityLevel: "loose" });
+</script>
+</body>
+</html>

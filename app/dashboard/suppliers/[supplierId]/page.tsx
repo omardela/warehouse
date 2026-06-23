@@ -5,6 +5,8 @@ import { db } from "@/lib/db";
 import { requirePagePermission } from "@/core/auth/require-page-permission";
 import { updateSupplierAction, archiveSupplierAction } from "../actions";
 import { SupplierEditForm } from "./SupplierEditForm";
+import { getLocale } from "@/core/i18n/locale";
+import { getDictionary } from "@/core/i18n/get-dictionary";
 
 export const dynamic = "force-dynamic";
 
@@ -17,12 +19,12 @@ function formatCurrency(val: { toString(): string } | null | undefined): string 
   return Number(val).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
-function formatDate(d: Date | null | undefined): string {
+function formatDate(d: Date | null | undefined, locale: "en" | "ar"): string {
   if (!d) return "—";
-  return new Date(d).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
+  return new Date(d).toLocaleDateString(locale === "ar" ? "ar" : "en-US", { year: "numeric", month: "short", day: "numeric" });
 }
 
-function StatusBadge({ status }: { status: string }) {
+function StatusBadge({ status, label }: { status: string; label: string }) {
   const map: Record<string, { bg: string; color: string }> = {
     DRAFT: { bg: "rgba(139,92,246,0.15)", color: "#a78bfa" },
     CONFIRMED: { bg: "rgba(98,223,125,0.12)", color: "#62df7d" },
@@ -31,7 +33,7 @@ function StatusBadge({ status }: { status: string }) {
   const s = map[status] ?? { bg: "rgba(140,144,162,0.1)", color: "#8c90a2" };
   return (
     <span style={{ display: "inline-flex", alignItems: "center", padding: "2px 8px", borderRadius: "10px", background: s.bg, color: s.color, fontSize: "11px", fontWeight: 600 }}>
-      {status}
+      {label}
     </span>
   );
 }
@@ -40,6 +42,9 @@ export default async function SupplierDetailPage({ params }: PageProps) {
   const session = await getSession();
   if (!session) redirect("/login");
   await requirePagePermission(session, "suppliers.supplier.read");
+
+  const locale = await getLocale();
+  const t = getDictionary(locale);
 
   const { supplierId } = await params;
 
@@ -81,7 +86,7 @@ export default async function SupplierDetailPage({ params }: PageProps) {
         <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: "20px", flexWrap: "wrap", gap: "12px" }}>
           <div>
             <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "6px" }}>
-              <Link href="/dashboard/suppliers" style={{ color: "#8c90a2", textDecoration: "none", fontSize: "13px" }}>Suppliers</Link>
+              <Link href="/dashboard/suppliers" style={{ color: "#8c90a2", textDecoration: "none", fontSize: "13px" }}>{t.suppliers.form.breadcrumb}</Link>
               <span style={{ color: "#4a5068" }}>/</span>
               <span style={{ color: "#dbe2fd", fontSize: "13px" }}>{supplier.name}</span>
             </div>
@@ -89,7 +94,7 @@ export default async function SupplierDetailPage({ params }: PageProps) {
               <h1 style={{ fontSize: "22px", fontWeight: 700, color: "#dbe2fd", margin: 0 }}>{supplier.name}</h1>
               {isArchived && (
                 <span style={{ display: "inline-flex", alignItems: "center", padding: "3px 8px", borderRadius: "10px", background: "rgba(140,144,162,0.1)", color: "#8c90a2", fontSize: "11px", fontWeight: 600 }}>
-                  ARCHIVED
+                  {t.suppliers.detail.archivedBadge}
                 </span>
               )}
             </div>
@@ -110,7 +115,7 @@ export default async function SupplierDetailPage({ params }: PageProps) {
                   cursor: "pointer",
                 }}
               >
-                {isArchived ? "Unarchive" : "Archive"}
+                {isArchived ? t.suppliers.detail.unarchive : t.suppliers.detail.archive}
               </button>
             </form>
           </div>
@@ -134,24 +139,30 @@ export default async function SupplierDetailPage({ params }: PageProps) {
             <div style={{ background: "#171f33", border: "1px solid #222a3e", borderRadius: "10px", padding: "20px" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "14px" }}>
                 <h3 style={{ fontSize: "13px", fontWeight: 600, color: "#8c90a2", margin: 0, textTransform: "uppercase", letterSpacing: "0.06em" }}>
-                  Purchase Invoices ({supplier.invoices.length})
+                  {t.suppliers.detail.purchaseInvoices} ({supplier.invoices.length})
                 </h3>
                 <Link
                   href={`/dashboard/purchases/new?supplierId=${supplier.id}`}
                   style={{ display: "inline-flex", alignItems: "center", gap: "4px", padding: "5px 12px", borderRadius: "6px", background: "#0062ff", color: "#fff", fontSize: "12px", fontWeight: 500, textDecoration: "none" }}
                 >
-                  + New Invoice
+                  {t.suppliers.detail.newInvoice}
                 </Link>
               </div>
               {supplier.invoices.length === 0 ? (
-                <p style={{ fontSize: "13px", color: "#4a5068", margin: 0 }}>No purchase invoices yet for this supplier.</p>
+                <p style={{ fontSize: "13px", color: "#4a5068", margin: 0 }}>{t.suppliers.detail.noInvoicesYet}</p>
               ) : (
                 <div style={{ overflowX: "auto" }}>
                   <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "13px" }}>
                     <thead>
                       <tr style={{ borderBottom: "1px solid #222a3e" }}>
-                        {["Invoice ID", "Total", "Status", "Date", ""].map((h) => (
-                          <th key={h} style={{ padding: "8px 10px", textAlign: "left", fontWeight: 600, color: "#8c90a2", fontSize: "11px", textTransform: "uppercase", letterSpacing: "0.05em" }}>{h}</th>
+                        {[
+                          t.suppliers.detail.columnInvoiceId,
+                          t.suppliers.detail.columnTotal,
+                          t.suppliers.detail.columnStatus,
+                          t.suppliers.detail.columnDate,
+                          "",
+                        ].map((h) => (
+                          <th key={h} style={{ padding: "8px 10px", textAlign: "start", fontWeight: 600, color: "#8c90a2", fontSize: "11px", textTransform: "uppercase", letterSpacing: "0.05em" }}>{h}</th>
                         ))}
                       </tr>
                     </thead>
@@ -167,17 +178,26 @@ export default async function SupplierDetailPage({ params }: PageProps) {
                             ${formatCurrency(inv.totalAmount)}
                           </td>
                           <td style={{ padding: "8px 10px" }}>
-                            <StatusBadge status={inv.status} />
+                            <StatusBadge
+                              status={inv.status}
+                              label={
+                                inv.status === "DRAFT"
+                                  ? t.common.draft
+                                  : inv.status === "CONFIRMED"
+                                    ? t.common.confirmed
+                                    : t.common.cancelled
+                              }
+                            />
                           </td>
                           <td style={{ padding: "8px 10px", color: "#8c90a2", fontSize: "12px" }}>
-                            {formatDate(inv.createdAt)}
+                            {formatDate(inv.createdAt, locale)}
                           </td>
                           <td style={{ padding: "8px 10px" }}>
                             <Link
                               href={`/dashboard/purchases/${inv.id}`}
                               style={{ color: "#6b9fff", textDecoration: "none", fontSize: "12px" }}
                             >
-                              View
+                              {t.suppliers.detail.view}
                             </Link>
                           </td>
                         </tr>
@@ -193,19 +213,19 @@ export default async function SupplierDetailPage({ params }: PageProps) {
           <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
             <div style={{ background: "#171f33", border: "1px solid #222a3e", borderRadius: "10px", padding: "20px" }}>
               <h3 style={{ fontSize: "13px", fontWeight: 600, color: "#8c90a2", margin: "0 0 16px", textTransform: "uppercase", letterSpacing: "0.06em" }}>
-                Balance Summary
+                {t.suppliers.detail.balanceSummary}
               </h3>
               <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <span style={{ fontSize: "13px", color: "#8c90a2" }}>Total Invoiced</span>
+                  <span style={{ fontSize: "13px", color: "#8c90a2" }}>{t.suppliers.detail.totalInvoiced}</span>
                   <span style={{ fontSize: "13px", color: "#dbe2fd", fontWeight: 500 }}>${formatCurrency(totalInvoiced)}</span>
                 </div>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <span style={{ fontSize: "13px", color: "#8c90a2" }}>Total Paid</span>
+                  <span style={{ fontSize: "13px", color: "#8c90a2" }}>{t.suppliers.detail.totalPaid}</span>
                   <span style={{ fontSize: "13px", color: "#62df7d", fontWeight: 500 }}>${formatCurrency(totalPaid)}</span>
                 </div>
                 <div style={{ borderTop: "1px solid #222a3e", paddingTop: "10px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <span style={{ fontSize: "13px", fontWeight: 600, color: "#dbe2fd" }}>Balance Owed</span>
+                  <span style={{ fontSize: "13px", fontWeight: 600, color: "#dbe2fd" }}>{t.suppliers.detail.balanceOwed}</span>
                   <span style={{ fontSize: "20px", fontWeight: 700, color: balance > 0 ? "#f59e0b" : "#62df7d" }}>
                     ${formatCurrency(balance)}
                   </span>
@@ -216,18 +236,18 @@ export default async function SupplierDetailPage({ params }: PageProps) {
             {/* Contact details */}
             <div style={{ background: "#171f33", border: "1px solid #222a3e", borderRadius: "10px", padding: "20px" }}>
               <h3 style={{ fontSize: "13px", fontWeight: 600, color: "#8c90a2", margin: "0 0 14px", textTransform: "uppercase", letterSpacing: "0.06em" }}>
-                Contact Info
+                {t.suppliers.detail.contactInfo}
               </h3>
               <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                 {[
-                  { label: "Email", value: supplier.email },
-                  { label: "Phone", value: supplier.phone },
-                  { label: "Address", value: supplier.address },
+                  { label: t.common.email, value: supplier.email },
+                  { label: t.common.phone, value: supplier.phone },
+                  { label: t.common.address, value: supplier.address },
                 ].map(({ label, value }) => (
                   <div key={label}>
                     <div style={{ fontSize: "11px", color: "#4a5068", marginBottom: "2px" }}>{label}</div>
                     <div style={{ fontSize: "13px", color: value ? "#dbe2fd" : "#4a5068" }}>
-                      {value ?? "Not provided"}
+                      {value ?? t.suppliers.detail.notProvided}
                     </div>
                   </div>
                 ))}

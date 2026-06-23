@@ -4,6 +4,8 @@ import { getSession } from "@/core/auth/session";
 import { requirePagePermission } from "@/core/auth/require-page-permission";
 import { db } from "@/lib/db";
 import Link from "next/link";
+import { getLocale } from "@/core/i18n/locale";
+import { getDictionary } from "@/core/i18n/get-dictionary";
 import { ReportTabs } from "./components/ReportTabs";
 import { DateRangePicker } from "./components/DateRangePicker";
 import { SalesChart } from "./components/SalesChart";
@@ -260,6 +262,9 @@ export default async function ReportsPage({
   if (!session) redirect("/login");
   await requirePagePermission(session, "reports.report.read");
 
+  const locale = await getLocale();
+  const t = getDictionary(locale);
+
   const params = await searchParams;
   const tab = params.tab ?? "sales";
   const { fromDate, toDate, fromStr, toStr, preset } = getDateRange(
@@ -268,7 +273,7 @@ export default async function ReportsPage({
     params.preset
   );
 
-  const rangeLabel = `${toDateStr(fromDate)} to ${toDateStr(toDate)}`;
+  const rangeLabel = `${toDateStr(fromDate)} ${t.reports.dateRange.to} ${toDateStr(toDate)}`;
 
   // Build export URL for the current tab and date range
   const exportParams = new URLSearchParams({ tab, from: fromStr, to: toStr });
@@ -347,23 +352,23 @@ export default async function ReportsPage({
             marginBottom: "20px",
           }}
         >
-          <StatCard label="Total Revenue" value={fmtMoney(totalRevenue)} />
+          <StatCard label={t.reports.stats.totalRevenue} value={fmtMoney(totalRevenue)} />
           <StatCard
-            label="Invoice Count"
+            label={t.reports.stats.invoiceCount}
             value={fmtNumber(invoiceCount)}
-            sub={`Confirmed sale invoices`}
+            sub={t.reports.stats.confirmedSaleInvoices}
           />
           <StatCard
-            label="Avg per Invoice"
+            label={t.reports.stats.avgPerInvoice}
             value={invoiceCount > 0 ? fmtMoney(totalRevenue / invoiceCount) : "$0.00"}
           />
         </div>
 
-        <SectionCard title={`Revenue by ${useWeeks ? "Week" : "Day"}`}>
+        <SectionCard title={useWeeks ? t.reports.chart.revenueByWeek : t.reports.chart.revenueByDay}>
           <Suspense fallback={null}>
             <SalesChart
               data={chartData}
-              label="Revenue"
+              label={t.reports.chart.revenue}
               color="#0062ff"
             />
           </Suspense>
@@ -371,14 +376,14 @@ export default async function ReportsPage({
 
         <DataTable
           columns={[
-            { key: "product", label: "Product" },
-            { key: "sku", label: "SKU" },
-            { key: "qty", label: "Qty Sold", align: "right" },
-            { key: "revenue", label: "Revenue", align: "right" },
+            { key: "product", label: t.reports.table.product },
+            { key: "sku", label: t.reports.table.sku },
+            { key: "qty", label: t.reports.table.qtySold, align: "right" },
+            { key: "revenue", label: t.reports.table.revenue, align: "right" },
           ]}
           rows={tableRows}
           exportUrl={exportUrl}
-          emptyMessage="No sales in this period."
+          emptyMessage={t.reports.table.noSalesInPeriod}
         />
       </>
     );
@@ -455,23 +460,23 @@ export default async function ReportsPage({
             marginBottom: "20px",
           }}
         >
-          <StatCard label="Total Spend" value={fmtMoney(totalSpend)} />
+          <StatCard label={t.reports.stats.totalSpend} value={fmtMoney(totalSpend)} />
           <StatCard
-            label="Invoice Count"
+            label={t.reports.stats.invoiceCount}
             value={fmtNumber(invoiceCount)}
-            sub="Confirmed purchase invoices"
+            sub={t.reports.stats.confirmedPurchaseInvoices}
           />
           <StatCard
-            label="Avg per Invoice"
+            label={t.reports.stats.avgPerInvoice}
             value={invoiceCount > 0 ? fmtMoney(totalSpend / invoiceCount) : "$0.00"}
           />
         </div>
 
-        <SectionCard title={`Spend by ${useWeeks ? "Week" : "Day"}`}>
+        <SectionCard title={useWeeks ? t.reports.chart.spendByWeek : t.reports.chart.spendByDay}>
           <Suspense fallback={null}>
             <SalesChart
               data={chartData}
-              label="Spend"
+              label={t.reports.chart.spend}
               color="#f59e0b"
             />
           </Suspense>
@@ -479,14 +484,14 @@ export default async function ReportsPage({
 
         <DataTable
           columns={[
-            { key: "product", label: "Product" },
-            { key: "sku", label: "SKU" },
-            { key: "qty", label: "Qty Purchased", align: "right" },
-            { key: "spend", label: "Spend", align: "right" },
+            { key: "product", label: t.reports.table.product },
+            { key: "sku", label: t.reports.table.sku },
+            { key: "qty", label: t.reports.table.qtyPurchased, align: "right" },
+            { key: "spend", label: t.reports.table.spend, align: "right" },
           ]}
           rows={tableRows}
           exportUrl={exportUrl}
-          emptyMessage="No purchases in this period."
+          emptyMessage={t.reports.table.noPurchasesInPeriod}
         />
       </>
     );
@@ -628,26 +633,26 @@ export default async function ReportsPage({
             marginBottom: "20px",
           }}
         >
-          <StatCard label="Total Sales Revenue" value={fmtMoney(totalSales)} />
-          <StatCard label="Total Purchase Cost" value={fmtMoney(totalPurchases)} />
+          <StatCard label={t.reports.stats.totalSalesRevenue} value={fmtMoney(totalSales)} />
+          <StatCard label={t.reports.stats.totalPurchaseCost} value={fmtMoney(totalPurchases)} />
           <StatCard
-            label="Gross Profit"
+            label={t.reports.stats.grossProfit}
             value={fmtMoney(grossProfit)}
             valueColor={grossProfit >= 0 ? "#62df7d" : "#ff4d4f"}
           />
           <StatCard
-            label="Gross Margin"
+            label={t.reports.stats.grossMargin}
             value={`${margin.toFixed(1)}%`}
             valueColor={margin >= 0 ? "#62df7d" : "#ff4d4f"}
           />
         </div>
 
-        <SectionCard title={`Revenue vs Cost by ${useWeeks ? "Week" : "Day"}`}>
+        <SectionCard title={useWeeks ? t.reports.chart.revenueVsCostByWeek : t.reports.chart.revenueVsCostByDay}>
           <Suspense fallback={null}>
             <SalesChart
               data={chartData}
-              label="Revenue"
-              label2="Cost"
+              label={t.reports.chart.revenue}
+              label2={t.reports.chart.cost}
               color="#0062ff"
               color2="#f59e0b"
             />
@@ -656,15 +661,15 @@ export default async function ReportsPage({
 
         <DataTable
           columns={[
-            { key: "product", label: "Product" },
-            { key: "sku", label: "SKU" },
-            { key: "sales", label: "Sales Revenue", align: "right" },
-            { key: "cost", label: "Purchase Cost", align: "right" },
-            { key: "profit", label: "Gross Profit", align: "right" },
+            { key: "product", label: t.reports.table.product },
+            { key: "sku", label: t.reports.table.sku },
+            { key: "sales", label: t.reports.table.salesRevenue, align: "right" },
+            { key: "cost", label: t.reports.table.purchaseCost, align: "right" },
+            { key: "profit", label: t.reports.table.grossProfit, align: "right" },
           ]}
           rows={profitRows}
           exportUrl={exportUrl}
-          emptyMessage="No data in this period."
+          emptyMessage={t.reports.table.noDataInPeriod}
         />
       </>
     );
@@ -740,16 +745,16 @@ export default async function ReportsPage({
           }}
         >
           <StatCard
-            label="Total Portfolio Value"
+            label={t.reports.stats.totalPortfolioValue}
             value={fmtMoney(totalPortfolioValue)}
           />
           <StatCard
-            label="Products with Stock"
+            label={t.reports.stats.productsWithStock}
             value={fmtNumber(productsWithStock)}
-            sub="Current on-hand"
+            sub={t.reports.stats.currentOnHand}
           />
           <StatCard
-            label="Products at Zero"
+            label={t.reports.stats.productsAtZero}
             value={fmtNumber(productsAtZero)}
             valueColor={productsAtZero > 0 ? "#ff4d4f" : "#dbe2fd"}
           />
@@ -757,15 +762,15 @@ export default async function ReportsPage({
 
         <DataTable
           columns={[
-            { key: "product", label: "Product" },
-            { key: "sku", label: "SKU" },
-            { key: "qty", label: "Current Qty", align: "right" },
-            { key: "avgCost", label: "Avg Cost", align: "right" },
-            { key: "totalValue", label: "Total Value", align: "right" },
+            { key: "product", label: t.reports.table.product },
+            { key: "sku", label: t.reports.table.sku },
+            { key: "qty", label: t.reports.table.currentQty, align: "right" },
+            { key: "avgCost", label: t.reports.table.avgCost, align: "right" },
+            { key: "totalValue", label: t.reports.table.totalValue, align: "right" },
           ]}
           rows={tableRows}
           exportUrl={exportUrl}
-          emptyMessage="No inventory records found."
+          emptyMessage={t.reports.table.noInventoryRecords}
         />
       </>
     );
@@ -788,12 +793,12 @@ export default async function ReportsPage({
               margin: "0 0 4px",
             }}
           >
-            Reports
+            {t.reports.title}
           </h1>
           <p style={{ fontSize: "13px", color: "#8c90a2", margin: 0 }}>
             {tab !== "stock"
-              ? `Showing data for: ${rangeLabel}`
-              : "Current inventory snapshot"}
+              ? `${t.reports.showingDataFor} ${rangeLabel}`
+              : t.reports.currentInventorySnapshot}
           </p>
         </div>
 
@@ -819,7 +824,7 @@ export default async function ReportsPage({
               textDecoration: "none",
             }}
           >
-            AR Aging Report
+            {t.reports.links.arAgingReport}
           </Link>
           <Link
             href="/dashboard/reports/stock-valuation"
@@ -834,7 +839,7 @@ export default async function ReportsPage({
               textDecoration: "none",
             }}
           >
-            Stock Valuation
+            {t.reports.links.stockValuation}
           </Link>
           <Link
             href="/dashboard/reports/low-stock"
@@ -849,7 +854,7 @@ export default async function ReportsPage({
               textDecoration: "none",
             }}
           >
-            Low Stock Report
+            {t.reports.links.lowStockReport}
           </Link>
         </div>
 

@@ -6,6 +6,8 @@ import { db } from "@/lib/db";
 import { getSession } from "@/core/auth/session";
 import { requirePermission } from "@/core/auth/require-permission";
 import { writeAuditLog } from "@/core/audit/write-audit-log";
+import { getLocale } from "@/core/i18n/locale";
+import { getDictionary } from "@/core/i18n/get-dictionary";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -51,13 +53,16 @@ export async function updateReorderSettingsAction(
   _prevState: UpdateReorderSettingsState,
   formData: FormData
 ): Promise<UpdateReorderSettingsState> {
+  const locale = await getLocale();
+  const dict = getDictionary(locale);
+
   const session = await getSession();
-  if (!session) return { error: "Unauthorized" };
+  if (!session) return { error: dict.inventory.adjustments.errors.unauthorized };
 
   try {
     await requirePermission(session, "inventory.stock.manage");
   } catch {
-    return { error: "You do not have permission to manage reorder settings." };
+    return { error: dict.inventory.stock.errors.noPermissionReorder };
   }
 
   const parsed = updateReorderSettingsSchema.safeParse({

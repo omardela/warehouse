@@ -3,6 +3,7 @@
 import { useActionState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import type { CustomerActionState } from "../actions";
+import { useTranslations } from "@/providers/locale-context";
 
 type ArchiveAction = (
   prevState: CustomerActionState,
@@ -17,6 +18,7 @@ export function ArchiveCustomerButton({
   action: ArchiveAction;
 }) {
   const router = useRouter();
+  const t = useTranslations();
   const [state, formAction, pending] = useActionState<CustomerActionState, FormData>(action, null);
 
   useEffect(() => {
@@ -35,7 +37,7 @@ export function ArchiveCustomerButton({
         type="submit"
         disabled={pending}
         onClick={(e) => {
-          if (!confirm("Archive this customer? They will no longer appear in active customer lists.")) {
+          if (!confirm(t.customers.archive.confirmMessage)) {
             e.preventDefault();
           }
         }}
@@ -51,7 +53,7 @@ export function ArchiveCustomerButton({
           opacity: pending ? 0.6 : 1,
         }}
       >
-        {pending ? "Archiving…" : "Archive Customer"}
+        {pending ? t.customers.archive.archiving : t.customers.archive.archiveCustomer}
       </button>
     </form>
   );

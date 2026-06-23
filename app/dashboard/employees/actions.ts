@@ -8,6 +8,8 @@ import { getSession } from "@/core/auth/session";
 import { requirePermission } from "@/core/auth/require-permission";
 import { writeAuditLog } from "@/core/audit/write-audit-log";
 import { isOwnerRole } from "@/core/auth/owner-guard";
+import { getLocale } from "@/core/i18n/locale";
+import { getDictionary } from "@/core/i18n/get-dictionary";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -23,16 +25,18 @@ export type EmployeeActionState =
 // Zod schemas
 // ---------------------------------------------------------------------------
 
-const createEmployeeSchema = z.object({
-  name: z.string().min(1, "Full name is required").max(100),
-  email: z
-    .string()
-    .min(1, "Email is required")
-    .email("Please enter a valid email address")
-    .max(255),
-  warehouseRoleId: z.string().optional(),
-  password: z.string().min(8, "Password must be at least 8 characters").max(128),
-});
+function buildCreateEmployeeSchema(dict: ReturnType<typeof getDictionary>["employees"]["actions"]) {
+  return z.object({
+    name: z.string().min(1, dict.nameRequired).max(100),
+    email: z
+      .string()
+      .min(1, dict.emailRequired)
+      .email(dict.emailInvalid)
+      .max(255),
+    warehouseRoleId: z.string().optional(),
+    password: z.string().min(8, dict.passwordTooShort).max(128),
+  });
+}
 
 const updateRoleSchema = z.object({
   employeeId: z.string().min(1),
@@ -48,15 +52,17 @@ export async function createEmployeeAction(
   formData: FormData
 ): Promise<EmployeeActionState> {
   const session = await getSession();
-  if (!session) return { error: "Unauthorized" };
+  const dict = getDictionary(await getLocale()).employees.actions;
+  if (!session) return { error: dict.unauthorized };
 
   try {
     await requirePermission(session, "employees.employee.create");
   } catch {
-    return { error: "You do not have permission to create employees." };
+    return { error: dict.noPermissionCreate };
   }
 
   const rawRole = formData.get("warehouseRoleId");
+  const createEmployeeSchema = buildCreateEmployeeSchema(dict);
   const parsed = createEmployeeSchema.safeParse({
     name: formData.get("name"),
     email: formData.get("email"),
@@ -72,7 +78,7 @@ export async function createEmployeeAction(
       errors.email?.[0] ??
       errors.password?.[0] ??
       errors.warehouseRoleId?.[0] ??
-      "Invalid form data";
+      dict.invalidFormData;
     return { error: firstError };
   }
 
@@ -84,7 +90,7 @@ export async function createEmployeeAction(
     select: { id: true },
   });
   if (existing) {
-    return { error: "An employee with this email already exists." };
+    return { error: dict.emailAlreadyExists };
   }
 
   // If a role is provided, verify it belongs to this warehouse and is not Owner
@@ -94,10 +100,10 @@ export async function createEmployeeAction(
       select: { warehouseId: true, roleTemplate: { select: { name: true } } },
     });
     if (!role || role.warehouseId !== session.warehouseId) {
-      return { error: "Selected role is not valid for this warehouse." };
+      return { error: dict.roleNotValidForWarehouse };
     }
     if (isOwnerRole(role.roleTemplate.name)) {
-      return { error: "The Owner role cannot be assigned to new employees." };
+      return { error: dict.ownerRoleCannotBeAssignedNew };
     }
   }
 
@@ -136,12 +142,13 @@ export async function updateEmployeeRoleAction(
   formData: FormData
 ): Promise<EmployeeActionState> {
   const session = await getSession();
-  if (!session) return { error: "Unauthorized" };
+  const dict = getDictionary(await getLocale()).employees.actions;
+  if (!session) return { error: dict.unauthorized };
 
   try {
     await requirePermission(session, "employees.employee.update");
   } catch {
-    return { error: "You do not have permission to assign roles." };
+    return { error: dict.noPermissionAssignRole };
   }
 
   const rawRole = formData.get("warehouseRoleId");
@@ -152,7 +159,7 @@ export async function updateEmployeeRoleAction(
   });
 
   if (!parsed.success) {
-    return { error: "Invalid form data." };
+    return { error: dict.invalidFormDataShort };
   }
 
   const { employeeId, warehouseRoleId } = parsed.data;
@@ -169,11 +176,11 @@ export async function updateEmployeeRoleAction(
   });
 
   if (!employee || employee.warehouseId !== session.warehouseId) {
-    return { error: "Employee not found." };
+    return { error: dict.employeeNotFound };
   }
 
   if (isOwnerRole(employee.warehouseRole?.roleTemplate.name)) {
-    return { error: "The Owner's role assignment is system-protected and cannot be changed." };
+    return { error: dict.ownerRoleAssignmentProtected };
   }
 
   // If a role is provided, verify it belongs to this warehouse and is not the Owner role
@@ -183,10 +190,10 @@ export async function updateEmployeeRoleAction(
       select: { warehouseId: true, roleTemplate: { select: { name: true } } },
     });
     if (!role || role.warehouseId !== session.warehouseId) {
-      return { error: "Selected role is not valid for this warehouse." };
+      return { error: dict.roleNotValidForWarehouse };
     }
     if (isOwnerRole(role.roleTemplate.name)) {
-      return { error: "The Owner role cannot be assigned to other employees." };
+      return { error: dict.ownerRoleCannotBeAssignedOthers };
     }
   }
 
@@ -220,22 +227,23 @@ export async function archiveEmployeeAction(
   formData: FormData
 ): Promise<EmployeeActionState> {
   const session = await getSession();
-  if (!session) return { error: "Unauthorized" };
+  const dict = getDictionary(await getLocale()).employees.actions;
+  if (!session) return { error: dict.unauthorized };
 
   try {
     await requirePermission(session, "employees.employee.archive");
   } catch {
-    return { error: "You do not have permission to archive employees." };
+    return { error: dict.noPermissionArchive };
   }
 
   const employeeId = formData.get("employeeId");
   if (!employeeId || typeof employeeId !== "string") {
-    return { error: "Employee ID is required." };
+    return { error: dict.employeeIdRequired };
   }
 
   // Prevent self-archiving
   if (employeeId === session.employeeId) {
-    return { error: "You cannot archive your own account." };
+    return { error: dict.cannotArchiveSelf };
   }
 
   // Verify employee belongs to this warehouse and is not already archived
@@ -250,15 +258,15 @@ export async function archiveEmployeeAction(
   });
 
   if (!employee || employee.warehouseId !== session.warehouseId) {
-    return { error: "Employee not found." };
+    return { error: dict.employeeNotFound };
   }
 
   if (isOwnerRole(employee.warehouseRole?.roleTemplate.name)) {
-    return { error: "The Owner account cannot be archived." };
+    return { error: dict.ownerAccountCannotBeArchived };
   }
 
   if (employee.archivedAt !== null) {
-    return { error: "Employee is already archived." };
+    return { error: dict.employeeAlreadyArchived };
   }
 
   const now = new Date();

@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useActionState, startTransition } from "react";
 import { completeSaleAction, type PosActionState } from "./actions";
 import type { ProductForPos, UnitForPos } from "./page";
+import { useTranslations } from "@/providers/locale-context";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -58,6 +59,8 @@ function StockBadge({
   qty: number;
   threshold: number | null;
 }) {
+  const t = useTranslations();
+
   if (qty <= 0) {
     return (
       <span
@@ -73,7 +76,7 @@ function StockBadge({
           letterSpacing: "0.03em",
         }}
       >
-        OUT
+        {t.pos.stock.out}
       </span>
     );
   }
@@ -95,7 +98,7 @@ function StockBadge({
           letterSpacing: "0.03em",
         }}
       >
-        LOW: {qty}
+        {t.pos.stock.low.replace("{qty}", String(qty))}
       </span>
     );
   }
@@ -114,7 +117,7 @@ function StockBadge({
         letterSpacing: "0.03em",
       }}
     >
-      IN STOCK: {qty}
+      {t.pos.stock.inStock.replace("{qty}", String(qty))}
     </span>
   );
 }

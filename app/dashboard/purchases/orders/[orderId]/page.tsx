@@ -160,6 +160,24 @@ export default async function PurchaseOrderDetailPage({ params }: PageProps) {
               </Link>
             )}
             {canCancel && <CancelPurchaseOrderButton purchaseOrderId={po.id} />}
+            <Link
+              href={`/dashboard/purchases/orders/${po.id}/print`}
+              target="_blank"
+              style={{
+                padding: "8px 16px",
+                borderRadius: "8px",
+                background: "rgba(140,144,162,0.1)",
+                border: "1px solid #222a3e",
+                color: "#dbe2fd",
+                fontSize: "13px",
+                fontWeight: 500,
+                textDecoration: "none",
+                display: "inline-flex",
+                alignItems: "center",
+              }}
+            >
+              Print
+            </Link>
           </div>
         </div>
 

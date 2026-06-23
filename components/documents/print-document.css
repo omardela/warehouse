@@ -1,0 +1,260 @@
+/* Plain white/black print-document styles, independent of the app's dark
+   theme, both on screen (so the preview matches what prints) and on paper.
+   Shared by every document print view (sales invoice, purchase order,
+   delivery note, sales/purchase credit notes). */
+
+.doc-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483647;
+  overflow: auto;
+  background: #e5e7eb;
+}
+
+.doc-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  padding: 16px 24px;
+}
+
+.doc-print-button {
+  padding: 8px 20px;
+  border-radius: 8px;
+  background: #0062ff;
+  border: none;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.doc-page {
+  background: #ffffff;
+  color: #111111;
+  width: 210mm;
+  min-height: 297mm;
+  margin: 0 auto 24px;
+  padding: 16mm;
+  box-sizing: border-box;
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.doc-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 24px;
+  border-bottom: 2px solid #111111;
+  padding-bottom: 16px;
+  margin-bottom: 24px;
+}
+
+.doc-org-name {
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.doc-org-meta {
+  font-size: 12px;
+  color: #444444;
+  margin-top: 4px;
+}
+
+.doc-title-block {
+  text-align: right;
+}
+
+[dir="rtl"] .doc-title-block {
+  text-align: left;
+}
+
+.doc-title {
+  font-size: 18px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.doc-meta-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+.doc-meta-label {
+  color: #666666;
+}
+
+.doc-parties {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.doc-party {
+  flex: 1;
+}
+
+.doc-party-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #666666;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 4px;
+}
+
+.doc-party-name {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.doc-party-detail {
+  font-size: 12px;
+  color: #333333;
+}
+
+.doc-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 24px;
+}
+
+.doc-table th {
+  text-align: left;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #444444;
+  border-bottom: 1px solid #111111;
+  padding: 8px 6px;
+}
+
+.doc-table td {
+  font-size: 12px;
+  padding: 8px 6px;
+  border-bottom: 1px solid #dddddd;
+}
+
+[dir="rtl"] .doc-table th,
+[dir="rtl"] .doc-table td {
+  text-align: right;
+}
+
+.doc-table tfoot td {
+  border-top: 2px solid #111111;
+  border-bottom: none;
+  font-weight: 700;
+}
+
+.doc-totals {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 24px;
+}
+
+[dir="rtl"] .doc-totals {
+  justify-content: flex-start;
+}
+
+.doc-totals-box {
+  width: 280px;
+}
+
+.doc-totals-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 0;
+  font-size: 12px;
+}
+
+.doc-totals-row.grand-total {
+  border-top: 2px solid #111111;
+  margin-top: 6px;
+  padding-top: 8px;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.doc-notes {
+  font-size: 12px;
+  color: #333333;
+  margin-bottom: 24px;
+}
+
+.doc-notes-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #666666;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 4px;
+}
+
+.doc-signature {
+  display: flex;
+  justify-content: space-between;
+  gap: 48px;
+  margin-top: 48px;
+}
+
+.doc-signature-block {
+  flex: 1;
+  text-align: center;
+}
+
+.doc-signature-line {
+  border-top: 1px solid #111111;
+  margin-top: 48px;
+  padding-top: 6px;
+  font-size: 11px;
+  color: #444444;
+}
+
+@media print {
+  html,
+  body {
+    background: #ffffff !important;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* Hide everything by default, then explicitly reveal the print overlay
+     subtree, so the dashboard sidebar/topbar chrome from the parent
+     dashboard layout never reaches paper even though it stays mounted. */
+  body * {
+    visibility: hidden;
+  }
+
+  .doc-overlay,
+  .doc-overlay * {
+    visibility: visible;
+  }
+
+  .doc-overlay {
+    position: absolute;
+    inset: 0;
+    background: #ffffff;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+
+  .doc-page {
+    margin: 0;
+    width: auto;
+    min-height: 0;
+  }
+
+  @page {
+    size: A4;
+    margin: 12mm;
+  }
+}

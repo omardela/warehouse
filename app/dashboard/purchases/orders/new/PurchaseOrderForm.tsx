@@ -3,6 +3,8 @@
 import { useActionState, useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import type { PurchaseOrderActionState } from "../actions";
+import { useTranslations } from "@/providers/locale-context";
+import type { Dictionary } from "@/core/i18n/get-dictionary";
 
 type Supplier = { id: string; name: string };
 type ProductUnit = { id: string; name: string; symbol: string };
@@ -32,6 +34,7 @@ function Field({
   required,
   error,
   children,
+  optionalLabel,
 }: {
   label: string;
   name: string;
@@ -41,6 +44,7 @@ function Field({
   required?: boolean;
   error?: string;
   children?: React.ReactNode;
+  optionalLabel: string;
 }) {
   const inputStyle: React.CSSProperties = {
     width: "100%",
@@ -62,8 +66,8 @@ function Field({
         style={{ display: "block", fontSize: "13px", fontWeight: 500, color: "#c2c6d9", marginBottom: "6px" }}
       >
         {label}
-        {required && <span style={{ color: "#ffb4ab", marginLeft: "2px" }}>*</span>}
-        {!required && <span style={{ color: "#4a5068", fontSize: "11px", marginLeft: "4px" }}>(optional)</span>}
+        {required && <span style={{ color: "#ffb4ab", marginInlineStart: "2px" }}>*</span>}
+        {!required && <span style={{ color: "#4a5068", fontSize: "11px", marginInlineStart: "4px" }}>({optionalLabel})</span>}
       </label>
       {children ?? (
         <input
@@ -100,12 +104,14 @@ function LineItem({
   products,
   onRemove,
   onChange,
+  t,
 }: {
   row: LineRow;
   index: number;
   products: Product[];
   onRemove: (id: string) => void;
   onChange: (id: string, field: keyof LineRow, value: string) => void;
+  t: Dictionary;
 }) {
   const selectedProduct = products.find((p) => p.id === row.productId);
   const availableUnits = selectedProduct?.units ?? [];
@@ -152,7 +158,7 @@ function LineItem({
         onChange={(e) => onChange(row.id, "productId", e.target.value)}
         style={selectStyle}
       >
-        <option value="">Select product…</option>
+        <option value="">{t.purchases.orders.selectProduct}</option>
         {products.map((p) => (
           <option key={p.id} value={p.id}>{p.name} ({p.sku})</option>
         ))}
@@ -166,7 +172,7 @@ function LineItem({
         disabled={availableUnits.length === 0}
       >
         {availableUnits.length === 0 ? (
-          <option value="">Select product first…</option>
+          <option value="">{t.purchases.orders.selectProductFirst}</option>
         ) : (
           availableUnits.map((u) => (
             <option key={u.id} value={u.id}>{u.name} ({u.symbol})</option>
@@ -181,7 +187,7 @@ function LineItem({
         min="0.000001"
         value={row.quantity}
         onChange={(e) => onChange(row.id, "quantity", e.target.value)}
-        placeholder="Qty"
+        placeholder={t.purchases.orders.qtyPlaceholder}
         style={inputStyle}
       />
 
@@ -192,11 +198,11 @@ function LineItem({
         min="0"
         value={row.unitCost}
         onChange={(e) => onChange(row.id, "unitCost", e.target.value)}
-        placeholder="Unit cost"
+        placeholder={t.purchases.orders.unitCostPlaceholder}
         style={inputStyle}
       />
 
-      <div style={{ fontSize: "13px", fontWeight: 500, color: "#dbe2fd", textAlign: "right" }}>
+      <div style={{ fontSize: "13px", fontWeight: 500, color: "#dbe2fd", textAlign: "end" }}>
         ${total.toFixed(2)}
       </div>
 
@@ -216,7 +222,7 @@ function LineItem({
           cursor: "pointer",
           flexShrink: 0,
         }}
-        title="Remove line"
+        title={t.purchases.orders.removeLine}
       >
         <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
           <path d="M2 2L10 10M10 2L2 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
@@ -228,6 +234,7 @@ function LineItem({
 
 export function PurchaseOrderForm({ action, suppliers, products, defaultSupplierId }: PurchaseOrderFormProps) {
   const router = useRouter();
+  const t = useTranslations();
   const [state, formAction, pending] = useActionState<PurchaseOrderActionState, FormData>(
     action as (s: PurchaseOrderActionState, fd: FormData) => Promise<PurchaseOrderActionState>,
     null
@@ -294,16 +301,16 @@ export function PurchaseOrderForm({ action, suppliers, products, defaultSupplier
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "24px", flexWrap: "wrap", gap: "12px" }}>
           <div>
             <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "4px" }}>
-              <a href="/dashboard/purchases/orders" style={{ color: "#8c90a2", textDecoration: "none", fontSize: "13px" }}>Purchase Orders</a>
+              <a href="/dashboard/purchases/orders" style={{ color: "#8c90a2", textDecoration: "none", fontSize: "13px" }}>{t.purchases.breadcrumb.purchaseOrders}</a>
               <span style={{ color: "#4a5068" }}>/</span>
-              <span style={{ color: "#8c90a2", fontSize: "13px" }}>New Order</span>
+              <span style={{ color: "#8c90a2", fontSize: "13px" }}>{t.purchases.breadcrumb.newOrder}</span>
             </div>
             <h1 style={{ fontSize: "22px", fontWeight: 700, color: "#dbe2fd", margin: 0 }}>
-              Create Purchase Order
+              {t.purchases.orders.createTitle}
             </h1>
           </div>
           <a href="/dashboard/purchases/orders" style={{ padding: "8px 16px", borderRadius: "8px", border: "1px solid #2d3449", color: "#8c90a2", fontSize: "13px", fontWeight: 500, textDecoration: "none" }}>
-            Cancel
+            {t.purchases.orders.cancel}
           </a>
         </div>
 
@@ -318,9 +325,9 @@ export function PurchaseOrderForm({ action, suppliers, products, defaultSupplier
 
           <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
             {/* Header Info */}
-            <SectionCard title="Order Details">
+            <SectionCard title={t.purchases.orders.detailsSection}>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
-                <Field label="Supplier" name="supplier-label" required error={fieldError("supplierId")}>
+                <Field label={t.purchases.orders.supplier} name="supplier-label" required error={fieldError("supplierId")} optionalLabel={t.common.optional}>
                   <select
                     id="supplierId"
                     name="supplierId"
@@ -330,7 +337,7 @@ export function PurchaseOrderForm({ action, suppliers, products, defaultSupplier
                     onFocus={(e) => { e.currentTarget.style.borderColor = "#0062ff"; e.currentTarget.style.boxShadow = "0 0 0 3px rgba(0,98,255,0.2)"; }}
                     onBlur={(e) => { e.currentTarget.style.borderColor = fieldError("supplierId") ? "#ffb4ab" : "#2d3449"; e.currentTarget.style.boxShadow = "none"; }}
                   >
-                    <option value="">Select supplier…</option>
+                    <option value="">{t.purchases.orders.selectSupplier}</option>
                     {suppliers.map((s) => (
                       <option key={s.id} value={s.id}>{s.name}</option>
                     ))}
@@ -338,21 +345,22 @@ export function PurchaseOrderForm({ action, suppliers, products, defaultSupplier
                 </Field>
 
                 <Field
-                  label="Expected Delivery Date"
+                  label={t.purchases.orders.expectedDeliveryDate}
                   name="expectedDeliveryDate"
                   type="date"
                   error={fieldError("expectedDeliveryDate")}
+                  optionalLabel={t.common.optional}
                 />
               </div>
 
               <div style={{ marginTop: "16px" }}>
                 <label htmlFor="note" style={{ display: "block", fontSize: "13px", fontWeight: 500, color: "#c2c6d9", marginBottom: "6px" }}>
-                  Notes <span style={{ color: "#4a5068", fontSize: "11px", marginLeft: "4px" }}>(optional)</span>
+                  {t.purchases.orders.notes} <span style={{ color: "#4a5068", fontSize: "11px", marginInlineStart: "4px" }}>({t.common.optional})</span>
                 </label>
                 <textarea
                   id="note"
                   name="note"
-                  placeholder="Any additional notes for this order…"
+                  placeholder={t.purchases.orders.notesPlaceholder}
                   rows={2}
                   style={{
                     width: "100%",
@@ -374,7 +382,7 @@ export function PurchaseOrderForm({ action, suppliers, products, defaultSupplier
             </SectionCard>
 
             {/* Line Items */}
-            <SectionCard title="Line Items">
+            <SectionCard title={t.purchases.orders.lineItemsSection}>
               {/* Header row */}
               <div
                 style={{
@@ -386,7 +394,14 @@ export function PurchaseOrderForm({ action, suppliers, products, defaultSupplier
                   marginBottom: "4px",
                 }}
               >
-                {["Product", "Unit", "Quantity", "Unit Cost", "Total", ""].map((h) => (
+                {[
+                  t.purchases.orders.columnsLine.product,
+                  t.purchases.orders.columnsLine.unit,
+                  t.purchases.orders.columnsLine.quantity,
+                  t.purchases.orders.columnsLine.unitCost,
+                  t.purchases.orders.columnsLine.total,
+                  "",
+                ].map((h) => (
                   <div key={h} style={{ fontSize: "11px", fontWeight: 600, color: "#8c90a2", textTransform: "uppercase", letterSpacing: "0.06em" }}>
                     {h}
                   </div>
@@ -401,6 +416,7 @@ export function PurchaseOrderForm({ action, suppliers, products, defaultSupplier
                   products={products}
                   onRemove={removeLine}
                   onChange={updateLine}
+                  t={t}
                 />
               ))}
 
@@ -424,11 +440,11 @@ export function PurchaseOrderForm({ action, suppliers, products, defaultSupplier
                   <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
                     <path d="M6 1.5V10.5M1.5 6H10.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
                   </svg>
-                  Add Line Item
+                  {t.purchases.orders.addLineItem}
                 </button>
 
                 <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                  <span style={{ fontSize: "13px", color: "#8c90a2" }}>Total Value:</span>
+                  <span style={{ fontSize: "13px", color: "#8c90a2" }}>{t.purchases.orders.totalValueLabel}</span>
                   <span style={{ fontSize: "18px", fontWeight: 700, color: "#dbe2fd" }}>
                     ${totalAmount.toFixed(2)}
                   </span>
@@ -452,10 +468,10 @@ export function PurchaseOrderForm({ action, suppliers, products, defaultSupplier
                   opacity: pending ? 0.8 : 1,
                 }}
               >
-                {pending ? "Creating…" : "Create Draft Purchase Order"}
+                {pending ? t.purchases.orders.creating : t.purchases.orders.createDraftOrder}
               </button>
               <a href="/dashboard/purchases/orders" style={{ padding: "10px 20px", borderRadius: "8px", border: "1px solid #2d3449", color: "#8c90a2", fontSize: "13px", fontWeight: 500, textDecoration: "none" }}>
-                Cancel
+                {t.purchases.orders.cancel}
               </a>
             </div>
           </div>

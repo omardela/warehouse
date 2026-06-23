@@ -3,6 +3,8 @@ import Link from "next/link";
 import { getSession } from "@/core/auth/session";
 import { db } from "@/lib/db";
 import { requirePagePermission } from "@/core/auth/require-page-permission";
+import { getLocale } from "@/core/i18n/locale";
+import { getDictionary } from "@/core/i18n/get-dictionary";
 
 export const dynamic = "force-dynamic";
 
@@ -22,6 +24,9 @@ export default async function SuppliersPage({ searchParams }: PageProps) {
   const session = await getSession();
   if (!session) redirect("/login");
   await requirePagePermission(session, "suppliers.supplier.read");
+
+  const locale = await getLocale();
+  const t = getDictionary(locale);
 
   const params = await searchParams;
   const q = params.q?.trim() ?? "";
@@ -77,10 +82,10 @@ export default async function SuppliersPage({ searchParams }: PageProps) {
         >
           <div>
             <h1 style={{ fontSize: "24px", fontWeight: 700, color: "#dbe2fd", margin: 0 }}>
-              Suppliers
+              {t.suppliers.list.title}
             </h1>
             <p style={{ fontSize: "13px", color: "#8c90a2", marginTop: "4px" }}>
-              Manage your suppliers, track balances and purchase history.
+              {t.suppliers.list.subtitle}
             </p>
           </div>
           <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
@@ -100,7 +105,7 @@ export default async function SuppliersPage({ searchParams }: PageProps) {
                 textDecoration: "none",
               }}
             >
-              Import CSV
+              {t.suppliers.list.importCsv}
             </Link>
             <Link
               href="/dashboard/suppliers/new"
@@ -120,7 +125,7 @@ export default async function SuppliersPage({ searchParams }: PageProps) {
               <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
                 <path d="M7 1.5V12.5M1.5 7H12.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
               </svg>
-              Add Supplier
+              {t.suppliers.list.addSupplier}
             </Link>
           </div>
         </div>
@@ -143,7 +148,7 @@ export default async function SuppliersPage({ searchParams }: PageProps) {
             <div style={{ position: "relative", flex: "1", minWidth: "200px" }}>
               <svg
                 width="14" height="14" viewBox="0 0 14 14" fill="none"
-                style={{ position: "absolute", left: "10px", top: "50%", transform: "translateY(-50%)", color: "#4a5068", pointerEvents: "none" }}
+                style={{ position: "absolute", insetInlineStart: "10px", top: "50%", transform: "translateY(-50%)", color: "#4a5068", pointerEvents: "none" }}
               >
                 <circle cx="6" cy="6" r="4" stroke="currentColor" strokeWidth="1.5" />
                 <path d="M9.5 9.5L12.5 12.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
@@ -152,11 +157,11 @@ export default async function SuppliersPage({ searchParams }: PageProps) {
                 name="q"
                 type="text"
                 defaultValue={q}
-                placeholder="Search by name..."
+                placeholder={t.suppliers.list.searchPlaceholder}
                 style={{
                   width: "100%",
-                  paddingLeft: "32px",
-                  paddingRight: "12px",
+                  paddingInlineStart: "32px",
+                  paddingInlineEnd: "12px",
                   paddingTop: "8px",
                   paddingBottom: "8px",
                   background: "#0d1627",
@@ -187,7 +192,7 @@ export default async function SuppliersPage({ searchParams }: PageProps) {
                 defaultChecked={showArchived}
                 style={{ accentColor: "#0062ff" }}
               />
-              Show archived
+              {t.suppliers.list.showArchived}
             </label>
             <button
               type="submit"
@@ -202,7 +207,7 @@ export default async function SuppliersPage({ searchParams }: PageProps) {
                 cursor: "pointer",
               }}
             >
-              Search
+              {t.common.search}
             </button>
           </form>
         </div>
@@ -223,12 +228,19 @@ export default async function SuppliersPage({ searchParams }: PageProps) {
             <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "13px" }}>
               <thead>
                 <tr style={{ borderBottom: "1px solid #222a3e", background: "#0d1627" }}>
-                  {["Supplier", "Phone", "Email", "Balance Owed", "Status", "Actions"].map((h) => (
+                  {[
+                    t.suppliers.list.columnSupplier,
+                    t.common.phone,
+                    t.common.email,
+                    t.suppliers.list.columnBalanceOwed,
+                    t.common.status,
+                    t.common.actions,
+                  ].map((h) => (
                     <th
                       key={h}
                       style={{
                         padding: "12px 16px",
-                        textAlign: "left",
+                        textAlign: "start",
                         fontWeight: 600,
                         color: "#8c90a2",
                         fontSize: "11px",
@@ -246,7 +258,7 @@ export default async function SuppliersPage({ searchParams }: PageProps) {
                 {suppliersWithBalance.length === 0 ? (
                   <tr>
                     <td colSpan={6} style={{ padding: "48px 24px", textAlign: "center", color: "#8c90a2", fontSize: "14px" }}>
-                      {q ? "No suppliers match your search." : "No suppliers yet. Add your first supplier to get started."}
+                      {q ? t.suppliers.list.noResultsSearch : t.suppliers.list.noResultsEmpty}
                     </td>
                   </tr>
                 ) : (
@@ -286,11 +298,11 @@ export default async function SuppliersPage({ searchParams }: PageProps) {
                         <td style={{ padding: "12px 16px" }}>
                           {isArchived ? (
                             <span style={{ display: "inline-flex", alignItems: "center", padding: "3px 8px", borderRadius: "10px", background: "rgba(140,144,162,0.1)", color: "#8c90a2", fontSize: "11px", fontWeight: 600 }}>
-                              ARCHIVED
+                              {t.suppliers.list.archivedBadge}
                             </span>
                           ) : (
                             <span style={{ display: "inline-flex", alignItems: "center", padding: "3px 8px", borderRadius: "10px", background: "rgba(98,223,125,0.1)", color: "#62df7d", fontSize: "11px", fontWeight: 600 }}>
-                              ACTIVE
+                              {t.suppliers.list.activeBadge}
                             </span>
                           )}
                         </td>
@@ -299,7 +311,7 @@ export default async function SuppliersPage({ searchParams }: PageProps) {
                             href={`/dashboard/suppliers/${supplier.id}`}
                             style={{ display: "inline-flex", alignItems: "center", gap: "4px", padding: "5px 12px", borderRadius: "6px", border: "1px solid #2d3449", color: "#8c90a2", fontSize: "12px", fontWeight: 500, textDecoration: "none" }}
                           >
-                            View
+                            {t.suppliers.list.view}
                           </Link>
                         </td>
                       </tr>
@@ -311,7 +323,9 @@ export default async function SuppliersPage({ searchParams }: PageProps) {
           </div>
           <div style={{ padding: "12px 16px", borderTop: "1px solid #222a3e", background: "#0d1627" }}>
             <span style={{ fontSize: "12px", color: "#4a5068" }}>
-              {suppliersWithBalance.length} supplier{suppliersWithBalance.length !== 1 ? "s" : ""} total
+              {suppliersWithBalance.length}{" "}
+              {suppliersWithBalance.length !== 1 ? t.suppliers.list.countSuffixPlural : t.suppliers.list.countSuffix}{" "}
+              {t.suppliers.list.totalSuffix}
             </span>
           </div>
         </div>

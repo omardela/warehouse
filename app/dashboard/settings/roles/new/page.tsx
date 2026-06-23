@@ -5,6 +5,8 @@ import { db } from "@/lib/db";
 import { CreateRoleForm } from "./CreateRoleForm";
 import { requirePagePermission } from "@/core/auth/require-page-permission";
 import { OWNER_ROLE_NAME } from "@/core/auth/owner-guard";
+import { getLocale } from "@/core/i18n/locale";
+import { getDictionary } from "@/core/i18n/get-dictionary";
 
 export default async function NewRolePage() {
   const session = await getSession();
@@ -12,6 +14,9 @@ export default async function NewRolePage() {
     redirect("/login");
   }
   await requirePagePermission(session, "roles.role.create");
+
+  const locale = await getLocale();
+  const t = getDictionary(locale).employees.roles;
 
   const assignedRoles = await db.warehouseRole.findMany({
     where: { warehouseId: session.warehouseId },
@@ -46,10 +51,10 @@ export default async function NewRolePage() {
             href="/dashboard/settings/roles"
             style={{ color: "#8c90a2", textDecoration: "none" }}
           >
-            Roles
+            {t.breadcrumbRoles}
           </Link>
           <span style={{ color: "#4a5068" }}>›</span>
-          <span style={{ color: "#dbe2fd" }}>Add Role from Template</span>
+          <span style={{ color: "#dbe2fd" }}>{t.breadcrumbAdd}</span>
         </nav>
 
         {/* Page header */}
@@ -62,11 +67,10 @@ export default async function NewRolePage() {
               margin: 0,
             }}
           >
-            Add Role from Template
+            {t.newPageTitle}
           </h1>
           <p style={{ marginTop: "6px", fontSize: "13px", color: "#8c90a2" }}>
-            Select a predefined role template to assign to this warehouse.
-            You&apos;ll be able to configure its permissions after creation.
+            {t.newPageSubtitle}
           </p>
         </div>
 

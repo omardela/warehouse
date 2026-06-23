@@ -1,15 +1,11 @@
 "use client";
 
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
+import { useTranslations } from "@/providers/locale-context";
 
-const TABS = [
-  { key: "sales", label: "Sales" },
-  { key: "purchases", label: "Purchases" },
-  { key: "profit", label: "Profit" },
-  { key: "stock", label: "Stock Valuation" },
-] as const;
+const TAB_KEYS = ["sales", "purchases", "profit", "stock"] as const;
 
-type TabKey = (typeof TABS)[number]["key"];
+type TabKey = (typeof TAB_KEYS)[number];
 
 interface ReportTabsProps {
   activeTab: string;
@@ -19,6 +15,9 @@ export function ReportTabs({ activeTab }: ReportTabsProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const t = useTranslations();
+
+  const TABS = TAB_KEYS.map((key) => ({ key, label: t.reports.tabs[key] }));
 
   function navigate(tab: TabKey) {
     const params = new URLSearchParams(searchParams.toString());

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { hasPermission } from "@/core/auth/permissions";
 import { useWarehouseContext } from "@/providers/warehouse-context";
+import { useTranslations } from "@/providers/locale-context";
 
 // ── Icons ────────────────────────────────────────────────────────────────────
 
@@ -209,74 +210,78 @@ type NavGroup = {
   items: NavItem[];
 };
 
-const NAV_GROUPS: NavGroup[] = [
-  {
-    heading: "Dashboard",
-    items: [
-      { label: "Overview", href: "/dashboard", icon: <IconDashboard />, permission: null },
-      { label: "Notifications", href: "/dashboard/notifications", icon: <IconNotifications />, permission: null },
-    ],
-  },
-  {
-    heading: "Catalog",
-    items: [
-      { label: "Products", href: "/dashboard/products", icon: <IconProducts />, permission: "inventory.product.read" },
-    ],
-  },
-  {
-    heading: "Inventory",
-    items: [
-      { label: "Stock Levels", href: "/dashboard/inventory/stock",       icon: <IconInventory />,  permission: "inventory.balance.read" },
-      { label: "Movements",    href: "/dashboard/inventory/movements",   icon: <IconMovements />,  permission: "inventory.balance.read" },
-      { label: "Adjustments",  href: "/dashboard/inventory/adjustments", icon: <IconAdjustment />, permission: "inventory.movement.create" },
-      { label: "Transfers",    href: "/dashboard/inventory/transfers",   icon: <IconTransfers />,  permission: "inventory.transfers.view" },
-    ],
-  },
-  {
-    heading: "Sales",
-    items: [
-      { label: "Sales Invoices", href: "/dashboard/sales",        icon: <IconSales />,     permission: "sales.invoice.read" },
-      { label: "Sales Orders",   href: "/dashboard/sales/orders", icon: <IconSales />,     permission: "sales.orders.view" },
-      { label: "Customers",      href: "/dashboard/customers",    icon: <IconCustomers />, permission: "customers.customer.read" },
-    ],
-  },
-  {
-    heading: "Purchases",
-    items: [
-      { label: "Purchase Invoices", href: "/dashboard/purchases",        icon: <IconPurchases />, permission: "purchase.invoice.read" },
-      { label: "Purchase Orders",   href: "/dashboard/purchases/orders", icon: <IconPurchases />, permission: "purchases.orders.view" },
-      { label: "Credit Notes",      href: "/dashboard/purchases/credit-notes", icon: <IconPurchases />, permission: "purchases.creditnotes.view" },
-      { label: "Suppliers",         href: "/dashboard/suppliers",        icon: <IconSuppliers />, permission: "suppliers.supplier.read" },
-    ],
-  },
-  {
-    heading: "Administration",
-    items: [
-      { label: "Employees", href: "/dashboard/employees",      icon: <IconEmployees />, permission: "employees.employee.read" },
-      { label: "Roles",     href: "/dashboard/settings/roles", icon: <IconRoles />,     permission: "roles.role.read" },
-      { label: "Audit Log", href: "/dashboard/audit",          icon: <IconAuditLogs />, permission: "audit.log.read" },
-    ],
-  },
-  {
-    heading: "Reports",
-    items: [
-      { label: "Reports", href: "/dashboard/reports", icon: <IconReports />, permission: "reports.report.read" },
-    ],
-  },
-  {
-    heading: "Point of Sale",
-    items: [
-      { label: "POS Terminal", href: "/pos", icon: <IconPos />, permission: "pos.sales.create" },
-    ],
-  },
-  {
-    heading: "Settings",
-    items: [
-      { label: "Organization", href: "/dashboard/settings/organization", icon: <IconSettings />,   permission: "settings.org.read" },
-      { label: "Warehouses",   href: "/dashboard/settings/warehouses",   icon: <IconWarehouses />, permission: "settings.warehouse.read" },
-    ],
-  },
-];
+function buildNavGroups(t: ReturnType<typeof useTranslations>): NavGroup[] {
+  return [
+    {
+      heading: t.sidebar.groups.dashboard,
+      items: [
+        { label: t.sidebar.items.overview, href: "/dashboard", icon: <IconDashboard />, permission: null },
+        { label: t.sidebar.items.notifications, href: "/dashboard/notifications", icon: <IconNotifications />, permission: null },
+      ],
+    },
+    {
+      heading: t.sidebar.groups.catalog,
+      items: [
+        { label: t.sidebar.items.products, href: "/dashboard/products", icon: <IconProducts />, permission: "inventory.product.read" },
+      ],
+    },
+    {
+      heading: t.sidebar.groups.inventory,
+      items: [
+        { label: t.sidebar.items.stockLevels, href: "/dashboard/inventory/stock",       icon: <IconInventory />,  permission: "inventory.balance.read" },
+        { label: t.sidebar.items.movements,    href: "/dashboard/inventory/movements",   icon: <IconMovements />,  permission: "inventory.balance.read" },
+        { label: t.sidebar.items.adjustments,  href: "/dashboard/inventory/adjustments", icon: <IconAdjustment />, permission: "inventory.movement.create" },
+        { label: t.sidebar.items.transfers,    href: "/dashboard/inventory/transfers",   icon: <IconTransfers />,  permission: "inventory.transfers.view" },
+      ],
+    },
+    {
+      heading: t.sidebar.groups.sales,
+      items: [
+        { label: t.sidebar.items.salesInvoices, href: "/dashboard/sales",        icon: <IconSales />,     permission: "sales.invoice.read" },
+        { label: t.sidebar.items.salesOrders,   href: "/dashboard/sales/orders", icon: <IconSales />,     permission: "sales.orders.view" },
+        { label: t.sidebar.items.salesCreditNotes, href: "/dashboard/sales/credit-notes", icon: <IconSales />, permission: "sales.creditnotes.view" },
+        { label: t.sidebar.items.customers,      href: "/dashboard/customers",    icon: <IconCustomers />, permission: "customers.customer.read" },
+      ],
+    },
+    {
+      heading: t.sidebar.groups.purchases,
+      items: [
+        { label: t.sidebar.items.purchaseInvoices, href: "/dashboard/purchases",        icon: <IconPurchases />, permission: "purchase.invoice.read" },
+        { label: t.sidebar.items.purchaseOrders,   href: "/dashboard/purchases/orders", icon: <IconPurchases />, permission: "purchases.orders.view" },
+        { label: t.sidebar.items.creditNotes,      href: "/dashboard/purchases/credit-notes", icon: <IconPurchases />, permission: "purchases.creditnotes.view" },
+        { label: t.sidebar.items.suppliers,         href: "/dashboard/suppliers",        icon: <IconSuppliers />, permission: "suppliers.supplier.read" },
+      ],
+    },
+    {
+      heading: t.sidebar.groups.administration,
+      items: [
+        { label: t.sidebar.items.employees, href: "/dashboard/employees",      icon: <IconEmployees />, permission: "employees.employee.read" },
+        { label: t.sidebar.items.roles,     href: "/dashboard/settings/roles", icon: <IconRoles />,     permission: "roles.role.read" },
+        { label: t.sidebar.items.auditLog, href: "/dashboard/audit",          icon: <IconAuditLogs />, permission: "audit.log.read" },
+      ],
+    },
+    {
+      heading: t.sidebar.groups.reports,
+      items: [
+        { label: t.sidebar.items.reports, href: "/dashboard/reports", icon: <IconReports />, permission: "reports.report.read" },
+      ],
+    },
+    {
+      heading: t.sidebar.groups.pos,
+      items: [
+        { label: t.sidebar.items.posTerminal, href: "/pos", icon: <IconPos />, permission: "pos.sales.create" },
+      ],
+    },
+    {
+      heading: t.sidebar.groups.settings,
+      items: [
+        { label: t.sidebar.items.organization, href: "/dashboard/settings/organization", icon: <IconSettings />,   permission: "settings.org.read" },
+        { label: t.sidebar.items.warehouses,   href: "/dashboard/settings/warehouses",   icon: <IconWarehouses />, permission: "settings.warehouse.read" },
+        { label: t.sidebar.items.preferences,  href: "/dashboard/settings/preferences",  icon: <IconSettings />,   permission: null },
+      ],
+    },
+  ];
+}
 
 // ── SidebarContent ────────────────────────────────────────────────────────────
 
@@ -292,8 +297,10 @@ function SidebarContent({
   onNav?: () => void;
 }) {
   const pathname = usePathname();
+  const t = useTranslations();
+  const navGroups = buildNavGroups(t);
 
-  const visibleGroups = NAV_GROUPS.map((group) => ({
+  const visibleGroups = navGroups.map((group) => ({
     ...group,
     items: group.items.filter(
       (item) => item.permission === null || hasPermission(permissions, item.permission)
@@ -348,10 +355,10 @@ function SidebarContent({
         </div>
         <div>
           <div style={{ fontSize: "15px", fontWeight: 600, color: "#dbe2fd", lineHeight: 1.2 }}>
-            LogiCore
+            {t.common.appName}
           </div>
           <div style={{ fontSize: "11px", color: "#8c90a2", marginTop: "2px" }}>
-            Enterprise Tier
+            {t.sidebar.brandTagline}
           </div>
         </div>
       </div>
@@ -393,7 +400,7 @@ function SidebarContent({
                     fontWeight: isActive ? 500 : 400,
                     color: isActive ? "#dbe2fd" : "#8c90a2",
                     backgroundColor: isActive ? "#1a2237" : "transparent",
-                    borderLeft: isActive ? "2px solid #0062ff" : "2px solid transparent",
+                    borderInlineStart: isActive ? "2px solid #0062ff" : "2px solid transparent",
                     textDecoration: "none",
                     transition: "background-color 0.15s, color 0.15s",
                   }}
@@ -466,7 +473,7 @@ function SidebarContent({
           </div>
           <a
             href="/logout"
-            title="Logout"
+            title={t.common.signOut}
             style={{ display: "flex", alignItems: "center", justifyContent: "center", color: "#8c90a2", flexShrink: 0 }}
             onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.color = "#dbe2fd")}
             onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.color = "#8c90a2")}

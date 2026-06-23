@@ -5,6 +5,8 @@ import { db } from "@/lib/db";
 import { requirePagePermission } from "@/core/auth/require-page-permission";
 import { EmployeeDetailForm } from "./EmployeeDetailForm";
 import { isOwnerRole } from "@/core/auth/owner-guard";
+import { getLocale } from "@/core/i18n/locale";
+import { getDictionary } from "@/core/i18n/get-dictionary";
 
 interface PageProps {
   params: Promise<{ employeeId: string }>;
@@ -20,6 +22,9 @@ export default async function EmployeeDetailPage({ params }: PageProps) {
   const session = await getSession();
   if (!session) redirect("/login");
   await requirePagePermission(session, "employees.employee.read");
+
+  const locale = await getLocale();
+  const t = getDictionary(locale).employees;
 
   const { employeeId } = await params;
 
@@ -83,7 +88,7 @@ export default async function EmployeeDetailPage({ params }: PageProps) {
             href="/dashboard/employees"
             style={{ color: "#8c90a2", textDecoration: "none" }}
           >
-            Employees
+            {t.form.breadcrumbEmployees}
           </Link>
           <span style={{ color: "#4a5068" }}>›</span>
           <span style={{ color: "#dbe2fd" }}>{employee.name}</span>
@@ -151,7 +156,7 @@ export default async function EmployeeDetailPage({ params }: PageProps) {
                     color: "#8c90a2",
                   }}
                 >
-                  Archived
+                  {t.detail.archived}
                 </span>
               ) : (
                 <span
@@ -166,7 +171,7 @@ export default async function EmployeeDetailPage({ params }: PageProps) {
                     color: "#62df7d",
                   }}
                 >
-                  Active
+                  {t.detail.active}
                 </span>
               )}
               {isSelf && (
@@ -182,7 +187,7 @@ export default async function EmployeeDetailPage({ params }: PageProps) {
                     color: "#6b9fff",
                   }}
                 >
-                  You
+                  {t.detail.you}
                 </span>
               )}
             </div>
@@ -218,7 +223,7 @@ export default async function EmployeeDetailPage({ params }: PageProps) {
               borderBottom: "1px solid #222a3e",
             }}
           >
-            Personal Information
+            {t.detail.personalInformation}
           </h2>
           <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
             <div>
@@ -232,7 +237,7 @@ export default async function EmployeeDetailPage({ params }: PageProps) {
                   margin: "0 0 6px",
                 }}
               >
-                Full Name
+                {t.detail.fullName}
               </p>
               <p
                 style={{
@@ -256,7 +261,7 @@ export default async function EmployeeDetailPage({ params }: PageProps) {
                   margin: "0 0 6px",
                 }}
               >
-                Email Address
+                {t.detail.emailAddress}
               </p>
               <p
                 style={{
@@ -280,7 +285,7 @@ export default async function EmployeeDetailPage({ params }: PageProps) {
                   margin: "0 0 6px",
                 }}
               >
-                Joined
+                {t.detail.joined}
               </p>
               <p style={{ fontSize: "14px", color: "#8c90a2", margin: 0 }}>
                 {new Date(employee.createdAt).toLocaleDateString("en-US", {
@@ -302,7 +307,7 @@ export default async function EmployeeDetailPage({ params }: PageProps) {
                     margin: "0 0 6px",
                   }}
                 >
-                  Archived On
+                  {t.detail.archivedOn}
                 </p>
                 <p style={{ fontSize: "14px", color: "#f43f5e", margin: 0 }}>
                   {new Date(employee.archivedAt).toLocaleDateString("en-US", {

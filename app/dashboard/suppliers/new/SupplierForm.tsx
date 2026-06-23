@@ -3,6 +3,7 @@
 import { useActionState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import type { SupplierActionState } from "../actions";
+import { useTranslations } from "@/providers/locale-context";
 
 type SupplierFormProps = {
   mode: "create" | "edit";
@@ -26,6 +27,7 @@ function Field({
   required,
   error,
   multiline,
+  optionalLabel,
 }: {
   label: string;
   name: string;
@@ -35,6 +37,7 @@ function Field({
   required?: boolean;
   error?: string;
   multiline?: boolean;
+  optionalLabel: string;
 }) {
   const inputStyle: React.CSSProperties = {
     width: "100%",
@@ -57,8 +60,8 @@ function Field({
         style={{ display: "block", fontSize: "13px", fontWeight: 500, color: "#c2c6d9", marginBottom: "6px" }}
       >
         {label}
-        {required && <span style={{ color: "#ffb4ab", marginLeft: "2px" }}>*</span>}
-        {!required && <span style={{ color: "#4a5068", fontSize: "11px", marginLeft: "4px" }}>(optional)</span>}
+        {required && <span style={{ color: "#ffb4ab", marginInlineStart: "2px" }}>*</span>}
+        {!required && <span style={{ color: "#4a5068", fontSize: "11px", marginInlineStart: "4px" }}>({optionalLabel})</span>}
       </label>
       {multiline ? (
         <textarea
@@ -91,6 +94,7 @@ function Field({
 
 export function SupplierForm({ mode, action, initialValues = {}, archiveButton }: SupplierFormProps) {
   const router = useRouter();
+  const t = useTranslations();
   const [state, formAction, pending] = useActionState<SupplierActionState, FormData>(
     action as (s: SupplierActionState, fd: FormData) => Promise<SupplierActionState>,
     null
@@ -115,18 +119,18 @@ export function SupplierForm({ mode, action, initialValues = {}, archiveButton }
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "24px", flexWrap: "wrap", gap: "12px" }}>
           <div>
             <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "4px" }}>
-              <a href="/dashboard/suppliers" style={{ color: "#8c90a2", textDecoration: "none", fontSize: "13px" }}>Suppliers</a>
+              <a href="/dashboard/suppliers" style={{ color: "#8c90a2", textDecoration: "none", fontSize: "13px" }}>{t.suppliers.form.breadcrumb}</a>
               <span style={{ color: "#4a5068" }}>/</span>
-              <span style={{ color: "#8c90a2", fontSize: "13px" }}>{mode === "create" ? "New Supplier" : "Edit Supplier"}</span>
+              <span style={{ color: "#8c90a2", fontSize: "13px" }}>{mode === "create" ? t.suppliers.form.newCrumb : t.suppliers.form.editCrumb}</span>
             </div>
             <h1 style={{ fontSize: "22px", fontWeight: 700, color: "#dbe2fd", margin: 0 }}>
-              {mode === "create" ? "Add New Supplier" : "Edit Supplier"}
+              {mode === "create" ? t.suppliers.form.newTitle : t.suppliers.form.editTitle}
             </h1>
           </div>
           <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
             {archiveButton}
             <a href="/dashboard/suppliers" style={{ padding: "8px 16px", borderRadius: "8px", border: "1px solid #2d3449", color: "#8c90a2", fontSize: "13px", fontWeight: 500, textDecoration: "none" }}>
-              Cancel
+              {t.common.cancel}
             </a>
           </div>
         </div>
@@ -160,43 +164,47 @@ export function SupplierForm({ mode, action, initialValues = {}, archiveButton }
                   <path d="M2 13c0-2.761 2.686-5 6-5s6 2.239 6 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
                 </svg>
               </span>
-              <h2 style={{ fontSize: "14px", fontWeight: 600, color: "#dbe2fd", margin: 0 }}>Supplier Details</h2>
+              <h2 style={{ fontSize: "14px", fontWeight: 600, color: "#dbe2fd", margin: 0 }}>{t.suppliers.form.sectionTitle}</h2>
             </div>
 
             <Field
-              label="Supplier Name"
+              label={t.suppliers.form.nameLabel}
               name="name"
               defaultValue={initialValues.name}
-              placeholder="e.g. Global Parts Foundry Ltd."
+              placeholder={t.suppliers.form.namePlaceholder}
               required
+              optionalLabel={t.common.optional}
               error={fieldError("name")}
             />
 
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
               <Field
-                label="Email"
+                label={t.common.email}
                 name="email"
                 type="email"
                 defaultValue={initialValues.email ?? ""}
-                placeholder="supplier@example.com"
+                placeholder={t.suppliers.form.emailPlaceholder}
+                optionalLabel={t.common.optional}
                 error={fieldError("email")}
               />
               <Field
-                label="Phone"
+                label={t.common.phone}
                 name="phone"
                 type="tel"
                 defaultValue={initialValues.phone ?? ""}
-                placeholder="+1 (555) 000-0000"
+                placeholder={t.suppliers.form.phonePlaceholder}
+                optionalLabel={t.common.optional}
                 error={fieldError("phone")}
               />
             </div>
 
             <Field
-              label="Address"
+              label={t.common.address}
               name="address"
               defaultValue={initialValues.address ?? ""}
-              placeholder="123 Main St, City, Country"
+              placeholder={t.suppliers.form.addressPlaceholder}
               multiline
+              optionalLabel={t.common.optional}
               error={fieldError("address")}
             />
           </div>
@@ -217,10 +225,10 @@ export function SupplierForm({ mode, action, initialValues = {}, archiveButton }
                 opacity: pending ? 0.8 : 1,
               }}
             >
-              {pending ? "Saving…" : mode === "create" ? "Create Supplier" : "Save Changes"}
+              {pending ? t.suppliers.form.saving : mode === "create" ? t.suppliers.form.createSupplier : t.suppliers.form.saveChanges}
             </button>
             <a href="/dashboard/suppliers" style={{ padding: "10px 20px", borderRadius: "8px", border: "1px solid #2d3449", color: "#8c90a2", fontSize: "13px", fontWeight: 500, textDecoration: "none" }}>
-              Cancel
+              {t.common.cancel}
             </a>
           </div>
         </form>

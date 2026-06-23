@@ -6,6 +6,7 @@ import {
   archiveEmployeeAction,
   type EmployeeActionState,
 } from "../actions";
+import { useTranslations } from "@/providers/locale-context";
 
 type RoleOption = {
   id: string;
@@ -71,6 +72,7 @@ export function EmployeeDetailForm({
   isSelf,
   isOwner = false,
 }: EmployeeDetailFormProps) {
+  const t = useTranslations().employees.detail;
   const [roleState, roleFormAction, roleIsPending] = useActionState<
     EmployeeActionState,
     FormData
@@ -95,7 +97,7 @@ export function EmployeeDetailForm({
             fontSize: "13px",
           }}
         >
-          Role updated successfully.
+          {t.roleUpdatedSuccess}
         </div>
       )}
 
@@ -150,7 +152,7 @@ export function EmployeeDetailForm({
             borderBottom: "1px solid #222a3e",
           }}
         >
-          Role &amp; Access
+          {t.roleAndAccess}
         </h2>
 
         {isArchived ? (
@@ -164,15 +166,15 @@ export function EmployeeDetailForm({
                 marginBottom: "6px",
               }}
             >
-              Assigned Role
+              {t.assignedRole}
             </label>
             <div style={inputReadonlyStyle}>
-              {roles.find((r) => r.id === currentRoleId)?.name ?? "No role"}
+              {roles.find((r) => r.id === currentRoleId)?.name ?? t.noRole}
             </div>
             <p
               style={{ marginTop: "6px", fontSize: "12px", color: "#4a5068" }}
             >
-              Role assignment is read-only for archived employees.
+              {t.roleReadOnlyArchived}
             </p>
           </div>
         ) : (
@@ -189,7 +191,7 @@ export function EmployeeDetailForm({
                   marginBottom: "6px",
                 }}
               >
-                Assigned Role
+                {t.assignedRole}
               </label>
               {canAssignRole ? (
                 <>
@@ -202,7 +204,7 @@ export function EmployeeDetailForm({
                     onBlur={onBlurSelect}
                     disabled={roleIsPending}
                   >
-                    <option value="">No role assigned</option>
+                    <option value="">{t.noRole}</option>
                     {roles.map((role) => (
                       <option key={role.id} value={role.id}>
                         {role.name}
@@ -216,14 +218,14 @@ export function EmployeeDetailForm({
                       color: "#4a5068",
                     }}
                   >
-                    Only roles configured for this warehouse are shown.
+                    {t.roleHint}
                   </p>
                 </>
               ) : (
                 <>
                   <div style={inputReadonlyStyle}>
                     {roles.find((r) => r.id === currentRoleId)?.name ??
-                      "No role"}
+                      t.noRole}
                   </div>
                   <p
                     style={{
@@ -233,8 +235,8 @@ export function EmployeeDetailForm({
                     }}
                   >
                     {isOwner
-                      ? "The Owner role is system-protected and cannot be changed."
-                      : "You do not have permission to change role assignments."}
+                      ? t.ownerRoleProtected
+                      : t.noPermissionChangeRole}
                   </p>
                 </>
               )}
@@ -254,7 +256,7 @@ export function EmployeeDetailForm({
                   cursor: roleIsPending ? "not-allowed" : "pointer",
                 }}
               >
-                {roleIsPending ? "Saving..." : "Save Role"}
+                {roleIsPending ? t.saving : t.saveRole}
               </button>
             )}
           </form>
@@ -279,12 +281,10 @@ export function EmployeeDetailForm({
               margin: "0 0 8px",
             }}
           >
-            Danger Zone
+            {t.dangerZone}
           </h2>
           <p style={{ fontSize: "13px", color: "#8c90a2", marginBottom: "16px" }}>
-            Archiving this employee will prevent them from accessing the system.
-            Existing records created by this employee will not be affected. This
-            action cannot be undone from the UI.
+            {t.archiveWarning}
           </p>
           <form action={archiveFormAction}>
             <input type="hidden" name="employeeId" value={employeeId} />
@@ -302,7 +302,7 @@ export function EmployeeDetailForm({
                 cursor: archiveIsPending ? "not-allowed" : "pointer",
               }}
             >
-              {archiveIsPending ? "Archiving..." : "Archive Employee"}
+              {archiveIsPending ? t.archiving : t.archiveEmployee}
             </button>
           </form>
         </div>
@@ -318,7 +318,7 @@ export function EmployeeDetailForm({
           }}
         >
           <p style={{ fontSize: "13px", color: "#4a5068", margin: 0 }}>
-            You cannot archive your own account.
+            {t.cannotArchiveSelf}
           </p>
         </div>
       )}

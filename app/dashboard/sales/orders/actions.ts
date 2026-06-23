@@ -2,7 +2,6 @@
 
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import { getSession } from "@/core/auth/session";
 import { requirePermission } from "@/core/auth/require-permission";
@@ -191,17 +190,20 @@ export async function createSalesOrderAction(
 
 // ─── Confirm Sales Order ─────────────────────────────────────────────────────
 
-export async function confirmSalesOrderAction(formData: FormData): Promise<void> {
+export async function confirmSalesOrderAction(
+  _prevState: SalesOrderActionState,
+  formData: FormData
+): Promise<SalesOrderActionState> {
   const session = await getSession();
-  if (!session) redirect("/login");
+  if (!session) return { error: "Unauthorized" };
 
   const salesOrderId = formData.get("salesOrderId") as string;
-  if (!salesOrderId) return;
+  if (!salesOrderId) return { error: "Sales order ID is required." };
 
   try {
     await requirePermission(session, "sales.orders.create");
   } catch {
-    throw new Error("You do not have permission to confirm sales orders.");
+    return { error: "You do not have permission to confirm sales orders." };
   }
 
   const so = await db.salesOrder.findUnique({
@@ -212,9 +214,9 @@ export async function confirmSalesOrderAction(formData: FormData): Promise<void>
     },
   });
 
-  if (!so) throw new Error("Sales order not found.");
-  if (so.warehouseId !== session.warehouseId) throw new Error("Access denied.");
-  if (so.status !== "DRAFT") throw new Error("Only draft sales orders can be confirmed.");
+  if (!so) return { error: "Sales order not found." };
+  if (so.warehouseId !== session.warehouseId) return { error: "Access denied." };
+  if (so.status !== "DRAFT") return { error: "Only draft sales orders can be confirmed." };
 
   // Credit check: current outstanding balance + this SO's value vs creditLimit
   const creditLimit = so.customer.creditLimit != null ? Number(so.customer.creditLimit) : null;
@@ -229,7 +231,18 @@ export async function confirmSalesOrderAction(formData: FormData): Promise<void>
       (sum, inv) => sum + inv.payments.reduce((ps, p) => ps + Number(p.amount), 0),
       0
     );
-    const outstandingBalance = totalInvoiced - totalPaid;
+
+    // Confirmed sales credit notes (returns) reduce the customer's outstanding balance.
+    const confirmedCreditNotes = await db.creditNote.findMany({
+      where: { type: "SALE", status: "CONFIRMED", originalInvoice: { customerId: so.customer.id } },
+      include: { lines: { select: { displayQuantity: true, unitPrice: true } } },
+    });
+    const totalCredited = confirmedCreditNotes.reduce(
+      (sum, cn) => sum + cn.lines.reduce((ls, l) => ls + Number(l.displayQuantity) * Number(l.unitPrice), 0),
+      0
+    );
+
+    const outstandingBalance = totalInvoiced - totalPaid - totalCredited;
 
     const soTotalValue = so.lines.reduce((sum, l) => {
       const discountFactor = l.discount != null ? 1 - Number(l.discount) / 100 : 1;
@@ -239,11 +252,12 @@ export async function confirmSalesOrderAction(formData: FormData): Promise<void>
     const projectedExposure = outstandingBalance + soTotalValue;
 
     if (projectedExposure > creditLimit) {
-      throw new Error(
-        `Confirming this sales order would exceed the customer's credit limit. ` +
+      return {
+        error:
+          `Confirming this sales order would exceed the customer's credit limit. ` +
           `Current outstanding balance: $${outstandingBalance.toFixed(2)}, this order: $${soTotalValue.toFixed(2)}, ` +
-          `projected exposure: $${projectedExposure.toFixed(2)}, credit limit: $${creditLimit.toFixed(2)}.`
-      );
+          `projected exposure: $${projectedExposure.toFixed(2)}, credit limit: $${creditLimit.toFixed(2)}.`,
+      };
     }
   }
 
@@ -266,22 +280,25 @@ export async function confirmSalesOrderAction(formData: FormData): Promise<void>
 
   revalidatePath("/dashboard/sales/orders");
   revalidatePath(`/dashboard/sales/orders/${salesOrderId}`);
-  redirect(`/dashboard/sales/orders/${salesOrderId}`);
+  return { success: true, salesOrderId };
 }
 
 // ─── Cancel Sales Order ──────────────────────────────────────────────────────
 
-export async function cancelSalesOrderAction(formData: FormData): Promise<void> {
+export async function cancelSalesOrderAction(
+  _prevState: SalesOrderActionState,
+  formData: FormData
+): Promise<SalesOrderActionState> {
   const session = await getSession();
-  if (!session) redirect("/login");
+  if (!session) return { error: "Unauthorized" };
 
   const salesOrderId = formData.get("salesOrderId") as string;
-  if (!salesOrderId) return;
+  if (!salesOrderId) return { error: "Sales order ID is required." };
 
   try {
     await requirePermission(session, "sales.orders.create");
   } catch {
-    throw new Error("You do not have permission to cancel sales orders.");
+    return { error: "You do not have permission to cancel sales orders." };
   }
 
   const so = await db.salesOrder.findUnique({
@@ -289,10 +306,10 @@ export async function cancelSalesOrderAction(formData: FormData): Promise<void> 
     select: { id: true, status: true, warehouseId: true },
   });
 
-  if (!so) throw new Error("Sales order not found.");
-  if (so.warehouseId !== session.warehouseId) throw new Error("Access denied.");
+  if (!so) return { error: "Sales order not found." };
+  if (so.warehouseId !== session.warehouseId) return { error: "Access denied." };
   if (so.status !== "DRAFT" && so.status !== "CONFIRMED") {
-    throw new Error("Only draft or confirmed sales orders can be cancelled.");
+    return { error: "Only draft or confirmed sales orders can be cancelled." };
   }
 
   const beforeStatus = so.status;
@@ -313,7 +330,7 @@ export async function cancelSalesOrderAction(formData: FormData): Promise<void> 
 
   revalidatePath("/dashboard/sales/orders");
   revalidatePath(`/dashboard/sales/orders/${salesOrderId}`);
-  redirect(`/dashboard/sales/orders/${salesOrderId}`);
+  return { success: true, salesOrderId };
 }
 
 // ─── Create Delivery Note ───────────────────────────────────────────────────

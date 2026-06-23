@@ -5,11 +5,16 @@ import { db } from "@/lib/db";
 import { requirePagePermission } from "@/core/auth/require-page-permission";
 import { isOwnerRole } from "@/core/auth/owner-guard";
 import { EmployeeForm } from "../EmployeeForm";
+import { getLocale } from "@/core/i18n/locale";
+import { getDictionary } from "@/core/i18n/get-dictionary";
 
 export default async function NewEmployeePage() {
   const session = await getSession();
   if (!session) redirect("/login");
   await requirePagePermission(session, "employees.employee.create");
+
+  const locale = await getLocale();
+  const t = getDictionary(locale).employees.form;
 
   const warehouseRoles = await db.warehouseRole.findMany({
     where: { warehouseId: session.warehouseId },
@@ -41,10 +46,10 @@ export default async function NewEmployeePage() {
             href="/dashboard/employees"
             style={{ color: "#8c90a2", textDecoration: "none" }}
           >
-            Employees
+            {t.breadcrumbEmployees}
           </Link>
           <span style={{ color: "#4a5068" }}>›</span>
-          <span style={{ color: "#dbe2fd" }}>Add Employee</span>
+          <span style={{ color: "#dbe2fd" }}>{t.breadcrumbAdd}</span>
         </nav>
 
         {/* Page header */}
@@ -57,11 +62,10 @@ export default async function NewEmployeePage() {
               margin: 0,
             }}
           >
-            Add New Employee
+            {t.pageTitle}
           </h1>
           <p style={{ marginTop: "6px", fontSize: "13px", color: "#8c90a2" }}>
-            Create a new employee account for this warehouse. They will be able
-            to log in with the email and temporary password you set.
+            {t.pageSubtitle}
           </p>
         </div>
 

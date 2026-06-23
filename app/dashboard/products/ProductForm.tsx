@@ -4,6 +4,7 @@ import { useActionState, useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import type { createProductAction } from "./new/actions";
 import type { updateProductAction } from "./[productId]/actions";
+import { useTranslations } from "@/providers/locale-context";
 
 export type ProductUnit = {
   id: string;
@@ -127,14 +128,14 @@ function Select({
   );
 }
 
-function Label({ htmlFor, children, required, optional }: {
-  htmlFor: string; children: React.ReactNode; required?: boolean; optional?: boolean;
+function Label({ htmlFor, children, required, optional, optionalText }: {
+  htmlFor: string; children: React.ReactNode; required?: boolean; optional?: boolean; optionalText?: string;
 }) {
   return (
     <label htmlFor={htmlFor} style={{ display: "block", fontSize: "13px", fontWeight: 500, color: "#c2c6d9", marginBottom: "6px" }}>
       {children}
-      {required && <span style={{ color: "#ffb4ab", marginLeft: "2px" }}>*</span>}
-      {optional && <span style={{ color: "#4a5068", fontSize: "11px", marginLeft: "4px" }}>(optional)</span>}
+      {required && <span style={{ color: "#ffb4ab", marginInlineStart: "2px" }}>*</span>}
+      {optional && <span style={{ color: "#4a5068", fontSize: "11px", marginInlineStart: "4px" }}>({optionalText})</span>}
     </label>
   );
 }
@@ -151,9 +152,10 @@ function SectionCard({ title, icon, children }: { title: string; icon: React.Rea
   );
 }
 
-function ConversionRowItem({ row, units, index, onRemove, onChange }: {
+function ConversionRowItem({ row, units, index, onRemove, onChange, t }: {
   row: ConversionRow; units: ProductUnit[]; index: number;
   onRemove: (id: string) => void; onChange: (id: string, field: keyof ConversionRow, value: string) => void;
+  t: ReturnType<typeof useTranslations>;
 }) {
   return (
     <div style={{ display: "grid", gridTemplateColumns: "1fr auto 1fr auto", gap: "8px", alignItems: "center" }}>
@@ -163,7 +165,7 @@ function ConversionRowItem({ row, units, index, onRemove, onChange }: {
         onChange={(e) => onChange(row.id, "fromUnitId", e.target.value)}
         style={{ background: "#0d1627", border: "1px solid #2d3449", borderRadius: "8px", padding: "7px 10px", fontSize: "13px", color: "#dbe2fd", outline: "none" }}
       >
-        <option value="">From unit…</option>
+        <option value="">{t.products.fromUnitPlaceholder}</option>
         {units.map((u) => <option key={u.id} value={u.id}>{u.name} ({u.symbol})</option>)}
       </select>
 
@@ -174,7 +176,7 @@ function ConversionRowItem({ row, units, index, onRemove, onChange }: {
           type="number" step="any" min="0.0000000001"
           value={row.factor}
           onChange={(e) => onChange(row.id, "factor", e.target.value)}
-          placeholder="Factor"
+          placeholder={t.products.factorPlaceholder}
           style={{ background: "#0d1627", border: "1px solid #2d3449", borderRadius: "8px", padding: "7px 10px", fontSize: "13px", color: "#dbe2fd", outline: "none", width: "80px" }}
         />
       </div>
@@ -185,7 +187,7 @@ function ConversionRowItem({ row, units, index, onRemove, onChange }: {
         onChange={(e) => onChange(row.id, "toUnitId", e.target.value)}
         style={{ background: "#0d1627", border: "1px solid #2d3449", borderRadius: "8px", padding: "7px 10px", fontSize: "13px", color: "#dbe2fd", outline: "none" }}
       >
-        <option value="">To unit…</option>
+        <option value="">{t.products.toUnitPlaceholder}</option>
         {units.map((u) => <option key={u.id} value={u.id}>{u.name} ({u.symbol})</option>)}
       </select>
 
@@ -193,7 +195,7 @@ function ConversionRowItem({ row, units, index, onRemove, onChange }: {
         type="button"
         onClick={() => onRemove(row.id)}
         style={{ display: "flex", alignItems: "center", justifyContent: "center", width: "30px", height: "30px", borderRadius: "6px", border: "1px solid rgba(255,180,171,0.2)", background: "rgba(255,180,171,0.06)", color: "#ffb4ab", cursor: "pointer", flexShrink: 0 }}
-        title="Remove conversion"
+        title={t.products.removeConversion}
       >
         <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
           <path d="M2 2L10 10M10 2L2 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
@@ -205,6 +207,7 @@ function ConversionRowItem({ row, units, index, onRemove, onChange }: {
 
 export function ProductForm({ mode, units, categories, initialValues = {}, action, archiveButton, printLabelButton }: ProductFormProps) {
   const router = useRouter();
+  const t = useTranslations();
 
   const [state, formAction, pending] = useActionState<ProductActionState, FormData>(
     action as (s: ProductActionState, fd: FormData) => Promise<ProductActionState>,
@@ -248,12 +251,12 @@ export function ProductForm({ mode, units, categories, initialValues = {}, actio
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "24px", flexWrap: "wrap", gap: "12px" }}>
           <div>
             <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "4px" }}>
-              <a href="/dashboard/products" style={{ color: "#8c90a2", textDecoration: "none", fontSize: "13px" }}>Products</a>
+              <a href="/dashboard/products" style={{ color: "#8c90a2", textDecoration: "none", fontSize: "13px" }}>{t.common.products}</a>
               <span style={{ color: "#4a5068" }}>/</span>
-              <span style={{ color: "#8c90a2", fontSize: "13px" }}>{mode === "create" ? "New Product" : "Edit Product"}</span>
+              <span style={{ color: "#8c90a2", fontSize: "13px" }}>{mode === "create" ? t.products.newProduct : t.products.editProduct}</span>
             </div>
             <h1 style={{ fontSize: "22px", fontWeight: 700, color: "#dbe2fd", margin: 0 }}>
-              {mode === "create" ? "Add New Product" : "Edit Product"}
+              {mode === "create" ? t.products.addNewProduct : t.products.editProduct}
             </h1>
             {mode === "edit" && initialValues.sku && (
               <p style={{ fontSize: "12px", color: "#8c90a2", margin: "2px 0 0", fontFamily: "monospace" }}>
@@ -265,7 +268,7 @@ export function ProductForm({ mode, units, categories, initialValues = {}, actio
             {printLabelButton}
             {archiveButton}
             <a href="/dashboard/products" style={{ padding: "8px 16px", borderRadius: "8px", border: "1px solid #2d3449", color: "#8c90a2", fontSize: "13px", fontWeight: 500, textDecoration: "none" }}>
-              Cancel
+              {t.common.cancel}
             </a>
           </div>
         </div>
@@ -283,7 +286,7 @@ export function ProductForm({ mode, units, categories, initialValues = {}, actio
           <input type="hidden" name="conversionCount" value={conversions.length} />
 
           <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-            <SectionCard title="Basic Information" icon={
+            <SectionCard title={t.products.basicInformation} icon={
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                 <circle cx="8" cy="8" r="6.5" stroke="currentColor" strokeWidth="1.5" />
                 <path d="M8 7V11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
@@ -292,24 +295,24 @@ export function ProductForm({ mode, units, categories, initialValues = {}, actio
             }>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
                 <div style={{ gridColumn: "1 / -1" }}>
-                  <Label htmlFor="name" required>Product Name</Label>
-                  <Input id="name" name="name" defaultValue={initialValues.name} placeholder="e.g. Industrial Steel Shelving Unit" required error={fieldError("name")} />
+                  <Label htmlFor="name" required>{t.products.productName}</Label>
+                  <Input id="name" name="name" defaultValue={initialValues.name} placeholder={t.products.productNamePlaceholder} required error={fieldError("name")} />
                 </div>
                 <div>
                   <Label htmlFor="sku" required={mode === "create"}>
-                    SKU
-                    {mode === "edit" && <span style={{ fontSize: "11px", color: "#4a5068", marginLeft: "6px" }}>(read-only)</span>}
+                    {t.products.sku}
+                    {mode === "edit" && <span style={{ fontSize: "11px", color: "#4a5068", marginInlineStart: "6px" }}>{t.products.readOnly}</span>}
                   </Label>
-                  <Input id="sku" name="sku" defaultValue={initialValues.sku} placeholder="e.g. STL-001-42" required={mode === "create"} readOnly={mode === "edit"} error={fieldError("sku")} />
+                  <Input id="sku" name="sku" defaultValue={initialValues.sku} placeholder={t.products.skuPlaceholder} required={mode === "create"} readOnly={mode === "edit"} error={fieldError("sku")} />
                 </div>
                 <div>
-                  <Label htmlFor="barcode" optional>Barcode (UPC/EAN)</Label>
-                  <Input id="barcode" name="barcode" defaultValue={initialValues.barcode ?? ""} placeholder="Scan or enter barcode" error={fieldError("barcode")} />
+                  <Label htmlFor="barcode" optional optionalText={t.common.optional}>{t.products.barcode}</Label>
+                  <Input id="barcode" name="barcode" defaultValue={initialValues.barcode ?? ""} placeholder={t.products.barcodePlaceholder} error={fieldError("barcode")} />
                 </div>
                 <div style={{ gridColumn: "1 / -1" }}>
-                  <Label htmlFor="description" optional>Description</Label>
+                  <Label htmlFor="description" optional optionalText={t.common.optional}>{t.products.description}</Label>
                   <textarea
-                    id="description" name="description" defaultValue={initialValues.description ?? ""} placeholder="Detailed product description…" rows={3}
+                    id="description" name="description" defaultValue={initialValues.description ?? ""} placeholder={t.products.descriptionPlaceholder} rows={3}
                     style={{ width: "100%", background: "#0d1627", border: "1px solid #2d3449", borderRadius: "8px", padding: "8px 12px", fontSize: "13px", color: "#dbe2fd", outline: "none", resize: "vertical", boxSizing: "border-box", fontFamily: "inherit" }}
                     onFocus={(e) => { e.currentTarget.style.borderColor = "#0062ff"; e.currentTarget.style.boxShadow = "0 0 0 3px rgba(0,98,255,0.2)"; }}
                     onBlur={(e) => { e.currentTarget.style.borderColor = "#2d3449"; e.currentTarget.style.boxShadow = "none"; }}
@@ -318,26 +321,26 @@ export function ProductForm({ mode, units, categories, initialValues = {}, actio
               </div>
             </SectionCard>
 
-            <SectionCard title="Classification" icon={
+            <SectionCard title={t.products.classification} icon={
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                 <path d="M2 4.5H14M2 8H10M2 11.5H7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
               </svg>
             }>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
                 <div>
-                  <Label htmlFor="categoryId" optional>Category</Label>
+                  <Label htmlFor="categoryId" optional optionalText={t.common.optional}>{t.products.category}</Label>
                   <Select id="categoryId" name="categoryId" defaultValue={initialValues.categoryId ?? ""} error={fieldError("categoryId")}>
-                    <option value="">No Category</option>
+                    <option value="">{t.products.noCategory}</option>
                     {categories.map((cat) => <option key={cat.id} value={cat.id}>{cat.name}</option>)}
                   </Select>
                 </div>
                 <div>
                   <Label htmlFor="defaultUnitId" required={mode === "create"}>
-                    Base Unit
-                    {mode === "edit" && <span style={{ fontSize: "11px", color: "#4a5068", marginLeft: "6px" }}>(read-only)</span>}
+                    {t.products.baseUnit}
+                    {mode === "edit" && <span style={{ fontSize: "11px", color: "#4a5068", marginInlineStart: "6px" }}>{t.products.readOnly}</span>}
                   </Label>
                   <Select id="defaultUnitId" name="defaultUnitId" defaultValue={initialValues.defaultUnitId ?? ""} disabled={mode === "edit"} error={fieldError("defaultUnitId")}>
-                    <option value="">Select unit…</option>
+                    <option value="">{t.products.selectUnit}</option>
                     {units.map((u) => <option key={u.id} value={u.id}>{u.name} ({u.symbol})</option>)}
                   </Select>
                   {mode === "edit" && initialValues.defaultUnitId && (
@@ -347,7 +350,7 @@ export function ProductForm({ mode, units, categories, initialValues = {}, actio
               </div>
             </SectionCard>
 
-            <SectionCard title="Inventory Settings" icon={
+            <SectionCard title={t.products.inventorySettings} icon={
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                 <rect x="1.5" y="3.5" width="13" height="9" rx="1" stroke="currentColor" strokeWidth="1.5" />
                 <path d="M5 3.5V2M11 3.5V2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
@@ -355,13 +358,13 @@ export function ProductForm({ mode, units, categories, initialValues = {}, actio
               </svg>
             }>
               <div style={{ maxWidth: "240px" }}>
-                <Label htmlFor="lowStockThreshold">Low Stock Threshold</Label>
+                <Label htmlFor="lowStockThreshold">{t.products.lowStockThreshold}</Label>
                 <Input id="lowStockThreshold" name="lowStockThreshold" type="number" min={0} defaultValue={initialValues.lowStockThreshold ?? 10} placeholder="10" error={fieldError("lowStockThreshold")} />
-                <p style={{ fontSize: "11px", color: "#4a5068", marginTop: "6px" }}>Warn when stock falls at or below this quantity.</p>
+                <p style={{ fontSize: "11px", color: "#4a5068", marginTop: "6px" }}>{t.products.lowStockThresholdHint}</p>
               </div>
             </SectionCard>
 
-            <SectionCard title="Alternate Unit Conversions" icon={
+            <SectionCard title={t.products.alternateUnitConversions} icon={
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                 <path d="M2 8H14M10 4L14 8L10 12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
@@ -369,11 +372,11 @@ export function ProductForm({ mode, units, categories, initialValues = {}, actio
               <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                 {conversions.length === 0 ? (
                   <p style={{ fontSize: "13px", color: "#4a5068", margin: "0 0 8px" }}>
-                    No unit conversions defined. Add one to enable selling in alternate units.
+                    {t.products.noConversions}
                   </p>
                 ) : (
                   conversions.map((row, i) => (
-                    <ConversionRowItem key={row.id} row={row} units={units} index={i} onRemove={removeConversion} onChange={updateConversion} />
+                    <ConversionRowItem key={row.id} row={row} units={units} index={i} onRemove={removeConversion} onChange={updateConversion} t={t} />
                   ))
                 )}
                 <button
@@ -384,7 +387,7 @@ export function ProductForm({ mode, units, categories, initialValues = {}, actio
                   <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
                     <path d="M6 1.5V10.5M1.5 6H10.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
                   </svg>
-                  Add Conversion
+                  {t.products.addConversion}
                 </button>
               </div>
             </SectionCard>
@@ -395,10 +398,10 @@ export function ProductForm({ mode, units, categories, initialValues = {}, actio
                 disabled={pending}
                 style={{ padding: "10px 24px", borderRadius: "8px", background: pending ? "#0044b8" : "#0062ff", color: "#fff", fontSize: "14px", fontWeight: 600, border: "none", cursor: pending ? "not-allowed" : "pointer", opacity: pending ? 0.8 : 1 }}
               >
-                {pending ? "Saving…" : mode === "create" ? "Save Product" : "Save Changes"}
+                {pending ? t.products.saving : mode === "create" ? t.products.saveProduct : t.products.saveChanges}
               </button>
               <a href="/dashboard/products" style={{ padding: "10px 20px", borderRadius: "8px", border: "1px solid #2d3449", color: "#8c90a2", fontSize: "13px", fontWeight: 500, textDecoration: "none" }}>
-                Cancel
+                {t.common.cancel}
               </a>
             </div>
           </div>

@@ -3,6 +3,8 @@ import { redirect } from "next/navigation";
 import { getSession } from "@/core/auth/session";
 import { db } from "@/lib/db";
 import { requirePagePermission } from "@/core/auth/require-page-permission";
+import { getLocale } from "@/core/i18n/locale";
+import { getDictionary } from "@/core/i18n/get-dictionary";
 
 export const dynamic = "force-dynamic";
 
@@ -60,6 +62,9 @@ export default async function EmployeesPage({ searchParams }: PageProps) {
   const session = await getSession();
   if (!session) redirect("/login");
   await requirePagePermission(session, "employees.employee.read");
+
+  const locale = await getLocale();
+  const t = getDictionary(locale).employees.list;
 
   const params = await searchParams;
   const q = params.q?.trim() ?? "";
@@ -141,7 +146,7 @@ export default async function EmployeesPage({ searchParams }: PageProps) {
                 margin: 0,
               }}
             >
-              Employees
+              {t.title}
             </h1>
             <p
               style={{
@@ -150,7 +155,7 @@ export default async function EmployeesPage({ searchParams }: PageProps) {
                 marginTop: "4px",
               }}
             >
-              Manage warehouse staff, roles, and access permissions.
+              {t.subtitle}
             </p>
           </div>
           <Link
@@ -183,7 +188,7 @@ export default async function EmployeesPage({ searchParams }: PageProps) {
                 strokeLinecap="round"
               />
             </svg>
-            Add Employee
+            {t.addEmployee}
           </Link>
         </div>
 
@@ -197,9 +202,9 @@ export default async function EmployeesPage({ searchParams }: PageProps) {
           }}
         >
           {[
-            { label: "Total Employees", value: totalAll },
-            { label: "Active", value: totalActive },
-            { label: "Recently Added", value: recentCount, sub: "last 7 days" },
+            { label: t.statTotalEmployees, value: totalAll },
+            { label: t.statActive, value: totalActive },
+            { label: t.statRecentlyAdded, value: recentCount, sub: t.statLast7Days },
           ].map((stat) => (
             <div
               key={stat.label}
@@ -282,7 +287,7 @@ export default async function EmployeesPage({ searchParams }: PageProps) {
                 fill="none"
                 style={{
                   position: "absolute",
-                  left: "10px",
+                  insetInlineStart: "10px",
                   top: "50%",
                   transform: "translateY(-50%)",
                   color: "#4a5068",
@@ -307,11 +312,11 @@ export default async function EmployeesPage({ searchParams }: PageProps) {
                 name="q"
                 type="text"
                 defaultValue={q}
-                placeholder="Search by name or email..."
+                placeholder={t.searchPlaceholder}
                 style={{
                   width: "100%",
-                  paddingLeft: "32px",
-                  paddingRight: "12px",
+                  paddingInlineStart: "32px",
+                  paddingInlineEnd: "12px",
                   paddingTop: "8px",
                   paddingBottom: "8px",
                   background: "#0d1627",
@@ -343,7 +348,7 @@ export default async function EmployeesPage({ searchParams }: PageProps) {
                 defaultChecked={showArchived}
                 style={{ accentColor: "#0062ff" }}
               />
-              Show archived
+              {t.showArchived}
             </label>
 
             <button
@@ -359,7 +364,7 @@ export default async function EmployeesPage({ searchParams }: PageProps) {
                 cursor: "pointer",
               }}
             >
-              Search
+              {t.search}
             </button>
           </form>
         </div>
@@ -389,18 +394,18 @@ export default async function EmployeesPage({ searchParams }: PageProps) {
                   }}
                 >
                   {[
-                    "Employee",
-                    "Email",
-                    "Role",
-                    "Status",
-                    "Joined",
-                    "Actions",
+                    t.colEmployee,
+                    t.colEmail,
+                    t.colRole,
+                    t.colStatus,
+                    t.colJoined,
+                    t.colActions,
                   ].map((h) => (
                     <th
                       key={h}
                       style={{
                         padding: "12px 16px",
-                        textAlign: "left",
+                        textAlign: "start",
                         fontWeight: 600,
                         color: "#8c90a2",
                         fontSize: "11px",
@@ -427,10 +432,10 @@ export default async function EmployeesPage({ searchParams }: PageProps) {
                       }}
                     >
                       {q
-                        ? "No employees match your search."
+                        ? t.emptyNoMatch
                         : showArchived
-                        ? "No archived employees found."
-                        : "No employees yet. Add your first employee to get started."}
+                        ? t.emptyNoArchived
+                        : t.emptyNoEmployees}
                     </td>
                   </tr>
                 ) : (
@@ -525,7 +530,7 @@ export default async function EmployeesPage({ searchParams }: PageProps) {
                             <span
                               style={{ color: "#4a5068", fontSize: "12px" }}
                             >
-                              No role
+                              {t.noRole}
                             </span>
                           )}
                         </td>
@@ -545,7 +550,7 @@ export default async function EmployeesPage({ searchParams }: PageProps) {
                                 color: "#8c90a2",
                               }}
                             >
-                              Archived
+                              {t.archived}
                             </span>
                           ) : (
                             <span
@@ -560,7 +565,7 @@ export default async function EmployeesPage({ searchParams }: PageProps) {
                                 color: "#62df7d",
                               }}
                             >
-                              Active
+                              {t.active}
                             </span>
                           )}
                         </td>
@@ -601,7 +606,7 @@ export default async function EmployeesPage({ searchParams }: PageProps) {
                               textDecoration: "none",
                             }}
                           >
-                            {isArchived ? "View" : "Edit"}
+                            {isArchived ? t.view : t.edit}
                           </Link>
                         </td>
                       </tr>
@@ -625,8 +630,10 @@ export default async function EmployeesPage({ searchParams }: PageProps) {
               }}
             >
               <span style={{ fontSize: "13px", color: "#8c90a2" }}>
-                Showing {skip + 1}–{Math.min(skip + PAGE_SIZE, total)} of{" "}
-                {total} results
+                {t.showingResults
+                  .replace("{from}", String(skip + 1))
+                  .replace("{to}", String(Math.min(skip + PAGE_SIZE, total)))
+                  .replace("{total}", String(total))}
               </span>
               <div style={{ display: "flex", gap: "8px" }}>
                 {page > 1 && (
@@ -641,7 +648,7 @@ export default async function EmployeesPage({ searchParams }: PageProps) {
                       textDecoration: "none",
                     }}
                   >
-                    Previous
+                    {t.previous}
                   </Link>
                 )}
                 <span
@@ -668,7 +675,7 @@ export default async function EmployeesPage({ searchParams }: PageProps) {
                       textDecoration: "none",
                     }}
                   >
-                    Next
+                    {t.next}
                   </Link>
                 )}
               </div>
@@ -681,11 +688,11 @@ export default async function EmployeesPage({ searchParams }: PageProps) {
             marginTop: "12px",
             fontSize: "12px",
             color: "#4a5068",
-            textAlign: "right",
+            textAlign: "end",
           }}
         >
-          {total} employee{total !== 1 ? "s" : ""}
-          {showArchived ? " (including archived)" : ""}
+          {total} {total !== 1 ? t.footerCountPlural : t.footerCountSingular}
+          {showArchived ? t.footerIncludingArchived : ""}
         </div>
       </div>
     </div>

@@ -7,10 +7,8 @@ import { getSession } from "@/core/auth/session";
 import { writeAuditLog } from "@/core/audit/write-audit-log";
 import { requirePermission } from "@/core/auth/require-permission";
 import { isOwnerRole } from "@/core/auth/owner-guard";
-
-const createRoleSchema = z.object({
-  roleTemplateId: z.string().min(1, "Please select a role template"),
-});
+import { getLocale } from "@/core/i18n/locale";
+import { getDictionary } from "@/core/i18n/get-dictionary";
 
 export type CreateRoleActionState =
   | { success: true; roleId: string }
@@ -22,15 +20,20 @@ export async function createWarehouseRoleAction(
   formData: FormData
 ): Promise<CreateRoleActionState> {
   const session = await getSession();
+  const dict = getDictionary(await getLocale()).employees.roles;
   if (!session) {
-    return { error: "Unauthorized" };
+    return { error: dict.unauthorized };
   }
 
   try {
     await requirePermission(session, "roles.role.create");
   } catch {
-    return { error: "You do not have permission to create roles" };
+    return { error: dict.noPermissionCreate };
   }
+
+  const createRoleSchema = z.object({
+    roleTemplateId: z.string().min(1, dict.templateRequired),
+  });
 
   const parsed = createRoleSchema.safeParse({
     roleTemplateId: formData.get("roleTemplateId"),
@@ -39,7 +42,7 @@ export async function createWarehouseRoleAction(
   if (!parsed.success) {
     const firstError =
       parsed.error.flatten().fieldErrors.roleTemplateId?.[0] ??
-      "Invalid form data";
+      dict.invalidFormData;
     return { error: firstError };
   }
 
@@ -51,11 +54,11 @@ export async function createWarehouseRoleAction(
   });
 
   if (!template) {
-    return { error: "Role template not found" };
+    return { error: dict.templateNotFound };
   }
 
   if (isOwnerRole(template.name)) {
-    return { error: "The Owner role is system-protected and cannot be added via this form." };
+    return { error: dict.ownerTemplateProtected };
   }
 
   const existing = await db.warehouseRole.findUnique({
@@ -69,7 +72,7 @@ export async function createWarehouseRoleAction(
   });
 
   if (existing) {
-    return { error: "This role template is already assigned to your warehouse" };
+    return { error: dict.templateAlreadyAssigned };
   }
 
   const warehouseRole = await db.warehouseRole.create({

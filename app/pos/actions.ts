@@ -8,6 +8,8 @@ import { requirePermission } from "@/core/auth/require-permission";
 import { writeAuditLog } from "@/core/audit/write-audit-log";
 import { recordMovement } from "@/core/inventory/record-movement";
 import { resolveBaseQuantity } from "@/core/inventory/resolve-base-quantity";
+import { getLocale } from "@/core/i18n/locale";
+import { getDictionary } from "@/core/i18n/get-dictionary";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -38,21 +40,6 @@ export type PosActionState =
   | null;
 
 // ---------------------------------------------------------------------------
-// Schema
-// ---------------------------------------------------------------------------
-
-const cartLineSchema = z.object({
-  productId: z.string().min(1, "Product ID is required"),
-  unitId: z.string().min(1, "Unit ID is required"),
-  quantity: z.number().positive("Quantity must be greater than 0"),
-  unitPrice: z.number().positive("Unit price must be greater than 0"),
-});
-
-const cartSchema = z
-  .array(cartLineSchema)
-  .min(1, "Cart must contain at least one item");
-
-// ---------------------------------------------------------------------------
 // completeSaleAction
 // ---------------------------------------------------------------------------
 
@@ -60,33 +47,46 @@ export async function completeSaleAction(
   _prevState: PosActionState,
   formData: FormData
 ): Promise<PosActionState> {
+  const locale = await getLocale();
+  const dict = getDictionary(locale);
+  const t = dict.pos.errors;
+
+  const cartLineSchema = z.object({
+    productId: z.string().min(1, t.productIdRequired),
+    unitId: z.string().min(1, t.unitIdRequired),
+    quantity: z.number().positive(t.quantityPositive),
+    unitPrice: z.number().positive(t.unitPricePositive),
+  });
+
+  const cartSchema = z.array(cartLineSchema).min(1, t.cartMinOneItem);
+
   const session = await getSession();
-  if (!session) return { error: "Unauthorized" };
+  if (!session) return { error: t.unauthorized };
 
   try {
     await requirePermission(session, "pos.sales.create");
   } catch {
-    return { error: "You do not have permission to process POS sales." };
+    return { error: t.noPermission };
   }
 
   // Parse cart JSON from formData
   const cartRaw = formData.get("cart");
   if (!cartRaw || typeof cartRaw !== "string") {
-    return { error: "Cart data is missing." };
+    return { error: t.cartMissing };
   }
 
   let cartParsed: unknown;
   try {
     cartParsed = JSON.parse(cartRaw);
   } catch {
-    return { error: "Invalid cart data format." };
+    return { error: t.cartInvalidFormat };
   }
 
   const validated = cartSchema.safeParse(cartParsed);
   if (!validated.success) {
     // Zod v4 uses .issues; fall back to flatten for compat with older versions
     const issues = validated.error.issues ?? [];
-    const firstError = issues[0]?.message ?? "Invalid cart data.";
+    const firstError = issues[0]?.message ?? t.cartInvalid;
     return { error: firstError };
   }
 
@@ -105,7 +105,9 @@ export async function completeSaleAction(
   // Validate all products belong to this org's warehouse
   for (const line of cart) {
     if (!productMap.has(line.productId)) {
-      return { error: `Product not found: ${line.productId}` };
+      return {
+        error: t.productNotFound.replace("{productId}", line.productId),
+      };
     }
   }
 
@@ -134,12 +136,18 @@ export async function completeSaleAction(
         allowNegative: false,
       });
     } catch (err) {
-      const msg = err instanceof Error ? err.message : "Stock error";
+      const msg = err instanceof Error ? err.message : t.stockError;
       // Return a user-friendly error referencing the product name
       if (msg.toLowerCase().includes("insufficient")) {
-        return { error: `Out of stock: ${product.name}` };
+        return {
+          error: t.outOfStock.replace("{productName}", product.name),
+        };
       }
-      return { error: `Failed to deduct stock for ${product.name}: ${msg}` };
+      return {
+        error: t.stockDeductionFailed
+          .replace("{productName}", product.name)
+          .replace("{message}", msg),
+      };
     }
   }
 

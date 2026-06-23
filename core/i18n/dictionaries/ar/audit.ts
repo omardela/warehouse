@@ -1,0 +1,68 @@
+import audit from "../en/audit";
+
+const dict: typeof audit = {
+  pageTitle: "سجل التدقيق",
+  pageSubtitle: "سجل ثابت لجميع أحداث النظام",
+
+  actionLabel: "الإجراء",
+  allActions: "جميع الإجراءات",
+  from: "من",
+  to: "إلى",
+  filter: "تصفية",
+  clear: "مسح",
+  exportCsv: "تصدير CSV",
+  exportCsvTooltip: "تصدير CSV قريبًا",
+
+  colTimestamp: "الوقت والتاريخ",
+  colActor: "المستخدم",
+  colAction: "الإجراء",
+  colEntityType: "نوع الكائن",
+  colEntityId: "معرّف الكائن",
+  colDiff: "الفرق",
+
+  noEntries: "لا توجد إدخالات في سجل التدقيق.",
+  viewDiff: "عرض الفرق",
+  before: "قبل",
+  after: "بعد",
+
+  showing: "عرض",
+  to_: "إلى",
+  ofEntries: "من {total} إدخال",
+  previous: "السابق",
+  next: "التالي",
+  page: "صفحة",
+  of: "من",
+
+  actions: {
+    "auth.login": "تسجيل دخول",
+    "auth.login_failed": "فشل تسجيل الدخول",
+    "auth.logout": "تسجيل خروج",
+    "inventory.product.create": "تم إنشاء منتج",
+    "inventory.product.update": "تم تحديث منتج",
+    "inventory.product.delete": "تم حذف منتج",
+    "inventory.movement.create": "تم إنشاء حركة مخزون",
+    "sales.invoice.create": "تم إنشاء فاتورة مبيعات",
+    "sales.invoice.confirm": "تم تأكيد فاتورة مبيعات",
+    "sales.invoice.cancel": "تم إلغاء فاتورة مبيعات",
+    "purchase.invoice.create": "تم إنشاء فاتورة مشتريات",
+    "purchase.invoice.confirm": "تم تأكيد فاتورة مشتريات",
+    "purchase.invoice.cancel": "تم إلغاء فاتورة مشتريات",
+    "payments.payment.create": "تم إنشاء دفعة",
+    "employees.employee.create": "تم إنشاء موظف",
+    "employees.employee.update": "تم تحديث موظف",
+    "employees.employee.archive": "تم أرشفة موظف",
+    "customers.customer.create": "تم إنشاء عميل",
+    "customers.customer.update": "تم تحديث عميل",
+    "customers.customer.archive": "تم أرشفة عميل",
+    "suppliers.supplier.create": "تم إنشاء مورّد",
+    "suppliers.supplier.update": "تم تحديث مورّد",
+    "suppliers.supplier.archive": "تم أرشفة مورّد",
+    "warehouse.create": "تم إنشاء مستودع",
+    "warehouse.update": "تم تحديث مستودع",
+    "roles.role.create": "تم إنشاء دور",
+    "roles.role.update": "تم تحديث دور",
+    "roles.role.delete": "تم حذف دور",
+  },
+};
+
+export default dict;

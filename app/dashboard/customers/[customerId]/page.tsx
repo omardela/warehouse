@@ -6,6 +6,8 @@ import { requirePagePermission } from "@/core/auth/require-page-permission";
 import { CustomerForm } from "../new/CustomerForm";
 import { updateCustomerAction, archiveCustomerAction } from "../actions";
 import { ArchiveCustomerButton } from "./ArchiveCustomerButton";
+import { getLocale } from "@/core/i18n/locale";
+import { getDictionary, type Dictionary } from "@/core/i18n/get-dictionary";
 
 export const dynamic = "force-dynamic";
 
@@ -17,17 +19,19 @@ function formatCurrency(val: number): string {
   return val.toLocaleString("en-US", { style: "currency", currency: "USD", minimumFractionDigits: 2 });
 }
 
-function formatDate(d: Date): string {
-  return d.toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
+function formatDate(d: Date, locale: "en" | "ar"): string {
+  return d.toLocaleDateString(locale === "ar" ? "ar" : "en-US", { year: "numeric", month: "short", day: "numeric" });
 }
 
-function StatusBadge({ status }: { status: string }) {
+function StatusBadge({ status, t }: { status: string; t: Dictionary }) {
   const map: Record<string, { bg: string; color: string }> = {
     DRAFT: { bg: "rgba(139,92,246,0.15)", color: "#a78bfa" },
     CONFIRMED: { bg: "rgba(98,223,125,0.1)", color: "#62df7d" },
     CANCELLED: { bg: "rgba(140,144,162,0.1)", color: "#8c90a2" },
   };
   const style = map[status] ?? { bg: "rgba(140,144,162,0.1)", color: "#8c90a2" };
+  const label =
+    status === "DRAFT" ? t.common.draft : status === "CONFIRMED" ? t.common.confirmed : t.common.cancelled;
   return (
     <span
       style={{
@@ -41,7 +45,7 @@ function StatusBadge({ status }: { status: string }) {
         fontWeight: 600,
       }}
     >
-      {status}
+      {label}
     </span>
   );
 }
@@ -50,6 +54,9 @@ export default async function CustomerDetailPage({ params }: PageProps) {
   const session = await getSession();
   if (!session) redirect("/login");
   await requirePagePermission(session, "customers.customer.read");
+
+  const locale = await getLocale();
+  const t = getDictionary(locale);
 
   const { customerId } = await params;
 
@@ -76,17 +83,28 @@ export default async function CustomerDetailPage({ params }: PageProps) {
     (sum, inv) => sum + inv.payments.reduce((ps, p) => ps + Number(p.amount), 0),
     0
   );
-  const outstandingBalance = totalInvoiced - totalPaid;
+
+  // Confirmed sales credit notes (returns) reduce the customer's outstanding balance.
+  const confirmedCreditNotes = await db.creditNote.findMany({
+    where: { type: "SALE", status: "CONFIRMED", originalInvoice: { customerId } },
+    include: { lines: { select: { displayQuantity: true, unitPrice: true } } },
+  });
+  const totalCredited = confirmedCreditNotes.reduce(
+    (sum, cn) => sum + cn.lines.reduce((ls, l) => ls + Number(l.displayQuantity) * Number(l.unitPrice), 0),
+    0
+  );
+
+  const outstandingBalance = totalInvoiced - totalPaid - totalCredited;
 
   const creditLimit = customer.creditLimit != null ? Number(customer.creditLimit) : null;
   const availableCredit = creditLimit != null ? creditLimit - outstandingBalance : null;
 
   const PAYMENT_TERMS_LABELS: Record<string, string> = {
-    COD: "COD (Cash on Delivery)",
-    NET_15: "Net 15",
-    NET_30: "Net 30",
-    NET_60: "Net 60",
-    NET_90: "Net 90",
+    COD: t.customers.form.paymentTermsCod,
+    NET_15: t.customers.form.paymentTermsNet15,
+    NET_30: t.customers.form.paymentTermsNet30,
+    NET_60: t.customers.form.paymentTermsNet60,
+    NET_90: t.customers.form.paymentTermsNet90,
   };
 
   return (
@@ -96,7 +114,7 @@ export default async function CustomerDetailPage({ params }: PageProps) {
         <div style={{ marginBottom: "24px" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px" }}>
             <Link href="/dashboard/customers" style={{ color: "#8c90a2", textDecoration: "none", fontSize: "13px" }}>
-              Customers
+              {t.customers.form.breadcrumb}
             </Link>
             <span style={{ color: "#4a5068" }}>/</span>
             <span style={{ color: "#8c90a2", fontSize: "13px" }}>{customer.name}</span>
@@ -109,7 +127,7 @@ export default async function CustomerDetailPage({ params }: PageProps) {
                 </h1>
                 {customer.archivedAt && (
                   <span style={{ display: "inline-flex", alignItems: "center", padding: "2px 8px", borderRadius: "10px", background: "rgba(140,144,162,0.1)", color: "#8c90a2", fontSize: "11px", fontWeight: 600 }}>
-                    ARCHIVED
+                    {t.customers.detail.archivedBadge}
                   </span>
                 )}
               </div>
@@ -125,15 +143,15 @@ export default async function CustomerDetailPage({ params }: PageProps) {
 
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "16px", marginBottom: "16px" }}>
           <div style={{ background: "#171f33", border: "1px solid #222a3e", borderRadius: "10px", padding: "16px" }}>
-            <div style={{ fontSize: "11px", fontWeight: 600, color: "#8c90a2", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: "8px" }}>Total Invoiced</div>
+            <div style={{ fontSize: "11px", fontWeight: 600, color: "#8c90a2", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: "8px" }}>{t.customers.detail.totalInvoiced}</div>
             <div style={{ fontSize: "20px", fontWeight: 700, color: "#dbe2fd" }}>{formatCurrency(totalInvoiced)}</div>
           </div>
           <div style={{ background: "#171f33", border: "1px solid #222a3e", borderRadius: "10px", padding: "16px" }}>
-            <div style={{ fontSize: "11px", fontWeight: 600, color: "#8c90a2", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: "8px" }}>Total Paid</div>
+            <div style={{ fontSize: "11px", fontWeight: 600, color: "#8c90a2", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: "8px" }}>{t.customers.detail.totalPaid}</div>
             <div style={{ fontSize: "20px", fontWeight: 700, color: "#62df7d" }}>{formatCurrency(totalPaid)}</div>
           </div>
           <div style={{ background: "#171f33", border: "1px solid #222a3e", borderRadius: "10px", padding: "16px" }}>
-            <div style={{ fontSize: "11px", fontWeight: 600, color: "#8c90a2", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: "8px" }}>Outstanding Balance</div>
+            <div style={{ fontSize: "11px", fontWeight: 600, color: "#8c90a2", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: "8px" }}>{t.customers.detail.outstandingBalance}</div>
             <div style={{ fontSize: "20px", fontWeight: 700, color: outstandingBalance > 0 ? "#f59e0b" : "#62df7d" }}>
               {formatCurrency(outstandingBalance)}
             </div>
@@ -142,21 +160,21 @@ export default async function CustomerDetailPage({ params }: PageProps) {
 
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "16px", marginBottom: "24px" }}>
           <div style={{ background: "#171f33", border: "1px solid #222a3e", borderRadius: "10px", padding: "16px" }}>
-            <div style={{ fontSize: "11px", fontWeight: 600, color: "#8c90a2", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: "8px" }}>Credit Limit</div>
+            <div style={{ fontSize: "11px", fontWeight: 600, color: "#8c90a2", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: "8px" }}>{t.customers.detail.creditLimit}</div>
             <div style={{ fontSize: "20px", fontWeight: 700, color: "#dbe2fd" }}>
-              {creditLimit != null ? formatCurrency(creditLimit) : <span style={{ color: "#4a5068", fontSize: "14px", fontWeight: 500 }}>No limit</span>}
+              {creditLimit != null ? formatCurrency(creditLimit) : <span style={{ color: "#4a5068", fontSize: "14px", fontWeight: 500 }}>{t.customers.detail.noLimit}</span>}
             </div>
           </div>
           <div style={{ background: "#171f33", border: "1px solid #222a3e", borderRadius: "10px", padding: "16px" }}>
-            <div style={{ fontSize: "11px", fontWeight: 600, color: "#8c90a2", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: "8px" }}>Available Credit</div>
+            <div style={{ fontSize: "11px", fontWeight: 600, color: "#8c90a2", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: "8px" }}>{t.customers.detail.availableCredit}</div>
             <div style={{ fontSize: "20px", fontWeight: 700, color: availableCredit != null && availableCredit < 0 ? "#ffb4ab" : "#dbe2fd" }}>
-              {availableCredit != null ? formatCurrency(availableCredit) : <span style={{ color: "#4a5068", fontSize: "14px", fontWeight: 500 }}>N/A</span>}
+              {availableCredit != null ? formatCurrency(availableCredit) : <span style={{ color: "#4a5068", fontSize: "14px", fontWeight: 500 }}>{t.customers.detail.notApplicable}</span>}
             </div>
           </div>
           <div style={{ background: "#171f33", border: "1px solid #222a3e", borderRadius: "10px", padding: "16px" }}>
-            <div style={{ fontSize: "11px", fontWeight: 600, color: "#8c90a2", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: "8px" }}>Payment Terms</div>
+            <div style={{ fontSize: "11px", fontWeight: 600, color: "#8c90a2", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: "8px" }}>{t.customers.detail.paymentTerms}</div>
             <div style={{ fontSize: "20px", fontWeight: 700, color: "#dbe2fd" }}>
-              {customer.paymentTerms ? PAYMENT_TERMS_LABELS[customer.paymentTerms] ?? customer.paymentTerms : <span style={{ color: "#4a5068", fontSize: "14px", fontWeight: 500 }}>Not set</span>}
+              {customer.paymentTerms ? PAYMENT_TERMS_LABELS[customer.paymentTerms] ?? customer.paymentTerms : <span style={{ color: "#4a5068", fontSize: "14px", fontWeight: 500 }}>{t.customers.detail.notSet}</span>}
             </div>
           </div>
         </div>
@@ -191,30 +209,36 @@ export default async function CustomerDetailPage({ params }: PageProps) {
               }}
             >
               <div style={{ padding: "16px 20px", borderBottom: "1px solid #222a3e", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                <h2 style={{ fontSize: "14px", fontWeight: 600, color: "#dbe2fd", margin: 0 }}>Transaction History</h2>
+                <h2 style={{ fontSize: "14px", fontWeight: 600, color: "#dbe2fd", margin: 0 }}>{t.customers.detail.transactionHistory}</h2>
                 <Link
                   href={`/dashboard/sales?customerId=${customerId}`}
                   style={{ fontSize: "12px", color: "#0062ff", textDecoration: "none" }}
                 >
-                  View all invoices
+                  {t.customers.detail.viewAllInvoices}
                 </Link>
               </div>
 
               {customer.invoices.length === 0 ? (
                 <div style={{ padding: "32px 20px", textAlign: "center", color: "#8c90a2", fontSize: "13px" }}>
-                  No sales invoices yet.
+                  {t.customers.detail.noInvoicesYet}
                 </div>
               ) : (
                 <div style={{ overflowX: "auto" }}>
                   <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "12px" }}>
                     <thead>
                       <tr style={{ background: "#0d1627" }}>
-                        {["Invoice", "Status", "Amount", "Paid", "Date"].map((h) => (
+                        {[
+                          t.customers.detail.columnInvoice,
+                          t.customers.detail.columnStatus,
+                          t.customers.detail.columnAmount,
+                          t.customers.detail.columnPaid,
+                          t.customers.detail.columnDate,
+                        ].map((h) => (
                           <th
                             key={h}
                             style={{
                               padding: "10px 14px",
-                              textAlign: "left",
+                              textAlign: "start",
                               fontWeight: 600,
                               color: "#8c90a2",
                               fontSize: "10px",
@@ -242,7 +266,7 @@ export default async function CustomerDetailPage({ params }: PageProps) {
                               </Link>
                             </td>
                             <td style={{ padding: "10px 14px" }}>
-                              <StatusBadge status={inv.status} />
+                              <StatusBadge status={inv.status} t={t} />
                             </td>
                             <td style={{ padding: "10px 14px", color: "#dbe2fd", fontWeight: 500 }}>
                               {formatCurrency(Number(inv.totalAmount))}
@@ -251,7 +275,7 @@ export default async function CustomerDetailPage({ params }: PageProps) {
                               {formatCurrency(paid)}
                             </td>
                             <td style={{ padding: "10px 14px", color: "#8c90a2" }}>
-                              {formatDate(inv.createdAt)}
+                              {formatDate(inv.createdAt, locale)}
                             </td>
                           </tr>
                         );

@@ -7,6 +7,8 @@ import {
   type UpdateRolePermissionsState,
   type UpdateRoleNameState,
 } from "./actions";
+import { useTranslations } from "@/providers/locale-context";
+import type { Dictionary } from "@/core/i18n/get-dictionary";
 
 type PermissionItem = {
   id: string;
@@ -21,21 +23,24 @@ type ModuleGroup = {
 };
 
 const MODULE_ORDER = [
-  { key: "inventory",  label: "Inventory" },
-  { key: "sales",      label: "Sales" },
-  { key: "purchase",   label: "Purchases" },
-  { key: "payments",   label: "Payments" },
-  { key: "employees",  label: "Employees" },
-  { key: "customers",  label: "Customers" },
-  { key: "suppliers",  label: "Suppliers" },
-  { key: "pos",        label: "Point of Sale" },
-  { key: "reports",    label: "Reports" },
-  { key: "audit",      label: "Audit Logs" },
-  { key: "settings",   label: "Settings" },
-  { key: "roles",      label: "Roles & Permissions" },
-];
+  "inventory",
+  "sales",
+  "purchase",
+  "payments",
+  "employees",
+  "customers",
+  "suppliers",
+  "pos",
+  "reports",
+  "audit",
+  "settings",
+  "roles",
+] as const;
 
-function groupPermissions(permissions: PermissionItem[]): ModuleGroup[] {
+function groupPermissions(
+  permissions: PermissionItem[],
+  moduleLabels: Dictionary["employees"]["roles"]["modules"]
+): ModuleGroup[] {
   const map = new Map<string, PermissionItem[]>();
 
   for (const p of permissions) {
@@ -45,14 +50,14 @@ function groupPermissions(permissions: PermissionItem[]): ModuleGroup[] {
   }
 
   const ordered: ModuleGroup[] = [];
-  for (const { key, label } of MODULE_ORDER) {
+  for (const key of MODULE_ORDER) {
     if (map.has(key)) {
-      ordered.push({ module: key, label, permissions: map.get(key)! });
+      ordered.push({ module: key, label: moduleLabels[key] ?? key, permissions: map.get(key)! });
     }
   }
 
   for (const [key, perms] of map) {
-    if (!MODULE_ORDER.find((m) => m.key === key)) {
+    if (!MODULE_ORDER.find((m) => m === key)) {
       ordered.push({ module: key, label: key, permissions: perms });
     }
   }
@@ -172,6 +177,7 @@ export function RolePermissionForm({
   allPermissions: PermissionItem[];
   assignedPermissionIds: string[];
 }) {
+  const t = useTranslations().employees.roles;
   const [checkedIds, setCheckedIds] = useState<Set<string>>(
     new Set(assignedPermissionIds)
   );
@@ -187,7 +193,7 @@ export function RolePermissionForm({
     FormData
   >(updateRoleNameAction, null);
 
-  const groups = groupPermissions(allPermissions);
+  const groups = groupPermissions(allPermissions, t.modules);
 
   function togglePermission(id: string) {
     setCheckedIds((prev) => {
@@ -237,7 +243,7 @@ export function RolePermissionForm({
             letterSpacing: "0.06em",
           }}
         >
-          Role Name
+          {t.roleName}
         </h2>
 
         {nameState && "success" in nameState && (
@@ -258,7 +264,7 @@ export function RolePermissionForm({
             <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
               <path d="M2 6L4.5 8.5L10 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
-            Role renamed to &ldquo;{nameState.name}&rdquo;.
+            {t.renamedSuccess.replace("{name}", nameState.name)}
           </div>
         )}
         {nameState && "error" in nameState && (
@@ -332,7 +338,7 @@ export function RolePermissionForm({
                 whiteSpace: "nowrap",
               }}
             >
-              {nameIsPending ? "Saving..." : "Rename"}
+              {nameIsPending ? t.saving : t.rename}
             </button>
           </form>
         )}
@@ -370,8 +376,7 @@ export function RolePermissionForm({
             <circle cx="8" cy="11" r="0.75" fill="currentColor" />
           </svg>
           <span>
-            <strong>System-protected role.</strong> The Owner role always has full access to all
-            permissions. Its permissions cannot be modified or removed.
+            <strong>{t.ownerProtectedTitle}</strong> {t.ownerProtectedBody}
           </span>
         </div>
       )}
@@ -399,7 +404,7 @@ export function RolePermissionForm({
               strokeLinejoin="round"
             />
           </svg>
-          Permissions saved successfully.
+          {t.permissionsSavedSuccess}
         </div>
       )}
       {state && "error" in state && (
@@ -432,10 +437,9 @@ export function RolePermissionForm({
         }}
       >
         <span style={{ fontSize: "12px", color: "#8c90a2" }}>
-          <span style={{ color: "#dbe2fd", fontWeight: 600 }}>
-            {totalSelected}
-          </span>{" "}
-          of {allPermissions.length} permissions selected
+          {t.permissionsSelected
+            .replace("{count}", String(totalSelected))
+            .replace("{total}", String(allPermissions.length))}
         </span>
         {!isOwner && (
           <button
@@ -452,7 +456,7 @@ export function RolePermissionForm({
               cursor: isPending ? "not-allowed" : "pointer",
             }}
           >
-            {isPending ? "Saving..." : "Save Changes"}
+            {isPending ? t.saving : t.saveChanges}
           </button>
         )}
       </div>
@@ -474,6 +478,8 @@ export function RolePermissionForm({
               onToggleModule={() => toggleModule(group)}
               onTogglePermission={togglePermission}
               readOnly={isOwner}
+              selectAllLabel={t.selectAll}
+              deselectAllLabel={t.deselectAll}
             />
           );
         })}
@@ -496,7 +502,7 @@ export function RolePermissionForm({
               cursor: isPending ? "not-allowed" : "pointer",
             }}
           >
-            {isPending ? "Saving..." : "Save Changes"}
+            {isPending ? t.saving : t.saveChanges}
           </button>
         )}
         <a
@@ -513,7 +519,7 @@ export function RolePermissionForm({
             alignItems: "center",
           }}
         >
-          Back to Roles
+          {t.backToRoles}
         </a>
       </div>
     </form>
@@ -529,6 +535,8 @@ function ModuleCard({
   onToggleModule,
   onTogglePermission,
   readOnly = false,
+  selectAllLabel,
+  deselectAllLabel,
 }: {
   group: ModuleGroup;
   checkedIds: Set<string>;
@@ -537,6 +545,8 @@ function ModuleCard({
   onToggleModule: () => void;
   onTogglePermission: (id: string) => void;
   readOnly?: boolean;
+  selectAllLabel: string;
+  deselectAllLabel: string;
 }) {
   const [expanded, setExpanded] = useState(true);
 
@@ -601,7 +611,7 @@ function ModuleCard({
                 padding: "2px 0",
               }}
             >
-              {allChecked ? "Deselect All" : "Select All"}
+              {allChecked ? deselectAllLabel : selectAllLabel}
             </button>
           )}
 

@@ -6,6 +6,7 @@ import {
   createEmployeeAction,
   type EmployeeActionState,
 } from "./actions";
+import { useTranslations } from "@/providers/locale-context";
 
 type RoleOption = {
   id: string;
@@ -18,7 +19,10 @@ interface EmployeeFormProps {
 
 const selectStyle: React.CSSProperties = {
   width: "100%",
-  padding: "9px 36px 9px 12px",
+  paddingBlockStart: "9px",
+  paddingBlockEnd: "9px",
+  paddingInlineEnd: "36px",
+  paddingInlineStart: "12px",
   borderRadius: "8px",
   border: "1px solid #2d3449",
   backgroundColor: "#0d1627",
@@ -32,6 +36,8 @@ const selectStyle: React.CSSProperties = {
   backgroundRepeat: "no-repeat",
   backgroundPosition: "right 12px center",
 };
+// NOTE: backgroundPosition above is a decorative background-image offset (not a
+// logical box property), left as physical "right" to match the chevron asset alignment.
 
 const inputStyle: React.CSSProperties = {
   width: "100%",
@@ -65,6 +71,7 @@ function onBlurField(e: React.FocusEvent<HTMLInputElement | HTMLSelectElement>) 
 
 export function EmployeeForm({ roles }: EmployeeFormProps) {
   const router = useRouter();
+  const t = useTranslations().employees.form;
   const [state, formAction, isPending] = useActionState<
     EmployeeActionState,
     FormData
@@ -113,12 +120,12 @@ export function EmployeeForm({ roles }: EmployeeFormProps) {
             borderBottom: "1px solid #222a3e",
           }}
         >
-          Basic Information
+          {t.basicInformation}
         </h2>
         <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
           <div>
             <label htmlFor="name" style={labelStyle}>
-              Full Name <span style={{ color: "#ffb4ab" }}>*</span>
+              {t.fullName} <span style={{ color: "#ffb4ab" }}>*</span>
             </label>
             <input
               id="name"
@@ -126,7 +133,7 @@ export function EmployeeForm({ roles }: EmployeeFormProps) {
               type="text"
               required
               maxLength={100}
-              placeholder="e.g. John Smith"
+              placeholder={t.fullNamePlaceholder}
               style={inputStyle}
               onFocus={onFocusField}
               onBlur={onBlurField}
@@ -134,7 +141,7 @@ export function EmployeeForm({ roles }: EmployeeFormProps) {
           </div>
           <div>
             <label htmlFor="email" style={labelStyle}>
-              Email Address <span style={{ color: "#ffb4ab" }}>*</span>
+              {t.emailAddress} <span style={{ color: "#ffb4ab" }}>*</span>
             </label>
             <input
               id="email"
@@ -142,7 +149,7 @@ export function EmployeeForm({ roles }: EmployeeFormProps) {
               type="email"
               required
               maxLength={255}
-              placeholder="e.g. john.smith@company.com"
+              placeholder={t.emailPlaceholder}
               style={inputStyle}
               onFocus={onFocusField}
               onBlur={onBlurField}
@@ -170,13 +177,13 @@ export function EmployeeForm({ roles }: EmployeeFormProps) {
             borderBottom: "1px solid #222a3e",
           }}
         >
-          Access &amp; Permissions
+          {t.accessAndPermissions}
         </h2>
         <div>
           <label htmlFor="warehouseRoleId" style={labelStyle}>
-            Role{" "}
+            {t.role}{" "}
             <span style={{ fontSize: "12px", color: "#8c90a2", fontWeight: 400 }}>
-              (optional)
+              {t.optional}
             </span>
           </label>
           <select
@@ -186,7 +193,7 @@ export function EmployeeForm({ roles }: EmployeeFormProps) {
             onFocus={onFocusField}
             onBlur={onBlurField}
           >
-            <option value="">No role assigned</option>
+            <option value="">{t.noRoleAssigned}</option>
             {roles.map((role) => (
               <option key={role.id} value={role.id}>
                 {role.name}
@@ -194,8 +201,7 @@ export function EmployeeForm({ roles }: EmployeeFormProps) {
             ))}
           </select>
           <p style={{ marginTop: "6px", fontSize: "12px", color: "#4a5068" }}>
-            Only roles configured for this warehouse are shown. You can change
-            this later.
+            {t.roleHint}
           </p>
         </div>
       </div>
@@ -219,11 +225,11 @@ export function EmployeeForm({ roles }: EmployeeFormProps) {
             borderBottom: "1px solid #222a3e",
           }}
         >
-          Security
+          {t.security}
         </h2>
         <div>
           <label htmlFor="password" style={labelStyle}>
-            Temporary Password <span style={{ color: "#ffb4ab" }}>*</span>
+            {t.temporaryPassword} <span style={{ color: "#ffb4ab" }}>*</span>
           </label>
           <input
             id="password"
@@ -232,13 +238,13 @@ export function EmployeeForm({ roles }: EmployeeFormProps) {
             required
             minLength={8}
             maxLength={128}
-            placeholder="Minimum 8 characters"
+            placeholder={t.temporaryPasswordPlaceholder}
             style={inputStyle}
             onFocus={onFocusField}
             onBlur={onBlurField}
           />
           <p style={{ marginTop: "6px", fontSize: "12px", color: "#4a5068" }}>
-            The employee should change this password on first login.
+            {t.temporaryPasswordHint}
           </p>
         </div>
       </div>
@@ -259,7 +265,7 @@ export function EmployeeForm({ roles }: EmployeeFormProps) {
             cursor: isPending ? "not-allowed" : "pointer",
           }}
         >
-          {isPending ? "Creating..." : "Create Employee"}
+          {isPending ? t.creating : t.createEmployee}
         </button>
         <a
           href="/dashboard/employees"
@@ -275,7 +281,7 @@ export function EmployeeForm({ roles }: EmployeeFormProps) {
             alignItems: "center",
           }}
         >
-          Cancel
+          {t.cancel}
         </a>
       </div>
     </form>

@@ -3,6 +3,8 @@
 import { useActionState, useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import type { SalesActionState } from "../actions";
+import { useTranslations } from "@/providers/locale-context";
+import type { Dictionary } from "@/core/i18n/get-dictionary";
 
 type ProductUnit = { id: string; name: string; symbol: string };
 type Product = { id: string; name: string; sku: string; defaultUnitId: string; units: ProductUnit[] };
@@ -53,14 +55,14 @@ function formatCurrency(val: number): string {
   return val.toLocaleString("en-US", { style: "currency", currency: "USD", minimumFractionDigits: 2 });
 }
 
-function Label({ htmlFor, children, required, optional }: {
-  htmlFor: string; children: React.ReactNode; required?: boolean; optional?: boolean;
+function Label({ htmlFor, children, required, optional, optionalLabel }: {
+  htmlFor: string; children: React.ReactNode; required?: boolean; optional?: boolean; optionalLabel: string;
 }) {
   return (
     <label htmlFor={htmlFor} style={{ display: "block", fontSize: "12px", fontWeight: 500, color: "#c2c6d9", marginBottom: "5px" }}>
       {children}
-      {required && <span style={{ color: "#ffb4ab", marginLeft: "2px" }}>*</span>}
-      {optional && <span style={{ color: "#4a5068", fontSize: "10px", marginLeft: "4px" }}>(optional)</span>}
+      {required && <span style={{ color: "#ffb4ab", marginInlineStart: "2px" }}>*</span>}
+      {optional && <span style={{ color: "#4a5068", fontSize: "10px", marginInlineStart: "4px" }}>({optionalLabel})</span>}
     </label>
   );
 }
@@ -84,6 +86,7 @@ const selectStyle: React.CSSProperties = {
 
 export function SalesInvoiceForm({ products, customers, action, recentDeliveryNotes = [], prefill = null }: SalesInvoiceFormProps) {
   const router = useRouter();
+  const t = useTranslations();
   const [state, formAction, pending] = useActionState<SalesActionState, FormData>(action, null);
 
   const [lines, setLines] = useState<LineItem[]>(() => {
@@ -140,14 +143,14 @@ export function SalesInvoiceForm({ products, customers, action, recentDeliveryNo
         <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: "24px", flexWrap: "wrap", gap: "12px" }}>
           <div>
             <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "4px" }}>
-              <a href="/dashboard/sales" style={{ color: "#8c90a2", textDecoration: "none", fontSize: "13px" }}>Sales</a>
+              <a href="/dashboard/sales" style={{ color: "#8c90a2", textDecoration: "none", fontSize: "13px" }}>{t.sales.breadcrumb}</a>
               <span style={{ color: "#4a5068" }}>/</span>
-              <span style={{ color: "#8c90a2", fontSize: "13px" }}>New Invoice</span>
+              <span style={{ color: "#8c90a2", fontSize: "13px" }}>{t.sales.newInvoice.breadcrumbCurrent}</span>
             </div>
-            <h1 style={{ fontSize: "22px", fontWeight: 700, color: "#dbe2fd", margin: 0 }}>Create Sales Invoice</h1>
+            <h1 style={{ fontSize: "22px", fontWeight: 700, color: "#dbe2fd", margin: 0 }}>{t.sales.newInvoice.title}</h1>
           </div>
           <a href="/dashboard/sales" style={{ padding: "8px 16px", borderRadius: "8px", border: "1px solid #2d3449", color: "#8c90a2", fontSize: "13px", fontWeight: 500, textDecoration: "none" }}>
-            Cancel
+            {t.common.cancel}
           </a>
         </div>
 
@@ -179,12 +182,12 @@ export function SalesInvoiceForm({ products, customers, action, recentDeliveryNo
                     <path d="M2.5 13.5C2.5 11.015 5 9 8 9C11 9 13.5 11.015 13.5 13.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
                   </svg>
                 </span>
-                <h2 style={{ fontSize: "14px", fontWeight: 600, color: "#dbe2fd", margin: 0 }}>Invoice Details</h2>
+                <h2 style={{ fontSize: "14px", fontWeight: 600, color: "#dbe2fd", margin: 0 }}>{t.sales.newInvoice.sectionTitle}</h2>
               </div>
 
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
                 <div>
-                  <Label htmlFor="customerId" optional>Customer</Label>
+                  <Label htmlFor="customerId" optional optionalLabel={t.common.optional}>{t.sales.newInvoice.customerLabel}</Label>
                   <select
                     id="customerId"
                     name="customerId"
@@ -194,20 +197,20 @@ export function SalesInvoiceForm({ products, customers, action, recentDeliveryNo
                     onFocus={(e) => { e.currentTarget.style.borderColor = "#0062ff"; e.currentTarget.style.boxShadow = "0 0 0 3px rgba(0,98,255,0.2)"; }}
                     onBlur={(e) => { e.currentTarget.style.borderColor = "#2d3449"; e.currentTarget.style.boxShadow = "none"; }}
                   >
-                    <option value="">No customer (walk-in)</option>
+                    <option value="">{t.sales.newInvoice.customerWalkIn}</option>
                     {customers.map((c) => (
                       <option key={c.id} value={c.id}>{c.name}</option>
                     ))}
                   </select>
                 </div>
                 <div>
-                  <Label htmlFor="notes" optional>Notes</Label>
+                  <Label htmlFor="notes" optional optionalLabel={t.common.optional}>{t.sales.newInvoice.notesLabel}</Label>
                   <input
                     id="notes"
                     name="notes"
                     type="text"
-                    placeholder="Internal notes..."
-                    defaultValue={prefill ? `Created from Delivery Note ${prefill.deliveryNoteId}` : undefined}
+                    placeholder={t.sales.newInvoice.notesPlaceholder}
+                    defaultValue={prefill ? t.sales.newInvoice.notesPrefillFromDeliveryNote.replace("{deliveryNoteId}", prefill.deliveryNoteId) : undefined}
                     style={inputStyle}
                     onFocus={(e) => { e.currentTarget.style.borderColor = "#0062ff"; e.currentTarget.style.boxShadow = "0 0 0 3px rgba(0,98,255,0.2)"; }}
                     onBlur={(e) => { e.currentTarget.style.borderColor = "#2d3449"; e.currentTarget.style.boxShadow = "none"; }}
@@ -217,7 +220,7 @@ export function SalesInvoiceForm({ products, customers, action, recentDeliveryNo
 
               {recentDeliveryNotes.length > 0 && (
                 <div style={{ marginTop: "16px" }}>
-                  <Label htmlFor="deliveryNoteLink" optional>Link to Delivery Note</Label>
+                  <Label htmlFor="deliveryNoteLink" optional optionalLabel={t.common.optional}>{t.sales.newInvoice.deliveryNoteLinkLabel}</Label>
                   <select
                     id="deliveryNoteLink"
                     value={deliveryNoteId}
@@ -226,20 +229,20 @@ export function SalesInvoiceForm({ products, customers, action, recentDeliveryNo
                     onFocus={(e) => { e.currentTarget.style.borderColor = "#0062ff"; e.currentTarget.style.boxShadow = "0 0 0 3px rgba(0,98,255,0.2)"; }}
                     onBlur={(e) => { e.currentTarget.style.borderColor = "#2d3449"; e.currentTarget.style.boxShadow = "none"; }}
                   >
-                    <option value="">No delivery note link</option>
+                    <option value="">{t.sales.newInvoice.deliveryNoteLinkNone}</option>
                     {recentDeliveryNotes.map((dn) => (
                       <option key={dn.id} value={dn.id}>{dn.label}</option>
                     ))}
                   </select>
                   <p style={{ fontSize: "11px", color: "#4a5068", marginTop: "4px" }}>
-                    Selecting a delivery note reloads this page pre-filled with its lines.
+                    {t.sales.newInvoice.deliveryNoteLinkHelp}
                   </p>
                   {deliveryNoteId && deliveryNoteId !== (prefill?.deliveryNoteId ?? "") && (
                     <a
                       href={`/dashboard/sales/new?deliveryNoteId=${deliveryNoteId}`}
                       style={{ display: "inline-block", marginTop: "8px", padding: "6px 12px", borderRadius: "6px", background: "rgba(0,98,255,0.12)", border: "1px solid rgba(0,98,255,0.3)", color: "#6b9fff", fontSize: "12px", fontWeight: 500, textDecoration: "none" }}
                     >
-                      Load lines from selected delivery note
+                      {t.sales.newInvoice.deliveryNoteLinkLoad}
                     </a>
                   )}
                 </div>
@@ -258,8 +261,10 @@ export function SalesInvoiceForm({ products, customers, action, recentDeliveryNo
                       <path d="M9 9H12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
                     </svg>
                   </span>
-                  <h2 style={{ fontSize: "14px", fontWeight: 600, color: "#dbe2fd", margin: 0 }}>Line Items</h2>
-                  <span style={{ fontSize: "12px", color: "#8c90a2" }}>{lines.length} item{lines.length !== 1 ? "s" : ""}</span>
+                  <h2 style={{ fontSize: "14px", fontWeight: 600, color: "#dbe2fd", margin: 0 }}>{t.sales.newInvoice.lineItemsTitle}</h2>
+                  <span style={{ fontSize: "12px", color: "#8c90a2" }}>
+                    {lines.length} {lines.length !== 1 ? t.sales.newInvoice.lineItemsCount_other : t.sales.newInvoice.lineItemsCount_one}
+                  </span>
                 </div>
                 <button
                   type="button"
@@ -269,7 +274,7 @@ export function SalesInvoiceForm({ products, customers, action, recentDeliveryNo
                   <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
                     <path d="M6 1.5V10.5M1.5 6H10.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
                   </svg>
-                  Add Line
+                  {t.sales.newInvoice.addLine}
                 </button>
               </div>
 
@@ -283,7 +288,14 @@ export function SalesInvoiceForm({ products, customers, action, recentDeliveryNo
                   padding: "0 4px",
                 }}
               >
-                {["Product", "Unit", "Qty", "Unit Price", "Discount %", ""].map((h) => (
+                {[
+                  t.sales.newInvoice.columns.product,
+                  t.sales.newInvoice.columns.unit,
+                  t.sales.newInvoice.columns.qty,
+                  t.sales.newInvoice.columns.unitPrice,
+                  t.sales.newInvoice.columns.discountPercent,
+                  "",
+                ].map((h) => (
                   <div key={h} style={{ fontSize: "10px", fontWeight: 600, color: "#4a5068", textTransform: "uppercase", letterSpacing: "0.06em" }}>
                     {h}
                   </div>
@@ -300,6 +312,7 @@ export function SalesInvoiceForm({ products, customers, action, recentDeliveryNo
                     onChange={updateLine}
                     onRemove={removeLine}
                     canRemove={lines.length > 1}
+                    t={t}
                   />
                 ))}
               </div>
@@ -316,7 +329,7 @@ export function SalesInvoiceForm({ products, customers, action, recentDeliveryNo
                   alignItems: "center",
                 }}
               >
-                <span style={{ fontSize: "13px", color: "#8c90a2", fontWeight: 500 }}>Grand Total:</span>
+                <span style={{ fontSize: "13px", color: "#8c90a2", fontWeight: 500 }}>{t.sales.newInvoice.grandTotal}</span>
                 <span style={{ fontSize: "20px", fontWeight: 700, color: "#dbe2fd" }}>
                   {formatCurrency(grandTotal)}
                 </span>
@@ -340,13 +353,13 @@ export function SalesInvoiceForm({ products, customers, action, recentDeliveryNo
                   opacity: pending ? 0.8 : 1,
                 }}
               >
-                {pending ? "Creating…" : "Create Draft Invoice"}
+                {pending ? t.sales.newInvoice.submitting : t.sales.newInvoice.submit}
               </button>
               <a
                 href="/dashboard/sales"
                 style={{ padding: "10px 20px", borderRadius: "8px", border: "1px solid #2d3449", color: "#8c90a2", fontSize: "13px", fontWeight: 500, textDecoration: "none" }}
               >
-                Cancel
+                {t.common.cancel}
               </a>
             </div>
           </div>
@@ -357,7 +370,7 @@ export function SalesInvoiceForm({ products, customers, action, recentDeliveryNo
 }
 
 function LineRow({
-  line, index, products, onChange, onRemove, canRemove,
+  line, index, products, onChange, onRemove, canRemove, t,
 }: {
   line: LineItem;
   index: number;
@@ -365,6 +378,7 @@ function LineRow({
   onChange: (id: string, field: keyof LineItem, value: string) => void;
   onRemove: (id: string) => void;
   canRemove: boolean;
+  t: Dictionary;
 }) {
   const lineTotal = calcLineTotal(line);
   const selectedProduct = products.find((p) => p.id === line.productId);
@@ -386,7 +400,7 @@ function LineRow({
           onChange={(e) => onChange(line.id, "productId", e.target.value)}
           style={{ ...selectStyle, fontSize: "12px" }}
         >
-          <option value="">Select product…</option>
+          <option value="">{t.sales.newInvoice.selectProduct}</option>
           {products.map((p) => (
             <option key={p.id} value={p.id}>{p.name} ({p.sku})</option>
           ))}
@@ -446,7 +460,7 @@ function LineRow({
           type="button"
           disabled={!canRemove}
           onClick={() => onRemove(line.id)}
-          title="Remove line"
+          title={t.sales.newInvoice.removeLine}
           style={{
             display: "flex",
             alignItems: "center",
@@ -468,14 +482,14 @@ function LineRow({
       </div>
 
       {/* Line total */}
-      <div style={{ marginTop: "6px", textAlign: "right", fontSize: "11px", color: "#8c90a2" }}>
-        Line total:{" "}
+      <div style={{ marginTop: "6px", textAlign: "end", fontSize: "11px", color: "#8c90a2" }}>
+        {t.sales.newInvoice.lineTotal}{" "}
         <span style={{ color: "#dbe2fd", fontWeight: 600 }}>
           {formatCurrency(lineTotal)}
         </span>
         {line.discount && Number(line.discount) > 0 && (
-          <span style={{ color: "#62df7d", marginLeft: "6px" }}>
-            ({line.discount}% off)
+          <span style={{ color: "#62df7d", marginInlineStart: "6px" }}>
+            {t.sales.newInvoice.lineDiscountOff.replace("{discount}", line.discount)}
           </span>
         )}
       </div>

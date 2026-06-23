@@ -2,39 +2,10 @@ import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import { getSession } from "@/core/auth/session";
 import { requirePagePermission } from "@/core/auth/require-page-permission";
+import { getLocale } from "@/core/i18n/locale";
+import { getDictionary } from "@/core/i18n/get-dictionary";
 
 const LIMIT = 20;
-
-const ACTION_LABELS: Record<string, string> = {
-  "auth.login": "Login",
-  "auth.login_failed": "Login Failed",
-  "auth.logout": "Logout",
-  "inventory.product.create": "Product Created",
-  "inventory.product.update": "Product Updated",
-  "inventory.product.delete": "Product Deleted",
-  "inventory.movement.create": "Movement Created",
-  "sales.invoice.create": "Sale Invoice Created",
-  "sales.invoice.confirm": "Sale Invoice Confirmed",
-  "sales.invoice.cancel": "Sale Invoice Cancelled",
-  "purchase.invoice.create": "Purchase Invoice Created",
-  "purchase.invoice.confirm": "Purchase Invoice Confirmed",
-  "purchase.invoice.cancel": "Purchase Invoice Cancelled",
-  "payments.payment.create": "Payment Created",
-  "employees.employee.create": "Employee Created",
-  "employees.employee.update": "Employee Updated",
-  "employees.employee.archive": "Employee Archived",
-  "customers.customer.create": "Customer Created",
-  "customers.customer.update": "Customer Updated",
-  "customers.customer.archive": "Customer Archived",
-  "suppliers.supplier.create": "Supplier Created",
-  "suppliers.supplier.update": "Supplier Updated",
-  "suppliers.supplier.archive": "Supplier Archived",
-  "warehouse.create": "Warehouse Created",
-  "warehouse.update": "Warehouse Updated",
-  "roles.role.create": "Role Created",
-  "roles.role.update": "Role Updated",
-  "roles.role.delete": "Role Deleted",
-};
 
 const ACTION_BADGE_COLORS: Record<string, string> = {
   "auth.login": "bg-emerald-900/50 text-emerald-300 border border-emerald-700",
@@ -60,8 +31,8 @@ function getBadgeColor(action: string): string {
   );
 }
 
-function formatDateTime(date: Date): string {
-  return new Intl.DateTimeFormat("en-US", {
+function formatDateTime(date: Date, locale: "en" | "ar"): string {
+  return new Intl.DateTimeFormat(locale === "ar" ? "ar" : "en-US", {
     year: "numeric",
     month: "short",
     day: "2-digit",
@@ -89,6 +60,9 @@ export default async function AuditLogPage({
     redirect("/login");
   }
   await requirePagePermission(session, "audit.log.read");
+
+  const locale = await getLocale();
+  const t = getDictionary(locale).audit;
 
   const params = await searchParams;
 
@@ -147,9 +121,9 @@ export default async function AuditLogPage({
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         {/* Page Header */}
         <div className="mb-8">
-          <h1 className="text-2xl font-semibold text-white">Audit Log</h1>
+          <h1 className="text-2xl font-semibold text-white">{t.pageTitle}</h1>
           <p className="mt-1 text-sm" style={{ color: "#8896b3" }}>
-            Immutable record of all system events
+            {t.pageSubtitle}
           </p>
         </div>
 
@@ -166,7 +140,7 @@ export default async function AuditLogPage({
                 className="text-xs font-medium"
                 style={{ color: "#8896b3" }}
               >
-                Action
+                {t.actionLabel}
               </label>
               <select
                 id="action"
@@ -180,8 +154,8 @@ export default async function AuditLogPage({
                   minWidth: "200px",
                 }}
               >
-                <option value="">All Actions</option>
-                {Object.entries(ACTION_LABELS).map(([value, label]) => (
+                <option value="">{t.allActions}</option>
+                {Object.entries(t.actions).map(([value, label]) => (
                   <option key={value} value={value}>
                     {label}
                   </option>
@@ -196,7 +170,7 @@ export default async function AuditLogPage({
                 className="text-xs font-medium"
                 style={{ color: "#8896b3" }}
               >
-                From
+                {t.from}
               </label>
               <input
                 type="date"
@@ -219,7 +193,7 @@ export default async function AuditLogPage({
                 className="text-xs font-medium"
                 style={{ color: "#8896b3" }}
               >
-                To
+                {t.to}
               </label>
               <input
                 type="date"
@@ -241,7 +215,7 @@ export default async function AuditLogPage({
               className="rounded-md px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
               style={{ backgroundColor: "#2563eb" }}
             >
-              Filter
+              {t.filter}
             </button>
 
             {/* Clear */}
@@ -254,7 +228,7 @@ export default async function AuditLogPage({
                   border: "1px solid #222a3e",
                 }}
               >
-                Clear
+                {t.clear}
               </a>
             )}
 
@@ -269,9 +243,9 @@ export default async function AuditLogPage({
                   border: "1px solid #222a3e",
                   color: "#8896b3",
                 }}
-                title="CSV export coming soon"
+                title={t.exportCsvTooltip}
               >
-                Export CSV
+                {t.exportCsv}
               </button>
             </div>
           </form>
@@ -287,16 +261,16 @@ export default async function AuditLogPage({
               <thead>
                 <tr style={{ backgroundColor: "#171f33" }}>
                   {[
-                    "Timestamp",
-                    "Actor",
-                    "Action",
-                    "Entity Type",
-                    "Entity ID",
-                    "Diff",
+                    t.colTimestamp,
+                    t.colActor,
+                    t.colAction,
+                    t.colEntityType,
+                    t.colEntityId,
+                    t.colDiff,
                   ].map((col) => (
                     <th
                       key={col}
-                      className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider"
+                      className="px-4 py-3 text-start text-xs font-semibold uppercase tracking-wider"
                       style={{
                         color: "#8896b3",
                         borderBottom: "1px solid #222a3e",
@@ -315,7 +289,7 @@ export default async function AuditLogPage({
                       className="px-4 py-12 text-center text-sm"
                       style={{ color: "#8896b3", backgroundColor: "#0b1326" }}
                     >
-                      No audit log entries found.
+                      {t.noEntries}
                     </td>
                   </tr>
                 ) : (
@@ -333,7 +307,7 @@ export default async function AuditLogPage({
                         className="whitespace-nowrap px-4 py-3 font-mono text-xs"
                         style={{ color: "#94a3b8" }}
                       >
-                        {formatDateTime(log.createdAt)}
+                        {formatDateTime(log.createdAt, locale)}
                       </td>
 
                       {/* Actor */}
@@ -351,7 +325,7 @@ export default async function AuditLogPage({
                         <span
                           className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${getBadgeColor(log.action)}`}
                         >
-                          {ACTION_LABELS[log.action] ?? log.action}
+                          {t.actions[log.action as keyof typeof t.actions] ?? log.action}
                         </span>
                       </td>
 
@@ -383,7 +357,7 @@ export default async function AuditLogPage({
                               className="cursor-pointer select-none text-xs font-medium transition-colors hover:text-blue-300"
                               style={{ color: "#60a5fa" }}
                             >
-                              View diff
+                              {t.viewDiff}
                             </summary>
                             <div className="mt-2 space-y-2">
                               {log.before && (
@@ -392,7 +366,7 @@ export default async function AuditLogPage({
                                     className="mb-1 text-xs font-semibold uppercase"
                                     style={{ color: "#f87171" }}
                                   >
-                                    Before
+                                    {t.before}
                                   </div>
                                   <pre
                                     className="max-w-xs overflow-x-auto rounded p-2 text-xs"
@@ -412,7 +386,7 @@ export default async function AuditLogPage({
                                     className="mb-1 text-xs font-semibold uppercase"
                                     style={{ color: "#4ade80" }}
                                   >
-                                    After
+                                    {t.after}
                                   </div>
                                   <pre
                                     className="max-w-xs overflow-x-auto rounded p-2 text-xs"
@@ -445,15 +419,15 @@ export default async function AuditLogPage({
         {/* Pagination */}
         <div className="mt-4 flex items-center justify-between">
           <p className="text-sm" style={{ color: "#8896b3" }}>
-            Showing{" "}
+            {t.showing}{" "}
             <span className="font-medium text-white">
               {total === 0 ? 0 : (page - 1) * LIMIT + 1}
             </span>{" "}
-            to{" "}
+            {t.to_}{" "}
             <span className="font-medium text-white">
               {Math.min(page * LIMIT, total)}
             </span>{" "}
-            of <span className="font-medium text-white">{total}</span> entries
+            {t.ofEntries.replace("{total}", String(total))}
           </p>
 
           <div className="flex items-center gap-2">
@@ -471,11 +445,11 @@ export default async function AuditLogPage({
                 color: "#e2e8f0",
               }}
             >
-              Previous
+              {t.previous}
             </a>
 
             <span className="text-sm" style={{ color: "#8896b3" }}>
-              Page {page} of {totalPages}
+              {t.page} {page} {t.of} {totalPages}
             </span>
 
             <a
@@ -492,7 +466,7 @@ export default async function AuditLogPage({
                 color: "#e2e8f0",
               }}
             >
-              Next
+              {t.next}
             </a>
           </div>
         </div>

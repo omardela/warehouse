@@ -2,6 +2,7 @@
 
 import { useActionState } from "react";
 import { loginAction } from "./actions";
+import { useTranslations } from "@/providers/locale-context";
 
 const initialState = null;
 
@@ -10,6 +11,7 @@ export default function LoginPage() {
     loginAction,
     initialState
   );
+  const t = useTranslations();
 
   return (
     <div
@@ -87,7 +89,7 @@ export default function LoginPage() {
               letterSpacing: "-0.01em",
             }}
           >
-            LogiCore
+            {t.common.appName}
           </span>
         </div>
 
@@ -102,10 +104,10 @@ export default function LoginPage() {
               letterSpacing: "-0.01em",
             }}
           >
-            Sign in to your account
+            {t.auth.signInTitle}
           </h1>
           <p style={{ fontSize: "13px", color: "#8c90a2", margin: 0 }}>
-            Enter your credentials to continue
+            {t.auth.signInSubtitle}
           </p>
         </div>
 
@@ -123,7 +125,7 @@ export default function LoginPage() {
                 marginBottom: "6px",
               }}
             >
-              Email address
+              {t.auth.emailLabel}
             </label>
             <input
               id="email"
@@ -133,7 +135,7 @@ export default function LoginPage() {
               required
               disabled={isPending}
               className="livs-input"
-              placeholder="you@company.com"
+              placeholder={t.auth.emailPlaceholder}
             />
           </div>
 
@@ -149,7 +151,7 @@ export default function LoginPage() {
                 marginBottom: "6px",
               }}
             >
-              Password
+              {t.auth.passwordLabel}
             </label>
             <input
               id="password"
@@ -159,7 +161,7 @@ export default function LoginPage() {
               required
               disabled={isPending}
               className="livs-input"
-              placeholder="Your password"
+              placeholder={t.auth.passwordPlaceholder}
             />
           </div>
 
@@ -205,7 +207,7 @@ export default function LoginPage() {
             disabled={isPending}
             className="livs-btn-primary"
           >
-            {isPending ? "Signing in…" : "Sign in"}
+            {isPending ? t.auth.signingIn : t.auth.signInButton}
           </button>
         </form>
       </div>

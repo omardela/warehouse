@@ -7,6 +7,8 @@ export const NOTIFICATION_PERMISSION_MAP: Record<string, string> = {
   SALE_INVOICE_CONFIRMED: "sales.invoice.read",
   PURCHASE_INVOICE_CONFIRMED: "purchase.invoice.read",
   PAYMENT_RECORDED: "payments.payment.read",
+  GOODS_RECEIPT_CREATED: "purchases.orders.view",
+  DELIVERY_NOTE_CREATED: "sales.orders.view",
 };
 
 export function getNotificationPermission(type: string): string | null {

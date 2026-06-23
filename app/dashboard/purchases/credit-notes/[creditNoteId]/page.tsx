@@ -105,6 +105,24 @@ export default async function PurchaseCreditNoteDetailPage({ params }: PageProps
 
           {/* Action buttons */}
           <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+            <Link
+              href={`/dashboard/purchases/credit-notes/${creditNote.id}/print`}
+              target="_blank"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                padding: "8px 20px",
+                borderRadius: "8px",
+                background: "transparent",
+                border: "1px solid #222a3e",
+                color: "#dbe2fd",
+                fontSize: "13px",
+                fontWeight: 600,
+                textDecoration: "none",
+              }}
+            >
+              Print
+            </Link>
             {isDraft && (
               <>
                 <form action={confirmPurchaseCreditNoteAction} style={{ display: "inline" }}>

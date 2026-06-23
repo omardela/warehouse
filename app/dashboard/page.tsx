@@ -3,6 +3,9 @@ import { db } from "@/lib/db";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { SalesPurchasesChart, type ChartPoint } from "./SalesPurchasesChart";
+import { getLocale } from "@/core/i18n/locale";
+import { getDictionary } from "@/core/i18n/get-dictionary";
+import type { Dictionary } from "@/core/i18n/get-dictionary";
 
 export const dynamic = "force-dynamic";
 
@@ -18,57 +21,64 @@ function fmtCurrency(n: number): string {
     maximumFractionDigits: 0,
   }).format(n);
 }
-// cococ
+
 function fmtPct(n: number): string {
   return `${n >= 0 ? "+" : ""}${n.toFixed(1)}%`;
 }
 
-function relativeTime(date: Date | string | null): string {
+function relativeTime(date: Date | string | null, t: Dictionary["employees"]["dashboard"]): string {
   if (!date) return "—";
   const d = date instanceof Date ? date : new Date(date);
   const diffMs = Date.now() - d.getTime();
   const diffMins = Math.floor(diffMs / 60_000);
-  if (diffMins < 1) return "just now";
-  if (diffMins < 60) return `${diffMins}m ago`;
+  if (diffMins < 1) return t.justNow;
+  if (diffMins < 60) return t.minutesAgo.replace("{minutes}", String(diffMins));
   const diffHrs = Math.floor(diffMins / 60);
-  if (diffHrs < 24) return `${diffHrs}h ago`;
+  if (diffHrs < 24) return t.hoursAgo.replace("{hours}", String(diffHrs));
   const diffDays = Math.floor(diffHrs / 24);
-  if (diffDays === 1) return "yesterday";
-  if (diffDays < 30) return `${diffDays}d ago`;
+  if (diffDays === 1) return t.yesterday;
+  if (diffDays < 30) return t.daysAgo.replace("{days}", String(diffDays));
   return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
 }
 
-function getGreeting(): string {
+function getGreeting(t: Dictionary["employees"]["dashboard"]): string {
   const hour = new Date().getHours();
-  if (hour < 12) return "Good morning";
-  if (hour < 18) return "Good afternoon";
-  return "Good evening";
+  if (hour < 12) return t.goodMorning;
+  if (hour < 18) return t.goodAfternoon;
+  return t.goodEvening;
 }
 
 function truncateId(id: string): string {
   return id.slice(0, 8).toUpperCase();
 }
 
-function movementBadge(type: string): { label: string; color: string; bg: string } {
+function movementBadge(
+  type: string,
+  t: Dictionary["employees"]["dashboard"]
+): { label: string; color: string; bg: string } {
   const map: Record<string, { label: string; color: string; bg: string }> = {
-    PURCHASE_IN:  { label: "Purchase",    color: "#60a5fa", bg: "rgba(96,165,250,0.12)"  },
-    SALE_OUT:     { label: "Sale",         color: "#62df7d", bg: "rgba(98,223,125,0.12)"  },
-    ADJUSTMENT:   { label: "Adjustment",   color: "#f59e0b", bg: "rgba(245,158,11,0.12)"  },
-    TRANSFER_IN:  { label: "Transfer In",  color: "#a78bfa", bg: "rgba(167,139,250,0.12)" },
-    TRANSFER_OUT: { label: "Transfer Out", color: "#a78bfa", bg: "rgba(167,139,250,0.12)" },
-    RETURN_IN:    { label: "Return In",    color: "#fb923c", bg: "rgba(251,146,60,0.12)"  },
-    RETURN_OUT:   { label: "Return Out",   color: "#fb923c", bg: "rgba(251,146,60,0.12)"  },
+    PURCHASE_IN:  { label: t.movementPurchase,    color: "#60a5fa", bg: "rgba(96,165,250,0.12)"  },
+    SALE_OUT:     { label: t.movementSale,         color: "#62df7d", bg: "rgba(98,223,125,0.12)"  },
+    ADJUSTMENT:   { label: t.movementAdjustment,   color: "#f59e0b", bg: "rgba(245,158,11,0.12)"  },
+    TRANSFER_IN:  { label: t.movementTransferIn,  color: "#a78bfa", bg: "rgba(167,139,250,0.12)" },
+    TRANSFER_OUT: { label: t.movementTransferOut, color: "#a78bfa", bg: "rgba(167,139,250,0.12)" },
+    RETURN_IN:    { label: t.movementReturnIn,    color: "#fb923c", bg: "rgba(251,146,60,0.12)"  },
+    RETURN_OUT:   { label: t.movementReturnOut,   color: "#fb923c", bg: "rgba(251,146,60,0.12)"  },
   };
   return map[type] ?? { label: type, color: "#8c90a2", bg: "rgba(140,144,162,0.12)" };
 }
 
-function notificationMessage(type: string, payload: unknown): string {
+function notificationMessage(type: string, payload: unknown, t: Dictionary["employees"]["dashboard"]): string {
   try {
     const p = payload as Record<string, unknown>;
     if (type === "LOW_STOCK") {
       const name = p.productName ?? p.product_name ?? "";
       const qty = p.currentQuantity ?? p.current_quantity ?? "";
-      if (name) return `Low stock: ${name}${qty !== "" ? ` (${qty} left)` : ""}`;
+      if (name) {
+        return t.lowStockNotification
+          .replace("{name}", String(name))
+          .replace("{quantity}", qty !== "" ? String(qty) : "0");
+      }
     }
   } catch {
     // fall through
@@ -263,14 +273,14 @@ function EmptyState({ text }: { text: string }) {
   );
 }
 
-function TableHead({ cols }: { cols: Array<{ label: string; align?: "left" | "right" }> }) {
+function TableHead({ cols }: { cols: Array<{ label: string; align?: "start" | "end" }> }) {
   return (
     <thead>
       <tr>
         {cols.map((c) => (
           <th key={c.label} style={{
             padding: "9px 20px",
-            textAlign: c.align ?? "left",
+            textAlign: c.align ?? "start",
             fontSize: "11px", fontWeight: 600, color: "#4a5068",
             textTransform: "uppercase", letterSpacing: "0.05em",
             borderBottom: "1px solid #1a2236", whiteSpace: "nowrap",
@@ -290,6 +300,9 @@ function TableHead({ cols }: { cols: Array<{ label: string; align?: "left" | "ri
 export default async function DashboardPage() {
   const session = await getSession();
   if (!session) redirect("/login");
+
+  const locale = await getLocale();
+  const t = getDictionary(locale).employees.dashboard;
 
   const employee = await db.employee.findUnique({
     where: { id: session.employeeId },
@@ -537,7 +550,7 @@ export default async function DashboardPage() {
   }
 
   const unreadCount = recentNotifications.length; // approximate; exact count would need a separate query
-  const greeting  = getGreeting();
+  const greeting  = getGreeting(t);
   const firstName = employee?.name?.split(" ")[0] ?? "there";
   const monthName = now.toLocaleString("en-US", { month: "long" });
 
@@ -571,7 +584,7 @@ export default async function DashboardPage() {
       <div style={{
         background: "linear-gradient(135deg, #0d1627 0%, #101828 100%)",
         border: "1px solid #222a3e",
-        borderLeft: "3px solid #0062ff",
+        borderInlineStart: "3px solid #0062ff",
         borderRadius: "10px",
         padding: "20px 28px",
         display: "flex",
@@ -599,7 +612,9 @@ export default async function DashboardPage() {
               <path d="M7 1.5A4 4 0 003 5.5v2L2 9h10l-1-1.5v-2A4 4 0 007 1.5z" stroke="#f59e0b" strokeWidth="1.25" strokeLinejoin="round" />
               <path d="M5.5 9.5a1.5 1.5 0 003 0" stroke="#f59e0b" strokeWidth="1.25" strokeLinecap="round" />
             </svg>
-            {unreadCount} unread notification{unreadCount !== 1 ? "s" : ""}
+            {unreadCount !== 1
+              ? t.unreadNotificationPlural.replace("{count}", String(unreadCount))
+              : t.unreadNotificationSingular.replace("{count}", String(unreadCount))}
           </Link>
         )}
       </div>
@@ -610,7 +625,7 @@ export default async function DashboardPage() {
       <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
         {canSales && (
           <KpiCard
-            label="Revenue"
+            label={t.revenue}
             value={fmtCurrency(revenueThisMonth)}
             description={monthName}
             accent="#62df7d"
@@ -622,29 +637,29 @@ export default async function DashboardPage() {
         )}
         {canPayments && (
           <KpiCard
-            label="Collected"
+            label={t.collected}
             value={fmtCurrency(collectedAmount)}
             description={monthName}
             accent="#60a5fa"
             bgAccent="rgba(96,165,250,0.1)"
-            sub={revenueThisMonth > 0 && canSales ? `${((collectedAmount / revenueThisMonth) * 100).toFixed(0)}% of revenue` : undefined}
+            sub={revenueThisMonth > 0 && canSales ? t.percentOfRevenue.replace("{percent}", ((collectedAmount / revenueThisMonth) * 100).toFixed(0)) : undefined}
             icon={<IconCollected />}
           />
         )}
         {canSales && canPurchases && (
           <KpiCard
-            label="Gross Profit"
+            label={t.grossProfit}
             value={fmtCurrency(grossProfit)}
             description={monthName}
             accent={grossProfit >= 0 ? "#a78bfa" : "#ff4d4f"}
             bgAccent="rgba(167,139,250,0.1)"
-            sub={`${fmtPct(grossMargin)} margin`}
+            sub={`${fmtPct(grossMargin)} ${t.marginSuffix}`}
             icon={<IconProfit />}
           />
         )}
         {canPurchases && (
           <KpiCard
-            label="Purchases"
+            label={t.purchases}
             value={fmtCurrency(spendThisMonth)}
             description={monthName}
             accent="#60a5fa"
@@ -656,9 +671,9 @@ export default async function DashboardPage() {
         )}
         {canInventory && outOfStockCount !== null && (
           <KpiCard
-            label="Out of Stock"
+            label={t.outOfStock}
             value={outOfStockCount.toLocaleString()}
-            description="items with zero stock"
+            description={t.outOfStockDescription}
             accent={outOfStockCount > 0 ? "#ff4d4f" : "#4a5068"}
             bgAccent={outOfStockCount > 0 ? "rgba(255,77,79,0.1)" : "rgba(74,80,104,0.1)"}
             icon={<IconOutOfStock />}
@@ -666,9 +681,9 @@ export default async function DashboardPage() {
         )}
         {canInventory && lowStockCount !== null && (
           <KpiCard
-            label="Low Stock"
+            label={t.lowStock}
             value={lowStockCount.toLocaleString()}
-            description="below reorder threshold"
+            description={t.lowStockDescription}
             accent={lowStockCount > 0 ? "#f59e0b" : "#4a5068"}
             bgAccent={lowStockCount > 0 ? "rgba(245,158,11,0.1)" : "rgba(74,80,104,0.1)"}
             icon={<IconLowStock />}
@@ -676,9 +691,9 @@ export default async function DashboardPage() {
         )}
         {canCustomers && customerCount !== null && (
           <KpiCard
-            label="Customers"
+            label={t.customers}
             value={customerCount.toLocaleString()}
-            description="active"
+            description={t.active}
             accent="#dbe2fd"
             bgAccent="rgba(0,98,255,0.1)"
             icon={<IconCustomers />}
@@ -686,9 +701,9 @@ export default async function DashboardPage() {
         )}
         {canSuppliers && supplierCount !== null && (
           <KpiCard
-            label="Suppliers"
+            label={t.suppliers}
             value={supplierCount.toLocaleString()}
-            description="active"
+            description={t.active}
             accent="#dbe2fd"
             bgAccent="rgba(0,98,255,0.1)"
             icon={<IconSuppliers />}
@@ -700,7 +715,7 @@ export default async function DashboardPage() {
       {/* Pending Actions                                                       */}
       {/* ------------------------------------------------------------------ */}
       {(canSales || canPurchases || canInventory) && (
-        <SectionCard title="Pending Actions">
+        <SectionCard title={t.pendingActions}>
           <div style={{ padding: "6px 0" }}>
             {canSales && draftSalesCount !== null && (
               <Link href="/dashboard/sales?status=DRAFT" style={{ textDecoration: "none", display: "block" }}>
@@ -712,8 +727,8 @@ export default async function DashboardPage() {
                       </svg>
                     </div>
                     <div>
-                      <div style={{ fontSize: "13px", fontWeight: 500, color: "#dbe2fd" }}>Draft Sales Invoices</div>
-                      <div style={{ fontSize: "11px", color: "#8c90a2", marginTop: "1px" }}>Awaiting confirmation</div>
+                      <div style={{ fontSize: "13px", fontWeight: 500, color: "#dbe2fd" }}>{t.draftSalesInvoices}</div>
+                      <div style={{ fontSize: "11px", color: "#8c90a2", marginTop: "1px" }}>{t.awaitingConfirmation}</div>
                     </div>
                   </div>
                   <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
@@ -734,8 +749,8 @@ export default async function DashboardPage() {
                       </svg>
                     </div>
                     <div>
-                      <div style={{ fontSize: "13px", fontWeight: 500, color: "#dbe2fd" }}>Draft Purchase Invoices</div>
-                      <div style={{ fontSize: "11px", color: "#8c90a2", marginTop: "1px" }}>Awaiting confirmation</div>
+                      <div style={{ fontSize: "13px", fontWeight: 500, color: "#dbe2fd" }}>{t.draftPurchaseInvoices}</div>
+                      <div style={{ fontSize: "11px", color: "#8c90a2", marginTop: "1px" }}>{t.awaitingConfirmation}</div>
                     </div>
                   </div>
                   <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
@@ -756,8 +771,8 @@ export default async function DashboardPage() {
                       </svg>
                     </div>
                     <div>
-                      <div style={{ fontSize: "13px", fontWeight: 500, color: "#dbe2fd" }}>Out of Stock</div>
-                      <div style={{ fontSize: "11px", color: "#8c90a2", marginTop: "1px" }}>Items with zero inventory</div>
+                      <div style={{ fontSize: "13px", fontWeight: 500, color: "#dbe2fd" }}>{t.outOfStockTitle}</div>
+                      <div style={{ fontSize: "11px", color: "#8c90a2", marginTop: "1px" }}>{t.outOfStockSubtitle}</div>
                     </div>
                   </div>
                   <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
@@ -779,8 +794,8 @@ export default async function DashboardPage() {
                       </svg>
                     </div>
                     <div>
-                      <div style={{ fontSize: "13px", fontWeight: 500, color: "#dbe2fd" }}>Low Stock Items</div>
-                      <div style={{ fontSize: "11px", color: "#8c90a2", marginTop: "1px" }}>Below reorder threshold</div>
+                      <div style={{ fontSize: "13px", fontWeight: 500, color: "#dbe2fd" }}>{t.lowStockItemsTitle}</div>
+                      <div style={{ fontSize: "11px", color: "#8c90a2", marginTop: "1px" }}>{t.lowStockItemsSubtitle}</div>
                     </div>
                   </div>
                   <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
@@ -796,7 +811,7 @@ export default async function DashboardPage() {
                   <circle cx="8" cy="8" r="6.5" stroke="#62df7d" strokeWidth="1.4" />
                   <path d="M5.5 8l1.5 1.5 3.5-3.5" stroke="#62df7d" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
-                <span style={{ fontSize: "13px" }}>All caught up — no pending actions.</span>
+                <span style={{ fontSize: "13px" }}>{t.allCaughtUp}</span>
               </div>
             )}
           </div>
@@ -807,7 +822,7 @@ export default async function DashboardPage() {
       {/* 30-Day Trend Chart                                                   */}
       {/* ------------------------------------------------------------------ */}
       {showChart && (
-        <SectionCard title="Sales vs Purchases — Last 30 Days">
+        <SectionCard title={t.salesVsPurchases}>
           <div style={{ padding: "16px 20px 8px" }}>
             <SalesPurchasesChart
               data={chartData}
@@ -825,13 +840,13 @@ export default async function DashboardPage() {
         <div style={{ display: "grid", gridTemplateColumns: (canSales && canPayments) && (canPurchases && canPayments) ? "1fr 1fr" : "1fr", gap: "14px" }}>
           {canSales && canPayments && (
             <SectionCard
-              title={`Receivables Outstanding${totalReceivables > 0 ? ` — ${fmtCurrency(totalReceivables)}` : ""}`}
+              title={`${t.receivablesOutstanding}${totalReceivables > 0 ? ` — ${fmtCurrency(totalReceivables)}` : ""}`}
               href="/dashboard/sales"
-              hrefLabel="All sales"
+              hrefLabel={t.allSales}
             >
               {receivables.length > 0 ? (
                 <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "13px" }}>
-                  <TableHead cols={[{ label: "Invoice" }, { label: "Customer" }, { label: "Total", align: "right" }, { label: "Outstanding", align: "right" }, { label: "Age" }]} />
+                  <TableHead cols={[{ label: t.colInvoice }, { label: t.colCustomer }, { label: t.colTotal, align: "end" }, { label: t.colOutstanding, align: "end" }, { label: t.colAge }]} />
                   <tbody>
                     {receivables.slice(0, 6).map((r, i) => (
                       <tr key={r.id}>
@@ -839,35 +854,35 @@ export default async function DashboardPage() {
                           #{truncateId(r.id)}
                         </td>
                         <td style={{ padding: "10px 20px", color: "#dbe2fd", maxWidth: "110px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", borderBottom: i < Math.min(receivables.length, 6) - 1 ? "1px solid #1a2236" : "none" }}>
-                          {r.label ?? <span style={{ color: "#4a5068", fontStyle: "italic" }}>Walk-in</span>}
+                          {r.label ?? <span style={{ color: "#4a5068", fontStyle: "italic" }}>{t.walkIn}</span>}
                         </td>
-                        <td style={{ padding: "10px 20px", textAlign: "right", color: "#8c90a2", borderBottom: i < Math.min(receivables.length, 6) - 1 ? "1px solid #1a2236" : "none" }}>
+                        <td style={{ padding: "10px 20px", textAlign: "end", color: "#8c90a2", borderBottom: i < Math.min(receivables.length, 6) - 1 ? "1px solid #1a2236" : "none" }}>
                           {fmtCurrency(r.total)}
                         </td>
-                        <td style={{ padding: "10px 20px", textAlign: "right", fontWeight: 600, color: "#ff4d4f", borderBottom: i < Math.min(receivables.length, 6) - 1 ? "1px solid #1a2236" : "none" }}>
+                        <td style={{ padding: "10px 20px", textAlign: "end", fontWeight: 600, color: "#ff4d4f", borderBottom: i < Math.min(receivables.length, 6) - 1 ? "1px solid #1a2236" : "none" }}>
                           {fmtCurrency(r.outstanding)}
                         </td>
                         <td style={{ padding: "10px 20px", color: "#8c90a2", fontSize: "12px", whiteSpace: "nowrap", borderBottom: i < Math.min(receivables.length, 6) - 1 ? "1px solid #1a2236" : "none" }}>
-                          {relativeTime(r.confirmedAt)}
+                          {relativeTime(r.confirmedAt, t)}
                         </td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
               ) : (
-                <EmptyState text="No outstanding receivables." />
+                <EmptyState text={t.noOutstandingReceivables} />
               )}
             </SectionCard>
           )}
           {canPurchases && canPayments && (
             <SectionCard
-              title={`Payables Outstanding${totalPayables > 0 ? ` — ${fmtCurrency(totalPayables)}` : ""}`}
+              title={`${t.payablesOutstanding}${totalPayables > 0 ? ` — ${fmtCurrency(totalPayables)}` : ""}`}
               href="/dashboard/purchases"
-              hrefLabel="All purchases"
+              hrefLabel={t.allPurchases}
             >
               {payables.length > 0 ? (
                 <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "13px" }}>
-                  <TableHead cols={[{ label: "Invoice" }, { label: "Supplier" }, { label: "Total", align: "right" }, { label: "Outstanding", align: "right" }, { label: "Age" }]} />
+                  <TableHead cols={[{ label: t.colInvoice }, { label: t.colSupplier }, { label: t.colTotal, align: "end" }, { label: t.colOutstanding, align: "end" }, { label: t.colAge }]} />
                   <tbody>
                     {payables.slice(0, 6).map((r, i) => (
                       <tr key={r.id}>
@@ -875,23 +890,23 @@ export default async function DashboardPage() {
                           #{truncateId(r.id)}
                         </td>
                         <td style={{ padding: "10px 20px", color: "#dbe2fd", maxWidth: "110px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", borderBottom: i < Math.min(payables.length, 6) - 1 ? "1px solid #1a2236" : "none" }}>
-                          {r.label ?? <span style={{ color: "#4a5068", fontStyle: "italic" }}>Unknown</span>}
+                          {r.label ?? <span style={{ color: "#4a5068", fontStyle: "italic" }}>{t.unknown}</span>}
                         </td>
-                        <td style={{ padding: "10px 20px", textAlign: "right", color: "#8c90a2", borderBottom: i < Math.min(payables.length, 6) - 1 ? "1px solid #1a2236" : "none" }}>
+                        <td style={{ padding: "10px 20px", textAlign: "end", color: "#8c90a2", borderBottom: i < Math.min(payables.length, 6) - 1 ? "1px solid #1a2236" : "none" }}>
                           {fmtCurrency(r.total)}
                         </td>
-                        <td style={{ padding: "10px 20px", textAlign: "right", fontWeight: 600, color: "#f59e0b", borderBottom: i < Math.min(payables.length, 6) - 1 ? "1px solid #1a2236" : "none" }}>
+                        <td style={{ padding: "10px 20px", textAlign: "end", fontWeight: 600, color: "#f59e0b", borderBottom: i < Math.min(payables.length, 6) - 1 ? "1px solid #1a2236" : "none" }}>
                           {fmtCurrency(r.outstanding)}
                         </td>
                         <td style={{ padding: "10px 20px", color: "#8c90a2", fontSize: "12px", whiteSpace: "nowrap", borderBottom: i < Math.min(payables.length, 6) - 1 ? "1px solid #1a2236" : "none" }}>
-                          {relativeTime(r.confirmedAt)}
+                          {relativeTime(r.confirmedAt, t)}
                         </td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
               ) : (
-                <EmptyState text="No outstanding payables." />
+                <EmptyState text={t.noOutstandingPayables} />
               )}
             </SectionCard>
           )}
@@ -904,7 +919,7 @@ export default async function DashboardPage() {
       {showTopRow && (
         <div style={{ display: "grid", gridTemplateColumns: showTopCustomers && showTopProducts ? "1fr 1fr" : "1fr", gap: "14px" }}>
           {showTopCustomers && (
-            <SectionCard title={`Top Customers — ${monthName}`} href="/dashboard/customers" hrefLabel="All customers">
+            <SectionCard title={`${t.topCustomers} — ${monthName}`} href="/dashboard/customers" hrefLabel={t.allCustomers}>
               {topCustomers.length > 0 ? (
                 <div>
                   {topCustomers.map((c, i) => {
@@ -925,12 +940,12 @@ export default async function DashboardPage() {
                   })}
                 </div>
               ) : (
-                <EmptyState text={`No sales recorded this ${monthName}.`} />
+                <EmptyState text={t.noSalesThisMonth.replace("{month}", monthName)} />
               )}
             </SectionCard>
           )}
           {showTopProducts && (
-            <SectionCard title={`Top Products — ${monthName}`} href="/dashboard/reports" hrefLabel="Reports">
+            <SectionCard title={`${t.topProducts} — ${monthName}`} href="/dashboard/reports" hrefLabel={t.reports}>
               {topProducts.length > 0 ? (
                 <div>
                   {topProducts.map((p, i) => {
@@ -951,7 +966,7 @@ export default async function DashboardPage() {
                   })}
                 </div>
               ) : (
-                <EmptyState text={`No product sales recorded this ${monthName}.`} />
+                <EmptyState text={t.noProductSalesThisMonth.replace("{month}", monthName)} />
               )}
             </SectionCard>
           )}
@@ -964,7 +979,7 @@ export default async function DashboardPage() {
       {showNotifAwaitRow && (
         <div style={{ display: "grid", gridTemplateColumns: showNotifications && showAwaitingPayment ? "1fr 1fr" : "1fr", gap: "14px" }}>
           {showNotifications && (
-            <SectionCard title="Unread Notifications" href="/dashboard/notifications" hrefLabel="View all">
+            <SectionCard title={t.unreadNotifications} href="/dashboard/notifications" hrefLabel={t.viewAll}>
               <div>
                 {recentNotifications.map((n, i) => {
                   const badge = notificationBadge(n.type);
@@ -975,9 +990,9 @@ export default async function DashboardPage() {
                       </span>
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={{ fontSize: "13px", color: "#dbe2fd", lineHeight: 1.4, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                          {notificationMessage(n.type, n.payload)}
+                          {notificationMessage(n.type, n.payload, t)}
                         </div>
-                        <div style={{ fontSize: "11px", color: "#4a5068", marginTop: "2px" }}>{relativeTime(n.createdAt)}</div>
+                        <div style={{ fontSize: "11px", color: "#4a5068", marginTop: "2px" }}>{relativeTime(n.createdAt, t)}</div>
                       </div>
                     </div>
                   );
@@ -986,9 +1001,9 @@ export default async function DashboardPage() {
             </SectionCard>
           )}
           {showAwaitingPayment && (
-            <SectionCard title="Awaiting Payment" href="/dashboard/payments" hrefLabel="All payments">
+            <SectionCard title={t.awaitingPayment} href="/dashboard/payments" hrefLabel={t.allPayments}>
               <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "13px" }}>
-                <TableHead cols={[{ label: "Invoice" }, { label: "Party" }, { label: "Type" }, { label: "Outstanding", align: "right" }, { label: "Age" }]} />
+                <TableHead cols={[{ label: t.colInvoice }, { label: t.colParty }, { label: t.colType }, { label: t.colOutstanding, align: "end" }, { label: t.colAge }]} />
                 <tbody>
                   {awaitingPayment.map((r, i) => (
                     <tr key={r.id}>
@@ -1000,14 +1015,14 @@ export default async function DashboardPage() {
                       </td>
                       <td style={{ padding: "10px 20px", borderBottom: i < awaitingPayment.length - 1 ? "1px solid #1a2236" : "none" }}>
                         <span style={{ fontSize: "11px", fontWeight: 600, padding: "2px 7px", borderRadius: "4px", color: r.invoiceType === "SALE" ? "#62df7d" : "#60a5fa", backgroundColor: r.invoiceType === "SALE" ? "rgba(98,223,125,0.1)" : "rgba(96,165,250,0.1)" }}>
-                          {r.invoiceType === "SALE" ? "Sale" : "Purchase"}
+                          {r.invoiceType === "SALE" ? t.sale : t.purchase}
                         </span>
                       </td>
-                      <td style={{ padding: "10px 20px", textAlign: "right", fontWeight: 600, color: r.invoiceType === "SALE" ? "#ff4d4f" : "#f59e0b", borderBottom: i < awaitingPayment.length - 1 ? "1px solid #1a2236" : "none" }}>
+                      <td style={{ padding: "10px 20px", textAlign: "end", fontWeight: 600, color: r.invoiceType === "SALE" ? "#ff4d4f" : "#f59e0b", borderBottom: i < awaitingPayment.length - 1 ? "1px solid #1a2236" : "none" }}>
                         {fmtCurrency(r.outstanding)}
                       </td>
                       <td style={{ padding: "10px 20px", color: "#8c90a2", fontSize: "12px", whiteSpace: "nowrap", borderBottom: i < awaitingPayment.length - 1 ? "1px solid #1a2236" : "none" }}>
-                        {relativeTime(r.confirmedAt)}
+                        {relativeTime(r.confirmedAt, t)}
                       </td>
                     </tr>
                   ))}
@@ -1022,9 +1037,9 @@ export default async function DashboardPage() {
       {/* Low Stock Alert table                                                */}
       {/* ------------------------------------------------------------------ */}
       {canInventory && lowStockTable && lowStockTable.length > 0 && (
-        <SectionCard title="Low Stock Alerts" href="/dashboard/inventory/stock" hrefLabel="View inventory">
+        <SectionCard title={t.lowStockAlerts} href="/dashboard/inventory/stock" hrefLabel={t.viewInventory}>
           <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "13px" }}>
-            <TableHead cols={[{ label: "Product" }, { label: "SKU" }, { label: "Stock", align: "right" }, { label: "Min", align: "right" }, { label: "" }]} />
+            <TableHead cols={[{ label: t.colProduct }, { label: t.colSku }, { label: t.colStock, align: "end" }, { label: t.colMin, align: "end" }, { label: "" }]} />
             <tbody>
               {lowStockTable.map((b, i) => {
                 const qty = Number(b.currentQuantity);
@@ -1035,10 +1050,10 @@ export default async function DashboardPage() {
                   <tr key={b.product.id}>
                     <td style={{ padding: "11px 20px", color: "#dbe2fd", fontWeight: 500, borderBottom: i < lowStockTable.length - 1 ? "1px solid #1a2236" : "none", maxWidth: "180px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{b.product.name}</td>
                     <td style={{ padding: "11px 20px", color: "#8c90a2", fontSize: "12px", fontFamily: "monospace", borderBottom: i < lowStockTable.length - 1 ? "1px solid #1a2236" : "none" }}>{b.product.sku}</td>
-                    <td style={{ padding: "11px 20px", textAlign: "right", fontWeight: 600, color: qty === 0 ? "#ff4d4f" : pct < 0.4 ? "#f59e0b" : "#dbe2fd", borderBottom: i < lowStockTable.length - 1 ? "1px solid #1a2236" : "none" }}>
+                    <td style={{ padding: "11px 20px", textAlign: "end", fontWeight: 600, color: qty === 0 ? "#ff4d4f" : pct < 0.4 ? "#f59e0b" : "#dbe2fd", borderBottom: i < lowStockTable.length - 1 ? "1px solid #1a2236" : "none" }}>
                       {qty.toLocaleString()} <span style={{ fontWeight: 400, fontSize: "11px", color: "#8c90a2" }}>{b.product.defaultUnit.symbol}</span>
                     </td>
-                    <td style={{ padding: "11px 20px", textAlign: "right", color: "#8c90a2", borderBottom: i < lowStockTable.length - 1 ? "1px solid #1a2236" : "none" }}>{threshold.toLocaleString()}</td>
+                    <td style={{ padding: "11px 20px", textAlign: "end", color: "#8c90a2", borderBottom: i < lowStockTable.length - 1 ? "1px solid #1a2236" : "none" }}>{threshold.toLocaleString()}</td>
                     <td style={{ padding: "11px 20px", width: "100px", borderBottom: i < lowStockTable.length - 1 ? "1px solid #1a2236" : "none" }}>
                       <div style={{ height: "4px", backgroundColor: "#222a3e", borderRadius: "2px", overflow: "hidden" }}>
                         <div style={{ height: "100%", width: `${Math.round(pct * 100)}%`, backgroundColor: barColor, borderRadius: "2px" }} />
@@ -1056,10 +1071,10 @@ export default async function DashboardPage() {
       {/* Recent Activity — last 5 movements                                   */}
       {/* ------------------------------------------------------------------ */}
       {canInventory && recentActivity && recentActivity.length > 0 && (
-        <SectionCard title="Recent Inventory Activity" href="/dashboard/inventory/movements" hrefLabel="View all">
+        <SectionCard title={t.recentInventoryActivity} href="/dashboard/inventory/movements" hrefLabel={t.viewAll}>
           <div>
             {recentActivity.map((mov, i) => {
-              const badge = movementBadge(mov.movementType);
+              const badge = movementBadge(mov.movementType, t);
               const qty   = Number(mov.quantity);
               const isOut = mov.movementType === "SALE_OUT" || mov.movementType === "TRANSFER_OUT" || mov.movementType === "RETURN_OUT";
               return (
@@ -1070,14 +1085,14 @@ export default async function DashboardPage() {
                   <span style={{ fontSize: "13px", color: "#dbe2fd", fontWeight: 500, flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                     {mov.product.name}
                   </span>
-                  <span style={{ fontSize: "13px", fontWeight: 700, color: isOut ? "#ff4d4f" : "#62df7d", flexShrink: 0, minWidth: "70px", textAlign: "right" }}>
+                  <span style={{ fontSize: "13px", fontWeight: 700, color: isOut ? "#ff4d4f" : "#62df7d", flexShrink: 0, minWidth: "70px", textAlign: "end" }}>
                     {isOut ? "−" : "+"}{qty.toLocaleString()} <span style={{ fontWeight: 400, fontSize: "11px", color: "#8c90a2" }}>{mov.unit.symbol}</span>
                   </span>
-                  <span style={{ fontSize: "12px", color: "#8c90a2", flexShrink: 0, minWidth: "90px", textAlign: "right", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                  <span style={{ fontSize: "12px", color: "#8c90a2", flexShrink: 0, minWidth: "90px", textAlign: "end", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                     {mov.actor.name}
                   </span>
-                  <span style={{ fontSize: "12px", color: "#4a5068", flexShrink: 0, minWidth: "64px", textAlign: "right", whiteSpace: "nowrap" }}>
-                    {relativeTime(mov.createdAt)}
+                  <span style={{ fontSize: "12px", color: "#4a5068", flexShrink: 0, minWidth: "64px", textAlign: "end", whiteSpace: "nowrap" }}>
+                    {relativeTime(mov.createdAt, t)}
                   </span>
                 </div>
               );
@@ -1094,7 +1109,7 @@ export default async function DashboardPage() {
             <path d="M20 13v8" stroke="#8c90a2" strokeWidth="2" strokeLinecap="round" />
             <circle cx="20" cy="26" r="1.5" fill="#8c90a2" />
           </svg>
-          <p style={{ fontSize: "14px", color: "#8c90a2", margin: 0 }}>Your account has limited permissions. Contact your administrator for access.</p>
+          <p style={{ fontSize: "14px", color: "#8c90a2", margin: 0 }}>{t.limitedPermissions}</p>
         </div>
       )}
     </div>

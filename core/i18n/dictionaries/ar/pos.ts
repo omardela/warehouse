@@ -1,0 +1,72 @@
+import pos from "../en/pos";
+
+const dict: typeof pos = {
+  title: "نقطة البيع",
+  dashboard: "لوحة التحكم",
+  search: {
+    placeholder: "البحث بالاسم أو رمز المنتج أو الباركود… (F2)",
+    resultsCountOne: "تم العثور على منتج واحد",
+    resultsCountOther: "تم العثور على {count} منتج",
+    resultsForQuery: ' لـ "{query}"',
+  },
+  stock: {
+    out: "غير متوفر",
+    low: "منخفض: {qty}",
+    inStock: "متوفر: {qty}",
+  },
+  productGrid: {
+    empty: "لم يتم العثور على منتجات",
+    unit: "الوحدة: {symbol}",
+    inCart: "في السلة: {qty}",
+  },
+  cart: {
+    title: "البيع الحالي",
+    clear: "مسح",
+    clearCart: "إفراغ السلة",
+    empty: "السلة فارغة",
+    emptyHint: "اضغط على منتج لإضافته",
+    removeItem: "إزالة العنصر",
+    qty: "الكمية",
+    unit: "الوحدة",
+    price: "السعر ($)",
+    priceRequired: "السعر ($) — مطلوب",
+    pricePlaceholder: "0.00",
+    lineTotal: "الإجمالي:",
+    priceValidationError:
+      "يرجى تحديد سعر أكبر من 0$ لجميع العناصر قبل إتمام عملية البيع.",
+  },
+  summary: {
+    subtotalOne: "الإجمالي الفرعي (عنصر واحد)",
+    subtotalOther: "الإجمالي الفرعي ({count} عنصر)",
+    total: "الإجمالي",
+    completeSale: "إتمام البيع",
+    processing: "جارٍ المعالجة…",
+  },
+  receipt: {
+    saleComplete: "تمت عملية البيع بنجاح!",
+    invoiceRef: "مرجع الفاتورة",
+    itemsSold: "عدد العناصر المباعة",
+    totalCollected: "المبلغ الإجمالي المُحصَّل",
+    items: "العناصر",
+    printReceipt: "طباعة الإيصال",
+    newSale: "عملية بيع جديدة",
+  },
+  errors: {
+    unauthorized: "غير مصرح",
+    noPermission: "ليس لديك صلاحية لإجراء عمليات بيع في نقطة البيع.",
+    cartMissing: "بيانات السلة غير موجودة.",
+    cartInvalidFormat: "تنسيق بيانات السلة غير صالح.",
+    cartInvalid: "بيانات السلة غير صالحة.",
+    productIdRequired: "معرف المنتج مطلوب",
+    unitIdRequired: "معرف الوحدة مطلوب",
+    quantityPositive: "يجب أن تكون الكمية أكبر من 0",
+    unitPricePositive: "يجب أن يكون سعر الوحدة أكبر من 0",
+    cartMinOneItem: "يجب أن تحتوي السلة على عنصر واحد على الأقل",
+    productNotFound: "المنتج غير موجود: {productId}",
+    outOfStock: "غير متوفر في المخزون: {productName}",
+    stockDeductionFailed: "فشل خصم المخزون لـ {productName}: {message}",
+    stockError: "خطأ في المخزون",
+  },
+};
+
+export default dict;

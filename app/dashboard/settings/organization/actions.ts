@@ -5,10 +5,8 @@ import { db } from "@/lib/db";
 import { getSession } from "@/core/auth/session";
 import { requirePermission } from "@/core/auth/require-permission";
 import { writeAuditLog } from "@/core/audit/write-audit-log";
-
-const orgSchema = z.object({
-  name: z.string().min(1, "Organization name is required").max(100),
-});
+import { getLocale } from "@/core/i18n/locale";
+import { getDictionary } from "@/core/i18n/get-dictionary";
 
 export type OrgActionState = { success: true } | { error: string } | null;
 
@@ -17,15 +15,20 @@ export async function updateOrganizationAction(
   formData: FormData
 ): Promise<OrgActionState> {
   const session = await getSession();
+  const dict = getDictionary(await getLocale()).employees.organization;
   if (!session) {
-    return { error: "Unauthorized" };
+    return { error: dict.unauthorized };
   }
 
   try {
     await requirePermission(session, "settings.org.update");
   } catch {
-    return { error: "You do not have permission to update organization settings." };
+    return { error: dict.noPermissionUpdate };
   }
+
+  const orgSchema = z.object({
+    name: z.string().min(1, dict.nameRequired).max(100),
+  });
 
   const parsed = orgSchema.safeParse({
     name: formData.get("name"),
@@ -33,7 +36,7 @@ export async function updateOrganizationAction(
 
   if (!parsed.success) {
     const firstError = parsed.error.flatten().fieldErrors.name?.[0];
-    return { error: firstError ?? "Invalid form data" };
+    return { error: firstError ?? dict.invalidFormData };
   }
 
   const { name } = parsed.data;
@@ -44,7 +47,7 @@ export async function updateOrganizationAction(
   });
 
   if (!existing) {
-    return { error: "Organization not found" };
+    return { error: dict.organizationNotFound };
   }
 
   await db.organization.update({

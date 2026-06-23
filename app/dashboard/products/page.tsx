@@ -3,6 +3,8 @@ import Link from "next/link";
 import { getSession } from "@/core/auth/session";
 import { db } from "@/lib/db";
 import { requirePagePermission } from "@/core/auth/require-page-permission";
+import { getLocale } from "@/core/i18n/locale";
+import { getDictionary } from "@/core/i18n/get-dictionary";
 
 export const dynamic = "force-dynamic";
 
@@ -27,6 +29,9 @@ export default async function ProductsPage({ searchParams }: PageProps) {
   const session = await getSession();
   if (!session) redirect("/login");
   await requirePagePermission(session, "inventory.product.read");
+
+  const locale = await getLocale();
+  const t = getDictionary(locale);
 
   const params = await searchParams;
   const q = params.q?.trim() ?? "";
@@ -91,10 +96,10 @@ export default async function ProductsPage({ searchParams }: PageProps) {
         >
           <div>
             <h1 style={{ fontSize: "24px", fontWeight: 700, color: "#dbe2fd", margin: 0 }}>
-              Products
+              {t.products.title}
             </h1>
             <p style={{ fontSize: "13px", color: "#8c90a2", marginTop: "4px" }}>
-              Manage products, inventory items, categories, and stock information across all warehouse locations.
+              {t.products.subtitle}
             </p>
           </div>
           <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
@@ -114,7 +119,7 @@ export default async function ProductsPage({ searchParams }: PageProps) {
                 textDecoration: "none",
               }}
             >
-              Import CSV
+              {t.products.importCsv}
             </Link>
             <Link
               href="/dashboard/products/categories"
@@ -132,7 +137,7 @@ export default async function ProductsPage({ searchParams }: PageProps) {
                 textDecoration: "none",
               }}
             >
-              Categories
+              {t.products.categories}
             </Link>
             <Link
               href="/dashboard/products/new"
@@ -152,7 +157,7 @@ export default async function ProductsPage({ searchParams }: PageProps) {
               <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
                 <path d="M7 1.5V12.5M1.5 7H12.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
               </svg>
-              Add Product
+              {t.products.addProduct}
             </Link>
           </div>
         </div>
@@ -175,7 +180,7 @@ export default async function ProductsPage({ searchParams }: PageProps) {
             <div style={{ position: "relative", flex: "1", minWidth: "200px" }}>
               <svg
                 width="14" height="14" viewBox="0 0 14 14" fill="none"
-                style={{ position: "absolute", left: "10px", top: "50%", transform: "translateY(-50%)", color: "#4a5068", pointerEvents: "none" }}
+                style={{ position: "absolute", insetInlineStart: "10px", top: "50%", transform: "translateY(-50%)", color: "#4a5068", pointerEvents: "none" }}
               >
                 <circle cx="6" cy="6" r="4" stroke="currentColor" strokeWidth="1.5" />
                 <path d="M9.5 9.5L12.5 12.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
@@ -184,11 +189,11 @@ export default async function ProductsPage({ searchParams }: PageProps) {
                 name="q"
                 type="text"
                 defaultValue={q}
-                placeholder="Search by name, SKU, barcode..."
+                placeholder={t.products.searchPlaceholder}
                 style={{
                   width: "100%",
-                  paddingLeft: "32px",
-                  paddingRight: "12px",
+                  paddingInlineStart: "32px",
+                  paddingInlineEnd: "12px",
                   paddingTop: "8px",
                   paddingBottom: "8px",
                   background: "#0d1627",
@@ -216,7 +221,7 @@ export default async function ProductsPage({ searchParams }: PageProps) {
                 minWidth: "160px",
               }}
             >
-              <option value="">All Categories</option>
+              <option value="">{t.products.allCategories}</option>
               {categories.map((cat) => (
                 <option key={cat.id} value={cat.id}>{cat.name}</option>
               ))}
@@ -240,7 +245,7 @@ export default async function ProductsPage({ searchParams }: PageProps) {
                 defaultChecked={showArchived}
                 style={{ accentColor: "#0062ff" }}
               />
-              Show archived
+              {t.products.showArchived}
             </label>
 
             <button
@@ -256,7 +261,7 @@ export default async function ProductsPage({ searchParams }: PageProps) {
                 cursor: "pointer",
               }}
             >
-              Search
+              {t.products.searchButton}
             </button>
           </form>
         </div>
@@ -278,12 +283,21 @@ export default async function ProductsPage({ searchParams }: PageProps) {
             <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "13px" }}>
               <thead>
                 <tr style={{ borderBottom: "1px solid #222a3e", background: "#0d1627" }}>
-                  {["Product", "SKU", "Base Unit", "Category", "Stock", "Barcode", "Status", "Actions"].map((h) => (
+                  {[
+                    t.products.colProduct,
+                    t.products.colSku,
+                    t.products.colBaseUnit,
+                    t.products.colCategory,
+                    t.products.colStock,
+                    t.products.colBarcode,
+                    t.products.colStatus,
+                    t.products.colActions,
+                  ].map((h) => (
                     <th
                       key={h}
                       style={{
                         padding: "12px 16px",
-                        textAlign: "left",
+                        textAlign: "start",
                         fontWeight: 600,
                         color: "#8c90a2",
                         fontSize: "11px",
@@ -302,8 +316,8 @@ export default async function ProductsPage({ searchParams }: PageProps) {
                   <tr>
                     <td colSpan={8} style={{ padding: "48px 24px", textAlign: "center", color: "#8c90a2", fontSize: "14px" }}>
                       {q || categoryId
-                        ? "No products match your search."
-                        : "No products yet. Add your first product to get started."}
+                        ? t.products.noResultsSearch
+                        : t.products.noResultsEmpty}
                     </td>
                   </tr>
                 ) : (
@@ -364,7 +378,7 @@ export default async function ProductsPage({ searchParams }: PageProps) {
                             </span>
                             {isLowStock && !isArchived && (
                               <span style={{ display: "inline-flex", alignItems: "center", padding: "1px 6px", borderRadius: "10px", background: "rgba(245,158,11,0.12)", color: "#f59e0b", fontSize: "10px", fontWeight: 600, border: "1px solid rgba(245,158,11,0.2)" }}>
-                                LOW
+                                {t.products.low}
                               </span>
                             )}
                           </div>
@@ -383,11 +397,11 @@ export default async function ProductsPage({ searchParams }: PageProps) {
                         <td style={{ padding: "12px 16px" }}>
                           {isArchived ? (
                             <span style={{ display: "inline-flex", alignItems: "center", padding: "3px 8px", borderRadius: "10px", background: "rgba(140,144,162,0.1)", color: "#8c90a2", fontSize: "11px", fontWeight: 600 }}>
-                              ARCHIVED
+                              {t.products.archivedBadge}
                             </span>
                           ) : (
                             <span style={{ display: "inline-flex", alignItems: "center", padding: "3px 8px", borderRadius: "10px", background: "rgba(98,223,125,0.1)", color: "#62df7d", fontSize: "11px", fontWeight: 600 }}>
-                              ACTIVE
+                              {t.products.activeBadge}
                             </span>
                           )}
                         </td>
@@ -397,7 +411,7 @@ export default async function ProductsPage({ searchParams }: PageProps) {
                             href={`/dashboard/products/${product.id}`}
                             style={{ display: "inline-flex", alignItems: "center", gap: "4px", padding: "5px 12px", borderRadius: "6px", border: "1px solid #2d3449", color: "#8c90a2", fontSize: "12px", fontWeight: 500, textDecoration: "none" }}
                           >
-                            Edit
+                            {t.products.editAction}
                           </Link>
                         </td>
                       </tr>
@@ -421,7 +435,10 @@ export default async function ProductsPage({ searchParams }: PageProps) {
               }}
             >
               <span style={{ fontSize: "13px", color: "#8c90a2" }}>
-                Showing {skip + 1}–{Math.min(skip + PAGE_SIZE, total)} of {total} results
+                {t.products.showingResults
+                  .replace("{from}", String(skip + 1))
+                  .replace("{to}", String(Math.min(skip + PAGE_SIZE, total)))
+                  .replace("{total}", String(total))}
               </span>
               <div style={{ display: "flex", gap: "8px" }}>
                 {page > 1 && (
@@ -429,7 +446,7 @@ export default async function ProductsPage({ searchParams }: PageProps) {
                     href={`?q=${encodeURIComponent(q)}&category=${encodeURIComponent(categoryId)}&archived=${showArchived ? "1" : ""}&page=${page - 1}`}
                     style={{ padding: "6px 12px", borderRadius: "6px", border: "1px solid #2d3449", color: "#dbe2fd", fontSize: "13px", textDecoration: "none" }}
                   >
-                    Previous
+                    {t.common.previous}
                   </Link>
                 )}
                 <span style={{ padding: "6px 12px", borderRadius: "6px", background: "#0062ff", color: "#fff", fontSize: "13px", fontWeight: 600 }}>
@@ -440,7 +457,7 @@ export default async function ProductsPage({ searchParams }: PageProps) {
                     href={`?q=${encodeURIComponent(q)}&category=${encodeURIComponent(categoryId)}&archived=${showArchived ? "1" : ""}&page=${page + 1}`}
                     style={{ padding: "6px 12px", borderRadius: "6px", border: "1px solid #2d3449", color: "#dbe2fd", fontSize: "13px", textDecoration: "none" }}
                   >
-                    Next
+                    {t.common.next}
                   </Link>
                 )}
               </div>
@@ -448,8 +465,8 @@ export default async function ProductsPage({ searchParams }: PageProps) {
           )}
         </div>
 
-        <div style={{ marginTop: "12px", fontSize: "12px", color: "#4a5068", textAlign: "right" }}>
-          {total} product{total !== 1 ? "s" : ""} total
+        <div style={{ marginTop: "12px", fontSize: "12px", color: "#4a5068", textAlign: "end" }}>
+          {(total === 1 ? t.products.totalCount : t.products.totalCountPlural).replace("{count}", String(total))}
         </div>
       </div>
     </div>

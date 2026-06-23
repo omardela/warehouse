@@ -2,8 +2,10 @@
 
 import { useActionState, useEffect, useRef } from "react";
 import { createCategoryAction, type CategoryActionState } from "./actions";
+import { useTranslations } from "@/providers/locale-context";
 
 export function CategoryInlineForm() {
+  const t = useTranslations();
   const [state, formAction, pending] = useActionState<CategoryActionState, FormData>(createCategoryAction, null);
   const formRef = useRef<HTMLFormElement>(null);
 
@@ -20,14 +22,14 @@ export function CategoryInlineForm() {
           htmlFor="cat-name"
           style={{ display: "block", fontSize: "13px", fontWeight: 500, color: "#c2c6d9", marginBottom: "6px" }}
         >
-          Category Name <span style={{ color: "#ffb4ab" }}>*</span>
+          {t.products.categoryName} <span style={{ color: "#ffb4ab" }}>*</span>
         </label>
         <input
           id="cat-name"
           name="name"
           type="text"
           required
-          placeholder="e.g. Electronics, Hardware, Office Supplies"
+          placeholder={t.products.categoryNamePlaceholder}
           maxLength={100}
           style={{
             width: "100%",

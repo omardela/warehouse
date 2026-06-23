@@ -3,6 +3,8 @@ import { redirect } from "next/navigation";
 import { getSession } from "@/core/auth/session";
 import { db } from "@/lib/db";
 import { requirePagePermission } from "@/core/auth/require-page-permission";
+import { getLocale } from "@/core/i18n/locale";
+import { getDictionary } from "@/core/i18n/get-dictionary";
 
 export default async function WarehousesPage() {
   const session = await getSession();
@@ -10,6 +12,9 @@ export default async function WarehousesPage() {
     redirect("/login");
   }
   await requirePagePermission(session, "settings.warehouse.read");
+
+  const locale = await getLocale();
+  const t = getDictionary(locale).employees.warehouses;
 
   const warehouses = await db.warehouse.findMany({
     where: { organizationId: session.orgId, archivedAt: null },
@@ -24,10 +29,10 @@ export default async function WarehousesPage() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold" style={{ color: "#dbe2fd" }}>
-              Warehouses
+              {t.pageTitle}
             </h1>
             <p className="mt-1 text-sm" style={{ color: "#8c90a2" }}>
-              Manage your organization&apos;s warehouse facilities.
+              {t.pageSubtitle}
             </p>
           </div>
           <Link
@@ -36,7 +41,7 @@ export default async function WarehousesPage() {
             style={{ background: "#0062ff" }}
           >
             <span>+</span>
-            Create Warehouse
+            {t.createWarehouse}
           </Link>
         </div>
 
@@ -51,24 +56,24 @@ export default async function WarehousesPage() {
               style={{ background: "#171f33" }}
             >
               <p className="text-sm font-medium" style={{ color: "#dbe2fd" }}>
-                No warehouses yet
+                {t.emptyTitle}
               </p>
               <p className="mt-1 text-xs" style={{ color: "#8c90a2" }}>
-                Create your first warehouse facility to get started.
+                {t.emptySubtitle}
               </p>
               <Link
                 href="/dashboard/settings/warehouses/new"
                 className="mt-4 inline-flex items-center gap-1 rounded-lg px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90"
                 style={{ background: "#0062ff" }}
               >
-                + Create Warehouse
+                + {t.createWarehouse}
               </Link>
             </div>
           ) : (
             <table className="w-full border-collapse">
               <thead>
                 <tr style={{ background: "#171f33" }}>
-                  {["Name", "Address", "Employees", "Created", "Actions"].map(
+                  {[t.colName, t.colAddress, t.colEmployees, t.colCreated, t.colActions].map(
                     (col) => (
                       <th
                         key={col}
@@ -144,7 +149,7 @@ export default async function WarehousesPage() {
                           color: "#8c90a2",
                         }}
                       >
-                        Edit
+                        {t.edit}
                       </Link>
                     </td>
                   </tr>

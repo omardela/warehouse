@@ -3,6 +3,8 @@ import Link from "next/link";
 import { getSession } from "@/core/auth/session";
 import { db } from "@/lib/db";
 import { requirePagePermission } from "@/core/auth/require-page-permission";
+import { getLocale } from "@/core/i18n/locale";
+import { getDictionary } from "@/core/i18n/get-dictionary";
 
 export const dynamic = "force-dynamic";
 
@@ -18,11 +20,11 @@ function formatCurrency(val: number): string {
   return val.toLocaleString("en-US", { style: "currency", currency: "USD", minimumFractionDigits: 2 });
 }
 
-function formatDate(d: Date): string {
-  return d.toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
+function formatDate(d: Date, locale: "en" | "ar"): string {
+  return d.toLocaleDateString(locale === "ar" ? "ar" : "en-US", { year: "numeric", month: "short", day: "numeric" });
 }
 
-function StatusBadge({ status }: { status: string }) {
+function StatusBadge({ status, label }: { status: string; label: string }) {
   const map: Record<string, { bg: string; color: string }> = {
     DRAFT: { bg: "rgba(139,92,246,0.15)", color: "#a78bfa" },
     CONFIRMED: { bg: "rgba(98,223,125,0.1)", color: "#62df7d" },
@@ -42,7 +44,7 @@ function StatusBadge({ status }: { status: string }) {
         fontWeight: 600,
       }}
     >
-      {status}
+      {label}
     </span>
   );
 }
@@ -51,6 +53,9 @@ export default async function SalesPage({ searchParams }: PageProps) {
   const session = await getSession();
   if (!session) redirect("/login");
   await requirePagePermission(session, "sales.invoice.read");
+
+  const locale = await getLocale();
+  const t = getDictionary(locale);
 
   const params = await searchParams;
   const statusFilter = params.status ?? "ALL";
@@ -97,10 +102,10 @@ export default async function SalesPage({ searchParams }: PageProps) {
         >
           <div>
             <h1 style={{ fontSize: "24px", fontWeight: 700, color: "#dbe2fd", margin: 0 }}>
-              Sales Invoices
+              {t.sales.invoices.title}
             </h1>
             <p style={{ fontSize: "13px", color: "#8c90a2", marginTop: "4px" }}>
-              Track and manage all sales invoices, customer payments, and outstanding balances.
+              {t.sales.invoices.subtitle}
             </p>
           </div>
           <Link
@@ -121,7 +126,7 @@ export default async function SalesPage({ searchParams }: PageProps) {
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
               <path d="M7 1.5V12.5M1.5 7H12.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
             </svg>
-            New Sale
+            {t.sales.invoices.newSale}
           </Link>
         </div>
 
@@ -157,7 +162,13 @@ export default async function SalesPage({ searchParams }: PageProps) {
                     border: `1px solid ${statusFilter === s ? "#0062ff" : "#2d3449"}`,
                   }}
                 >
-                  {s === "ALL" ? "All" : s.charAt(0) + s.slice(1).toLowerCase()}
+                  {s === "ALL"
+                    ? t.sales.invoices.statusAll
+                    : s === "DRAFT"
+                      ? t.common.draft
+                      : s === "CONFIRMED"
+                        ? t.common.confirmed
+                        : t.common.cancelled}
                 </Link>
               ))}
             </div>
@@ -165,7 +176,7 @@ export default async function SalesPage({ searchParams }: PageProps) {
             <div style={{ position: "relative", flex: "1", minWidth: "180px" }}>
               <svg
                 width="14" height="14" viewBox="0 0 14 14" fill="none"
-                style={{ position: "absolute", left: "10px", top: "50%", transform: "translateY(-50%)", color: "#4a5068", pointerEvents: "none" }}
+                style={{ position: "absolute", insetInlineStart: "10px", top: "50%", transform: "translateY(-50%)", color: "#4a5068", pointerEvents: "none" }}
               >
                 <circle cx="6" cy="6" r="4" stroke="currentColor" strokeWidth="1.5" />
                 <path d="M9.5 9.5L12.5 12.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
@@ -174,11 +185,11 @@ export default async function SalesPage({ searchParams }: PageProps) {
                 name="q"
                 type="text"
                 defaultValue={q}
-                placeholder="Search by customer or ID..."
+                placeholder={t.sales.invoices.searchPlaceholder}
                 style={{
                   width: "100%",
-                  paddingLeft: "32px",
-                  paddingRight: "12px",
+                  paddingInlineStart: "32px",
+                  paddingInlineEnd: "12px",
                   paddingTop: "7px",
                   paddingBottom: "7px",
                   background: "#0d1627",
@@ -205,7 +216,7 @@ export default async function SalesPage({ searchParams }: PageProps) {
                 cursor: "pointer",
               }}
             >
-              Search
+              {t.sales.invoices.searchButton}
             </button>
           </form>
         </div>
@@ -226,12 +237,21 @@ export default async function SalesPage({ searchParams }: PageProps) {
             <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "13px" }}>
               <thead>
                 <tr style={{ borderBottom: "1px solid #222a3e", background: "#0d1627" }}>
-                  {["Invoice ID", "Customer", "Total Amount", "Discount", "Status", "Created", "Confirmed", "Actions"].map((h) => (
+                  {[
+                    t.sales.invoices.columns.invoiceId,
+                    t.sales.invoices.columns.customer,
+                    t.sales.invoices.columns.totalAmount,
+                    t.sales.invoices.columns.discount,
+                    t.sales.invoices.columns.status,
+                    t.sales.invoices.columns.created,
+                    t.sales.invoices.columns.confirmed,
+                    t.sales.invoices.columns.actions,
+                  ].map((h) => (
                     <th
                       key={h}
                       style={{
                         padding: "12px 16px",
-                        textAlign: "left",
+                        textAlign: "start",
                         fontWeight: 600,
                         color: "#8c90a2",
                         fontSize: "11px",
@@ -250,8 +270,8 @@ export default async function SalesPage({ searchParams }: PageProps) {
                   <tr>
                     <td colSpan={8} style={{ padding: "48px 24px", textAlign: "center", color: "#8c90a2", fontSize: "14px" }}>
                       {q || statusFilter !== "ALL"
-                        ? "No invoices match your filters."
-                        : "No sales invoices yet. Create your first sale to get started."}
+                        ? t.sales.invoices.noResultsFiltered
+                        : t.sales.invoices.noResultsEmpty}
                     </td>
                   </tr>
                 ) : (
@@ -287,20 +307,29 @@ export default async function SalesPage({ searchParams }: PageProps) {
                         <td style={{ padding: "12px 16px" }}>
                           {hasDiscount ? (
                             <span style={{ fontSize: "11px", color: "#62df7d", background: "rgba(98,223,125,0.08)", padding: "2px 6px", borderRadius: "4px" }}>
-                              Yes
+                              {t.sales.invoices.discountYes}
                             </span>
                           ) : (
                             <span style={{ color: "#4a5068" }}>—</span>
                           )}
                         </td>
                         <td style={{ padding: "12px 16px" }}>
-                          <StatusBadge status={invoice.status} />
+                          <StatusBadge
+                            status={invoice.status}
+                            label={
+                              invoice.status === "DRAFT"
+                                ? t.common.draft
+                                : invoice.status === "CONFIRMED"
+                                  ? t.common.confirmed
+                                  : t.common.cancelled
+                            }
+                          />
                         </td>
                         <td style={{ padding: "12px 16px", color: "#8c90a2" }}>
-                          {formatDate(invoice.createdAt)}
+                          {formatDate(invoice.createdAt, locale)}
                         </td>
                         <td style={{ padding: "12px 16px", color: "#8c90a2" }}>
-                          {invoice.confirmedAt ? formatDate(invoice.confirmedAt) : <span style={{ color: "#4a5068" }}>—</span>}
+                          {invoice.confirmedAt ? formatDate(invoice.confirmedAt, locale) : <span style={{ color: "#4a5068" }}>—</span>}
                         </td>
                         <td style={{ padding: "12px 16px" }}>
                           <Link
@@ -318,7 +347,7 @@ export default async function SalesPage({ searchParams }: PageProps) {
                               textDecoration: "none",
                             }}
                           >
-                            View
+                            {t.sales.invoices.view}
                           </Link>
                         </td>
                       </tr>
@@ -329,8 +358,11 @@ export default async function SalesPage({ searchParams }: PageProps) {
             </table>
           </div>
 
-          <div style={{ padding: "10px 16px", borderTop: "1px solid #222a3e", background: "#0d1627", fontSize: "12px", color: "#4a5068", textAlign: "right" }}>
-            {filteredInvoices.length} invoice{filteredInvoices.length !== 1 ? "s" : ""}
+          <div style={{ padding: "10px 16px", borderTop: "1px solid #222a3e", background: "#0d1627", fontSize: "12px", color: "#4a5068", textAlign: "end" }}>
+            {filteredInvoices.length}{" "}
+            {filteredInvoices.length === 1
+              ? t.sales.invoices.invoiceCountSuffix_one
+              : t.sales.invoices.invoiceCountSuffix_other}
           </div>
         </div>
       </div>

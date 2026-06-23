@@ -7,6 +7,8 @@ import { getSession } from "@/core/auth/session";
 import { requirePermission } from "@/core/auth/require-permission";
 import { writeAuditLog } from "@/core/audit/write-audit-log";
 import { Prisma } from "@prisma/client";
+import { getLocale } from "@/core/i18n/locale";
+import { getDictionary, type Dictionary } from "@/core/i18n/get-dictionary";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -24,29 +26,38 @@ export type CustomerActionState =
 
 const paymentTermsEnum = z.enum(["COD", "NET_15", "NET_30", "NET_60", "NET_90"]);
 
-const creditLimitField = z
-  .union([z.coerce.number({ error: "Credit limit must be a number" }).min(0, "Credit limit must be non-negative"), z.literal("")])
-  .optional()
-  .transform((val) => (val === "" || val == null ? undefined : val));
+function buildCreditLimitField(t: Dictionary) {
+  return z
+    .union([
+      z.coerce.number({ error: t.customers.errors.creditLimitMustBeNumber }).min(0, t.customers.errors.creditLimitMustBeNonNegative),
+      z.literal(""),
+    ])
+    .optional()
+    .transform((val) => (val === "" || val == null ? undefined : val));
+}
 
-const createCustomerSchema = z.object({
-  name: z.string().min(1, "Customer name is required").max(200),
-  email: z.string().email("Invalid email address").max(255).optional().or(z.literal("")),
-  phone: z.string().max(50).optional().or(z.literal("")),
-  address: z.string().max(500).optional().or(z.literal("")),
-  paymentTerms: paymentTermsEnum.optional().or(z.literal("")),
-  creditLimit: creditLimitField,
-});
+function buildCreateCustomerSchema(t: Dictionary) {
+  return z.object({
+    name: z.string().min(1, t.customers.errors.nameRequired).max(200),
+    email: z.string().email(t.customers.errors.invalidEmail).max(255).optional().or(z.literal("")),
+    phone: z.string().max(50).optional().or(z.literal("")),
+    address: z.string().max(500).optional().or(z.literal("")),
+    paymentTerms: paymentTermsEnum.optional().or(z.literal("")),
+    creditLimit: buildCreditLimitField(t),
+  });
+}
 
-const updateCustomerSchema = z.object({
-  customerId: z.string().min(1),
-  name: z.string().min(1, "Customer name is required").max(200),
-  email: z.string().email("Invalid email address").max(255).optional().or(z.literal("")),
-  phone: z.string().max(50).optional().or(z.literal("")),
-  address: z.string().max(500).optional().or(z.literal("")),
-  paymentTerms: paymentTermsEnum.optional().or(z.literal("")),
-  creditLimit: creditLimitField,
-});
+function buildUpdateCustomerSchema(t: Dictionary) {
+  return z.object({
+    customerId: z.string().min(1),
+    name: z.string().min(1, t.customers.errors.nameRequired).max(200),
+    email: z.string().email(t.customers.errors.invalidEmail).max(255).optional().or(z.literal("")),
+    phone: z.string().max(50).optional().or(z.literal("")),
+    address: z.string().max(500).optional().or(z.literal("")),
+    paymentTerms: paymentTermsEnum.optional().or(z.literal("")),
+    creditLimit: buildCreditLimitField(t),
+  });
+}
 
 // ---------------------------------------------------------------------------
 // createCustomerAction
@@ -57,12 +68,13 @@ export async function createCustomerAction(
   formData: FormData
 ): Promise<CustomerActionState> {
   const session = await getSession();
-  if (!session) return { error: "Unauthorized" };
+  const t = getDictionary(await getLocale());
+  if (!session) return { error: t.customers.errors.unauthorized };
 
   try {
     await requirePermission(session, "customers.customer.create");
   } catch {
-    return { error: "You do not have permission to create customers." };
+    return { error: t.customers.errors.noCreatePermission };
   }
 
   const raw = {
@@ -74,7 +86,7 @@ export async function createCustomerAction(
     creditLimit: formData.get("creditLimit") || undefined,
   };
 
-  const parsed = createCustomerSchema.safeParse(raw);
+  const parsed = buildCreateCustomerSchema(t).safeParse(raw);
   if (!parsed.success) {
     const errors = parsed.error.flatten().fieldErrors;
     return {
@@ -83,7 +95,7 @@ export async function createCustomerAction(
         errors.email?.[0] ??
         errors.paymentTerms?.[0] ??
         errors.creditLimit?.[0] ??
-        "Invalid form data",
+        t.customers.errors.invalidFormData,
     };
   }
 
@@ -131,15 +143,16 @@ export async function updateCustomerAction(
   formData: FormData
 ): Promise<CustomerActionState> {
   const session = await getSession();
-  if (!session) return { error: "Unauthorized" };
+  const t = getDictionary(await getLocale());
+  if (!session) return { error: t.customers.errors.unauthorized };
 
   try {
     await requirePermission(session, "customers.customer.update");
   } catch {
-    return { error: "You do not have permission to update customers." };
+    return { error: t.customers.errors.noUpdatePermission };
   }
 
-  const parsed = updateCustomerSchema.safeParse({
+  const parsed = buildUpdateCustomerSchema(t).safeParse({
     customerId: formData.get("customerId"),
     name: formData.get("name"),
     email: formData.get("email") || undefined,
@@ -157,7 +170,7 @@ export async function updateCustomerAction(
         errors.email?.[0] ??
         errors.paymentTerms?.[0] ??
         errors.creditLimit?.[0] ??
-        "Invalid form data",
+        t.customers.errors.invalidFormData,
     };
   }
 
@@ -177,7 +190,7 @@ export async function updateCustomerAction(
   });
 
   if (!existing || existing.organizationId !== session.orgId) {
-    return { error: "Customer not found." };
+    return { error: t.customers.errors.customerNotFound };
   }
 
   await db.customer.update({
@@ -230,17 +243,18 @@ export async function archiveCustomerAction(
   formData: FormData
 ): Promise<CustomerActionState> {
   const session = await getSession();
-  if (!session) return { error: "Unauthorized" };
+  const t = getDictionary(await getLocale());
+  if (!session) return { error: t.customers.errors.unauthorized };
 
   try {
     await requirePermission(session, "customers.customer.archive");
   } catch {
-    return { error: "You do not have permission to archive customers." };
+    return { error: t.customers.errors.noArchivePermission };
   }
 
   const customerId = formData.get("customerId");
   if (!customerId || typeof customerId !== "string") {
-    return { error: "Customer ID is required." };
+    return { error: t.customers.errors.customerIdRequired };
   }
 
   const existing = await db.customer.findUnique({
@@ -249,11 +263,11 @@ export async function archiveCustomerAction(
   });
 
   if (!existing || existing.organizationId !== session.orgId) {
-    return { error: "Customer not found." };
+    return { error: t.customers.errors.customerNotFound };
   }
 
   if (existing.archivedAt !== null) {
-    return { error: "Customer is already archived." };
+    return { error: t.customers.errors.alreadyArchived };
   }
 
   const now = new Date();

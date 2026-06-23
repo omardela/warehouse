@@ -3,6 +3,8 @@ import Link from "next/link";
 import { getSession } from "@/core/auth/session";
 import { db } from "@/lib/db";
 import { requirePagePermission } from "@/core/auth/require-page-permission";
+import { getLocale } from "@/core/i18n/locale";
+import { getDictionary } from "@/core/i18n/get-dictionary";
 
 export const dynamic = "force-dynamic";
 
@@ -20,12 +22,12 @@ function formatCurrency(val: { toString(): string } | null | undefined): string 
   return Number(val).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
-function formatDate(d: Date | null | undefined): string {
+function formatDate(d: Date | null | undefined, locale: "en" | "ar"): string {
   if (!d) return "—";
-  return new Date(d).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
+  return new Date(d).toLocaleDateString(locale === "ar" ? "ar" : "en-US", { year: "numeric", month: "short", day: "numeric" });
 }
 
-function StatusBadge({ status }: { status: string }) {
+function StatusBadge({ status, label }: { status: string; label: string }) {
   const map: Record<string, { bg: string; color: string }> = {
     DRAFT: { bg: "rgba(139,92,246,0.15)", color: "#a78bfa" },
     CONFIRMED: { bg: "rgba(98,223,125,0.12)", color: "#62df7d" },
@@ -34,7 +36,7 @@ function StatusBadge({ status }: { status: string }) {
   const s = map[status] ?? { bg: "rgba(140,144,162,0.1)", color: "#8c90a2" };
   return (
     <span style={{ display: "inline-flex", alignItems: "center", padding: "3px 8px", borderRadius: "10px", background: s.bg, color: s.color, fontSize: "11px", fontWeight: 600 }}>
-      {status}
+      {label}
     </span>
   );
 }
@@ -43,6 +45,14 @@ export default async function PurchasesPage({ searchParams }: PageProps) {
   const session = await getSession();
   if (!session) redirect("/login");
   await requirePagePermission(session, "purchase.invoice.read");
+
+  const locale = await getLocale();
+  const t = getDictionary(locale);
+  const statusLabels: Record<string, string> = {
+    DRAFT: t.purchases.statuses.draft,
+    CONFIRMED: t.purchases.statuses.confirmed,
+    CANCELLED: t.purchases.statuses.cancelled,
+  };
 
   const params = await searchParams;
   const statusFilter = params.status ?? "";
@@ -215,13 +225,13 @@ export default async function PurchasesPage({ searchParams }: PageProps) {
                         ${formatCurrency(inv.totalAmount)}
                       </td>
                       <td style={{ padding: "12px 16px" }}>
-                        <StatusBadge status={inv.status} />
+                        <StatusBadge status={inv.status} label={t.purchases.statuses[inv.status.toLowerCase() as keyof typeof t.purchases.statuses] ?? inv.status} />
                       </td>
                       <td style={{ padding: "12px 16px", color: "#8c90a2", fontSize: "12px" }}>
-                        {formatDate(inv.createdAt)}
+                        {formatDate(inv.createdAt, locale)}
                       </td>
                       <td style={{ padding: "12px 16px", color: "#8c90a2", fontSize: "12px" }}>
-                        {formatDate(inv.confirmedAt)}
+                        {formatDate(inv.confirmedAt, locale)}
                       </td>
                       <td style={{ padding: "12px 16px" }}>
                         <Link

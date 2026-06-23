@@ -4,6 +4,8 @@ import { db } from "@/lib/db";
 import { CategoryInlineForm } from "./CategoryInlineForm";
 import { deleteCategoryAction } from "./actions";
 import { requirePagePermission } from "@/core/auth/require-page-permission";
+import { getLocale } from "@/core/i18n/locale";
+import { getDictionary } from "@/core/i18n/get-dictionary";
 
 export const dynamic = "force-dynamic";
 
@@ -11,6 +13,9 @@ export default async function ProductCategoriesPage() {
   const session = await getSession();
   if (!session) redirect("/login");
   await requirePagePermission(session, "inventory.product.read");
+
+  const locale = await getLocale();
+  const t = getDictionary(locale);
 
   const categories = await db.productCategory.findMany({
     where: { organizationId: session.orgId },
@@ -25,12 +30,12 @@ export default async function ProductCategoriesPage() {
         <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: "24px", flexWrap: "wrap", gap: "12px" }}>
           <div>
             <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "4px" }}>
-              <a href="/dashboard/products" style={{ color: "#8c90a2", textDecoration: "none", fontSize: "13px" }}>Products</a>
+              <a href="/dashboard/products" style={{ color: "#8c90a2", textDecoration: "none", fontSize: "13px" }}>{t.common.products}</a>
               <span style={{ color: "#4a5068" }}>/</span>
-              <span style={{ color: "#8c90a2", fontSize: "13px" }}>Categories</span>
+              <span style={{ color: "#8c90a2", fontSize: "13px" }}>{t.products.categories}</span>
             </div>
-            <h1 style={{ fontSize: "22px", fontWeight: 700, color: "#dbe2fd", margin: 0 }}>Product Categories</h1>
-            <p style={{ fontSize: "13px", color: "#8c90a2", marginTop: "4px" }}>Manage your inventory taxonomy and category structures.</p>
+            <h1 style={{ fontSize: "22px", fontWeight: 700, color: "#dbe2fd", margin: 0 }}>{t.products.productCategories}</h1>
+            <p style={{ fontSize: "13px", color: "#8c90a2", marginTop: "4px" }}>{t.products.categoriesSubtitle}</p>
           </div>
         </div>
 
@@ -38,7 +43,7 @@ export default async function ProductCategoriesPage() {
           {/* Create form */}
           <div style={{ background: "#171f33", border: "1px solid #222a3e", borderRadius: "10px", padding: "20px" }}>
             <h2 style={{ fontSize: "14px", fontWeight: 600, color: "#dbe2fd", margin: "0 0 16px", paddingBottom: "12px", borderBottom: "1px solid #222a3e" }}>
-              Create Category
+              {t.products.createCategory}
             </h2>
             <CategoryInlineForm />
           </div>
@@ -46,7 +51,7 @@ export default async function ProductCategoriesPage() {
           {/* Categories list */}
           <div style={{ background: "#171f33", border: "1px solid #222a3e", borderRadius: "10px", overflow: "hidden" }}>
             <div style={{ padding: "14px 16px", borderBottom: "1px solid #222a3e", background: "#0d1627", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-              <h2 style={{ fontSize: "14px", fontWeight: 600, color: "#dbe2fd", margin: 0 }}>All Categories</h2>
+              <h2 style={{ fontSize: "14px", fontWeight: 600, color: "#dbe2fd", margin: 0 }}>{t.products.allCategoriesHeading}</h2>
               <span style={{ padding: "2px 8px", borderRadius: "10px", background: "rgba(0,98,255,0.12)", color: "#6b9fff", fontSize: "11px", fontWeight: 600 }}>
                 {categories.length}
               </span>
@@ -54,7 +59,7 @@ export default async function ProductCategoriesPage() {
 
             {categories.length === 0 ? (
               <div style={{ padding: "32px 16px", textAlign: "center", color: "#4a5068", fontSize: "13px" }}>
-                No categories yet. Create your first one.
+                {t.products.noCategoriesYet}
               </div>
             ) : (
               <div>
@@ -68,18 +73,20 @@ export default async function ProductCategoriesPage() {
                       </div>
                       <div>
                         <div style={{ fontSize: "13px", fontWeight: 500, color: "#dbe2fd" }}>{cat.name}</div>
-                        <div style={{ fontSize: "11px", color: "#4a5068" }}>{cat._count.products} product{cat._count.products !== 1 ? "s" : ""}</div>
+                        <div style={{ fontSize: "11px", color: "#4a5068" }}>
+                          {(cat._count.products === 1 ? t.products.productCount : t.products.productCountPlural).replace("{count}", String(cat._count.products))}
+                        </div>
                       </div>
                     </div>
 
                     <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                      <span style={{ padding: "2px 8px", borderRadius: "10px", background: "rgba(98,223,125,0.08)", color: "#62df7d", fontSize: "10px", fontWeight: 600 }}>ACTIVE</span>
+                      <span style={{ padding: "2px 8px", borderRadius: "10px", background: "rgba(98,223,125,0.08)", color: "#62df7d", fontSize: "10px", fontWeight: 600 }}>{t.products.activeBadge}</span>
                       {cat._count.products === 0 && (
                         <form action={deleteCategoryAction} style={{ display: "inline" }}>
                           <input type="hidden" name="categoryId" value={cat.id} />
                           <button
                             type="submit"
-                            title="Delete category"
+                            title={t.products.deleteCategory}
                             style={{ display: "flex", alignItems: "center", justifyContent: "center", width: "26px", height: "26px", borderRadius: "6px", border: "1px solid rgba(255,180,171,0.2)", background: "rgba(255,180,171,0.06)", color: "#ffb4ab", cursor: "pointer" }}
                           >
                             <svg width="10" height="10" viewBox="0 0 10 10" fill="none">

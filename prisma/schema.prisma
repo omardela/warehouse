@@ -26,10 +26,10 @@ model Organization {
 
 model OrganisationModule {
   id             String       @id @default(cuid())
+  organizationId String
   moduleKey      String
   enabledAt      DateTime     @default(now())
   enabledById    String
-  organizationId String
   enabledBy      Employee     @relation("ModuleEnabledBy", fields: [enabledById], references: [id])
   organization   Organization @relation(fields: [organizationId], references: [id])
 
@@ -69,15 +69,16 @@ model Employee {
   email                   String               @unique
   passwordHash            String
   warehouseId             String
+  warehouseRoleId         String?
+  locale                  String               @default("en")
   archivedAt              DateTime?
   createdAt               DateTime             @default(now())
   updatedAt               DateTime             @updatedAt
-  warehouseRoleId         String?
   auditLogs               AuditLog[]           @relation("AuditActor")
-  warehouse               Warehouse            @relation(fields: [warehouseId], references: [id])
-  warehouseRole           WarehouseRole?       @relation(fields: [warehouseRoleId], references: [id])
   creditNotesCreated      CreditNote[]         @relation("CreditNoteCreatedBy")
   deliveryNotesDispatched DeliveryNote[]       @relation("DeliveryNoteDispatchedBy")
+  warehouse               Warehouse            @relation(fields: [warehouseId], references: [id])
+  warehouseRole           WarehouseRole?       @relation(fields: [warehouseRoleId], references: [id])
   goodsReceiptsReceived   GoodsReceipt[]       @relation("GoodsReceiptReceivedBy")
   inventoryMovements      InventoryMovement[]  @relation("MovementActor")
   invoices                Invoice[]            @relation("InvoiceActor")
@@ -144,11 +145,11 @@ model ProductUnit {
   goodsReceiptLines  GoodsReceiptLine[]
   inventoryMovements InventoryMovement[]
   invoiceLines       InvoiceLine[]
-  salesOrderLines    SalesOrderLine[]
   conversionsFrom    ProductUnitConversion[] @relation("ConversionFromUnit")
   conversionsTo      ProductUnitConversion[] @relation("ConversionToUnit")
   products           Product[]
   purchaseOrderLines PurchaseOrderLine[]
+  salesOrderLines    SalesOrderLine[]
   stockTransferLines StockTransferLine[]
 
   @@map("product_units")
@@ -173,15 +174,14 @@ model Product {
   categoryId         String?
   defaultUnitId      String
   organizationId     String
+  barcode            String?
+  lowStockThreshold  Int?
   archivedAt         DateTime?
   createdAt          DateTime                @default(now())
   updatedAt          DateTime                @updatedAt
-  barcode            String?
-  lowStockThreshold  Int?
   creditNoteLines    CreditNoteLine[]
   deliveryNoteLines  DeliveryNoteLine[]
   goodsReceiptLines  GoodsReceiptLine[]
-  salesOrderLines    SalesOrderLine[]
   inventoryBalances  InventoryBalance[]
   inventoryMovements InventoryMovement[]
   invoiceLines       InvoiceLine[]
@@ -190,6 +190,7 @@ model Product {
   defaultUnit        ProductUnit             @relation(fields: [defaultUnitId], references: [id])
   organization       Organization            @relation(fields: [organizationId], references: [id])
   purchaseOrderLines PurchaseOrderLine[]
+  salesOrderLines    SalesOrderLine[]
   stockTransferLines StockTransferLine[]
 
   @@map("products")
@@ -322,12 +323,13 @@ model Invoice {
   actorId         String
   confirmedAt     DateTime?
   cancelledAt     DateTime?
+  deliveryDate    DateTime?
   createdAt       DateTime       @default(now())
   updatedAt       DateTime       @updatedAt
-  deliveryDate    DateTime?
   purchaseOrderId String?
   taxAmount       Decimal?       @db.Decimal(20, 2)
   dueDate         DateTime?
+  creditNotes     CreditNote[]
   lines           InvoiceLine[]
   actor           Employee       @relation("InvoiceActor", fields: [actorId], references: [id])
   customer        Customer?      @relation(fields: [customerId], references: [id])
@@ -335,7 +337,6 @@ model Invoice {
   supplier        Supplier?      @relation(fields: [supplierId], references: [id])
   warehouse       Warehouse      @relation(fields: [warehouseId], references: [id])
   payments        Payment[]
-  creditNotes     CreditNote[]
 
   @@map("invoices")
 }
@@ -372,6 +373,7 @@ model Payment {
 
 model PurchaseOrder {
   id                   String              @id @default(cuid())
+  organizationId       String
   warehouseId          String
   supplierId           String
   status               PurchaseOrderStatus @default(DRAFT)
@@ -382,7 +384,6 @@ model PurchaseOrder {
   receivedAt           DateTime?
   createdAt            DateTime            @default(now())
   updatedAt            DateTime            @updatedAt
-  organizationId       String
   receipts             GoodsReceipt[]
   invoices             Invoice[]
   lines                PurchaseOrderLine[]
@@ -455,10 +456,10 @@ model CreditNote {
   createdAt         DateTime         @default(now())
   updatedAt         DateTime         @updatedAt
   lines             CreditNoteLine[]
-  organization      Organization     @relation(fields: [organizationId], references: [id])
-  warehouse         Warehouse        @relation(fields: [warehouseId], references: [id])
-  originalInvoice   Invoice          @relation(fields: [originalInvoiceId], references: [id])
   createdBy         Employee         @relation("CreditNoteCreatedBy", fields: [createdById], references: [id])
+  organization      Organization     @relation(fields: [organizationId], references: [id])
+  originalInvoice   Invoice          @relation(fields: [originalInvoiceId], references: [id])
+  warehouse         Warehouse        @relation(fields: [warehouseId], references: [id])
 
   @@map("credit_notes")
 }
@@ -491,12 +492,12 @@ model SalesOrder {
   fulfilledAt          DateTime?
   createdAt            DateTime         @default(now())
   updatedAt            DateTime         @updatedAt
-  lines                SalesOrderLine[]
   deliveryNotes        DeliveryNote[]
+  lines                SalesOrderLine[]
+  createdBy            Employee         @relation("SalesOrderCreatedBy", fields: [createdById], references: [id])
+  customer             Customer         @relation(fields: [customerId], references: [id])
   organization         Organization     @relation(fields: [organizationId], references: [id])
   warehouse            Warehouse        @relation(fields: [warehouseId], references: [id])
-  customer             Customer         @relation(fields: [customerId], references: [id])
-  createdBy            Employee         @relation("SalesOrderCreatedBy", fields: [createdById], references: [id])
 
   @@map("sales_orders")
 }
@@ -527,8 +528,8 @@ model DeliveryNote {
   note           String?
   createdAt      DateTime           @default(now())
   lines          DeliveryNoteLine[]
-  salesOrder     SalesOrder         @relation(fields: [salesOrderId], references: [id])
   dispatchedBy   Employee           @relation("DeliveryNoteDispatchedBy", fields: [dispatchedById], references: [id])
+  salesOrder     SalesOrder         @relation(fields: [salesOrderId], references: [id])
   warehouse      Warehouse          @relation(fields: [warehouseId], references: [id])
 
   @@map("delivery_notes")

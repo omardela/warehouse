@@ -5,6 +5,8 @@ import { db } from "@/lib/db";
 import { RolePermissionForm } from "./RolePermissionForm";
 import { requirePagePermission } from "@/core/auth/require-page-permission";
 import { isOwnerRole } from "@/core/auth/owner-guard";
+import { getLocale } from "@/core/i18n/locale";
+import { getDictionary } from "@/core/i18n/get-dictionary";
 
 export default async function RoleDetailPage({
   params,
@@ -18,6 +20,9 @@ export default async function RoleDetailPage({
     redirect("/login");
   }
   await requirePagePermission(session, "roles.role.update");
+
+  const locale = await getLocale();
+  const t = getDictionary(locale).employees.roles;
 
   const warehouseRole = await db.warehouseRole.findUnique({
     where: { id: roleId },
@@ -62,7 +67,7 @@ export default async function RoleDetailPage({
             href="/dashboard/settings/roles"
             style={{ color: "#8c90a2", textDecoration: "none" }}
           >
-            Roles
+            {t.breadcrumbRoles}
           </Link>
           <span style={{ color: "#4a5068" }}>›</span>
           <span style={{ color: "#dbe2fd" }}>
@@ -104,7 +109,7 @@ export default async function RoleDetailPage({
                   textTransform: "uppercase",
                 }}
               >
-                {warehouseRole.permissions.length} permissions
+                {t.permissionsCount.replace("{count}", String(warehouseRole.permissions.length))}
               </span>
               {isOwner && (
                 <span
@@ -119,7 +124,7 @@ export default async function RoleDetailPage({
                     textTransform: "uppercase",
                   }}
                 >
-                  System-Protected
+                  {t.systemProtected}
                 </span>
               )}
             </div>

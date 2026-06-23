@@ -4,6 +4,8 @@ import { getSession } from "@/core/auth/session";
 import { db } from "@/lib/db";
 import { markNotificationReadAction, markAllNotificationsReadAction } from "./actions";
 import { getPermittedNotificationTypes } from "@/core/notifications/notification-permissions";
+import { getLocale } from "@/core/i18n/locale";
+import { getDictionary, type Dictionary } from "@/core/i18n/get-dictionary";
 
 export const dynamic = "force-dynamic";
 
@@ -58,8 +60,8 @@ function IconPayment() {
   );
 }
 
-function formatDate(date: Date): string {
-  return new Intl.DateTimeFormat("en-US", {
+function formatDate(date: Date, locale: "en" | "ar"): string {
+  return new Intl.DateTimeFormat(locale === "ar" ? "ar" : "en-US", {
     month: "short",
     day: "numeric",
     hour: "2-digit",
@@ -81,6 +83,12 @@ type NotificationPayload = {
   amount?: number;
   method?: string;
   invoiceType?: "SALE" | "PURCHASE";
+  // GOODS_RECEIPT_CREATED
+  purchaseOrderId?: string;
+  goodsReceiptId?: string;
+  // DELIVERY_NOTE_CREATED
+  salesOrderId?: string;
+  deliveryNoteId?: string;
 };
 
 function formatCurrency(val: number): string {
@@ -90,7 +98,8 @@ function formatCurrency(val: number): string {
 function getNotificationMeta(
   type: string,
   payload: NotificationPayload,
-  isRead: boolean
+  isRead: boolean,
+  t: Dictionary["notifications"]
 ): {
   icon: React.ReactNode;
   iconBg: string;
@@ -109,28 +118,39 @@ function getNotificationMeta(
       iconBorder: dim ? "#222a3e" : "rgba(251,191,36,0.2)",
       iconColor: dim ? "#4a5068" : "#fbbf24",
       rowBg: dim ? "transparent" : "rgba(251,191,36,0.03)",
-      title: "Low Stock Alert",
+      title: t.types.lowStock.title,
       body: dim ? (
         <span>
-          <span style={{ fontWeight: 500 }}>{payload.productName ?? "Unknown product"}</span>
-          {" "}was at{" "}
-          <span style={{ fontWeight: 600 }}>{payload.currentQuantity ?? 0} units</span>
-          {" "}(threshold: {payload.threshold ?? 0} units).
+          <span style={{ fontWeight: 500 }}>{payload.productName ?? t.types.lowStock.unknownProduct}</span>
+          {" "}
+          {t.types.lowStock.bodyRead
+            .split(/(\{product\}|\{quantity\}|\{threshold\})/)
+            .map((part, i) => {
+              if (part === "{product}") return null;
+              if (part === "{quantity}") return <span key={i} style={{ fontWeight: 600 }}>{payload.currentQuantity ?? 0}</span>;
+              if (part === "{threshold}") return payload.threshold ?? 0;
+              return part;
+            })}
         </span>
       ) : (
         <span>
-          <span style={{ color: "#dbe2fd", fontWeight: 500 }}>{payload.productName ?? "Unknown product"}</span>
-          {" "}has fallen to{" "}
-          <span style={{ color: "#fbbf24", fontWeight: 600 }}>{payload.currentQuantity ?? 0} units</span>
-          {" "}— below the threshold of{" "}
-          <span style={{ color: "#8c90a2" }}>{payload.threshold ?? 0} units</span>.
+          <span style={{ color: "#dbe2fd", fontWeight: 500 }}>{payload.productName ?? t.types.lowStock.unknownProduct}</span>
+          {" "}
+          {t.types.lowStock.bodyUnread
+            .split(/(\{product\}|\{quantity\}|\{threshold\})/)
+            .map((part, i) => {
+              if (part === "{product}") return null;
+              if (part === "{quantity}") return <span key={i} style={{ color: "#fbbf24", fontWeight: 600 }}>{payload.currentQuantity ?? 0}</span>;
+              if (part === "{threshold}") return <span key={i} style={{ color: "#8c90a2" }}>{payload.threshold ?? 0}</span>;
+              return part;
+            })}
         </span>
       ),
     };
   }
 
   if (type === "SALE_INVOICE_CONFIRMED" || type === "PURCHASE_INVOICE_CONFIRMED") {
-    const label = type === "SALE_INVOICE_CONFIRMED" ? "Sales" : "Purchase";
+    const title = type === "SALE_INVOICE_CONFIRMED" ? t.types.saleInvoiceConfirmed.title : t.types.purchaseInvoiceConfirmed.title;
     const shortId = payload.invoiceId ? payload.invoiceId.slice(0, 14) + "…" : "—";
     return {
       icon: <IconCheck />,
@@ -138,41 +158,125 @@ function getNotificationMeta(
       iconBorder: dim ? "#222a3e" : "rgba(98,223,125,0.2)",
       iconColor: dim ? "#4a5068" : "#62df7d",
       rowBg: dim ? "transparent" : "rgba(98,223,125,0.02)",
-      title: `${label} Invoice Confirmed`,
+      title,
       body: (
         <span>
-          Invoice{" "}
-          <span style={{ fontFamily: "monospace", fontSize: "11px", color: dim ? "#4a5068" : "#8c90a2" }}>{shortId}</span>
-          {payload.totalAmount != null && (
-            <>{" "}for{" "}
-              <span style={{ fontWeight: 600, color: dim ? undefined : "#62df7d" }}>{formatCurrency(payload.totalAmount)}</span>
-            </>
-          )}{" "}
-          has been confirmed.
+          {t.types.invoiceBody
+            .split(/(\{invoiceId\}|\{amountPart\})/)
+            .map((part, i) => {
+              if (part === "{invoiceId}") {
+                return (
+                  <span key={i} style={{ fontFamily: "monospace", fontSize: "11px", color: dim ? "#4a5068" : "#8c90a2" }}>
+                    {shortId}
+                  </span>
+                );
+              }
+              if (part === "{amountPart}") {
+                if (payload.totalAmount == null) return null;
+                return (
+                  <span key={i}>
+                    {t.types.invoiceBodyAmountPart.replace("{amount}", "")}
+                    <span style={{ fontWeight: 600, color: dim ? undefined : "#62df7d" }}>{formatCurrency(payload.totalAmount)}</span>
+                  </span>
+                );
+              }
+              return part;
+            })}
         </span>
       ),
     };
   }
 
   if (type === "PAYMENT_RECORDED") {
-    const label = payload.invoiceType === "PURCHASE" ? "purchase" : "sales";
-    const methodLabel: Record<string, string> = { CASH: "Cash", CARD: "Card", BANK_TRANSFER: "Bank Transfer" };
+    const isPurchase = payload.invoiceType === "PURCHASE";
+    const methodLabel: Record<string, string> = {
+      CASH: t.types.paymentRecorded.methodCash,
+      CARD: t.types.paymentRecorded.methodCard,
+      BANK_TRANSFER: t.types.paymentRecorded.methodBankTransfer,
+    };
     const shortId = payload.invoiceId ? payload.invoiceId.slice(0, 14) + "…" : "—";
+    const bodyTemplate = isPurchase ? t.types.paymentRecorded.bodyPurchase : t.types.paymentRecorded.bodySale;
     return {
       icon: <IconPayment />,
       iconBg: dim ? "rgba(140,144,162,0.08)" : "rgba(0,98,255,0.1)",
       iconBorder: dim ? "#222a3e" : "rgba(0,98,255,0.2)",
       iconColor: dim ? "#4a5068" : "#6b9fff",
       rowBg: dim ? "transparent" : "rgba(0,98,255,0.02)",
-      title: "Payment Recorded",
+      title: t.types.paymentRecorded.title,
       body: (
         <span>
           {payload.amount != null && (
             <><span style={{ fontWeight: 600, color: dim ? undefined : "#6b9fff" }}>{formatCurrency(payload.amount)}</span>{" "}</>
           )}
           {payload.method && <>{methodLabel[payload.method] ?? payload.method} · </>}
-          recorded on {label} invoice{" "}
-          <span style={{ fontFamily: "monospace", fontSize: "11px", color: dim ? "#4a5068" : "#8c90a2" }}>{shortId}</span>.
+          {bodyTemplate
+            .split(/(\{invoiceId\})/)
+            .map((part, i) => {
+              if (part === "{invoiceId}") {
+                return (
+                  <span key={i} style={{ fontFamily: "monospace", fontSize: "11px", color: dim ? "#4a5068" : "#8c90a2" }}>
+                    {shortId}
+                  </span>
+                );
+              }
+              return part;
+            })}
+        </span>
+      ),
+    };
+  }
+
+  if (type === "GOODS_RECEIPT_CREATED") {
+    const shortId = payload.purchaseOrderId ? payload.purchaseOrderId.slice(0, 14) + "…" : "—";
+    return {
+      icon: <IconCheck />,
+      iconBg: dim ? "rgba(140,144,162,0.08)" : "rgba(98,223,125,0.1)",
+      iconBorder: dim ? "#222a3e" : "rgba(98,223,125,0.2)",
+      iconColor: dim ? "#4a5068" : "#62df7d",
+      rowBg: dim ? "transparent" : "rgba(98,223,125,0.02)",
+      title: t.types.goodsReceiptCreated.title,
+      body: (
+        <span>
+          {t.types.goodsReceiptCreated.body
+            .split(/(\{purchaseOrderId\})/)
+            .map((part, i) => {
+              if (part === "{purchaseOrderId}") {
+                return (
+                  <span key={i} style={{ fontFamily: "monospace", fontSize: "11px", color: dim ? "#4a5068" : "#8c90a2" }}>
+                    {shortId}
+                  </span>
+                );
+              }
+              return part;
+            })}
+        </span>
+      ),
+    };
+  }
+
+  if (type === "DELIVERY_NOTE_CREATED") {
+    const shortId = payload.salesOrderId ? payload.salesOrderId.slice(0, 14) + "…" : "—";
+    return {
+      icon: <IconCheck />,
+      iconBg: dim ? "rgba(140,144,162,0.08)" : "rgba(0,98,255,0.1)",
+      iconBorder: dim ? "#222a3e" : "rgba(0,98,255,0.2)",
+      iconColor: dim ? "#4a5068" : "#6b9fff",
+      rowBg: dim ? "transparent" : "rgba(0,98,255,0.02)",
+      title: t.types.deliveryNoteCreated.title,
+      body: (
+        <span>
+          {t.types.deliveryNoteCreated.body
+            .split(/(\{salesOrderId\})/)
+            .map((part, i) => {
+              if (part === "{salesOrderId}") {
+                return (
+                  <span key={i} style={{ fontFamily: "monospace", fontSize: "11px", color: dim ? "#4a5068" : "#8c90a2" }}>
+                    {shortId}
+                  </span>
+                );
+              }
+              return part;
+            })}
         </span>
       ),
     };
@@ -186,13 +290,17 @@ function getNotificationMeta(
     iconColor: dim ? "#4a5068" : "#8c90a2",
     rowBg: "transparent",
     title: type.replace(/_/g, " "),
-    body: <span>Notification received.</span>,
+    body: <span>{t.types.fallbackBody}</span>,
   };
 }
 
 export default async function NotificationsPage() {
   const session = await getSession();
   if (!session) redirect("/login");
+
+  const locale = await getLocale();
+  const dict = getDictionary(locale);
+  const t = dict.notifications;
 
   // Resolve which notification types this user is allowed to see.
   const employee = await db.employee.findUnique({
@@ -250,12 +358,15 @@ export default async function NotificationsPage() {
             </div>
             <div>
               <h1 style={{ fontSize: "22px", fontWeight: 700, color: "#dbe2fd", margin: 0 }}>
-                Notifications
+                {t.title}
               </h1>
               <p style={{ fontSize: "13px", color: "#8c90a2", marginTop: "2px" }}>
                 {unreadCount > 0
-                  ? `${unreadCount} unread notification${unreadCount !== 1 ? "s" : ""}`
-                  : "All caught up"}
+                  ? (unreadCount !== 1 ? t.unreadCountPlural : t.unreadCountSingular).replace(
+                      "{count}",
+                      String(unreadCount)
+                    )
+                  : t.allCaughtUp}
               </p>
             </div>
           </div>
@@ -275,7 +386,7 @@ export default async function NotificationsPage() {
                   cursor: "pointer",
                 }}
               >
-                Mark all as read
+                {t.markAllAsRead}
               </button>
             </form>
           )}
@@ -308,10 +419,10 @@ export default async function NotificationsPage() {
               <IconBell />
             </div>
             <p style={{ color: "#8c90a2", fontSize: "14px", margin: 0 }}>
-              No notifications yet.
+              {t.emptyTitle}
             </p>
             <p style={{ color: "#4a5068", fontSize: "12px", marginTop: "6px" }}>
-              Alerts for low stock, confirmed invoices, and recorded payments will appear here.
+              {t.emptySubtitle}
             </p>
           </div>
         )}
@@ -342,7 +453,7 @@ export default async function NotificationsPage() {
             >
               {unreadNotifications.map((notification, idx) => {
                 const payload = notification.payload as NotificationPayload;
-                const meta = getNotificationMeta(notification.type, payload, false);
+                const meta = getNotificationMeta(notification.type, payload, false, t);
                 return (
                   <div
                     key={notification.id}
@@ -383,7 +494,7 @@ export default async function NotificationsPage() {
                         {meta.body}
                       </div>
                       <div style={{ fontSize: "11px", color: "#4a5068", marginTop: "6px" }}>
-                        {formatDate(notification.createdAt)}
+                        {formatDate(notification.createdAt, locale)}
                       </div>
                     </div>
 
@@ -442,7 +553,7 @@ export default async function NotificationsPage() {
             >
               {readNotifications.map((notification, idx) => {
                 const payload = notification.payload as NotificationPayload;
-                const meta = getNotificationMeta(notification.type, payload, true);
+                const meta = getNotificationMeta(notification.type, payload, true, t);
                 return (
                   <div
                     key={notification.id}
@@ -483,8 +594,10 @@ export default async function NotificationsPage() {
                         {meta.body}
                       </div>
                       <div style={{ fontSize: "11px", color: "#3a4058", marginTop: "6px", display: "flex", gap: "12px" }}>
-                        <span>Triggered: {formatDate(notification.createdAt)}</span>
-                        {notification.readAt && <span>Read: {formatDate(notification.readAt)}</span>}
+                        <span>{t.triggered.replace("{date}", formatDate(notification.createdAt, locale))}</span>
+                        {notification.readAt && (
+                          <span>{t.read.replace("{date}", formatDate(notification.readAt, locale))}</span>
+                        )}
                       </div>
                     </div>
                   </div>

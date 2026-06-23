@@ -3,6 +3,7 @@
 import { useActionState, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRealtime } from "@/hooks/use-realtime";
+import { useTranslations } from "@/providers/locale-context";
 import { updateReorderSettingsAction, type UpdateReorderSettingsState } from "./actions";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -62,6 +63,7 @@ function ReorderSettingsForm({
   unitSymbol,
   onDone,
 }: ReorderSettingsFormProps) {
+  const t = useTranslations();
   const [state, formAction, isPending] = useActionState<UpdateReorderSettingsState, FormData>(
     updateReorderSettingsAction,
     null
@@ -88,7 +90,7 @@ function ReorderSettingsForm({
       <input type="hidden" name="productId" value={productId} />
       <input type="hidden" name="warehouseId" value={warehouseId} />
       <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-        <label style={{ fontSize: "11px", color: "#8c90a2", width: "70px" }}>Point</label>
+        <label style={{ fontSize: "11px", color: "#8c90a2", width: "70px" }}>{t.inventory.stock.reorderPointShort}</label>
         <input
           name="reorderPoint"
           type="number"
@@ -111,7 +113,7 @@ function ReorderSettingsForm({
         <span style={{ fontSize: "11px", color: "#4a5068" }}>{unitSymbol}</span>
       </div>
       <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-        <label style={{ fontSize: "11px", color: "#8c90a2", width: "70px" }}>Reorder Qty</label>
+        <label style={{ fontSize: "11px", color: "#8c90a2", width: "70px" }}>{t.inventory.stock.reorderQtyShort}</label>
         <input
           name="reorderQty"
           type="number"
@@ -151,7 +153,7 @@ function ReorderSettingsForm({
             opacity: isPending ? 0.7 : 1,
           }}
         >
-          {isPending ? "Saving..." : "Save"}
+          {isPending ? t.inventory.stock.saving : t.common.save}
         </button>
         <button
           type="button"
@@ -167,7 +169,7 @@ function ReorderSettingsForm({
             cursor: isPending ? "default" : "pointer",
           }}
         >
-          Cancel
+          {t.common.cancel}
         </button>
       </div>
     </form>
@@ -177,6 +179,7 @@ function ReorderSettingsForm({
 // ── Component ─────────────────────────────────────────────────────────────────
 
 export function StockRealtimeWrapper({ initialRows, warehouseId, canManageReorderSettings }: Props) {
+  const t = useTranslations();
   const [rows, setRows] = useState<StockRow[]>(initialRows);
   const [editingProductId, setEditingProductId] = useState<string | null>(null);
   const { lastEvent } = useRealtime();
@@ -219,14 +222,14 @@ export function StockRealtimeWrapper({ initialRows, warehouseId, canManageReorde
               }}
             >
               {[
-                "Product",
-                "SKU",
-                "Category",
-                "Current Qty",
-                "On Order",
-                "Low Stock Threshold",
-                "Reorder Settings",
-                "Status",
+                t.inventory.stock.columnProduct,
+                t.inventory.stock.columnSku,
+                t.inventory.stock.columnCategory,
+                t.inventory.stock.columnCurrentQty,
+                t.inventory.stock.columnOnOrder,
+                t.inventory.stock.columnLowStockThreshold,
+                t.inventory.stock.columnReorderSettings,
+                t.inventory.stock.columnStatus,
               ].map((h) => (
                 <th
                   key={h}
@@ -258,7 +261,7 @@ export function StockRealtimeWrapper({ initialRows, warehouseId, canManageReorde
                     fontSize: "14px",
                   }}
                 >
-                  No products found for this warehouse.
+                  {t.inventory.stock.noProductsFound}
                 </td>
               </tr>
             ) : (
@@ -268,18 +271,18 @@ export function StockRealtimeWrapper({ initialRows, warehouseId, canManageReorde
                 const statusBadge =
                   product.status === "out"
                     ? {
-                        label: "Out of Stock",
+                        label: t.inventory.stock.statusOutOfStock,
                         color: "#f87171",
                         bg: "rgba(127,29,29,0.15)",
                       }
                     : product.status === "low"
                     ? {
-                        label: "Low Stock",
+                        label: t.inventory.stock.statusLowStock,
                         color: "#fbbf24",
                         bg: "rgba(120,90,0,0.15)",
                       }
                     : {
-                        label: "Healthy",
+                        label: t.inventory.stock.statusHealthy,
                         color: "#62df7d",
                         bg: "rgba(0,108,73,0.15)",
                       };
@@ -316,7 +319,7 @@ export function StockRealtimeWrapper({ initialRows, warehouseId, canManageReorde
                             marginTop: "2px",
                           }}
                         >
-                          ARCHIVED
+                          {t.inventory.stock.archivedLabel}
                         </div>
                       )}
                     </td>
@@ -420,7 +423,7 @@ export function StockRealtimeWrapper({ initialRows, warehouseId, canManageReorde
                         </span>
                       ) : (
                         <span style={{ color: "#4a5068", fontSize: "12px", fontStyle: "italic" }}>
-                          No threshold
+                          {t.inventory.stock.noThreshold}
                         </span>
                       )}
                     </td>
@@ -455,11 +458,11 @@ export function StockRealtimeWrapper({ initialRows, warehouseId, canManageReorde
                         <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                           {product.reorderPoint != null || product.reorderQty != null ? (
                             <span style={{ color: "#8c90a2", fontSize: "12px" }}>
-                              Point: {product.reorderPoint ?? "—"} / Qty: {product.reorderQty ?? "—"}
+                              {t.inventory.stock.reorderPointShort}: {product.reorderPoint ?? "—"} / {t.inventory.stock.reorderQtyShort}: {product.reorderQty ?? "—"}
                             </span>
                           ) : (
                             <span style={{ color: "#4a5068", fontSize: "12px", fontStyle: "italic" }}>
-                              Not set
+                              {t.inventory.stock.notSet}
                             </span>
                           )}
                           {canManageReorderSettings && (
@@ -476,7 +479,7 @@ export function StockRealtimeWrapper({ initialRows, warehouseId, canManageReorde
                                 cursor: "pointer",
                               }}
                             >
-                              Edit
+                              {t.common.edit}
                             </button>
                           )}
                         </div>
@@ -501,7 +504,7 @@ export function StockRealtimeWrapper({ initialRows, warehouseId, canManageReorde
                         }}
                       >
                         {isArchived
-                          ? "ARCHIVED"
+                          ? t.inventory.stock.archivedLabel
                           : statusBadge.label.toUpperCase()}
                       </span>
                     </td>
@@ -527,13 +530,15 @@ export function StockRealtimeWrapper({ initialRows, warehouseId, canManageReorde
         }}
       >
         <span>
-          {rows.length} product{rows.length !== 1 ? "s" : ""} shown
+          {rows.length === 1
+            ? t.inventory.stock.productShown.replace("{count}", "1")
+            : t.inventory.stock.productsShown.replace("{count}", String(rows.length))}
         </span>
         <Link
           href="/dashboard/inventory/movements"
           style={{ color: "#6699ff", textDecoration: "none", fontSize: "12px" }}
         >
-          View movement history →
+          {t.inventory.stock.viewMovementHistory} →
         </Link>
       </div>
     </div>

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useTheme } from "@/providers/theme-provider";
 import { useWarehouseContext } from "@/providers/warehouse-context";
+import { useTranslations } from "@/providers/locale-context";
 import { switchWarehouseAction } from "@/app/actions/switch-warehouse";
 import { useRealtime } from "@/hooks/use-realtime";
 
@@ -144,6 +145,7 @@ function IconButton({
 function WarehouseSwitcher() {
   const { session, warehouseName, availableWarehouses } = useWarehouseContext();
   const [open, setOpen] = useState(false);
+  const t = useTranslations();
 
   // Only one warehouse — show static badge
   if (availableWarehouses.length <= 1) {
@@ -187,7 +189,9 @@ function WarehouseSwitcher() {
           border: "1px solid",
           borderColor: open ? "#2d3449" : "#222a3e",
           borderRadius: "6px",
-          padding: "3px 8px 3px 10px",
+          paddingBlock: "3px",
+          paddingInlineStart: "10px",
+          paddingInlineEnd: "8px",
           whiteSpace: "nowrap",
           cursor: "pointer",
           transition: "background-color 0.15s, color 0.15s, border-color 0.15s",
@@ -229,7 +233,7 @@ function WarehouseSwitcher() {
             style={{
               position: "absolute",
               top: "calc(100% + 6px)",
-              right: 0,
+              insetInlineEnd: 0,
               zIndex: 40,
               minWidth: "200px",
               backgroundColor: "#171f33",
@@ -241,7 +245,7 @@ function WarehouseSwitcher() {
           >
             <div style={{ padding: "6px 10px 4px", borderBottom: "1px solid #222a3e" }}>
               <span style={{ fontSize: "10px", fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase", color: "#4a5068" }}>
-                Switch Warehouse
+                {t.common.switchWarehouse}
               </span>
             </div>
 
@@ -266,7 +270,7 @@ function WarehouseSwitcher() {
                       color: isCurrent ? "#dbe2fd" : "#8c90a2",
                       fontSize: "13px",
                       fontWeight: isCurrent ? 500 : 400,
-                      textAlign: "left",
+                      textAlign: "start",
                       transition: "background-color 0.1s, color 0.1s",
                     }}
                     onMouseEnter={(e) => {
@@ -307,6 +311,7 @@ function NotificationBell({ initialCount }: { initialCount: number }) {
   const [count, setCount] = useState(initialCount);
   const { lastEvent } = useRealtime();
   const { permissions } = useWarehouseContext();
+  const t = useTranslations();
 
   useEffect(() => {
     if (!lastEvent) return;
@@ -322,7 +327,7 @@ function NotificationBell({ initialCount }: { initialCount: number }) {
       href="/dashboard/notifications"
       style={{ position: "relative", display: "inline-flex", textDecoration: "none" }}
     >
-      <IconButton label="Notifications">
+      <IconButton label={t.common.notifications}>
         <IconBell />
       </IconButton>
       {count > 0 && (
@@ -330,7 +335,7 @@ function NotificationBell({ initialCount }: { initialCount: number }) {
           style={{
             position: "absolute",
             top: "4px",
-            right: "4px",
+            insetInlineEnd: "4px",
             minWidth: "16px",
             height: "16px",
             borderRadius: "8px",
@@ -366,6 +371,7 @@ export function Topbar({
 }) {
   const { employeeName } = useWarehouseContext();
   const { theme, setTheme } = useTheme();
+  const t = useTranslations();
 
   return (
     <header
@@ -386,7 +392,7 @@ export function Topbar({
     >
       {/* Left: hamburger (mobile/tablet only) + page title */}
       <div style={{ display: "flex", alignItems: "center", gap: "8px", minWidth: 0 }}>
-        <IconButton label="Open navigation" onClick={onMenuClick} className="lg:hidden">
+        <IconButton label={t.common.openNavigation} onClick={onMenuClick} className="lg:hidden">
           <IconMenu />
         </IconButton>
         <h1
@@ -400,7 +406,7 @@ export function Topbar({
             textOverflow: "ellipsis",
           }}
         >
-          {pageTitle ?? "Dashboard"}
+          {pageTitle ?? t.sidebar.groups.dashboard}
         </h1>
       </div>
 
@@ -411,7 +417,7 @@ export function Topbar({
         <NotificationBell initialCount={initialNotificationCount} />
 
         <IconButton
-          label="Toggle theme"
+          label={t.common.toggleTheme}
           onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
         >
           {theme === "dark" ? <IconSun /> : <IconMoon />}

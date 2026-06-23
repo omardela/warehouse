@@ -6,6 +6,7 @@ import {
   createWarehouseRoleAction,
   type CreateRoleActionState,
 } from "./actions";
+import { useTranslations } from "@/providers/locale-context";
 
 type RoleTemplateOption = {
   id: string;
@@ -19,6 +20,7 @@ export function CreateRoleForm({
   availableTemplates: RoleTemplateOption[];
 }) {
   const router = useRouter();
+  const t = useTranslations().employees.roles;
   const [state, formAction, isPending] = useActionState<
     CreateRoleActionState,
     FormData
@@ -59,7 +61,7 @@ export function CreateRoleForm({
             marginBottom: "8px",
           }}
         >
-          Role Template{" "}
+          {t.roleTemplate}{" "}
           <span style={{ color: "#ffb4ab" }}>*</span>
         </label>
 
@@ -74,8 +76,7 @@ export function CreateRoleForm({
               fontSize: "13px",
             }}
           >
-            All available role templates have already been assigned to this
-            warehouse. No new templates to add.
+            {t.allTemplatesAssigned}
           </div>
         ) : (
           <>
@@ -98,7 +99,7 @@ export function CreateRoleForm({
                 backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12' fill='none'%3E%3Cpath d='M3 4.5L6 7.5L9 4.5' stroke='%238c90a2' strokeWidth='1.5' strokeLinecap='round' strokeLinejoin='round'/%3E%3C/svg%3E")`,
                 backgroundRepeat: "no-repeat",
                 backgroundPosition: "right 12px center",
-                paddingRight: "36px",
+                paddingInlineEnd: "36px",
               }}
               onFocus={(e) => {
                 e.currentTarget.style.borderColor = "#0062ff";
@@ -111,7 +112,7 @@ export function CreateRoleForm({
               }}
             >
               <option value="" style={{ color: "#8c90a2" }}>
-                Select a role template...
+                {t.selectTemplatePlaceholder}
               </option>
               {availableTemplates.map((tpl) => (
                 <option key={tpl.id} value={tpl.id}>
@@ -127,7 +128,7 @@ export function CreateRoleForm({
                 color: "#8c90a2",
               }}
             >
-              Only templates not yet assigned to this warehouse are shown.
+              {t.templatesHint}
             </p>
           </>
         )}
@@ -157,7 +158,7 @@ export function CreateRoleForm({
                 : "pointer",
           }}
         >
-          {isPending ? "Creating..." : "Create Role"}
+          {isPending ? t.creating : t.createRole}
         </button>
         <a
           href="/dashboard/settings/roles"
@@ -173,7 +174,7 @@ export function CreateRoleForm({
             alignItems: "center",
           }}
         >
-          Cancel
+          {t.cancel}
         </a>
       </div>
     </form>

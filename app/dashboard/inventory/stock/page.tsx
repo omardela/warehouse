@@ -5,6 +5,8 @@ import { db } from "@/lib/db";
 import { requirePagePermission } from "@/core/auth/require-page-permission";
 import { hasPermission } from "@/core/auth/permissions";
 import { StockRealtimeWrapper } from "./StockRealtimeWrapper";
+import { getLocale } from "@/core/i18n/locale";
+import { getDictionary } from "@/core/i18n/get-dictionary";
 
 export const dynamic = "force-dynamic";
 
@@ -24,6 +26,9 @@ export default async function StockPage({ searchParams }: PageProps) {
   const session = await getSession();
   if (!session) redirect("/login");
   await requirePagePermission(session, "inventory.balance.read");
+
+  const locale = await getLocale();
+  const t = getDictionary(locale);
 
   // Fetch permission codes for the current employee's role to decide whether
   // to expose the reorder settings editor (requires inventory.stock.manage).
@@ -144,10 +149,10 @@ export default async function StockPage({ searchParams }: PageProps) {
         >
           <div>
             <h1 style={{ fontSize: "24px", fontWeight: 700, color: "#dbe2fd", margin: 0 }}>
-              Inventory Overview
+              {t.inventory.stock.pageTitle}
             </h1>
             <p style={{ fontSize: "13px", color: "#8c90a2", marginTop: "4px" }}>
-              Current stock levels across all products in this warehouse.
+              {t.inventory.stock.pageSubtitle}
             </p>
           </div>
           <div style={{ display: "flex", gap: "8px" }}>
@@ -166,7 +171,7 @@ export default async function StockPage({ searchParams }: PageProps) {
                 textDecoration: "none",
               }}
             >
-              + Adjustment
+              {t.inventory.stock.addAdjustment}
             </Link>
             <Link
               href="/dashboard/inventory/movements"
@@ -183,7 +188,7 @@ export default async function StockPage({ searchParams }: PageProps) {
                 textDecoration: "none",
               }}
             >
-              View Movements
+              {t.inventory.stock.viewMovements}
             </Link>
           </div>
         </div>
@@ -200,27 +205,27 @@ export default async function StockPage({ searchParams }: PageProps) {
           {/* Stats cards */}
           {[
             {
-              label: "Total Stock Qty",
+              label: t.inventory.stock.statTotalStockQty,
               value: formatQty(totalStockQty),
-              sub: "base units across all products",
+              sub: t.inventory.stock.statTotalStockQtySub,
               color: "#dbe2fd",
             },
             {
-              label: "Active Products",
+              label: t.inventory.stock.statActiveProducts,
               value: activeProductCount.toString(),
-              sub: "in this warehouse",
+              sub: t.inventory.stock.statActiveProductsSub,
               color: "#dbe2fd",
             },
             {
-              label: "Low Stock",
+              label: t.inventory.stock.statLowStock,
               value: lowStockCount.toString(),
-              sub: "products below threshold",
+              sub: t.inventory.stock.statLowStockSub,
               color: lowStockCount > 0 ? "#fbbf24" : "#62df7d",
             },
             {
-              label: "Out of Stock",
+              label: t.inventory.stock.statOutOfStock,
               value: outOfStockCount.toString(),
-              sub: "products at zero",
+              sub: t.inventory.stock.statOutOfStockSub,
               color: outOfStockCount > 0 ? "#f87171" : "#62df7d",
             },
           ].map((stat) => (
@@ -254,13 +259,13 @@ export default async function StockPage({ searchParams }: PageProps) {
             }}
           >
             <div style={{ fontSize: "11px", color: "#8c90a2", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: "14px" }}>
-              Inventory Health
+              {t.inventory.stock.inventoryHealth}
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
               {[
-                { label: "Healthy", count: healthyCount, color: "#62df7d", bg: "rgba(0,108,73,0.15)" },
-                { label: "Low Stock", count: lowStockCount, color: "#fbbf24", bg: "rgba(120,90,0,0.15)" },
-                { label: "Out of Stock", count: outOfStockCount, color: "#f87171", bg: "rgba(127,29,29,0.15)" },
+                { label: t.inventory.stock.healthHealthy, count: healthyCount, color: "#62df7d", bg: "rgba(0,108,73,0.15)" },
+                { label: t.inventory.stock.healthLowStock, count: lowStockCount, color: "#fbbf24", bg: "rgba(120,90,0,0.15)" },
+                { label: t.inventory.stock.healthOutOfStock, count: outOfStockCount, color: "#f87171", bg: "rgba(127,29,29,0.15)" },
               ].map((item) => {
                 const total = healthyCount + lowStockCount + outOfStockCount;
                 const pct = total > 0 ? Math.round((item.count / total) * 100) : 0;
@@ -307,7 +312,7 @@ export default async function StockPage({ searchParams }: PageProps) {
             <div style={{ position: "relative", flex: "1", minWidth: "200px" }}>
               <svg
                 width="14" height="14" viewBox="0 0 14 14" fill="none"
-                style={{ position: "absolute", left: "10px", top: "50%", transform: "translateY(-50%)", color: "#4a5068", pointerEvents: "none" }}
+                style={{ position: "absolute", insetInlineStart: "10px", top: "50%", transform: "translateY(-50%)", color: "#4a5068", pointerEvents: "none" }}
               >
                 <circle cx="6" cy="6" r="4" stroke="currentColor" strokeWidth="1.5" />
                 <path d="M9.5 9.5L12.5 12.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
@@ -316,11 +321,11 @@ export default async function StockPage({ searchParams }: PageProps) {
                 name="q"
                 type="text"
                 defaultValue={q}
-                placeholder="Search by product name or SKU..."
+                placeholder={t.inventory.stock.searchPlaceholder}
                 style={{
                   width: "100%",
-                  paddingLeft: "32px",
-                  paddingRight: "12px",
+                  paddingInlineStart: "32px",
+                  paddingInlineEnd: "12px",
                   paddingTop: "8px",
                   paddingBottom: "8px",
                   background: "#0d1627",
@@ -349,9 +354,9 @@ export default async function StockPage({ searchParams }: PageProps) {
                 minWidth: "160px",
               }}
             >
-              <option value="">All Status</option>
-              <option value="low">Low Stock Only</option>
-              <option value="out">Out of Stock Only</option>
+              <option value="">{t.inventory.stock.allStatus}</option>
+              <option value="low">{t.inventory.stock.lowStockOnly}</option>
+              <option value="out">{t.inventory.stock.outOfStockOnly}</option>
             </select>
 
             {/* Archived toggle */}
@@ -373,7 +378,7 @@ export default async function StockPage({ searchParams }: PageProps) {
                 defaultChecked={showArchived}
                 style={{ accentColor: "#0062ff" }}
               />
-              Show archived
+              {t.inventory.stock.showArchived}
             </label>
 
             <button
@@ -389,7 +394,7 @@ export default async function StockPage({ searchParams }: PageProps) {
                 cursor: "pointer",
               }}
             >
-              Filter
+              {t.inventory.stock.filter}
             </button>
 
             {(q || statusFilter || showArchived) && (
@@ -404,7 +409,7 @@ export default async function StockPage({ searchParams }: PageProps) {
                   textDecoration: "none",
                 }}
               >
-                Clear
+                {t.inventory.stock.clear}
               </Link>
             )}
           </form>

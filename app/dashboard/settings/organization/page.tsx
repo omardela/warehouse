@@ -3,6 +3,8 @@ import { getSession } from "@/core/auth/session";
 import { db } from "@/lib/db";
 import { OrgSettingsForm } from "./OrgSettingsForm";
 import { requirePagePermission } from "@/core/auth/require-page-permission";
+import { getLocale } from "@/core/i18n/locale";
+import { getDictionary } from "@/core/i18n/get-dictionary";
 
 export default async function OrganizationSettingsPage() {
   const session = await getSession();
@@ -10,6 +12,9 @@ export default async function OrganizationSettingsPage() {
     redirect("/login");
   }
   await requirePagePermission(session, "settings.org.read");
+
+  const locale = await getLocale();
+  const t = getDictionary(locale).employees.organization;
 
   const org = await db.organization.findUnique({
     where: { id: session.orgId },
@@ -32,10 +37,10 @@ export default async function OrganizationSettingsPage() {
             className="text-2xl font-bold"
             style={{ color: "#dbe2fd" }}
           >
-            Organization Settings
+            {t.pageTitle}
           </h1>
           <p className="mt-1 text-sm" style={{ color: "#8c90a2" }}>
-            Manage your organization profile.
+            {t.pageSubtitle}
           </p>
         </div>
 

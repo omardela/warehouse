@@ -3,6 +3,7 @@
 import { useActionState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import type { SupplierActionState } from "../actions";
+import { useTranslations } from "@/providers/locale-context";
 
 interface SupplierEditFormProps {
   supplierId: string;
@@ -17,6 +18,7 @@ interface SupplierEditFormProps {
 
 export function SupplierEditForm({ supplierId, initialValues, action }: SupplierEditFormProps) {
   const router = useRouter();
+  const t = useTranslations();
   const [state, formAction, pending] = useActionState<SupplierActionState, FormData>(
     action as (s: SupplierActionState, fd: FormData) => Promise<SupplierActionState>,
     null
@@ -55,12 +57,12 @@ export function SupplierEditForm({ supplierId, initialValues, action }: Supplier
   return (
     <div style={{ background: "#171f33", border: "1px solid #222a3e", borderRadius: "10px", padding: "20px" }}>
       <h2 style={{ fontSize: "14px", fontWeight: 600, color: "#dbe2fd", margin: "0 0 16px", paddingBottom: "12px", borderBottom: "1px solid #222a3e" }}>
-        Supplier Details
+        {t.suppliers.form.sectionTitle}
       </h2>
 
       {state && "success" in state && (
         <div style={{ padding: "10px 14px", borderRadius: "8px", background: "rgba(98,223,125,0.1)", border: "1px solid rgba(98,223,125,0.2)", color: "#62df7d", fontSize: "13px", marginBottom: "16px" }}>
-          Changes saved successfully.
+          {t.suppliers.form.changesSaved}
         </div>
       )}
 
@@ -76,14 +78,14 @@ export function SupplierEditForm({ supplierId, initialValues, action }: Supplier
         <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
           <div>
             <label htmlFor="name" style={labelStyle}>
-              Name <span style={{ color: "#ffb4ab", marginLeft: "2px" }}>*</span>
+              {t.common.name} <span style={{ color: "#ffb4ab", marginInlineStart: "2px" }}>*</span>
             </label>
             <input
               id="name"
               name="name"
               type="text"
               defaultValue={initialValues.name}
-              placeholder="Supplier name"
+              placeholder={t.suppliers.form.namePlaceholder}
               required
               style={{ ...inputStyle, borderColor: fieldError("name") ? "#ffb4ab" : "#2d3449" }}
               onFocus={(e) => { e.currentTarget.style.borderColor = "#0062ff"; e.currentTarget.style.boxShadow = "0 0 0 3px rgba(0,98,255,0.2)"; }}
@@ -95,14 +97,14 @@ export function SupplierEditForm({ supplierId, initialValues, action }: Supplier
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "14px" }}>
             <div>
               <label htmlFor="email" style={labelStyle}>
-                Email <span style={{ color: "#4a5068", fontSize: "11px", marginLeft: "4px" }}>(optional)</span>
+                {t.common.email} <span style={{ color: "#4a5068", fontSize: "11px", marginInlineStart: "4px" }}>({t.common.optional})</span>
               </label>
               <input
                 id="email"
                 name="email"
                 type="email"
                 defaultValue={initialValues.email}
-                placeholder="supplier@example.com"
+                placeholder={t.suppliers.form.emailPlaceholder}
                 style={{ ...inputStyle, borderColor: fieldError("email") ? "#ffb4ab" : "#2d3449" }}
                 onFocus={(e) => { e.currentTarget.style.borderColor = "#0062ff"; e.currentTarget.style.boxShadow = "0 0 0 3px rgba(0,98,255,0.2)"; }}
                 onBlur={(e) => { e.currentTarget.style.borderColor = fieldError("email") ? "#ffb4ab" : "#2d3449"; e.currentTarget.style.boxShadow = "none"; }}
@@ -111,14 +113,14 @@ export function SupplierEditForm({ supplierId, initialValues, action }: Supplier
             </div>
             <div>
               <label htmlFor="phone" style={labelStyle}>
-                Phone <span style={{ color: "#4a5068", fontSize: "11px", marginLeft: "4px" }}>(optional)</span>
+                {t.common.phone} <span style={{ color: "#4a5068", fontSize: "11px", marginInlineStart: "4px" }}>({t.common.optional})</span>
               </label>
               <input
                 id="phone"
                 name="phone"
                 type="tel"
                 defaultValue={initialValues.phone}
-                placeholder="+1 (555) 000-0000"
+                placeholder={t.suppliers.form.phonePlaceholder}
                 style={inputStyle}
                 onFocus={(e) => { e.currentTarget.style.borderColor = "#0062ff"; e.currentTarget.style.boxShadow = "0 0 0 3px rgba(0,98,255,0.2)"; }}
                 onBlur={(e) => { e.currentTarget.style.borderColor = "#2d3449"; e.currentTarget.style.boxShadow = "none"; }}
@@ -128,13 +130,13 @@ export function SupplierEditForm({ supplierId, initialValues, action }: Supplier
 
           <div>
             <label htmlFor="address" style={labelStyle}>
-              Address <span style={{ color: "#4a5068", fontSize: "11px", marginLeft: "4px" }}>(optional)</span>
+              {t.common.address} <span style={{ color: "#4a5068", fontSize: "11px", marginInlineStart: "4px" }}>({t.common.optional})</span>
             </label>
             <textarea
               id="address"
               name="address"
               defaultValue={initialValues.address}
-              placeholder="123 Main St, City, Country"
+              placeholder={t.suppliers.form.addressPlaceholder}
               rows={3}
               style={{ ...inputStyle, resize: "vertical" }}
               onFocus={(e) => { e.currentTarget.style.borderColor = "#0062ff"; e.currentTarget.style.boxShadow = "0 0 0 3px rgba(0,98,255,0.2)"; }}
@@ -158,7 +160,7 @@ export function SupplierEditForm({ supplierId, initialValues, action }: Supplier
                 opacity: pending ? 0.8 : 1,
               }}
             >
-              {pending ? "Saving…" : "Save Changes"}
+              {pending ? t.suppliers.form.saving : t.suppliers.form.saveChanges}
             </button>
           </div>
         </div>

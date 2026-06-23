@@ -7,6 +7,7 @@ import {
   updateWarehouseAction,
   type WarehouseActionState,
 } from "./actions";
+import { useTranslations } from "@/providers/locale-context";
 
 interface WarehouseFormProps {
   mode: "create" | "edit";
@@ -22,6 +23,7 @@ export function WarehouseForm({
   initialAddress = "",
 }: WarehouseFormProps) {
   const router = useRouter();
+  const t = useTranslations().employees.warehouses;
 
   const action = mode === "create" ? createWarehouseAction : updateWarehouseAction;
 
@@ -45,12 +47,10 @@ export function WarehouseForm({
         {/* Page header */}
         <div>
           <h1 className="text-2xl font-bold" style={{ color: "#dbe2fd" }}>
-            {mode === "create" ? "New Warehouse" : "Edit Warehouse"}
+            {mode === "create" ? t.newPageTitle : t.editPageTitle}
           </h1>
           <p className="mt-1 text-sm" style={{ color: "#8c90a2" }}>
-            {mode === "create"
-              ? "Register a new warehouse facility for your organization."
-              : "Update this warehouse facility's details."}
+            {mode === "create" ? t.newPageSubtitle : t.editPageSubtitle}
           </p>
         </div>
 
@@ -71,7 +71,7 @@ export function WarehouseForm({
                 className="text-base font-semibold"
                 style={{ color: "#dbe2fd" }}
               >
-                Facility Details
+                {t.facilityDetails}
               </h2>
             </div>
 
@@ -83,7 +83,7 @@ export function WarehouseForm({
                   className="block text-[13px] font-medium"
                   style={{ color: "#c2c6d9" }}
                 >
-                  Facility Name <span style={{ color: "#ffb4ab" }}>*</span>
+                  {t.facilityName} <span style={{ color: "#ffb4ab" }}>*</span>
                 </label>
                 <input
                   id="name"
@@ -92,7 +92,7 @@ export function WarehouseForm({
                   required
                   defaultValue={initialName}
                   maxLength={100}
-                  placeholder="e.g. Main Distribution Center"
+                  placeholder={t.facilityNamePlaceholder}
                   className="w-full rounded-lg border px-3 py-2 text-sm outline-none placeholder:text-[#4a5068]"
                   style={{
                     background: "#0d1627",
@@ -119,9 +119,9 @@ export function WarehouseForm({
                   className="block text-[13px] font-medium"
                   style={{ color: "#c2c6d9" }}
                 >
-                  Address{" "}
+                  {t.address}{" "}
                   <span className="text-xs" style={{ color: "#8c90a2" }}>
-                    (optional)
+                    {t.optional}
                   </span>
                 </label>
                 <input
@@ -130,7 +130,7 @@ export function WarehouseForm({
                   type="text"
                   defaultValue={initialAddress}
                   maxLength={255}
-                  placeholder="e.g. 123 Industrial Ave, City, Country"
+                  placeholder={t.addressPlaceholder}
                   className="w-full rounded-lg border px-3 py-2 text-sm outline-none placeholder:text-[#4a5068]"
                   style={{
                     background: "#0d1627",
@@ -175,10 +175,10 @@ export function WarehouseForm({
               style={{ background: "#0062ff", borderRadius: "8px" }}
             >
               {pending
-                ? "Saving…"
+                ? t.saving
                 : mode === "create"
-                ? "Save Warehouse"
-                : "Save Changes"}
+                ? t.saveWarehouse
+                : t.saveChanges}
             </button>
             <a
               href="/dashboard/settings/warehouses"
@@ -189,7 +189,7 @@ export function WarehouseForm({
                 borderRadius: "8px",
               }}
             >
-              Cancel
+              {t.cancel}
             </a>
           </div>
         </form>

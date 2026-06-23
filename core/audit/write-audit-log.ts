@@ -45,7 +45,10 @@ export type AuditAction =
   | "sales.orders.create"
   | "sales.orders.confirm"
   | "sales.orders.cancel"
-  | "sales.deliverynotes.create";
+  | "sales.deliverynotes.create"
+  | "sales.creditnotes.create"
+  | "sales.creditnotes.confirm"
+  | "sales.creditnotes.cancel";
 
 export async function writeAuditLog(params: {
   actorId: string;

@@ -3,6 +3,8 @@
 import { useActionState, useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import type { PurchaseInvoiceActionState } from "../actions";
+import { useTranslations } from "@/providers/locale-context";
+import type { Dictionary } from "@/core/i18n/get-dictionary";
 
 type Supplier = { id: string; name: string };
 type ProductUnit = { id: string; name: string; symbol: string };
@@ -34,6 +36,7 @@ function Field({
   required,
   error,
   children,
+  optionalLabel,
 }: {
   label: string;
   name: string;
@@ -43,6 +46,7 @@ function Field({
   required?: boolean;
   error?: string;
   children?: React.ReactNode;
+  optionalLabel: string;
 }) {
   const inputStyle: React.CSSProperties = {
     width: "100%",
@@ -64,8 +68,8 @@ function Field({
         style={{ display: "block", fontSize: "13px", fontWeight: 500, color: "#c2c6d9", marginBottom: "6px" }}
       >
         {label}
-        {required && <span style={{ color: "#ffb4ab", marginLeft: "2px" }}>*</span>}
-        {!required && <span style={{ color: "#4a5068", fontSize: "11px", marginLeft: "4px" }}>(optional)</span>}
+        {required && <span style={{ color: "#ffb4ab", marginInlineStart: "2px" }}>*</span>}
+        {!required && <span style={{ color: "#4a5068", fontSize: "11px", marginInlineStart: "4px" }}>({optionalLabel})</span>}
       </label>
       {children ?? (
         <input
@@ -102,12 +106,14 @@ function LineItem({
   products,
   onRemove,
   onChange,
+  t,
 }: {
   row: LineRow;
   index: number;
   products: Product[];
   onRemove: (id: string) => void;
   onChange: (id: string, field: keyof LineRow, value: string) => void;
+  t: Dictionary;
 }) {
   const selectedProduct = products.find((p) => p.id === row.productId);
   const availableUnits = selectedProduct?.units ?? [];
@@ -154,7 +160,7 @@ function LineItem({
         onChange={(e) => onChange(row.id, "productId", e.target.value)}
         style={selectStyle}
       >
-        <option value="">Select product…</option>
+        <option value="">{t.purchases.invoices.selectProduct}</option>
         {products.map((p) => (
           <option key={p.id} value={p.id}>{p.name} ({p.sku})</option>
         ))}
@@ -168,7 +174,7 @@ function LineItem({
         disabled={availableUnits.length === 0}
       >
         {availableUnits.length === 0 ? (
-          <option value="">Select product first…</option>
+          <option value="">{t.purchases.invoices.selectProductFirst}</option>
         ) : (
           availableUnits.map((u) => (
             <option key={u.id} value={u.id}>{u.name} ({u.symbol})</option>
@@ -183,7 +189,7 @@ function LineItem({
         min="0.000001"
         value={row.quantity}
         onChange={(e) => onChange(row.id, "quantity", e.target.value)}
-        placeholder="Qty"
+        placeholder={t.purchases.invoices.qtyPlaceholder}
         style={inputStyle}
       />
 
@@ -194,11 +200,11 @@ function LineItem({
         min="0"
         value={row.unitPrice}
         onChange={(e) => onChange(row.id, "unitPrice", e.target.value)}
-        placeholder="Unit price"
+        placeholder={t.purchases.invoices.unitPricePlaceholder}
         style={inputStyle}
       />
 
-      <div style={{ fontSize: "13px", fontWeight: 500, color: "#dbe2fd", textAlign: "right" }}>
+      <div style={{ fontSize: "13px", fontWeight: 500, color: "#dbe2fd", textAlign: "end" }}>
         ${total.toFixed(2)}
       </div>
 
@@ -218,7 +224,7 @@ function LineItem({
           cursor: "pointer",
           flexShrink: 0,
         }}
-        title="Remove line"
+        title={t.purchases.invoices.removeLine}
       >
         <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
           <path d="M2 2L10 10M10 2L2 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
@@ -230,6 +236,7 @@ function LineItem({
 
 export function PurchaseInvoiceForm({ action, suppliers, products, purchaseOrders, defaultSupplierId }: PurchaseInvoiceFormProps) {
   const router = useRouter();
+  const t = useTranslations();
   const [state, formAction, pending] = useActionState<PurchaseInvoiceActionState, FormData>(
     action as (s: PurchaseInvoiceActionState, fd: FormData) => Promise<PurchaseInvoiceActionState>,
     null
@@ -301,16 +308,16 @@ export function PurchaseInvoiceForm({ action, suppliers, products, purchaseOrder
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "24px", flexWrap: "wrap", gap: "12px" }}>
           <div>
             <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "4px" }}>
-              <a href="/dashboard/purchases" style={{ color: "#8c90a2", textDecoration: "none", fontSize: "13px" }}>Purchase Invoices</a>
+              <a href="/dashboard/purchases" style={{ color: "#8c90a2", textDecoration: "none", fontSize: "13px" }}>{t.purchases.invoices.title}</a>
               <span style={{ color: "#4a5068" }}>/</span>
-              <span style={{ color: "#8c90a2", fontSize: "13px" }}>New Invoice</span>
+              <span style={{ color: "#8c90a2", fontSize: "13px" }}>{t.purchases.invoices.newInvoice}</span>
             </div>
             <h1 style={{ fontSize: "22px", fontWeight: 700, color: "#dbe2fd", margin: 0 }}>
-              Create Purchase Invoice
+              {t.purchases.invoices.createTitle}
             </h1>
           </div>
           <a href="/dashboard/purchases" style={{ padding: "8px 16px", borderRadius: "8px", border: "1px solid #2d3449", color: "#8c90a2", fontSize: "13px", fontWeight: 500, textDecoration: "none" }}>
-            Cancel
+            {t.common.cancel}
           </a>
         </div>
 
@@ -325,9 +332,9 @@ export function PurchaseInvoiceForm({ action, suppliers, products, purchaseOrder
 
           <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
             {/* Header Info */}
-            <SectionCard title="Invoice Details">
+            <SectionCard title={t.purchases.invoices.detailsSection}>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "16px" }}>
-                <Field label="Supplier" name="supplier-label" required error={fieldError("supplierId")}>
+                <Field label={t.purchases.invoices.supplier} name="supplier-label" required error={fieldError("supplierId")} optionalLabel={t.common.optional}>
                   <select
                     id="supplierId"
                     name="supplierId"
@@ -341,7 +348,7 @@ export function PurchaseInvoiceForm({ action, suppliers, products, purchaseOrder
                     onFocus={(e) => { e.currentTarget.style.borderColor = "#0062ff"; e.currentTarget.style.boxShadow = "0 0 0 3px rgba(0,98,255,0.2)"; }}
                     onBlur={(e) => { e.currentTarget.style.borderColor = fieldError("supplierId") ? "#ffb4ab" : "#2d3449"; e.currentTarget.style.boxShadow = "none"; }}
                   >
-                    <option value="">Select supplier…</option>
+                    <option value="">{t.purchases.invoices.selectSupplier}</option>
                     {suppliers.map((s) => (
                       <option key={s.id} value={s.id}>{s.name}</option>
                     ))}
@@ -349,13 +356,14 @@ export function PurchaseInvoiceForm({ action, suppliers, products, purchaseOrder
                 </Field>
 
                 <Field
-                  label="Expected Delivery Date"
+                  label={t.purchases.invoices.expectedDeliveryDate}
                   name="deliveryDate"
                   type="date"
                   error={fieldError("deliveryDate")}
+                  optionalLabel={t.common.optional}
                 />
 
-                <Field label="Link to Purchase Order" name="purchaseOrderId-label" error={fieldError("purchaseOrderId")}>
+                <Field label={t.purchases.invoices.linkToPurchaseOrder} name="purchaseOrderId-label" error={fieldError("purchaseOrderId")} optionalLabel={t.common.optional}>
                   <select
                     id="purchaseOrderId"
                     name="purchaseOrderId"
@@ -368,10 +376,10 @@ export function PurchaseInvoiceForm({ action, suppliers, products, purchaseOrder
                   >
                     <option value="">
                       {!supplierId
-                        ? "Select a supplier first…"
+                        ? t.purchases.invoices.selectSupplierFirst
                         : availablePurchaseOrders.length === 0
-                        ? "No received purchase orders for this supplier"
-                        : "None (not linked to a PO)"}
+                        ? t.purchases.invoices.noReceivedOrdersForSupplier
+                        : t.purchases.invoices.noneNotLinked}
                     </option>
                     {availablePurchaseOrders.map((po) => (
                       <option key={po.id} value={po.id}>{po.label}</option>
@@ -382,12 +390,12 @@ export function PurchaseInvoiceForm({ action, suppliers, products, purchaseOrder
 
               <div style={{ marginTop: "16px" }}>
                 <label htmlFor="notes" style={{ display: "block", fontSize: "13px", fontWeight: 500, color: "#c2c6d9", marginBottom: "6px" }}>
-                  Notes <span style={{ color: "#4a5068", fontSize: "11px", marginLeft: "4px" }}>(optional)</span>
+                  {t.purchases.invoices.notes} <span style={{ color: "#4a5068", fontSize: "11px", marginInlineStart: "4px" }}>({t.common.optional})</span>
                 </label>
                 <textarea
                   id="notes"
                   name="notes"
-                  placeholder="Any additional notes for this purchase…"
+                  placeholder={t.purchases.invoices.notesPlaceholder}
                   rows={2}
                   style={{
                     width: "100%",
@@ -409,7 +417,7 @@ export function PurchaseInvoiceForm({ action, suppliers, products, purchaseOrder
             </SectionCard>
 
             {/* Line Items */}
-            <SectionCard title="Line Items">
+            <SectionCard title={t.purchases.invoices.lineItemsSection}>
               {/* Header row */}
               <div
                 style={{
@@ -421,7 +429,14 @@ export function PurchaseInvoiceForm({ action, suppliers, products, purchaseOrder
                   marginBottom: "4px",
                 }}
               >
-                {["Product", "Unit", "Quantity", "Unit Price", "Total", ""].map((h) => (
+                {[
+                  t.purchases.invoices.columnsLine.product,
+                  t.purchases.invoices.columnsLine.unit,
+                  t.purchases.invoices.columnsLine.quantity,
+                  t.purchases.invoices.columnsLine.unitPrice,
+                  t.purchases.invoices.columnsLine.total,
+                  "",
+                ].map((h) => (
                   <div key={h} style={{ fontSize: "11px", fontWeight: 600, color: "#8c90a2", textTransform: "uppercase", letterSpacing: "0.06em" }}>
                     {h}
                   </div>
@@ -436,6 +451,7 @@ export function PurchaseInvoiceForm({ action, suppliers, products, purchaseOrder
                   products={products}
                   onRemove={removeLine}
                   onChange={updateLine}
+                  t={t}
                 />
               ))}
 
@@ -459,11 +475,11 @@ export function PurchaseInvoiceForm({ action, suppliers, products, purchaseOrder
                   <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
                     <path d="M6 1.5V10.5M1.5 6H10.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
                   </svg>
-                  Add Line Item
+                  {t.purchases.invoices.addLineItem}
                 </button>
 
                 <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                  <span style={{ fontSize: "13px", color: "#8c90a2" }}>Total Amount:</span>
+                  <span style={{ fontSize: "13px", color: "#8c90a2" }}>{t.purchases.invoices.totalAmountLabel}</span>
                   <span style={{ fontSize: "18px", fontWeight: 700, color: "#dbe2fd" }}>
                     ${totalAmount.toFixed(2)}
                   </span>
@@ -487,10 +503,10 @@ export function PurchaseInvoiceForm({ action, suppliers, products, purchaseOrder
                   opacity: pending ? 0.8 : 1,
                 }}
               >
-                {pending ? "Creating…" : "Create Draft Invoice"}
+                {pending ? t.purchases.invoices.creating : t.purchases.invoices.createDraftInvoice}
               </button>
               <a href="/dashboard/purchases" style={{ padding: "10px 20px", borderRadius: "8px", border: "1px solid #2d3449", color: "#8c90a2", fontSize: "13px", fontWeight: 500, textDecoration: "none" }}>
-                Cancel
+                {t.common.cancel}
               </a>
             </div>
           </div>

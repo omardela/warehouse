@@ -4,6 +4,8 @@ import { getSession } from "@/core/auth/session";
 import { db } from "@/lib/db";
 import { requirePagePermission } from "@/core/auth/require-page-permission";
 import { MovementType } from "@prisma/client";
+import { getLocale } from "@/core/i18n/locale";
+import { getDictionary, type Dictionary } from "@/core/i18n/get-dictionary";
 
 export const dynamic = "force-dynamic";
 
@@ -19,25 +21,8 @@ interface PageProps {
 
 const PAGE_SIZE = 25;
 
-function movementTypeLabel(type: MovementType): string {
-  switch (type) {
-    case "PURCHASE_IN":
-      return "Purchase In";
-    case "SALE_OUT":
-      return "Sale Out";
-    case "TRANSFER_IN":
-      return "Transfer In";
-    case "TRANSFER_OUT":
-      return "Transfer Out";
-    case "ADJUSTMENT":
-      return "Adjustment";
-    case "RETURN_IN":
-      return "Return In";
-    case "RETURN_OUT":
-      return "Return Out";
-    default:
-      return type;
-  }
+function movementTypeLabel(type: MovementType, t: Dictionary): string {
+  return t.inventory.movementTypes[type] ?? type;
 }
 
 function movementTypeBadgeStyle(type: MovementType): { background: string; color: string } {
@@ -97,6 +82,9 @@ export default async function MovementsPage({ searchParams }: PageProps) {
   const session = await getSession();
   if (!session) redirect("/login");
   await requirePagePermission(session, "inventory.balance.read");
+
+  const locale = await getLocale();
+  const t = getDictionary(locale);
 
   const params = await searchParams;
   const fromDate = params.from ?? "";
@@ -199,10 +187,10 @@ export default async function MovementsPage({ searchParams }: PageProps) {
         >
           <div>
             <h1 style={{ fontSize: "24px", fontWeight: 700, color: "#dbe2fd", margin: 0 }}>
-              Stock Movements
+              {t.inventory.movements.pageTitle}
             </h1>
             <p style={{ fontSize: "13px", color: "#8c90a2", marginTop: "4px" }}>
-              Complete ledger of all inventory movements in this warehouse.
+              {t.inventory.movements.pageSubtitle}
             </p>
           </div>
           <div style={{ display: "flex", gap: "8px" }}>
@@ -221,7 +209,7 @@ export default async function MovementsPage({ searchParams }: PageProps) {
                 textDecoration: "none",
               }}
             >
-              + Adjustment
+              {t.inventory.movements.addAdjustment}
             </Link>
           </div>
         </div>
@@ -240,12 +228,12 @@ export default async function MovementsPage({ searchParams }: PageProps) {
             {/* Product search */}
             <div style={{ display: "flex", flexDirection: "column", gap: "4px", flex: "1", minWidth: "180px" }}>
               <label style={{ fontSize: "11px", color: "#8c90a2", fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.05em" }}>
-                Product
+                {t.inventory.movements.labelProduct}
               </label>
               <div style={{ position: "relative" }}>
                 <svg
                   width="14" height="14" viewBox="0 0 14 14" fill="none"
-                  style={{ position: "absolute", left: "10px", top: "50%", transform: "translateY(-50%)", color: "#4a5068", pointerEvents: "none" }}
+                  style={{ position: "absolute", insetInlineStart: "10px", top: "50%", transform: "translateY(-50%)", color: "#4a5068", pointerEvents: "none" }}
                 >
                   <circle cx="6" cy="6" r="4" stroke="currentColor" strokeWidth="1.5" />
                   <path d="M9.5 9.5L12.5 12.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
@@ -254,11 +242,11 @@ export default async function MovementsPage({ searchParams }: PageProps) {
                   name="q"
                   type="text"
                   defaultValue={q}
-                  placeholder="Name or SKU..."
+                  placeholder={t.inventory.movements.searchPlaceholder}
                   style={{
                     width: "100%",
-                    paddingLeft: "32px",
-                    paddingRight: "12px",
+                    paddingInlineStart: "32px",
+                    paddingInlineEnd: "12px",
                     paddingTop: "8px",
                     paddingBottom: "8px",
                     background: "#0d1627",
@@ -276,7 +264,7 @@ export default async function MovementsPage({ searchParams }: PageProps) {
             {/* Movement type */}
             <div style={{ display: "flex", flexDirection: "column", gap: "4px", minWidth: "160px" }}>
               <label style={{ fontSize: "11px", color: "#8c90a2", fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.05em" }}>
-                Type
+                {t.inventory.movements.labelType}
               </label>
               <select
                 name="type"
@@ -291,9 +279,9 @@ export default async function MovementsPage({ searchParams }: PageProps) {
                   outline: "none",
                 }}
               >
-                <option value="">All Types</option>
-                {ALL_MOVEMENT_TYPES.map((t) => (
-                  <option key={t} value={t}>{movementTypeLabel(t)}</option>
+                <option value="">{t.inventory.movements.allTypes}</option>
+                {ALL_MOVEMENT_TYPES.map((mt) => (
+                  <option key={mt} value={mt}>{movementTypeLabel(mt, t)}</option>
                 ))}
               </select>
             </div>
@@ -301,7 +289,7 @@ export default async function MovementsPage({ searchParams }: PageProps) {
             {/* Date from */}
             <div style={{ display: "flex", flexDirection: "column", gap: "4px", minWidth: "150px" }}>
               <label style={{ fontSize: "11px", color: "#8c90a2", fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.05em" }}>
-                From Date
+                {t.inventory.movements.labelFromDate}
               </label>
               <input
                 name="from"
@@ -323,7 +311,7 @@ export default async function MovementsPage({ searchParams }: PageProps) {
             {/* Date to */}
             <div style={{ display: "flex", flexDirection: "column", gap: "4px", minWidth: "150px" }}>
               <label style={{ fontSize: "11px", color: "#8c90a2", fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.05em" }}>
-                To Date
+                {t.inventory.movements.labelToDate}
               </label>
               <input
                 name="to"
@@ -357,7 +345,7 @@ export default async function MovementsPage({ searchParams }: PageProps) {
                   height: "36px",
                 }}
               >
-                Filter
+                {t.inventory.movements.filter}
               </button>
               {(q || typeFilter || fromDate || toDate) && (
                 <Link
@@ -375,7 +363,7 @@ export default async function MovementsPage({ searchParams }: PageProps) {
                     alignItems: "center",
                   }}
                 >
-                  Clear
+                  {t.inventory.movements.clear}
                 </Link>
               )}
             </div>
@@ -395,7 +383,16 @@ export default async function MovementsPage({ searchParams }: PageProps) {
             <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "13px" }}>
               <thead>
                 <tr style={{ borderBottom: "1px solid #222a3e", background: "#0d1627" }}>
-                  {["Date / Time", "Movement #", "Product", "Warehouse", "Type", "Qty", "Balance", "Actor"].map((h) => (
+                  {[
+                    t.inventory.movements.columnDateTime,
+                    t.inventory.movements.columnMovementNumber,
+                    t.inventory.movements.columnProduct,
+                    t.inventory.movements.columnWarehouse,
+                    t.inventory.movements.columnType,
+                    t.inventory.movements.columnQty,
+                    t.inventory.movements.columnBalance,
+                    t.inventory.movements.columnActor,
+                  ].map((h) => (
                     <th
                       key={h}
                       style={{
@@ -422,8 +419,8 @@ export default async function MovementsPage({ searchParams }: PageProps) {
                       style={{ padding: "56px 24px", textAlign: "center", color: "#8c90a2", fontSize: "14px" }}
                     >
                       {q || typeFilter || fromDate || toDate
-                        ? "No movements match your filters."
-                        : "No movements recorded yet in this warehouse."}
+                        ? t.inventory.movements.noMovementsFiltered
+                        : t.inventory.movements.noMovementsEmpty}
                     </td>
                   </tr>
                 ) : (
@@ -510,7 +507,7 @@ export default async function MovementsPage({ searchParams }: PageProps) {
                               ...badgeStyle,
                             }}
                           >
-                            {movementTypeLabel(mv.movementType)}
+                            {movementTypeLabel(mv.movementType, t)}
                           </span>
                         </td>
 
@@ -519,7 +516,7 @@ export default async function MovementsPage({ searchParams }: PageProps) {
                           <span style={{ fontWeight: 700, fontSize: "14px", color: qtyColor }}>
                             {qtyPrefix}{formatQty(mv.quantity)}
                           </span>
-                          <span style={{ fontSize: "11px", color: "#4a5068", marginLeft: "4px" }}>
+                          <span style={{ fontSize: "11px", color: "#4a5068", marginInlineStart: "4px" }}>
                             {mv.unit.symbol}
                           </span>
                         </td>

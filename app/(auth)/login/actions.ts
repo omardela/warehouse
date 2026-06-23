@@ -7,6 +7,8 @@ import { SignJWT } from "jose";
 import { db } from "@/lib/db";
 import { SESSION_COOKIE_NAME } from "@/core/auth/session";
 import { writeAuditLog } from "@/core/audit/write-audit-log";
+import { getLocale, isLocale, LOCALE_COOKIE_NAME, LOCALE_COOKIE_MAX_AGE } from "@/core/i18n/locale";
+import { getDictionary } from "@/core/i18n/get-dictionary";
 
 type LoginResult = { error: string } | never;
 
@@ -24,11 +26,14 @@ export async function loginAction(
   _prevState: { error: string } | null,
   formData: FormData
 ): Promise<LoginResult> {
+  const locale = await getLocale();
+  const dict = getDictionary(locale);
+
   const email = (formData.get("email") as string | null)?.trim().toLowerCase();
   const password = formData.get("password") as string | null;
 
   if (!email || !password) {
-    return { error: "Invalid email or password" };
+    return { error: dict.auth.invalidCredentials };
   }
 
   // Look up employee — must not be archived
@@ -43,6 +48,7 @@ export async function loginAction(
       passwordHash: true,
       warehouseId: true,
       warehouseRoleId: true,
+      locale: true,
     },
   });
 
@@ -61,7 +67,7 @@ export async function loginAction(
         entityId: employee.id,
       });
     }
-    return { error: "Invalid email or password" };
+    return { error: dict.auth.invalidCredentials };
   }
 
   // Fetch warehouse to get orgId
@@ -110,6 +116,17 @@ export async function loginAction(
     path: "/",
     maxAge: SEVEN_DAYS_IN_SECONDS,
   });
+
+  // Sync the locale cookie to the employee's saved preference, so a login on
+  // a new browser/device picks up their language choice immediately.
+  if (isLocale(employee.locale)) {
+    cookieStore.set(LOCALE_COOKIE_NAME, employee.locale, {
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/",
+      maxAge: LOCALE_COOKIE_MAX_AGE,
+    });
+  }
 
   await writeAuditLog({
     actorId: employee.id,

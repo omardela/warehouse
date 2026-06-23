@@ -2,16 +2,11 @@
 
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { useState } from "react";
+import { useTranslations } from "@/providers/locale-context";
 
-const PRESETS = [
-  { key: "today", label: "Today" },
-  { key: "week", label: "This Week" },
-  { key: "month", label: "This Month" },
-  { key: "year", label: "This Year" },
-  { key: "custom", label: "Custom" },
-] as const;
+const PRESET_KEYS = ["today", "week", "month", "year", "custom"] as const;
 
-type PresetKey = (typeof PRESETS)[number]["key"];
+type PresetKey = (typeof PRESET_KEYS)[number];
 
 interface DateRangePickerProps {
   currentFrom: string;
@@ -27,6 +22,15 @@ export function DateRangePicker({
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const t = useTranslations();
+
+  const PRESETS: { key: PresetKey; label: string }[] = [
+    { key: "today", label: t.reports.dateRange.today },
+    { key: "week", label: t.reports.dateRange.thisWeek },
+    { key: "month", label: t.reports.dateRange.thisMonth },
+    { key: "year", label: t.reports.dateRange.thisYear },
+    { key: "custom", label: t.reports.dateRange.custom },
+  ];
 
   const [customFrom, setCustomFrom] = useState(currentFrom);
   const [customTo, setCustomTo] = useState(currentTo);
@@ -76,7 +80,7 @@ export function DateRangePicker({
           flexShrink: 0,
         }}
       >
-        Period:
+        {t.reports.dateRange.period}
       </span>
 
       <div style={{ display: "flex", gap: "4px", flexWrap: "wrap" }}>

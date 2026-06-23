@@ -3,6 +3,8 @@ import { redirect } from "next/navigation";
 import { getSession } from "@/core/auth/session";
 import { db } from "@/lib/db";
 import { requirePagePermission } from "@/core/auth/require-page-permission";
+import { getLocale } from "@/core/i18n/locale";
+import { getDictionary } from "@/core/i18n/get-dictionary";
 
 export default async function RolesPage() {
   const session = await getSession();
@@ -10,6 +12,9 @@ export default async function RolesPage() {
     redirect("/login");
   }
   await requirePagePermission(session, "roles.role.read");
+
+  const locale = await getLocale();
+  const t = getDictionary(locale).employees.roles;
 
   const warehouseRoles = await db.warehouseRole.findMany({
     where: { warehouseId: session.warehouseId },
@@ -43,11 +48,10 @@ export default async function RolesPage() {
                 lineHeight: 1.3,
               }}
             >
-              Roles &amp; Permissions
+              {t.pageTitle}
             </h1>
             <p style={{ marginTop: "6px", fontSize: "13px", color: "#8c90a2" }}>
-              Manage system access, functional restrictions, and security
-              parameters for your warehouse.
+              {t.pageSubtitle}
             </p>
           </div>
           <Link
@@ -82,7 +86,7 @@ export default async function RolesPage() {
                 strokeLinecap="round"
               />
             </svg>
-            Add Role
+            {t.addRole}
           </Link>
         </div>
 
@@ -96,9 +100,9 @@ export default async function RolesPage() {
           }}
         >
           {[
-            { label: "Total Roles", value: warehouseRoles.length },
+            { label: t.statTotalRoles, value: warehouseRoles.length },
             {
-              label: "Total Permissions",
+              label: t.statTotalPermissions,
               value: warehouseRoles.reduce(
                 (acc, r) => acc + r._count.permissions,
                 0
@@ -194,7 +198,7 @@ export default async function RolesPage() {
                   margin: 0,
                 }}
               >
-                No roles configured
+                {t.emptyTitle}
               </p>
               <p
                 style={{
@@ -203,7 +207,7 @@ export default async function RolesPage() {
                   color: "#8c90a2",
                 }}
               >
-                Add a role from the available templates to get started.
+                {t.emptySubtitle}
               </p>
               <Link
                 href="/dashboard/settings/roles/new"
@@ -221,20 +225,20 @@ export default async function RolesPage() {
                   textDecoration: "none",
                 }}
               >
-                + Add Role from Template
+                {t.addRoleFromTemplate}
               </Link>
             </div>
           ) : (
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
               <thead>
                 <tr>
-                  {["Role Name", "Description", "Permissions", "Actions"].map(
+                  {[t.colRoleName, t.colDescription, t.colPermissions, t.colActions].map(
                     (col) => (
                       <th
                         key={col}
                         style={{
                           padding: "10px 16px",
-                          textAlign: "left",
+                          textAlign: "start",
                           fontSize: "11px",
                           fontWeight: 600,
                           textTransform: "uppercase",
@@ -321,7 +325,7 @@ export default async function RolesPage() {
                       >
                         {role.roleTemplate.description ?? (
                           <span style={{ color: "#4a5068" }}>
-                            No description
+                            {t.noDescription}
                           </span>
                         )}
                       </span>
@@ -372,7 +376,7 @@ export default async function RolesPage() {
                             strokeLinejoin="round"
                           />
                         </svg>
-                        Edit Permissions
+                        {t.editPermissions}
                       </Link>
                     </td>
                   </tr>

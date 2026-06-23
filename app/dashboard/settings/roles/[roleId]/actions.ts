@@ -6,6 +6,8 @@ import { getSession } from "@/core/auth/session";
 import { writeAuditLog } from "@/core/audit/write-audit-log";
 import { requirePermission } from "@/core/auth/require-permission";
 import { isOwnerRole } from "@/core/auth/owner-guard";
+import { getLocale } from "@/core/i18n/locale";
+import { getDictionary } from "@/core/i18n/get-dictionary";
 
 export type UpdateRolePermissionsState =
   | { success: true }
@@ -22,19 +24,20 @@ export async function updateRolePermissionsAction(
   formData: FormData
 ): Promise<UpdateRolePermissionsState> {
   const session = await getSession();
+  const dict = getDictionary(await getLocale()).employees.roles;
   if (!session) {
-    return { error: "Unauthorized" };
+    return { error: dict.unauthorized };
   }
 
   try {
     await requirePermission(session, "roles.role.update");
   } catch {
-    return { error: "You do not have permission to update role permissions" };
+    return { error: dict.noPermissionUpdate };
   }
 
   const roleId = formData.get("roleId");
   if (!roleId || typeof roleId !== "string") {
-    return { error: "Role ID is required" };
+    return { error: dict.roleIdRequired };
   }
 
   const warehouseRole = await db.warehouseRole.findUnique({
@@ -48,11 +51,11 @@ export async function updateRolePermissionsAction(
   });
 
   if (!warehouseRole || warehouseRole.warehouseId !== session.warehouseId) {
-    return { error: "Role not found or access denied" };
+    return { error: dict.roleNotFound };
   }
 
   if (isOwnerRole(warehouseRole.roleTemplate.name)) {
-    return { error: "The Owner role is system-protected and its permissions cannot be modified." };
+    return { error: dict.ownerPermissionsProtected };
   }
 
   const checkedPermissionIds = formData.getAll("permissions") as string[];
@@ -64,7 +67,7 @@ export async function updateRolePermissionsAction(
     });
 
     if (validPermissions.length !== checkedPermissionIds.length) {
-      return { error: "One or more invalid permissions selected" };
+      return { error: dict.invalidPermissionsSelected };
     }
   }
 
@@ -120,26 +123,27 @@ export async function updateRoleNameAction(
   formData: FormData
 ): Promise<UpdateRoleNameState> {
   const session = await getSession();
-  if (!session) return { error: "Unauthorized" };
+  const dict = getDictionary(await getLocale()).employees.roles;
+  if (!session) return { error: dict.unauthorized };
 
   try {
     await requirePermission(session, "roles.role.update");
   } catch {
-    return { error: "You do not have permission to update roles." };
+    return { error: dict.noPermissionUpdateRoles };
   }
 
   const roleId = formData.get("roleId");
-  if (!roleId || typeof roleId !== "string") return { error: "Role ID is required." };
+  if (!roleId || typeof roleId !== "string") return { error: dict.roleIdRequiredDot };
 
   const rawName = formData.get("roleName");
   if (!rawName || typeof rawName !== "string" || rawName.trim().length === 0) {
-    return { error: "Role name is required." };
+    return { error: dict.roleNameRequired };
   }
   const trimmedName = rawName.trim();
-  if (trimmedName.length > 50) return { error: "Role name must be 50 characters or fewer." };
+  if (trimmedName.length > 50) return { error: dict.roleNameTooLong };
 
   if (isOwnerRole(trimmedName)) {
-    return { error: "Cannot use 'Owner' as a role name." };
+    return { error: dict.ownerNameReserved };
   }
 
   const warehouseRole = await db.warehouseRole.findUnique({
@@ -148,16 +152,16 @@ export async function updateRoleNameAction(
   });
 
   if (!warehouseRole || warehouseRole.warehouseId !== session.warehouseId) {
-    return { error: "Role not found or access denied." };
+    return { error: dict.roleNotFoundDot };
   }
 
   if (isOwnerRole(warehouseRole.roleTemplate.name)) {
-    return { error: "The Owner role name is system-protected and cannot be changed." };
+    return { error: dict.ownerNameProtected };
   }
 
   const conflict = await db.roleTemplate.findUnique({ where: { name: trimmedName } });
   if (conflict && conflict.id !== warehouseRole.roleTemplate.id) {
-    return { error: `A role named "${trimmedName}" already exists.` };
+    return { error: dict.roleNameConflict.replace("{name}", trimmedName) };
   }
 
   const beforeName = warehouseRole.roleTemplate.name;
