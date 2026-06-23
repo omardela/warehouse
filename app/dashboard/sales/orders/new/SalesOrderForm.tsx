@@ -3,6 +3,8 @@
 import { useActionState, useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import type { SalesOrderActionState } from "../actions";
+import { useTranslations } from "@/providers/locale-context";
+import type { Dictionary } from "@/core/i18n/get-dictionary";
 
 type Customer = { id: string; name: string };
 type Warehouse = { id: string; name: string };
@@ -36,6 +38,7 @@ function Field({
   required,
   error,
   children,
+  optionalLabel,
 }: {
   label: string;
   name: string;
@@ -45,6 +48,7 @@ function Field({
   required?: boolean;
   error?: string;
   children?: React.ReactNode;
+  optionalLabel: string;
 }) {
   const inputStyle: React.CSSProperties = {
     width: "100%",
@@ -66,8 +70,8 @@ function Field({
         style={{ display: "block", fontSize: "13px", fontWeight: 500, color: "#c2c6d9", marginBottom: "6px" }}
       >
         {label}
-        {required && <span style={{ color: "#ffb4ab", marginLeft: "2px" }}>*</span>}
-        {!required && <span style={{ color: "#4a5068", fontSize: "11px", marginLeft: "4px" }}>(optional)</span>}
+        {required && <span style={{ color: "#ffb4ab", marginInlineStart: "2px" }}>*</span>}
+        {!required && <span style={{ color: "#4a5068", fontSize: "11px", marginInlineStart: "4px" }}>({optionalLabel})</span>}
       </label>
       {children ?? (
         <input
@@ -104,12 +108,14 @@ function LineItem({
   products,
   onRemove,
   onChange,
+  t,
 }: {
   row: LineRow;
   index: number;
   products: Product[];
   onRemove: (id: string) => void;
   onChange: (id: string, field: keyof LineRow, value: string) => void;
+  t: Dictionary;
 }) {
   const selectedProduct = products.find((p) => p.id === row.productId);
   const availableUnits = selectedProduct?.units ?? [];
@@ -157,7 +163,7 @@ function LineItem({
         onChange={(e) => onChange(row.id, "productId", e.target.value)}
         style={selectStyle}
       >
-        <option value="">Select product…</option>
+        <option value="">{t.sales.newOrder.selectProduct}</option>
         {products.map((p) => (
           <option key={p.id} value={p.id}>{p.name} ({p.sku})</option>
         ))}
@@ -171,7 +177,7 @@ function LineItem({
         disabled={availableUnits.length === 0}
       >
         {availableUnits.length === 0 ? (
-          <option value="">Select product first…</option>
+          <option value="">{t.sales.newOrder.selectProductFirst}</option>
         ) : (
           availableUnits.map((u) => (
             <option key={u.id} value={u.id}>{u.name} ({u.symbol})</option>
@@ -186,7 +192,7 @@ function LineItem({
         min="0.000001"
         value={row.quantity}
         onChange={(e) => onChange(row.id, "quantity", e.target.value)}
-        placeholder="Qty"
+        placeholder={t.sales.newOrder.qtyPlaceholder}
         style={inputStyle}
       />
 
@@ -197,7 +203,7 @@ function LineItem({
         min="0"
         value={row.unitPrice}
         onChange={(e) => onChange(row.id, "unitPrice", e.target.value)}
-        placeholder="Unit price"
+        placeholder={t.sales.newOrder.unitPricePlaceholder}
         style={inputStyle}
       />
 
@@ -209,11 +215,11 @@ function LineItem({
         max="100"
         value={row.discount}
         onChange={(e) => onChange(row.id, "discount", e.target.value)}
-        placeholder="Disc %"
+        placeholder={t.sales.newOrder.discPlaceholder}
         style={inputStyle}
       />
 
-      <div style={{ fontSize: "13px", fontWeight: 500, color: "#dbe2fd", textAlign: "right" }}>
+      <div style={{ fontSize: "13px", fontWeight: 500, color: "#dbe2fd", textAlign: "end" }}>
         ${total.toFixed(2)}
       </div>
 
@@ -233,7 +239,7 @@ function LineItem({
           cursor: "pointer",
           flexShrink: 0,
         }}
-        title="Remove line"
+        title={t.sales.newOrder.removeLine}
       >
         <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
           <path d="M2 2L10 10M10 2L2 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
@@ -245,6 +251,7 @@ function LineItem({
 
 export function SalesOrderForm({ action, customers, warehouses, products, defaultCustomerId, defaultWarehouseId }: SalesOrderFormProps) {
   const router = useRouter();
+  const t = useTranslations();
   const [state, formAction, pending] = useActionState<SalesOrderActionState, FormData>(
     action as (s: SalesOrderActionState, fd: FormData) => Promise<SalesOrderActionState>,
     null
@@ -314,16 +321,16 @@ export function SalesOrderForm({ action, customers, warehouses, products, defaul
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "24px", flexWrap: "wrap", gap: "12px" }}>
           <div>
             <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "4px" }}>
-              <a href="/dashboard/sales/orders" style={{ color: "#8c90a2", textDecoration: "none", fontSize: "13px" }}>Sales Orders</a>
+              <a href="/dashboard/sales/orders" style={{ color: "#8c90a2", textDecoration: "none", fontSize: "13px" }}>{t.sales.newOrder.breadcrumbParent}</a>
               <span style={{ color: "#4a5068" }}>/</span>
-              <span style={{ color: "#8c90a2", fontSize: "13px" }}>New Order</span>
+              <span style={{ color: "#8c90a2", fontSize: "13px" }}>{t.sales.newOrder.breadcrumbCurrent}</span>
             </div>
             <h1 style={{ fontSize: "22px", fontWeight: 700, color: "#dbe2fd", margin: 0 }}>
-              Create Sales Order
+              {t.sales.newOrder.title}
             </h1>
           </div>
           <a href="/dashboard/sales/orders" style={{ padding: "8px 16px", borderRadius: "8px", border: "1px solid #2d3449", color: "#8c90a2", fontSize: "13px", fontWeight: 500, textDecoration: "none" }}>
-            Cancel
+            {t.common.cancel}
           </a>
         </div>
 
@@ -338,9 +345,9 @@ export function SalesOrderForm({ action, customers, warehouses, products, defaul
 
           <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
             {/* Header Info */}
-            <SectionCard title="Order Details">
+            <SectionCard title={t.sales.newOrder.sectionDetails}>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
-                <Field label="Customer" name="customer-label" required error={fieldError("customerId")}>
+                <Field label={t.sales.newOrder.customerLabel} name="customer-label" required error={fieldError("customerId")} optionalLabel={t.common.optional}>
                   <select
                     id="customerId"
                     name="customerId"
@@ -350,14 +357,14 @@ export function SalesOrderForm({ action, customers, warehouses, products, defaul
                     onFocus={(e) => { e.currentTarget.style.borderColor = "#0062ff"; e.currentTarget.style.boxShadow = "0 0 0 3px rgba(0,98,255,0.2)"; }}
                     onBlur={(e) => { e.currentTarget.style.borderColor = fieldError("customerId") ? "#ffb4ab" : "#2d3449"; e.currentTarget.style.boxShadow = "none"; }}
                   >
-                    <option value="">Select customer…</option>
+                    <option value="">{t.sales.newOrder.selectCustomer}</option>
                     {customers.map((c) => (
                       <option key={c.id} value={c.id}>{c.name}</option>
                     ))}
                   </select>
                 </Field>
 
-                <Field label="Warehouse" name="warehouse-label" required error={fieldError("warehouseId")}>
+                <Field label={t.sales.newOrder.warehouseLabel} name="warehouse-label" required error={fieldError("warehouseId")} optionalLabel={t.common.optional}>
                   <select
                     id="warehouseId"
                     name="warehouseId"
@@ -367,7 +374,7 @@ export function SalesOrderForm({ action, customers, warehouses, products, defaul
                     onFocus={(e) => { e.currentTarget.style.borderColor = "#0062ff"; e.currentTarget.style.boxShadow = "0 0 0 3px rgba(0,98,255,0.2)"; }}
                     onBlur={(e) => { e.currentTarget.style.borderColor = fieldError("warehouseId") ? "#ffb4ab" : "#2d3449"; e.currentTarget.style.boxShadow = "none"; }}
                   >
-                    <option value="">Select warehouse…</option>
+                    <option value="">{t.sales.newOrder.selectWarehouse}</option>
                     {warehouses.map((w) => (
                       <option key={w.id} value={w.id}>{w.name}</option>
                     ))}
@@ -377,21 +384,22 @@ export function SalesOrderForm({ action, customers, warehouses, products, defaul
 
               <div style={{ marginTop: "16px" }}>
                 <Field
-                  label="Expected Delivery Date"
+                  label={t.sales.newOrder.expectedDeliveryDateLabel}
                   name="expectedDeliveryDate"
                   type="date"
                   error={fieldError("expectedDeliveryDate")}
+                  optionalLabel={t.common.optional}
                 />
               </div>
 
               <div style={{ marginTop: "16px" }}>
                 <label htmlFor="note" style={{ display: "block", fontSize: "13px", fontWeight: 500, color: "#c2c6d9", marginBottom: "6px" }}>
-                  Notes <span style={{ color: "#4a5068", fontSize: "11px", marginLeft: "4px" }}>(optional)</span>
+                  {t.sales.newOrder.notesLabel} <span style={{ color: "#4a5068", fontSize: "11px", marginInlineStart: "4px" }}>({t.common.optional})</span>
                 </label>
                 <textarea
                   id="note"
                   name="note"
-                  placeholder="Any additional notes for this order…"
+                  placeholder={t.sales.newOrder.notesPlaceholder}
                   rows={2}
                   style={{
                     width: "100%",
@@ -413,7 +421,7 @@ export function SalesOrderForm({ action, customers, warehouses, products, defaul
             </SectionCard>
 
             {/* Line Items */}
-            <SectionCard title="Line Items">
+            <SectionCard title={t.sales.newOrder.sectionLineItems}>
               {/* Header row */}
               <div
                 style={{
@@ -425,7 +433,15 @@ export function SalesOrderForm({ action, customers, warehouses, products, defaul
                   marginBottom: "4px",
                 }}
               >
-                {["Product", "Unit", "Quantity", "Unit Price", "Disc %", "Total", ""].map((h) => (
+                {[
+                  t.sales.newOrder.columns.product,
+                  t.sales.newOrder.columns.unit,
+                  t.sales.newOrder.columns.quantity,
+                  t.sales.newOrder.columns.unitPrice,
+                  t.sales.newOrder.columns.discountPercent,
+                  t.sales.newOrder.columns.total,
+                  "",
+                ].map((h) => (
                   <div key={h} style={{ fontSize: "11px", fontWeight: 600, color: "#8c90a2", textTransform: "uppercase", letterSpacing: "0.06em" }}>
                     {h}
                   </div>
@@ -440,6 +456,7 @@ export function SalesOrderForm({ action, customers, warehouses, products, defaul
                   products={products}
                   onRemove={removeLine}
                   onChange={updateLine}
+                  t={t}
                 />
               ))}
 
@@ -463,11 +480,11 @@ export function SalesOrderForm({ action, customers, warehouses, products, defaul
                   <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
                     <path d="M6 1.5V10.5M1.5 6H10.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
                   </svg>
-                  Add Line Item
+                  {t.sales.newOrder.addLineItem}
                 </button>
 
                 <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                  <span style={{ fontSize: "13px", color: "#8c90a2" }}>Total Value:</span>
+                  <span style={{ fontSize: "13px", color: "#8c90a2" }}>{t.sales.newOrder.totalValue}</span>
                   <span style={{ fontSize: "18px", fontWeight: 700, color: "#dbe2fd" }}>
                     ${totalAmount.toFixed(2)}
                   </span>
@@ -491,10 +508,10 @@ export function SalesOrderForm({ action, customers, warehouses, products, defaul
                   opacity: pending ? 0.8 : 1,
                 }}
               >
-                {pending ? "Creating…" : "Create Draft Sales Order"}
+                {pending ? t.sales.newOrder.submitting : t.sales.newOrder.submit}
               </button>
               <a href="/dashboard/sales/orders" style={{ padding: "10px 20px", borderRadius: "8px", border: "1px solid #2d3449", color: "#8c90a2", fontSize: "13px", fontWeight: 500, textDecoration: "none" }}>
-                Cancel
+                {t.common.cancel}
               </a>
             </div>
           </div>

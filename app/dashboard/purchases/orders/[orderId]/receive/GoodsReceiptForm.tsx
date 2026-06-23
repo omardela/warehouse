@@ -3,6 +3,7 @@
 import { useActionState, useState } from "react";
 import Link from "next/link";
 import type { GoodsReceiptActionState } from "../../actions";
+import { useTranslations } from "@/providers/locale-context";
 
 type ReceiptLine = {
   id: string;
@@ -27,6 +28,7 @@ function formatQty(n: number): string {
 }
 
 export function GoodsReceiptForm({ action, purchaseOrderId, supplierName, status, lines }: GoodsReceiptFormProps) {
+  const t = useTranslations();
   const [state, formAction, pending] = useActionState<GoodsReceiptActionState, FormData>(
     action as (s: GoodsReceiptActionState, fd: FormData) => Promise<GoodsReceiptActionState>,
     null
@@ -84,10 +86,10 @@ export function GoodsReceiptForm({ action, purchaseOrderId, supplierName, status
               </svg>
             </div>
             <h2 style={{ fontSize: "18px", fontWeight: 700, color: "#dbe2fd", margin: "0 0 8px" }}>
-              Goods Receipt Recorded
+              {t.purchases.orders.receiptRecordedTitle}
             </h2>
             <p style={{ fontSize: "13px", color: "#8c90a2", margin: "0 0 24px" }}>
-              Inventory balances have been updated for the received quantities.
+              {t.purchases.orders.receiptRecordedSubtitle}
             </p>
             <div style={{ display: "flex", gap: "12px", justifyContent: "center" }}>
               <Link
@@ -102,7 +104,7 @@ export function GoodsReceiptForm({ action, purchaseOrderId, supplierName, status
                   textDecoration: "none",
                 }}
               >
-                Print Labels
+                {t.purchases.orders.printLabels}
               </Link>
               <Link
                 href={`/dashboard/purchases/orders/${purchaseOrderId}`}
@@ -116,7 +118,7 @@ export function GoodsReceiptForm({ action, purchaseOrderId, supplierName, status
                   textDecoration: "none",
                 }}
               >
-                Back to Purchase Order
+                {t.purchases.orders.backToPurchaseOrder}
               </Link>
             </div>
           </div>
@@ -131,16 +133,16 @@ export function GoodsReceiptForm({ action, purchaseOrderId, supplierName, status
         <div style={{ maxWidth: "640px", margin: "80px auto", textAlign: "center" }}>
           <div style={{ background: "#171f33", border: "1px solid #222a3e", borderRadius: "12px", padding: "40px" }}>
             <h2 style={{ fontSize: "18px", fontWeight: 700, color: "#dbe2fd", margin: "0 0 8px" }}>
-              Nothing Left to Receive
+              {t.purchases.orders.nothingToReceiveTitle}
             </h2>
             <p style={{ fontSize: "13px", color: "#8c90a2", margin: "0 0 24px" }}>
-              This purchase order has already been fully received, or is not in a receivable state.
+              {t.purchases.orders.nothingToReceiveSubtitle}
             </p>
             <Link
               href={`/dashboard/purchases/orders/${purchaseOrderId}`}
               style={{ padding: "10px 20px", borderRadius: "8px", background: "#0062ff", color: "#fff", fontSize: "13px", fontWeight: 600, textDecoration: "none" }}
             >
-              Back to Purchase Order
+              {t.purchases.orders.backToPurchaseOrder}
             </Link>
           </div>
         </div>
@@ -155,27 +157,27 @@ export function GoodsReceiptForm({ action, purchaseOrderId, supplierName, status
           <div>
             <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "4px" }}>
               <Link href="/dashboard/purchases/orders" style={{ color: "#8c90a2", textDecoration: "none", fontSize: "13px" }}>
-                Purchase Orders
+                {t.purchases.breadcrumb.purchaseOrders}
               </Link>
               <span style={{ color: "#4a5068" }}>/</span>
               <Link href={`/dashboard/purchases/orders/${purchaseOrderId}`} style={{ color: "#8c90a2", textDecoration: "none", fontSize: "13px" }}>
                 {purchaseOrderId.slice(0, 8).toUpperCase()}
               </Link>
               <span style={{ color: "#4a5068" }}>/</span>
-              <span style={{ color: "#8c90a2", fontSize: "13px" }}>Receive Goods</span>
+              <span style={{ color: "#8c90a2", fontSize: "13px" }}>{t.purchases.orders.receiveBreadcrumb}</span>
             </div>
             <h1 style={{ fontSize: "22px", fontWeight: 700, color: "#dbe2fd", margin: 0 }}>
-              Create Goods Receipt
+              {t.purchases.orders.receiveTitle}
             </h1>
             <p style={{ fontSize: "13px", color: "#8c90a2", marginTop: "4px" }}>
-              Supplier: {supplierName} · Status: {status}
+              {t.purchases.orders.supplierStatusLine.replace("{supplier}", supplierName).replace("{status}", status)}
             </p>
           </div>
           <Link
             href={`/dashboard/purchases/orders/${purchaseOrderId}`}
             style={{ padding: "8px 16px", borderRadius: "8px", border: "1px solid #2d3449", color: "#8c90a2", fontSize: "13px", fontWeight: 500, textDecoration: "none" }}
           >
-            Cancel
+            {t.purchases.orders.cancel}
           </Link>
         </div>
 
@@ -192,7 +194,7 @@ export function GoodsReceiptForm({ action, purchaseOrderId, supplierName, status
           <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
             <div style={{ background: "#171f33", border: "1px solid #222a3e", borderRadius: "10px", padding: "20px" }}>
               <h2 style={{ fontSize: "14px", fontWeight: 600, color: "#dbe2fd", margin: "0 0 16px", paddingBottom: "12px", borderBottom: "1px solid #222a3e" }}>
-                Outstanding Line Items
+                {t.purchases.orders.outstandingLineItemsSection}
               </h2>
 
               <div
@@ -205,7 +207,13 @@ export function GoodsReceiptForm({ action, purchaseOrderId, supplierName, status
                   marginBottom: "4px",
                 }}
               >
-                {["Product", "Ordered", "Already Received", "Outstanding", "Receive Now"].map((h) => (
+                {[
+                  t.purchases.orders.receiveColumns.product,
+                  t.purchases.orders.receiveColumns.ordered,
+                  t.purchases.orders.receiveColumns.alreadyReceived,
+                  t.purchases.orders.receiveColumns.outstanding,
+                  t.purchases.orders.receiveColumns.receiveNow,
+                ].map((h) => (
                   <div key={h} style={{ fontSize: "11px", fontWeight: 600, color: "#8c90a2", textTransform: "uppercase", letterSpacing: "0.06em" }}>
                     {h}
                   </div>
@@ -260,12 +268,12 @@ export function GoodsReceiptForm({ action, purchaseOrderId, supplierName, status
 
             <div style={{ background: "#171f33", border: "1px solid #222a3e", borderRadius: "10px", padding: "20px" }}>
               <label htmlFor="note" style={{ display: "block", fontSize: "13px", fontWeight: 500, color: "#c2c6d9", marginBottom: "6px" }}>
-                Notes <span style={{ color: "#4a5068", fontSize: "11px", marginLeft: "4px" }}>(optional)</span>
+                {t.purchases.invoices.notes} <span style={{ color: "#4a5068", fontSize: "11px", marginInlineStart: "4px" }}>({t.common.optional})</span>
               </label>
               <textarea
                 id="note"
                 name="note"
-                placeholder="Any notes about this delivery (condition, discrepancies, etc.)…"
+                placeholder={t.purchases.orders.receiveNotesPlaceholder}
                 rows={2}
                 style={{
                   width: "100%",
@@ -299,13 +307,13 @@ export function GoodsReceiptForm({ action, purchaseOrderId, supplierName, status
                   opacity: pending ? 0.8 : 1,
                 }}
               >
-                {pending ? "Recording…" : "Record Goods Receipt"}
+                {pending ? t.purchases.orders.recording : t.purchases.orders.recordGoodsReceipt}
               </button>
               <Link
                 href={`/dashboard/purchases/orders/${purchaseOrderId}`}
                 style={{ padding: "10px 20px", borderRadius: "8px", border: "1px solid #2d3449", color: "#8c90a2", fontSize: "13px", fontWeight: 500, textDecoration: "none" }}
               >
-                Cancel
+                {t.purchases.orders.cancel}
               </Link>
             </div>
           </div>
