@@ -3,6 +3,7 @@
 import { useActionState, useState } from "react";
 import Link from "next/link";
 import type { DeliveryNoteActionState } from "../../actions";
+import { useTranslations } from "@/providers/locale-context";
 
 type DeliveryLine = {
   id: string;
@@ -27,6 +28,7 @@ function formatQty(n: number): string {
 }
 
 export function DeliveryNoteForm({ action, salesOrderId, customerName, status, lines }: DeliveryNoteFormProps) {
+  const t = useTranslations();
   const [state, formAction, pending] = useActionState<DeliveryNoteActionState, FormData>(
     action as (s: DeliveryNoteActionState, fd: FormData) => Promise<DeliveryNoteActionState>,
     null
@@ -84,10 +86,10 @@ export function DeliveryNoteForm({ action, salesOrderId, customerName, status, l
               </svg>
             </div>
             <h2 style={{ fontSize: "18px", fontWeight: 700, color: "#dbe2fd", margin: "0 0 8px" }}>
-              Delivery Note Recorded
+              {t.sales.deliver.successTitle}
             </h2>
             <p style={{ fontSize: "13px", color: "#8c90a2", margin: "0 0 24px" }}>
-              Inventory balances have been updated for the dispatched quantities.
+              {t.sales.deliver.successSubtitle}
             </p>
             <div style={{ display: "flex", gap: "12px", justifyContent: "center" }}>
               <Link
@@ -102,7 +104,7 @@ export function DeliveryNoteForm({ action, salesOrderId, customerName, status, l
                   textDecoration: "none",
                 }}
               >
-                Create Sales Invoice
+                {t.sales.deliver.createSalesInvoice}
               </Link>
               <Link
                 href={`/dashboard/sales/orders/${salesOrderId}`}
@@ -116,7 +118,7 @@ export function DeliveryNoteForm({ action, salesOrderId, customerName, status, l
                   textDecoration: "none",
                 }}
               >
-                Back to Sales Order
+                {t.sales.deliver.backToOrder}
               </Link>
             </div>
           </div>
@@ -131,16 +133,16 @@ export function DeliveryNoteForm({ action, salesOrderId, customerName, status, l
         <div style={{ maxWidth: "640px", margin: "80px auto", textAlign: "center" }}>
           <div style={{ background: "#171f33", border: "1px solid #222a3e", borderRadius: "12px", padding: "40px" }}>
             <h2 style={{ fontSize: "18px", fontWeight: 700, color: "#dbe2fd", margin: "0 0 8px" }}>
-              Nothing Left to Deliver
+              {t.sales.deliver.nothingToDeliverTitle}
             </h2>
             <p style={{ fontSize: "13px", color: "#8c90a2", margin: "0 0 24px" }}>
-              This sales order has already been fully delivered, or is not in a deliverable state.
+              {t.sales.deliver.nothingToDeliverSubtitle}
             </p>
             <Link
               href={`/dashboard/sales/orders/${salesOrderId}`}
               style={{ padding: "10px 20px", borderRadius: "8px", background: "#0062ff", color: "#fff", fontSize: "13px", fontWeight: 600, textDecoration: "none" }}
             >
-              Back to Sales Order
+              {t.sales.deliver.backToOrder}
             </Link>
           </div>
         </div>
