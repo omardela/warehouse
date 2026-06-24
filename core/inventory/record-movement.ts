@@ -1,4 +1,4 @@
-import { MovementType } from "@prisma/client";
+import { InventoryMovement, MovementType, Prisma } from "@prisma/client";
 import { db } from "@/lib/db";
 import { writeAuditLog } from "@/core/audit/write-audit-log";
 import { emitter } from "@/core/realtime/emitter";
@@ -17,6 +17,18 @@ export interface RecordMovementParams {
   referenceType?: string;
   notes?: string;
   allowNegative?: boolean; // default false — throws if balance would go negative
+  /**
+   * Pass the caller's own Prisma transaction client to have the balance
+   * upsert + movement insert participate in that transaction instead of
+   * opening a new one. When provided, audit log / SSE / notification side
+   * effects are NOT run automatically — call the returned `runSideEffects()`
+   * after the caller's transaction has committed.
+   */
+  tx?: Prisma.TransactionClient;
+}
+
+interface SideEffectsResult {
+  lowStockTriggered: boolean;
 }
 
 /**
@@ -46,9 +58,10 @@ function getBalanceDelta(
   }
 }
 
-export async function recordMovement(
+async function writeBalanceAndMovement(
+  client: Prisma.TransactionClient,
   params: RecordMovementParams
-) {
+): Promise<{ movement: InventoryMovement; newQty: number }> {
   const {
     warehouseId,
     productId,
@@ -65,57 +78,71 @@ export async function recordMovement(
 
   const delta = getBalanceDelta(movementType, baseQuantity);
 
-  // Run the balance upsert + movement insert atomically
-  const { movement, newQty } = await db.$transaction(async (tx) => {
-    // Fetch current balance to validate the new quantity
-    const existing = await tx.inventoryBalance.findUnique({
-      where: { warehouseId_productId: { warehouseId, productId } },
-      select: { currentQuantity: true },
-    });
-
-    const currentQty = existing
-      ? parseFloat(existing.currentQuantity.toString())
-      : 0;
-    const newQty = currentQty + delta;
-
-    if (!allowNegative && newQty < 0) {
-      throw new Error(
-        `Insufficient stock: current balance is ${currentQty.toFixed(4)}, ` +
-          `adjustment would result in ${newQty.toFixed(4)}`
-      );
-    }
-
-    // Upsert the balance record
-    await tx.inventoryBalance.upsert({
-      where: { warehouseId_productId: { warehouseId, productId } },
-      create: {
-        warehouseId,
-        productId,
-        currentQuantity: newQty,
-      },
-      update: {
-        currentQuantity: newQty,
-      },
-    });
-
-    // Create the immutable movement record
-    const movement = await tx.inventoryMovement.create({
-      data: {
-        warehouseId,
-        productId,
-        unitId,
-        quantity,
-        baseQuantity,
-        movementType,
-        actorId,
-        referenceId: referenceId ?? null,
-        referenceType: referenceType ?? null,
-        notes: notes ?? null,
-      },
-    });
-
-    return { movement, newQty };
+  // Fetch current balance to validate the new quantity
+  const existing = await client.inventoryBalance.findUnique({
+    where: { warehouseId_productId: { warehouseId, productId } },
+    select: { currentQuantity: true },
   });
+
+  const currentQty = existing
+    ? parseFloat(existing.currentQuantity.toString())
+    : 0;
+  const newQty = currentQty + delta;
+
+  if (!allowNegative && newQty < 0) {
+    throw new Error(
+      `Insufficient stock: current balance is ${currentQty.toFixed(4)}, ` +
+        `adjustment would result in ${newQty.toFixed(4)}`
+    );
+  }
+
+  // Upsert the balance record
+  await client.inventoryBalance.upsert({
+    where: { warehouseId_productId: { warehouseId, productId } },
+    create: {
+      warehouseId,
+      productId,
+      currentQuantity: newQty,
+    },
+    update: {
+      currentQuantity: newQty,
+    },
+  });
+
+  // Create the immutable movement record
+  const movement = await client.inventoryMovement.create({
+    data: {
+      warehouseId,
+      productId,
+      unitId,
+      quantity,
+      baseQuantity,
+      movementType,
+      actorId,
+      referenceId: referenceId ?? null,
+      referenceType: referenceType ?? null,
+      notes: notes ?? null,
+    },
+  });
+
+  return { movement, newQty };
+}
+
+async function runMovementSideEffects(
+  params: RecordMovementParams,
+  movement: InventoryMovement,
+  newQty: number
+): Promise<SideEffectsResult> {
+  const {
+    warehouseId,
+    productId,
+    actorId,
+    referenceId,
+    referenceType,
+    movementType,
+    quantity,
+    baseQuantity,
+  } = params;
 
   // Write audit log after the transaction commits so it is only written on success
   await writeAuditLog({
@@ -245,5 +272,42 @@ export async function recordMovement(
     // Reorder-point notification failure must never break the movement creation
   }
 
+  return { lowStockTriggered };
+}
+
+/**
+ * Called with an external `tx` (the caller's own transaction): the balance
+ * upsert + movement insert run inside that transaction. Side effects
+ * (audit log, SSE, notifications) are deferred — invoke the returned
+ * `runSideEffects()` after the caller's transaction commits.
+ */
+export async function recordMovement(
+  params: RecordMovementParams & { tx: Prisma.TransactionClient }
+): Promise<{
+  movement: InventoryMovement;
+  runSideEffects: () => Promise<SideEffectsResult>;
+}>;
+/**
+ * Called without a `tx`: opens its own transaction for the balance upsert +
+ * movement insert, then runs all side effects immediately and returns the
+ * outcome.
+ */
+export async function recordMovement(
+  params: RecordMovementParams & { tx?: undefined }
+): Promise<{ movement: InventoryMovement; lowStockTriggered: boolean }>;
+export async function recordMovement(params: RecordMovementParams) {
+  if (params.tx) {
+    const { movement, newQty } = await writeBalanceAndMovement(params.tx, params);
+    return {
+      movement,
+      runSideEffects: () => runMovementSideEffects(params, movement, newQty),
+    };
+  }
+
+  const { movement, newQty } = await db.$transaction((tx) =>
+    writeBalanceAndMovement(tx, params)
+  );
+
+  const { lowStockTriggered } = await runMovementSideEffects(params, movement, newQty);
   return { movement, lowStockTriggered };
 }
