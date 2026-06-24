@@ -6,8 +6,8 @@ import { db } from "@/lib/db";
 import { getSession } from "@/core/auth/session";
 import { requirePermission } from "@/core/auth/require-permission";
 import { writeAuditLog } from "@/core/audit/write-audit-log";
-import { MovementType } from "@prisma/client";
 import { resolveBaseQuantity } from "@/core/inventory/resolve-base-quantity";
+import { recordMovement } from "@/core/inventory/record-movement";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -108,6 +108,8 @@ export async function createStockTransferAction(
   }
   const productMap = new Map(products.map((p) => [p.id, p]));
 
+  const sideEffectCallbacks: Array<() => Promise<{ lowStockTriggered: boolean }>> = [];
+
   try {
     const transfer = await db.$transaction(async (tx) => {
       // Resolve base quantities for each line first
@@ -173,72 +175,48 @@ export async function createStockTransferAction(
         });
 
         // --- TRANSFER_OUT on source ---
-        const sourceBalance = await tx.inventoryBalance.findUnique({
-          where: { warehouseId_productId: { warehouseId: sourceWarehouseId, productId: line.productId } },
-          select: { currentQuantity: true },
+        // The aggregate sufficiency pre-check above already ran with a friendly
+        // message; recordMovement()'s own check (allowNegative: false) is a
+        // redundant safety net here.
+        const out = await recordMovement({
+          warehouseId: sourceWarehouseId,
+          productId: line.productId,
+          unitId: line.unitId,
+          quantity: line.quantity,
+          baseQuantity: line.baseQuantity,
+          movementType: "TRANSFER_OUT",
+          actorId: session.employeeId,
+          referenceId: transferLine.id,
+          referenceType: "StockTransferLine",
+          notes: `Stock transfer to destination warehouse`,
+          tx,
         });
-        const sourceCurrentQty = sourceBalance ? Number(sourceBalance.currentQuantity) : 0;
-        const sourceNewQty = sourceCurrentQty - line.baseQuantity;
-
-        if (sourceNewQty < 0) {
-          throw new Error(
-            `Insufficient stock for product during transfer (would result in ${sourceNewQty.toFixed(4)}).`
-          );
-        }
-
-        await tx.inventoryBalance.upsert({
-          where: { warehouseId_productId: { warehouseId: sourceWarehouseId, productId: line.productId } },
-          create: { warehouseId: sourceWarehouseId, productId: line.productId, currentQuantity: sourceNewQty },
-          update: { currentQuantity: sourceNewQty },
-        });
-
-        await tx.inventoryMovement.create({
-          data: {
-            warehouseId: sourceWarehouseId,
-            productId: line.productId,
-            unitId: line.unitId,
-            quantity: line.quantity,
-            baseQuantity: line.baseQuantity,
-            movementType: MovementType.TRANSFER_OUT,
-            actorId: session.employeeId,
-            referenceId: transferLine.id,
-            referenceType: "StockTransferLine",
-            notes: `Stock transfer to destination warehouse`,
-          },
-        });
+        sideEffectCallbacks.push(out.runSideEffects);
 
         // --- TRANSFER_IN on destination ---
-        const destBalance = await tx.inventoryBalance.findUnique({
-          where: { warehouseId_productId: { warehouseId: destinationWarehouseId, productId: line.productId } },
-          select: { currentQuantity: true },
+        const inn = await recordMovement({
+          warehouseId: destinationWarehouseId,
+          productId: line.productId,
+          unitId: line.unitId,
+          quantity: line.quantity,
+          baseQuantity: line.baseQuantity,
+          movementType: "TRANSFER_IN",
+          actorId: session.employeeId,
+          referenceId: transferLine.id,
+          referenceType: "StockTransferLine",
+          notes: `Stock transfer from source warehouse`,
+          tx,
         });
-        const destCurrentQty = destBalance ? Number(destBalance.currentQuantity) : 0;
-        const destNewQty = destCurrentQty + line.baseQuantity;
-
-        await tx.inventoryBalance.upsert({
-          where: { warehouseId_productId: { warehouseId: destinationWarehouseId, productId: line.productId } },
-          create: { warehouseId: destinationWarehouseId, productId: line.productId, currentQuantity: destNewQty },
-          update: { currentQuantity: destNewQty },
-        });
-
-        await tx.inventoryMovement.create({
-          data: {
-            warehouseId: destinationWarehouseId,
-            productId: line.productId,
-            unitId: line.unitId,
-            quantity: line.quantity,
-            baseQuantity: line.baseQuantity,
-            movementType: MovementType.TRANSFER_IN,
-            actorId: session.employeeId,
-            referenceId: transferLine.id,
-            referenceType: "StockTransferLine",
-            notes: `Stock transfer from source warehouse`,
-          },
-        });
+        sideEffectCallbacks.push(inn.runSideEffects);
       }
 
       return created;
     });
+
+    // Run deferred recordMovement side effects now that the transaction has committed
+    for (const runSideEffects of sideEffectCallbacks) {
+      await runSideEffects();
+    }
 
     await writeAuditLog({
       actorId: session.employeeId,
