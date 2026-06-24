@@ -7,9 +7,9 @@ import { db } from "@/lib/db";
 import { getSession } from "@/core/auth/session";
 import { requirePermission } from "@/core/auth/require-permission";
 import { writeAuditLog } from "@/core/audit/write-audit-log";
-import { MovementType } from "@prisma/client";
 import { writeNotification } from "@/core/notifications/write-notification";
 import { resolveBaseQuantity } from "@/core/inventory/resolve-base-quantity";
+import { recordMovement } from "@/core/inventory/record-movement";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -368,6 +368,8 @@ export async function createGoodsReceiptAction(
 
   const beforeStatus = po.status;
 
+  const pendingSideEffects: Array<() => Promise<unknown>> = [];
+
   const goodsReceipt = await db.$transaction(async (tx) => {
     const receipt = await tx.goodsReceipt.create({
       data: {
@@ -400,35 +402,24 @@ export async function createGoodsReceiptAction(
         },
       });
 
-      // Upsert inventory balance
-      const existing = await tx.inventoryBalance.findUnique({
-        where: { warehouseId_productId: { warehouseId: session.warehouseId, productId: poLine.productId } },
-        select: { currentQuantity: true },
+      // Inventory balance + immutable movement, routed through recordMovement
+      // so the balance/movement write participates in this transaction while
+      // side effects (audit log, SSE, notifications) defer until after commit.
+      const { runSideEffects } = await recordMovement({
+        warehouseId: session.warehouseId,
+        productId: poLine.productId,
+        unitId: poLine.unitId,
+        quantity: rl.quantity,
+        baseQuantity: baseQty,
+        movementType: "PURCHASE_IN",
+        actorId: session.employeeId,
+        referenceId: po.id,
+        referenceType: "PurchaseOrder",
+        notes: `Goods receipt ${receipt.id} against purchase order`,
+        tx,
       });
-      const currentQty = existing ? Number(existing.currentQuantity) : 0;
-      const newQty = currentQty + baseQty;
 
-      await tx.inventoryBalance.upsert({
-        where: { warehouseId_productId: { warehouseId: session.warehouseId, productId: poLine.productId } },
-        create: { warehouseId: session.warehouseId, productId: poLine.productId, currentQuantity: newQty },
-        update: { currentQuantity: newQty },
-      });
-
-      // Immutable inventory movement
-      await tx.inventoryMovement.create({
-        data: {
-          warehouseId: session.warehouseId,
-          productId: poLine.productId,
-          unitId: poLine.unitId,
-          quantity: rl.quantity,
-          baseQuantity: baseQty,
-          movementType: MovementType.PURCHASE_IN,
-          actorId: session.employeeId,
-          referenceId: po.id,
-          referenceType: "PurchaseOrder",
-          notes: `Goods receipt ${receipt.id} against purchase order`,
-        },
-      });
+      pendingSideEffects.push(runSideEffects);
 
       // Increment running received total on the PO line
       await tx.purchaseOrderLine.update({
@@ -459,6 +450,10 @@ export async function createGoodsReceiptAction(
 
     return receipt;
   });
+
+  for (const runSideEffects of pendingSideEffects) {
+    await runSideEffects();
+  }
 
   await writeAuditLog({
     actorId: session.employeeId,

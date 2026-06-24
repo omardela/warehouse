@@ -7,9 +7,9 @@ import { db } from "@/lib/db";
 import { getSession } from "@/core/auth/session";
 import { requirePermission } from "@/core/auth/require-permission";
 import { writeAuditLog } from "@/core/audit/write-audit-log";
-import { MovementType } from "@prisma/client";
 import { writeNotification } from "@/core/notifications/write-notification";
 import { resolveBaseQuantity } from "@/core/inventory/resolve-base-quantity";
+import { recordMovement } from "@/core/inventory/record-movement";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -208,6 +208,8 @@ export async function confirmPurchaseInvoiceAction(formData: FormData): Promise<
 
   const beforeStatus = invoice.status;
 
+  const pendingSideEffects: Array<() => Promise<unknown>> = [];
+
   await db.$transaction(async (tx) => {
     // Update invoice status first
     await tx.invoice.update({
@@ -215,48 +217,65 @@ export async function confirmPurchaseInvoiceAction(formData: FormData): Promise<
       data: { status: "CONFIRMED", confirmedAt: new Date() },
     });
 
-    // For each line: convert to base unit, upsert balance, create movement
-    for (const line of invoice.lines) {
-      const qty = Number(line.quantity);
-      const baseQty = await resolveBaseQuantity(
-        tx,
-        line.productId,
-        line.product.defaultUnitId,
-        line.unitId,
-        qty
-      );
-
-      // Upsert balance
-      const existing = await tx.inventoryBalance.findUnique({
-        where: { warehouseId_productId: { warehouseId: session.warehouseId, productId: line.productId } },
-        select: { currentQuantity: true },
-      });
-      const currentQty = existing ? Number(existing.currentQuantity) : 0;
-      const newQty = currentQty + baseQty;
-
-      await tx.inventoryBalance.upsert({
-        where: { warehouseId_productId: { warehouseId: session.warehouseId, productId: line.productId } },
-        create: { warehouseId: session.warehouseId, productId: line.productId, currentQuantity: newQty },
-        update: { currentQuantity: newQty },
-      });
-
-      // Create movement record
-      await tx.inventoryMovement.create({
+    // Direct purchase invoices (no linked PO) move stock here via an implicit
+    // Goods Receipt. Invoices linked to a PO already had their stock moved
+    // when the Goods Receipt was created against that PO (issue 019) — confirming
+    // such an invoice is purely a financial status change.
+    if (invoice.purchaseOrderId == null) {
+      const receipt = await tx.goodsReceipt.create({
         data: {
+          purchaseOrderId: null,
+          invoiceId: invoiceId,
+          warehouseId: session.warehouseId,
+          receivedById: invoice.actorId,
+          note: `Implicit goods receipt for invoice ${invoiceId}`,
+        },
+        select: { id: true },
+      });
+
+      for (const line of invoice.lines) {
+        const qty = Number(line.quantity);
+        const baseQty = await resolveBaseQuantity(
+          tx,
+          line.productId,
+          line.product.defaultUnitId,
+          line.unitId,
+          qty
+        );
+
+        await tx.goodsReceiptLine.create({
+          data: {
+            goodsReceiptId: receipt.id,
+            purchaseOrderLineId: null,
+            productId: line.productId,
+            unitId: line.unitId,
+            displayQuantity: qty,
+            baseQuantity: baseQty,
+          },
+        });
+
+        const { runSideEffects } = await recordMovement({
           warehouseId: session.warehouseId,
           productId: line.productId,
           unitId: line.unitId,
           quantity: qty,
           baseQuantity: baseQty,
-          movementType: MovementType.PURCHASE_IN,
+          movementType: "PURCHASE_IN",
           actorId: session.employeeId,
-          referenceId: invoiceId,
-          referenceType: "Invoice",
-          notes: `Purchase invoice confirmed`,
-        },
-      });
+          referenceType: "GoodsReceipt",
+          referenceId: receipt.id,
+          notes: `Goods receipt ${receipt.id} for purchase invoice (invoice ${invoiceId})`,
+          tx,
+        });
+
+        pendingSideEffects.push(runSideEffects);
+      }
     }
   });
+
+  for (const runSideEffects of pendingSideEffects) {
+    await runSideEffects();
+  }
 
   await writeAuditLog({
     actorId: session.employeeId,

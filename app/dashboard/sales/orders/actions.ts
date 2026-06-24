@@ -6,9 +6,9 @@ import { db } from "@/lib/db";
 import { getSession } from "@/core/auth/session";
 import { requirePermission } from "@/core/auth/require-permission";
 import { writeAuditLog } from "@/core/audit/write-audit-log";
-import { MovementType } from "@prisma/client";
 import { writeNotification } from "@/core/notifications/write-notification";
 import { resolveBaseQuantity } from "@/core/inventory/resolve-base-quantity";
+import { recordMovement } from "@/core/inventory/record-movement";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -432,6 +432,7 @@ export async function createDeliveryNoteAction(
   }
 
   const beforeStatus = so.status;
+  const sideEffectCallbacks: Array<() => Promise<{ lowStockTriggered: boolean }>> = [];
 
   const deliveryNote = await db.$transaction(async (tx) => {
     const dn = await tx.deliveryNote.create({
@@ -465,40 +466,25 @@ export async function createDeliveryNoteAction(
         },
       });
 
-      // Validate sufficient stock and decrement via inventory balance + movement
-      const existing = await tx.inventoryBalance.findUnique({
-        where: { warehouseId_productId: { warehouseId: session.warehouseId, productId: soLine.productId } },
-        select: { currentQuantity: true },
+      // Decrement stock via recordMovement (balance upsert + movement insert,
+      // participating in this same transaction). The SO-specific "exceeds
+      // remaining quantity" check already ran above; recordMovement's own
+      // generic insufficient-stock check acts as a redundant safety net.
+      const { runSideEffects } = await recordMovement({
+        warehouseId: session.warehouseId,
+        productId: soLine.productId,
+        unitId: soLine.unitId,
+        quantity: dl.quantity,
+        baseQuantity: baseQty,
+        movementType: "SALE_OUT",
+        actorId: session.employeeId,
+        referenceId: dn.id,
+        referenceType: "DeliveryNote",
+        notes: `Delivery note ${dn.id} against sales order ${so.id}`,
+        allowNegative: false,
+        tx,
       });
-      const currentQty = existing ? Number(existing.currentQuantity) : 0;
-      const newQty = currentQty - baseQty;
-
-      if (newQty < 0) {
-        throw new Error(
-          `Insufficient stock for product (available: ${currentQty.toFixed(4)}, requested: ${baseQty.toFixed(4)}).`
-        );
-      }
-
-      await tx.inventoryBalance.upsert({
-        where: { warehouseId_productId: { warehouseId: session.warehouseId, productId: soLine.productId } },
-        create: { warehouseId: session.warehouseId, productId: soLine.productId, currentQuantity: newQty },
-        update: { currentQuantity: newQty },
-      });
-
-      await tx.inventoryMovement.create({
-        data: {
-          warehouseId: session.warehouseId,
-          productId: soLine.productId,
-          unitId: soLine.unitId,
-          quantity: dl.quantity,
-          baseQuantity: baseQty,
-          movementType: MovementType.SALE_OUT,
-          actorId: session.employeeId,
-          referenceId: dn.id,
-          referenceType: "DeliveryNote",
-          notes: `Delivery note ${dn.id} against sales order ${so.id}`,
-        },
-      });
+      sideEffectCallbacks.push(runSideEffects);
 
       // Increment running delivered total on the SO line
       await tx.salesOrderLine.update({
@@ -529,6 +515,11 @@ export async function createDeliveryNoteAction(
 
     return dn;
   });
+
+  // Run deferred recordMovement side effects now that the transaction has committed
+  for (const runSideEffects of sideEffectCallbacks) {
+    await runSideEffects();
+  }
 
   await writeAuditLog({
     actorId: session.employeeId,

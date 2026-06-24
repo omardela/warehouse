@@ -111,46 +111,6 @@ export async function completeSaleAction(
     }
   }
 
-  // Process each cart item sequentially — each recordMovement has its own transaction
-  // so that every balance check sees the updated state from the previous call.
-  for (const line of cart) {
-    const product = productMap.get(line.productId)!;
-    try {
-      const baseQuantity = await resolveBaseQuantity(
-        db,
-        line.productId,
-        product.defaultUnitId,
-        line.unitId,
-        line.quantity
-      );
-      await recordMovement({
-        warehouseId: session.warehouseId,
-        productId: line.productId,
-        unitId: line.unitId,
-        quantity: line.quantity,
-        baseQuantity,
-        movementType: "SALE_OUT",
-        actorId: session.employeeId,
-        referenceType: "POS_SALE",
-        notes: "POS sale",
-        allowNegative: false,
-      });
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : t.stockError;
-      // Return a user-friendly error referencing the product name
-      if (msg.toLowerCase().includes("insufficient")) {
-        return {
-          error: t.outOfStock.replace("{productName}", product.name),
-        };
-      }
-      return {
-        error: t.stockDeductionFailed
-          .replace("{productName}", product.name)
-          .replace("{message}", msg),
-      };
-    }
-  }
-
   // Build invoice line data
   const lineData = cart.map((line) => {
     const totalPrice = line.quantity * line.unitPrice;
@@ -169,50 +129,143 @@ export async function completeSaleAction(
     0
   );
 
-  // Create CONFIRMED Invoice (type: SALE) — walk-in customer, so customerId is null
-  const invoice = await db.invoice.create({
-    data: {
-      type: "SALE",
-      status: "CONFIRMED",
-      warehouseId: session.warehouseId,
-      customerId: null,
-      supplierId: null,
-      totalAmount: new Prisma.Decimal(totalAmount.toFixed(2)),
-      notes: "POS sale",
-      actorId: session.employeeId,
-      confirmedAt: new Date(),
-      lines: {
-        create: lineData,
-      },
-    },
-    select: {
-      id: true,
-      lines: {
-        select: {
-          productId: true,
-          quantity: true,
-          unitPrice: true,
-          totalPrice: true,
-        },
-      },
-    },
-  });
+  const sideEffectCallbacks: Array<() => Promise<{ lowStockTriggered: boolean }>> = [];
+  let invoice: {
+    id: string;
+    lines: Array<{
+      productId: string;
+      quantity: Prisma.Decimal;
+      unitPrice: Prisma.Decimal;
+      totalPrice: Prisma.Decimal;
+    }>;
+  };
+  let deliveryNoteId: string;
 
-  await writeAuditLog({
-    actorId: session.employeeId,
-    action: "pos.sale.create",
-    entityType: "Invoice",
-    entityId: invoice.id,
-    after: {
-      type: "SALE",
-      status: "CONFIRMED",
+  try {
+    const result = await db.$transaction(async (tx) => {
+      // Create CONFIRMED Invoice (type: SALE) — walk-in customer, so customerId is null
+      const invoice = await tx.invoice.create({
+        data: {
+          type: "SALE",
+          status: "CONFIRMED",
+          warehouseId: session.warehouseId,
+          customerId: null,
+          supplierId: null,
+          totalAmount: new Prisma.Decimal(totalAmount.toFixed(2)),
+          notes: "POS sale",
+          actorId: session.employeeId,
+          confirmedAt: new Date(),
+          lines: {
+            create: lineData,
+          },
+        },
+        select: {
+          id: true,
+          lines: {
+            select: {
+              productId: true,
+              quantity: true,
+              unitPrice: true,
+              totalPrice: true,
+            },
+          },
+        },
+      });
+
+      // Create the implicit Delivery Note for this POS sale
+      const deliveryNote = await tx.deliveryNote.create({
+        data: {
+          salesOrderId: null,
+          invoiceId: invoice.id,
+          warehouseId: session.warehouseId,
+          dispatchedById: session.employeeId,
+          note: `Implicit delivery note for POS sale (invoice ${invoice.id})`,
+        },
+      });
+
+      // Process each cart item sequentially within the same transaction
+      for (const line of cart) {
+        const product = productMap.get(line.productId)!;
+        try {
+          const baseQuantity = await resolveBaseQuantity(
+            tx,
+            line.productId,
+            product.defaultUnitId,
+            line.unitId,
+            line.quantity
+          );
+
+          await tx.deliveryNoteLine.create({
+            data: {
+              deliveryNoteId: deliveryNote.id,
+              salesOrderLineId: null,
+              productId: line.productId,
+              unitId: line.unitId,
+              displayQuantity: line.quantity,
+              baseQuantity,
+            },
+          });
+
+          const { runSideEffects } = await recordMovement({
+            warehouseId: session.warehouseId,
+            productId: line.productId,
+            unitId: line.unitId,
+            quantity: line.quantity,
+            baseQuantity,
+            movementType: "SALE_OUT",
+            actorId: session.employeeId,
+            referenceType: "DeliveryNote",
+            referenceId: deliveryNote.id,
+            notes: `Delivery note ${deliveryNote.id} (POS sale)`,
+            allowNegative: false,
+            tx,
+          });
+          sideEffectCallbacks.push(runSideEffects);
+        } catch (err) {
+          const msg = err instanceof Error ? err.message : t.stockError;
+          // Build the same friendly error message as before, then throw so
+          // Prisma rolls back the whole transaction.
+          if (msg.toLowerCase().includes("insufficient")) {
+            throw new Error(t.outOfStock.replace("{productName}", product.name));
+          }
+          throw new Error(
+            t.stockDeductionFailed
+              .replace("{productName}", product.name)
+              .replace("{message}", msg)
+          );
+        }
+      }
+
+      return { invoice, deliveryNote };
+    });
+
+    invoice = result.invoice;
+    deliveryNoteId = result.deliveryNote.id;
+
+    // Run deferred recordMovement side effects now that the transaction has committed
+    for (const runSideEffects of sideEffectCallbacks) {
+      await runSideEffects();
+    }
+
+    await writeAuditLog({
+      actorId: session.employeeId,
+      action: "pos.sale.create",
+      entityType: "Invoice",
+      entityId: invoice.id,
+      after: {
+        type: "SALE",
+        status: "CONFIRMED",
+        warehouseId: session.warehouseId,
+        totalAmount: totalAmount.toFixed(2),
+        lineCount: cart.length,
+        referenceType: "DeliveryNote",
+        referenceId: deliveryNoteId,
+      },
       warehouseId: session.warehouseId,
-      totalAmount: totalAmount.toFixed(2),
-      lineCount: cart.length,
-      referenceType: "POS_SALE",
-    },
-    warehouseId: session.warehouseId,
-  });
+    });
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : t.stockError };
+  }
 
   // Build response lines with product names
   const responseLines = invoice.lines.map((l) => {

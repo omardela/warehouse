@@ -15,35 +15,32 @@ Purchase Invoices become purely financial documents, same as 032 on the sales si
 
 ## What to build
 
-- [ ] `confirmPurchaseInvoiceAction`: remove the inline balance-upsert +
-      movement-insert block. Before marking the invoice `CONFIRMED`, create an
-      implicit Goods Receipt (`purchaseOrderId: null`, `invoiceId: invoice.id`, lines
-      copied from the invoice lines) and call `recordMovement()` (using 030's `tx`
-      support) for each line, atomically with the invoice confirmation.
-- [ ] Invoices that already have a `purchaseOrderId` (created from a PO) are
-      unaffected by this issue — those already go through the PO→Goods Receipt flow
-      from issue 019 and must not double-move stock. Confirm `confirmPurchaseInvoiceAction`
-      correctly distinguishes "has a PO, receipt already happened" vs. "direct invoice,
-      needs an implicit receipt" before implementing — today's code may not make this
-      distinction cleanly since both cases currently share the same confirm path.
-- [ ] Existing PO→Goods Receipt flow (`app/dashboard/purchases/orders/actions.ts`
-      receive action) switches from inline duplicated logic to calling
-      `recordMovement()` (with `tx`), matching the sales-side change in 032.
-- [ ] Same insufficient-stock message reconciliation question as 032 — purchases
-      don't currently check for insufficient stock (makes sense, stock is increasing),
-      so this point is sales-specific and doesn't apply here. No action needed.
-- [ ] No changes to `purchase.invoice.confirm` permission; implicit Goods Receipt
-      creation is an internal step, not a separate `purchases.receipts.create` check —
-      confirm this matches 032's permission decision for consistency.
+- [x] `confirmPurchaseInvoiceAction`: removed the inline balance-upsert +
+      movement-insert block. When `invoice.purchaseOrderId == null`, creates an
+      implicit Goods Receipt (`purchaseOrderId: null`, `invoiceId: invoice.id`,
+      `receivedById: invoice.actorId`, lines copied from the invoice lines) and calls
+      `recordMovement()` (using 030's `tx` support) for each line, atomically with the
+      invoice confirmation. Deferred `runSideEffects()` callbacks are awaited after the
+      transaction commits.
+- [x] Invoices that already have a `purchaseOrderId` set are now explicitly skipped —
+      `confirmPurchaseInvoiceAction` branches on `invoice.purchaseOrderId == null` and
+      does nothing inventory-related for PO-linked invoices (only the status update
+      runs). This also fixes a pre-existing double-counting bug where such invoices
+      moved stock a second time on top of the Goods Receipt from issue 019.
+- [x] Existing PO→Goods Receipt flow (`app/dashboard/purchases/orders/actions.ts`
+      receive action) now calls `recordMovement()` (with `tx`) instead of its inline
+      duplicated logic, matching the sales-side change in 032. `referenceType:
+      "PurchaseOrder"` / `referenceId: po.id` kept unchanged.
+- [x] Confirmed: no insufficient-stock check needed (stock only increases here).
+- [x] No permission changes — implicit Goods Receipt creation is gated only by
+      `purchase.invoice.confirm`, consistent with 032's decision.
 
 ## Open question for review
 
-If an invoice already has a `purchaseOrderId` set (created from a PO, per issue 011's
-optional PO link), does *confirming the invoice* still need to do anything inventory-
-related, or has the goods receipt against that PO already happened earlier and the
-invoice confirm is now purely "mark this PO's invoice as financially confirmed"? This
-needs to be nailed down before implementation — it changes which invoices this issue
-actually touches.
+**Resolved**: if `invoice.purchaseOrderId` is set, confirming the invoice is purely
+"mark this PO's invoice as financially confirmed" — no inventory action. Only invoices
+with `purchaseOrderId == null` (direct purchases) get an implicit Goods Receipt +
+`recordMovement()` calls.
 
 ## Blocked by
 

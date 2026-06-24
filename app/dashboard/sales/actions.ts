@@ -9,6 +9,7 @@ import { writeAuditLog } from "@/core/audit/write-audit-log";
 import { Prisma } from "@prisma/client";
 import { writeNotification } from "@/core/notifications/write-notification";
 import { resolveBaseQuantity } from "@/core/inventory/resolve-base-quantity";
+import { recordMovement } from "@/core/inventory/record-movement";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -170,6 +171,7 @@ export async function confirmSalesInvoiceAction(
   }
 
   let confirmedAt: Date;
+  const sideEffectCallbacks: Array<() => Promise<{ lowStockTriggered: boolean }>> = [];
 
   try {
     await db.$transaction(async (tx) => {
@@ -228,48 +230,49 @@ export async function confirmSalesInvoiceAction(
         }
       }
 
-      // 4. Apply stock movements for each line (inline, atomic)
+      // 4. Create an implicit Delivery Note for this direct invoice sale, and
+      // route stock movements through recordMovement() inside this same transaction.
+      const deliveryNote = await tx.deliveryNote.create({
+        data: {
+          salesOrderId: null,
+          invoiceId: invoiceId,
+          warehouseId: session.warehouseId,
+          dispatchedById: invoice.actorId,
+          note: `Implicit delivery note for invoice ${invoiceId}`,
+        },
+      });
+
       for (let i = 0; i < invoice.lines.length; i++) {
         const line = invoice.lines[i];
         const qty = Number(line.quantity);
         const baseQty = baseQtys[i];
-        const delta = -Math.abs(baseQty); // SALE_OUT decreases stock in base units
 
-        // Upsert balance
-        await tx.inventoryBalance.upsert({
-          where: {
-            warehouseId_productId: {
-              warehouseId: session.warehouseId,
-              productId: line.productId,
-            },
-          },
-          create: {
-            warehouseId: session.warehouseId,
-            productId: line.productId,
-            currentQuantity: new Prisma.Decimal(delta.toFixed(6)),
-          },
-          update: {
-            currentQuantity: {
-              increment: new Prisma.Decimal(delta.toFixed(6)),
-            },
-          },
-        });
-
-        // Insert movement record
-        await tx.inventoryMovement.create({
+        await tx.deliveryNoteLine.create({
           data: {
-            warehouseId: session.warehouseId,
+            deliveryNoteId: deliveryNote.id,
+            salesOrderLineId: null,
             productId: line.productId,
             unitId: line.unitId,
-            quantity: qty,
+            displayQuantity: qty,
             baseQuantity: baseQty,
-            movementType: "SALE_OUT",
-            actorId: session.employeeId,
-            referenceId: invoiceId,
-            referenceType: "Invoice",
-            notes: `Sale invoice ${invoiceId}`,
           },
         });
+
+        const { runSideEffects } = await recordMovement({
+          warehouseId: session.warehouseId,
+          productId: line.productId,
+          unitId: line.unitId,
+          quantity: qty,
+          baseQuantity: baseQty,
+          movementType: "SALE_OUT",
+          actorId: session.employeeId,
+          referenceType: "DeliveryNote",
+          referenceId: deliveryNote.id,
+          notes: `Delivery note ${deliveryNote.id} (invoice ${invoiceId})`,
+          allowNegative: false,
+          tx,
+        });
+        sideEffectCallbacks.push(runSideEffects);
       }
 
       // 5. Confirm invoice
@@ -299,7 +302,12 @@ export async function confirmSalesInvoiceAction(
       });
     });
 
-    // 6. Audit log after transaction
+    // 6. Run deferred recordMovement side effects now that the transaction has committed
+    for (const runSideEffects of sideEffectCallbacks) {
+      await runSideEffects();
+    }
+
+    // 7. Audit log after transaction
     await writeAuditLog({
       actorId: session.employeeId,
       action: "sales.invoice.confirm",

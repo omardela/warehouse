@@ -33,7 +33,8 @@ async function main() {
     },
     {
       name: "Warehouse Keeper",
-      description: "Manages inventory, stock movements, and purchase receiving.",
+      description:
+        "Manages inventory, stock movements, and purchase receiving.",
     },
   ];
 
@@ -82,9 +83,15 @@ async function main() {
     // Sales Orders & Delivery Notes
     { code: "sales.orders.create", description: "Create sales orders" },
     { code: "sales.orders.view", description: "View sales orders" },
-    { code: "sales.deliverynotes.create", description: "Create delivery notes against sales orders" },
+    {
+      code: "sales.deliverynotes.create",
+      description: "Create delivery notes against sales orders",
+    },
     // Sales Credit Notes
-    { code: "sales.creditnotes.create", description: "Create sales credit notes (returns from customer)" },
+    {
+      code: "sales.creditnotes.create",
+      description: "Create sales credit notes (returns from customer)",
+    },
     { code: "sales.creditnotes.view", description: "View sales credit notes" },
     // Purchase Invoices
     {
@@ -103,10 +110,19 @@ async function main() {
     // Purchase Orders & Goods Receipts
     { code: "purchases.orders.create", description: "Create purchase orders" },
     { code: "purchases.orders.view", description: "View purchase orders" },
-    { code: "purchases.receipts.create", description: "Create goods receipts against purchase orders" },
+    {
+      code: "purchases.receipts.create",
+      description: "Create goods receipts against purchase orders",
+    },
     // Credit Notes
-    { code: "purchases.creditnotes.create", description: "Create purchase credit notes (returns to supplier)" },
-    { code: "purchases.creditnotes.view", description: "View purchase credit notes" },
+    {
+      code: "purchases.creditnotes.create",
+      description: "Create purchase credit notes (returns to supplier)",
+    },
+    {
+      code: "purchases.creditnotes.view",
+      description: "View purchase credit notes",
+    },
     // Payments
     { code: "payments.payment.create", description: "Create payments" },
     { code: "payments.payment.read", description: "Read payments" },
@@ -132,7 +148,10 @@ async function main() {
     // Audit
     { code: "audit.log.read", description: "Read audit logs" },
     // Inventory management
-    { code: "inventory.stock.manage", description: "Set reorder point and reorder quantity for stock" },
+    {
+      code: "inventory.stock.manage",
+      description: "Set reorder point and reorder quantity for stock",
+    },
     // Settings — Organization
     { code: "settings.org.read", description: "Read organization settings" },
     {
@@ -140,7 +159,10 @@ async function main() {
       description: "Update organization settings",
     },
     // Settings — Import
-    { code: "settings.import", description: "Bulk import products, customers, and suppliers via CSV" },
+    {
+      code: "settings.import",
+      description: "Bulk import products, customers, and suppliers via CSV",
+    },
     // Settings — Warehouses
     { code: "settings.warehouse.create", description: "Create warehouses" },
     { code: "settings.warehouse.read", description: "Read warehouse settings" },
@@ -171,16 +193,16 @@ async function main() {
   // ProductUnit seeds (common units of measure)
   // -------------------------------------------------------------------------
   const productUnits = [
-    { name: "Piece",      symbol: "pcs", isBase: true  },
-    { name: "Kilogram",   symbol: "kg",  isBase: false },
-    { name: "Gram",       symbol: "g",   isBase: false },
-    { name: "Liter",      symbol: "L",   isBase: false },
-    { name: "Milliliter", symbol: "mL",  isBase: false },
-    { name: "Box",        symbol: "box", isBase: false },
-    { name: "Carton",     symbol: "ctn", isBase: false },
-    { name: "Bottle",     symbol: "btl", isBase: false },
-    { name: "Meter",      symbol: "m",   isBase: false },
-    { name: "Pack",       symbol: "pk",  isBase: false },
+    { name: "Piece", symbol: "pcs", isBase: true },
+    { name: "Kilogram", symbol: "kg", isBase: false },
+    { name: "Gram", symbol: "g", isBase: false },
+    { name: "Liter", symbol: "L", isBase: false },
+    { name: "Milliliter", symbol: "mL", isBase: false },
+    { name: "Box", symbol: "box", isBase: false },
+    { name: "Carton", symbol: "ctn", isBase: false },
+    { name: "Bottle", symbol: "btl", isBase: false },
+    { name: "Meter", symbol: "m", isBase: false },
+    { name: "Pack", symbol: "pk", isBase: false },
   ];
 
   for (const unit of productUnits) {
@@ -327,7 +349,9 @@ async function main() {
   });
 
   console.log("Role Manager account: rolemanager@logicore.dev / roles123");
-  console.log(`Assigned ${rolePermissions.length} roles.* permissions to Role Manager.`);
+  console.log(
+    `Assigned ${rolePermissions.length} roles.* permissions to Role Manager.`,
+  );
 
   // -------------------------------------------------------------------------
   // Sales Manager role — full sales + payments + customer/supplier reads
@@ -344,20 +368,35 @@ async function main() {
         },
       },
       update: {},
-      create: { warehouseId: warehouse.id, roleTemplateId: salesManagerTemplate.id },
+      create: {
+        warehouseId: warehouse.id,
+        roleTemplateId: salesManagerTemplate.id,
+      },
     });
 
     const salesManagerPerms = [
-      "sales.invoice.create", "sales.invoice.confirm", "sales.invoice.cancel", "sales.invoice.read",
-      "sales.orders.create", "sales.orders.view", "sales.deliverynotes.create",
-      "sales.creditnotes.create", "sales.creditnotes.view",
-      "payments.payment.create", "payments.payment.read",
-      "customers.customer.create", "customers.customer.read", "customers.customer.update", "customers.customer.archive",
+      "sales.invoice.create",
+      "sales.invoice.confirm",
+      "sales.invoice.cancel",
+      "sales.invoice.read",
+      "sales.orders.create",
+      "sales.orders.view",
+      "sales.deliverynotes.create",
+      "sales.creditnotes.create",
+      "sales.creditnotes.view",
+      "payments.payment.create",
+      "payments.payment.read",
+      "customers.customer.create",
+      "customers.customer.read",
+      "customers.customer.update",
+      "customers.customer.archive",
       "suppliers.supplier.read",
       "purchase.invoice.read",
-      "inventory.product.read", "inventory.balance.read",
+      "inventory.product.read",
+      "inventory.balance.read",
       "employees.employee.read",
-      "reports.report.read", "reports.ar.view",
+      "reports.report.read",
+      "reports.ar.view",
       "pos.sales.create",
     ];
     const smPerms = await prisma.permission.findMany({
@@ -365,12 +404,19 @@ async function main() {
     });
     for (const perm of smPerms) {
       await prisma.warehouseRolePermission.upsert({
-        where: { warehouseRoleId_permissionId: { warehouseRoleId: smWr.id, permissionId: perm.id } },
+        where: {
+          warehouseRoleId_permissionId: {
+            warehouseRoleId: smWr.id,
+            permissionId: perm.id,
+          },
+        },
         update: {},
         create: { warehouseRoleId: smWr.id, permissionId: perm.id },
       });
     }
-    console.log(`Assigned ${smPerms.length} permissions to Sales Manager role.`);
+    console.log(
+      `Assigned ${smPerms.length} permissions to Sales Manager role.`,
+    );
   }
 
   // -------------------------------------------------------------------------
@@ -388,15 +434,25 @@ async function main() {
         },
       },
       update: {},
-      create: { warehouseId: warehouse.id, roleTemplateId: salesRepTemplate.id },
+      create: {
+        warehouseId: warehouse.id,
+        roleTemplateId: salesRepTemplate.id,
+      },
     });
 
     const salesRepPerms = [
-      "sales.invoice.create", "sales.invoice.read",
-      "sales.orders.create", "sales.orders.view", "sales.deliverynotes.create",
-      "sales.creditnotes.create", "sales.creditnotes.view",
-      "customers.customer.create", "customers.customer.read", "customers.customer.update",
-      "inventory.product.read", "inventory.balance.read",
+      "sales.invoice.create",
+      "sales.invoice.read",
+      "sales.orders.create",
+      "sales.orders.view",
+      "sales.deliverynotes.create",
+      "sales.creditnotes.create",
+      "sales.creditnotes.view",
+      "customers.customer.create",
+      "customers.customer.read",
+      "customers.customer.update",
+      "inventory.product.read",
+      "inventory.balance.read",
       "suppliers.supplier.read",
       "payments.payment.read",
       "pos.sales.create",
@@ -406,12 +462,19 @@ async function main() {
     });
     for (const perm of srPerms) {
       await prisma.warehouseRolePermission.upsert({
-        where: { warehouseRoleId_permissionId: { warehouseRoleId: srWr.id, permissionId: perm.id } },
+        where: {
+          warehouseRoleId_permissionId: {
+            warehouseRoleId: srWr.id,
+            permissionId: perm.id,
+          },
+        },
         update: {},
         create: { warehouseRoleId: srWr.id, permissionId: perm.id },
       });
     }
-    console.log(`Assigned ${srPerms.length} permissions to Sales Representative role.`);
+    console.log(
+      `Assigned ${srPerms.length} permissions to Sales Representative role.`,
+    );
   }
 
   // -------------------------------------------------------------------------
@@ -429,30 +492,53 @@ async function main() {
         },
       },
       update: {},
-      create: { warehouseId: warehouse.id, roleTemplateId: warehouseKeeperTemplate.id },
+      create: {
+        warehouseId: warehouse.id,
+        roleTemplateId: warehouseKeeperTemplate.id,
+      },
     });
 
     const warehouseKeeperPerms = [
-      "inventory.product.create", "inventory.product.read", "inventory.product.update",
-      "inventory.movement.create", "inventory.balance.read",
-      "inventory.transfers.create", "inventory.transfers.view",
-      "purchase.invoice.create", "purchase.invoice.confirm", "purchase.invoice.cancel", "purchase.invoice.read",
-      "purchases.orders.create", "purchases.orders.view", "purchases.receipts.create",
-      "purchases.creditnotes.create", "purchases.creditnotes.view",
-      "suppliers.supplier.create", "suppliers.supplier.read", "suppliers.supplier.update",
-      "payments.payment.read", "inventory.stock.manage",
+      "inventory.product.create",
+      "inventory.product.read",
+      "inventory.product.update",
+      "inventory.movement.create",
+      "inventory.balance.read",
+      "inventory.transfers.create",
+      "inventory.transfers.view",
+      "purchase.invoice.create",
+      "purchase.invoice.confirm",
+      "purchase.invoice.cancel",
+      "purchase.invoice.read",
+      "purchases.orders.create",
+      "purchases.orders.view",
+      "purchases.receipts.create",
+      "purchases.creditnotes.create",
+      "purchases.creditnotes.view",
+      "suppliers.supplier.create",
+      "suppliers.supplier.read",
+      "suppliers.supplier.update",
+      "payments.payment.read",
+      "inventory.stock.manage",
     ];
     const wkPerms = await prisma.permission.findMany({
       where: { code: { in: warehouseKeeperPerms } },
     });
     for (const perm of wkPerms) {
       await prisma.warehouseRolePermission.upsert({
-        where: { warehouseRoleId_permissionId: { warehouseRoleId: wkWr.id, permissionId: perm.id } },
+        where: {
+          warehouseRoleId_permissionId: {
+            warehouseRoleId: wkWr.id,
+            permissionId: perm.id,
+          },
+        },
         update: {},
         create: { warehouseRoleId: wkWr.id, permissionId: perm.id },
       });
     }
-    console.log(`Assigned ${wkPerms.length} permissions to Warehouse Keeper role.`);
+    console.log(
+      `Assigned ${wkPerms.length} permissions to Warehouse Keeper role.`,
+    );
   }
 }
 
