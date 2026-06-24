@@ -105,11 +105,59 @@ export async function createPurchaseInvoiceAction(
         warehouseId: session.warehouseId,
         supplierId,
       },
-      select: { id: true, status: true },
+      select: {
+        id: true,
+        status: true,
+        lines: {
+          select: {
+            productId: true,
+            unitId: true,
+            displayQuantity: true,
+            baseQuantity: true,
+            receivedBaseQuantity: true,
+            product: { select: { name: true } },
+          },
+        },
+      },
     });
     if (!po) return { error: "Linked purchase order not found for this supplier." };
     if (po.status !== "RECEIVED" && po.status !== "PARTIAL") {
       return { error: "Purchase order must be partially or fully received before linking an invoice." };
+    }
+
+    // Lines that match a received PO line can't bill for more than was actually
+    // received — a PO can only ever be linked to one invoice (see the eligibility
+    // query on the "new invoice" page), so received quantity is always the full
+    // invoiceable quantity, not a remaining balance. Lines that don't match any PO
+    // line (e.g. a freight/handling charge) are left unvalidated — they're treated
+    // as ordinary manual lines.
+    const receivedByProductUnit = new Map<string, { qty: number; productName: string }>();
+    for (const poLine of po.lines) {
+      const received = Number(poLine.receivedBaseQuantity);
+      if (received <= 0) continue;
+      const baseQty = Number(poLine.baseQuantity);
+      const ratio = baseQty > 0 ? Number(poLine.displayQuantity) / baseQty : 1;
+      const key = `${poLine.productId}__${poLine.unitId}`;
+      receivedByProductUnit.set(key, {
+        qty: (receivedByProductUnit.get(key)?.qty ?? 0) + received * ratio,
+        productName: poLine.product.name,
+      });
+    }
+
+    const invoicedByProductUnit = new Map<string, number>();
+    for (const l of lines) {
+      const key = `${l.productId}__${l.unitId}`;
+      invoicedByProductUnit.set(key, (invoicedByProductUnit.get(key) ?? 0) + l.quantity);
+    }
+
+    for (const [key, invoicedQty] of invoicedByProductUnit) {
+      const received = receivedByProductUnit.get(key);
+      if (!received) continue;
+      if (invoicedQty > received.qty + 0.000001) {
+        return {
+          error: `Invoice quantity for ${received.productName} (${invoicedQty.toFixed(4)}) exceeds the received quantity from this purchase order (${received.qty.toFixed(4)}).`,
+        };
+      }
     }
   }
 

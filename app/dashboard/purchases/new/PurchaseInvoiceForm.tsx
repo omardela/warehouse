@@ -9,7 +9,22 @@ import type { Dictionary } from "@/core/i18n/get-dictionary";
 type Supplier = { id: string; name: string };
 type ProductUnit = { id: string; name: string; symbol: string };
 type Product = { id: string; name: string; sku: string; defaultUnitId: string; units: ProductUnit[] };
-type EligiblePurchaseOrder = { id: string; supplierId: string; status: string; label: string };
+type PurchaseOrderLine = {
+  productId: string;
+  productName: string;
+  sku: string;
+  unitId: string;
+  unitSymbol: string;
+  quantity: number;
+  unitPrice: number;
+};
+type EligiblePurchaseOrder = {
+  id: string;
+  supplierId: string;
+  status: string;
+  label: string;
+  lines: PurchaseOrderLine[];
+};
 
 type LineRow = {
   id: string;
@@ -17,6 +32,11 @@ type LineRow = {
   unitId: string;
   quantity: string;
   unitPrice: string;
+  // Set when this row was auto-loaded from a linked PO's received line.
+  // Locks productId/unitId and carries the figures used for the qty/price
+  // validation hints (the PO's received quantity can't be exceeded; the
+  // PO's agreed unit cost is shown as a reference, not enforced).
+  locked?: { productName: string; sku: string; unitSymbol: string; receivedQty: number; agreedPrice: number };
 };
 
 interface PurchaseInvoiceFormProps {
@@ -142,94 +162,136 @@ function LineItem({
   const qty = parseFloat(row.quantity) || 0;
   const price = parseFloat(row.unitPrice) || 0;
   const total = qty * price;
+  const locked = row.locked;
+
+  const qtyExceedsReceived = locked != null && qty > locked.receivedQty + 0.000001;
+  const priceDiffersFromPO = locked != null && Math.abs(price - locked.agreedPrice) > 0.000001;
+
+  const lockedTextStyle: React.CSSProperties = {
+    padding: "8px 10px",
+    fontSize: "13px",
+    color: "#dbe2fd",
+  };
 
   return (
-    <div
-      style={{
-        display: "grid",
-        gridTemplateColumns: "2fr 1fr 100px 120px 80px 32px",
-        gap: "8px",
-        alignItems: "center",
-        padding: "10px 0",
-        borderBottom: "1px solid #1a2237",
-      }}
-    >
-      <select
-        name={`line_productId_${index}`}
-        value={row.productId}
-        onChange={(e) => onChange(row.id, "productId", e.target.value)}
-        style={selectStyle}
+    <div style={{ borderBottom: "1px solid #1a2237" }}>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "2fr 1fr 100px 120px 80px 32px",
+          gap: "8px",
+          alignItems: "center",
+          padding: "10px 0",
+        }}
       >
-        <option value="">{t.purchases.invoices.selectProduct}</option>
-        {products.map((p) => (
-          <option key={p.id} value={p.id}>{p.name} ({p.sku})</option>
-        ))}
-      </select>
-
-      <select
-        name={`line_unitId_${index}`}
-        value={row.unitId}
-        onChange={(e) => onChange(row.id, "unitId", e.target.value)}
-        style={selectStyle}
-        disabled={availableUnits.length === 0}
-      >
-        {availableUnits.length === 0 ? (
-          <option value="">{t.purchases.invoices.selectProductFirst}</option>
+        {locked ? (
+          <div style={lockedTextStyle}>
+            {locked.productName} ({locked.sku})
+            <input type="hidden" name={`line_productId_${index}`} value={row.productId} />
+          </div>
         ) : (
-          availableUnits.map((u) => (
-            <option key={u.id} value={u.id}>{u.name} ({u.symbol})</option>
-          ))
+          <select
+            name={`line_productId_${index}`}
+            value={row.productId}
+            onChange={(e) => onChange(row.id, "productId", e.target.value)}
+            style={selectStyle}
+          >
+            <option value="">{t.purchases.invoices.selectProduct}</option>
+            {products.map((p) => (
+              <option key={p.id} value={p.id}>{p.name} ({p.sku})</option>
+            ))}
+          </select>
         )}
-      </select>
 
-      <input
-        name={`line_quantity_${index}`}
-        type="number"
-        step="any"
-        min="0.000001"
-        value={row.quantity}
-        onChange={(e) => onChange(row.id, "quantity", e.target.value)}
-        placeholder={t.purchases.invoices.qtyPlaceholder}
-        style={inputStyle}
-      />
+        {locked ? (
+          <div style={lockedTextStyle}>
+            {locked.unitSymbol}
+            <input type="hidden" name={`line_unitId_${index}`} value={row.unitId} />
+          </div>
+        ) : (
+          <select
+            name={`line_unitId_${index}`}
+            value={row.unitId}
+            onChange={(e) => onChange(row.id, "unitId", e.target.value)}
+            style={selectStyle}
+            disabled={availableUnits.length === 0}
+          >
+            {availableUnits.length === 0 ? (
+              <option value="">{t.purchases.invoices.selectProductFirst}</option>
+            ) : (
+              availableUnits.map((u) => (
+                <option key={u.id} value={u.id}>{u.name} ({u.symbol})</option>
+              ))
+            )}
+          </select>
+        )}
 
-      <input
-        name={`line_unitPrice_${index}`}
-        type="number"
-        step="any"
-        min="0"
-        value={row.unitPrice}
-        onChange={(e) => onChange(row.id, "unitPrice", e.target.value)}
-        placeholder={t.purchases.invoices.unitPricePlaceholder}
-        style={inputStyle}
-      />
+        <input
+          name={`line_quantity_${index}`}
+          type="number"
+          step="any"
+          min="0.000001"
+          value={row.quantity}
+          onChange={(e) => onChange(row.id, "quantity", e.target.value)}
+          placeholder={t.purchases.invoices.qtyPlaceholder}
+          style={{ ...inputStyle, borderColor: qtyExceedsReceived ? "#ffb4ab" : "#2d3449" }}
+        />
 
-      <div style={{ fontSize: "13px", fontWeight: 500, color: "#dbe2fd", textAlign: "end" }}>
-        ${total.toFixed(2)}
+        <input
+          name={`line_unitPrice_${index}`}
+          type="number"
+          step="any"
+          min="0"
+          value={row.unitPrice}
+          onChange={(e) => onChange(row.id, "unitPrice", e.target.value)}
+          placeholder={t.purchases.invoices.unitPricePlaceholder}
+          style={inputStyle}
+        />
+
+        <div style={{ fontSize: "13px", fontWeight: 500, color: "#dbe2fd", textAlign: "end" }}>
+          ${total.toFixed(2)}
+        </div>
+
+        <button
+          type="button"
+          onClick={() => onRemove(row.id)}
+          disabled={!!locked}
+          title={locked ? t.purchases.invoices.cannotRemoveLockedLine : t.purchases.invoices.removeLine}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            width: "30px",
+            height: "30px",
+            borderRadius: "6px",
+            border: "1px solid rgba(255,180,171,0.2)",
+            background: "rgba(255,180,171,0.06)",
+            color: "#ffb4ab",
+            cursor: locked ? "not-allowed" : "pointer",
+            opacity: locked ? 0.35 : 1,
+            flexShrink: 0,
+          }}
+        >
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+            <path d="M2 2L10 10M10 2L2 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+          </svg>
+        </button>
       </div>
 
-      <button
-        type="button"
-        onClick={() => onRemove(row.id)}
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          width: "30px",
-          height: "30px",
-          borderRadius: "6px",
-          border: "1px solid rgba(255,180,171,0.2)",
-          background: "rgba(255,180,171,0.06)",
-          color: "#ffb4ab",
-          cursor: "pointer",
-          flexShrink: 0,
-        }}
-        title={t.purchases.invoices.removeLine}
-      >
-        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-          <path d="M2 2L10 10M10 2L2 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-        </svg>
-      </button>
+      {locked && (qtyExceedsReceived || priceDiffersFromPO) && (
+        <div style={{ display: "flex", gap: "16px", paddingBottom: "10px", fontSize: "11px" }}>
+          {qtyExceedsReceived && (
+            <span style={{ color: "#ffb4ab" }}>
+              {t.purchases.invoices.qtyExceedsReceived.replace("{qty}", String(locked.receivedQty))}
+            </span>
+          )}
+          {priceDiffersFromPO && (
+            <span style={{ color: "#f5c451" }}>
+              {t.purchases.invoices.poAgreedPrice.replace("{price}", locked.agreedPrice.toFixed(2))}
+            </span>
+          )}
+        </div>
+      )}
     </div>
   );
 }
@@ -266,8 +328,39 @@ export function PurchaseInvoiceForm({ action, suppliers, products, purchaseOrder
   }, []);
 
   const removeLine = useCallback((id: string) => {
-    setLines((prev) => prev.filter((r) => r.id !== id));
+    // Locked (PO-derived) rows can't be removed via this path — the remove
+    // button is disabled for them, this is just a safety net.
+    setLines((prev) => prev.filter((r) => r.locked || r.id !== id));
   }, []);
+
+  // Selecting a PO auto-loads its received lines (quantity = received qty,
+  // price = the PO's agreed unitCost) as locked rows — productId/unitId can't
+  // be changed since they come straight from what was actually received.
+  // Deselecting resets back to a single blank manual line.
+  const handlePurchaseOrderChange = useCallback((poId: string) => {
+    setPurchaseOrderId(poId);
+    const po = purchaseOrders.find((p) => p.id === poId);
+    if (po && po.lines.length > 0) {
+      setLines(
+        po.lines.map((l, i) => ({
+          id: `po-line-${i}`,
+          productId: l.productId,
+          unitId: l.unitId,
+          quantity: String(l.quantity),
+          unitPrice: String(l.unitPrice),
+          locked: {
+            productName: l.productName,
+            sku: l.sku,
+            unitSymbol: l.unitSymbol,
+            receivedQty: l.quantity,
+            agreedPrice: l.unitPrice,
+          },
+        }))
+      );
+    } else {
+      setLines([{ id: `line-${Date.now()}`, productId: "", unitId: "", quantity: "1", unitPrice: "" }]);
+    }
+  }, [purchaseOrders]);
 
   const updateLine = useCallback((id: string, field: keyof LineRow, value: string) => {
     setLines((prev) =>
@@ -343,7 +436,7 @@ export function PurchaseInvoiceForm({ action, suppliers, products, purchaseOrder
                     style={selectStyle}
                     onChange={(e) => {
                       setSupplierId(e.target.value);
-                      setPurchaseOrderId("");
+                      handlePurchaseOrderChange("");
                     }}
                     onFocus={(e) => { e.currentTarget.style.borderColor = "#0062ff"; e.currentTarget.style.boxShadow = "0 0 0 3px rgba(0,98,255,0.2)"; }}
                     onBlur={(e) => { e.currentTarget.style.borderColor = fieldError("supplierId") ? "#ffb4ab" : "#2d3449"; e.currentTarget.style.boxShadow = "none"; }}
@@ -370,7 +463,7 @@ export function PurchaseInvoiceForm({ action, suppliers, products, purchaseOrder
                     value={purchaseOrderId}
                     disabled={!supplierId || availablePurchaseOrders.length === 0}
                     style={selectStyle}
-                    onChange={(e) => setPurchaseOrderId(e.target.value)}
+                    onChange={(e) => handlePurchaseOrderChange(e.target.value)}
                     onFocus={(e) => { e.currentTarget.style.borderColor = "#0062ff"; e.currentTarget.style.boxShadow = "0 0 0 3px rgba(0,98,255,0.2)"; }}
                     onBlur={(e) => { e.currentTarget.style.borderColor = "#2d3449"; e.currentTarget.style.boxShadow = "none"; }}
                   >

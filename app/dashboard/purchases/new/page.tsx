@@ -46,6 +46,9 @@ export default async function NewPurchaseInvoicePage({ searchParams }: PageProps
     }),
     // Purchase orders eligible to be linked to a new invoice: goods have
     // arrived (RECEIVED or PARTIAL) and not already linked to an invoice.
+    // A PO can only ever be linked to one invoice (enforced by `invoices: { none: {} }`),
+    // so "received quantity" here is always the full remaining invoiceable quantity —
+    // there's no partial-invoicing-against-this-PO case to account for.
     db.purchaseOrder.findMany({
       where: {
         organizationId: session.orgId,
@@ -59,6 +62,18 @@ export default async function NewPurchaseInvoicePage({ searchParams }: PageProps
         supplierId: true,
         status: true,
         createdAt: true,
+        lines: {
+          select: {
+            productId: true,
+            unitId: true,
+            unitCost: true,
+            displayQuantity: true,
+            baseQuantity: true,
+            receivedBaseQuantity: true,
+            product: { select: { name: true, sku: true } },
+            unit: { select: { name: true, symbol: true } },
+          },
+        },
       },
     }),
   ]);
@@ -68,6 +83,22 @@ export default async function NewPurchaseInvoicePage({ searchParams }: PageProps
     supplierId: po.supplierId,
     status: po.status,
     label: `${po.id.slice(0, 8).toUpperCase()} · ${po.status} · ${new Date(po.createdAt).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })}`,
+    lines: po.lines
+      .filter((l) => Number(l.receivedBaseQuantity) > 0)
+      .map((l) => {
+        const baseQty = Number(l.baseQuantity);
+        const ratio = baseQty > 0 ? Number(l.displayQuantity) / baseQty : 1;
+        const receivedDisplayQty = Number(l.receivedBaseQuantity) * ratio;
+        return {
+          productId: l.productId,
+          productName: l.product.name,
+          sku: l.product.sku,
+          unitId: l.unitId,
+          unitSymbol: l.unit.symbol,
+          quantity: receivedDisplayQty,
+          unitPrice: Number(l.unitCost),
+        };
+      }),
   }));
 
   // Build per-product unit list: default unit + all units referenced in product-specific conversions
