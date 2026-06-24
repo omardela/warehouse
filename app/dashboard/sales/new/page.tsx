@@ -102,13 +102,15 @@ export default async function NewSalesInvoicePage({ searchParams }: PageProps) {
       },
     });
 
-    if (deliveryNote && deliveryNote.salesOrder.warehouseId === session.warehouseId) {
+    if (deliveryNote && deliveryNote.salesOrder?.warehouseId === session.warehouseId) {
       const soLineMap = new Map(deliveryNote.salesOrder.lines.map((l) => [l.id, l]));
       prefill = {
         deliveryNoteId: deliveryNote.id,
         customerId: deliveryNote.salesOrder.customerId,
         lines: deliveryNote.lines.map((line) => {
-          const soLine = soLineMap.get(line.salesOrderLineId);
+          const soLine = line.salesOrderLineId
+            ? soLineMap.get(line.salesOrderLineId)
+            : undefined;
           return {
             productId: line.productId,
             unitId: line.unitId,
@@ -127,7 +129,7 @@ export default async function NewSalesInvoicePage({ searchParams }: PageProps) {
       action={createSalesInvoiceAction}
       recentDeliveryNotes={recentDeliveryNotes.map((dn) => ({
         id: dn.id,
-        label: `${dn.id.slice(0, 8).toUpperCase()} · ${dn.salesOrder.customer.name} · ${dn.createdAt.toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })}`,
+        label: `${dn.id.slice(0, 8).toUpperCase()} · ${dn.salesOrder?.customer.name ?? "Direct Sale"} · ${dn.createdAt.toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })}`,
       }))}
       prefill={prefill}
     />

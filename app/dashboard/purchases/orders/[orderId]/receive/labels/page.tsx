@@ -53,6 +53,7 @@ export default async function GoodsReceiptLabelsPage({ params, searchParams }: P
   if (
     !receipt ||
     receipt.purchaseOrderId !== orderId ||
+    !receipt.purchaseOrder ||
     receipt.purchaseOrder.organizationId !== session.orgId
   ) {
     notFound();

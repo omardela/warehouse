@@ -330,6 +330,8 @@ model Invoice {
   taxAmount       Decimal?       @db.Decimal(20, 2)
   dueDate         DateTime?
   creditNotes     CreditNote[]
+  deliveryNotes   DeliveryNote[]
+  goodsReceipts   GoodsReceipt[]
   lines           InvoiceLine[]
   actor           Employee       @relation("InvoiceActor", fields: [actorId], references: [id])
   customer        Customer?      @relation(fields: [customerId], references: [id])
@@ -414,13 +416,15 @@ model PurchaseOrderLine {
 
 model GoodsReceipt {
   id              String             @id @default(cuid())
-  purchaseOrderId String
+  purchaseOrderId String?
+  invoiceId       String?
   warehouseId     String
   receivedById    String
   note            String?
   createdAt       DateTime           @default(now())
   lines           GoodsReceiptLine[]
-  purchaseOrder   PurchaseOrder      @relation(fields: [purchaseOrderId], references: [id])
+  purchaseOrder   PurchaseOrder?     @relation(fields: [purchaseOrderId], references: [id])
+  invoice         Invoice?           @relation(fields: [invoiceId], references: [id])
   receivedBy      Employee           @relation("GoodsReceiptReceivedBy", fields: [receivedById], references: [id])
   warehouse       Warehouse          @relation(fields: [warehouseId], references: [id])
 
@@ -428,17 +432,17 @@ model GoodsReceipt {
 }
 
 model GoodsReceiptLine {
-  id                  String            @id @default(cuid())
+  id                  String             @id @default(cuid())
   goodsReceiptId      String
-  purchaseOrderLineId String
+  purchaseOrderLineId String?
   productId           String
   unitId              String
-  displayQuantity     Decimal           @db.Decimal(20, 6)
-  baseQuantity        Decimal           @db.Decimal(20, 6)
-  goodsReceipt        GoodsReceipt      @relation(fields: [goodsReceiptId], references: [id])
-  product             Product           @relation(fields: [productId], references: [id])
-  purchaseOrderLine   PurchaseOrderLine @relation(fields: [purchaseOrderLineId], references: [id])
-  unit                ProductUnit       @relation(fields: [unitId], references: [id])
+  displayQuantity     Decimal            @db.Decimal(20, 6)
+  baseQuantity        Decimal            @db.Decimal(20, 6)
+  goodsReceipt        GoodsReceipt       @relation(fields: [goodsReceiptId], references: [id])
+  product             Product            @relation(fields: [productId], references: [id])
+  purchaseOrderLine   PurchaseOrderLine? @relation(fields: [purchaseOrderLineId], references: [id])
+  unit                ProductUnit        @relation(fields: [unitId], references: [id])
 
   @@map("goods_receipt_lines")
 }
@@ -522,31 +526,33 @@ model SalesOrderLine {
 
 model DeliveryNote {
   id             String             @id @default(cuid())
-  salesOrderId   String
+  salesOrderId   String?
+  invoiceId      String?
   warehouseId    String
   dispatchedById String
   note           String?
   createdAt      DateTime           @default(now())
   lines          DeliveryNoteLine[]
   dispatchedBy   Employee           @relation("DeliveryNoteDispatchedBy", fields: [dispatchedById], references: [id])
-  salesOrder     SalesOrder         @relation(fields: [salesOrderId], references: [id])
+  salesOrder     SalesOrder?        @relation(fields: [salesOrderId], references: [id])
+  invoice        Invoice?           @relation(fields: [invoiceId], references: [id])
   warehouse      Warehouse          @relation(fields: [warehouseId], references: [id])
 
   @@map("delivery_notes")
 }
 
 model DeliveryNoteLine {
-  id               String         @id @default(cuid())
+  id               String          @id @default(cuid())
   deliveryNoteId   String
-  salesOrderLineId String
+  salesOrderLineId String?
   productId        String
   unitId           String
-  displayQuantity  Decimal        @db.Decimal(20, 6)
-  baseQuantity     Decimal        @db.Decimal(20, 6)
-  deliveryNote     DeliveryNote   @relation(fields: [deliveryNoteId], references: [id])
-  product          Product        @relation(fields: [productId], references: [id])
-  salesOrderLine   SalesOrderLine @relation(fields: [salesOrderLineId], references: [id])
-  unit             ProductUnit    @relation(fields: [unitId], references: [id])
+  displayQuantity  Decimal         @db.Decimal(20, 6)
+  baseQuantity     Decimal         @db.Decimal(20, 6)
+  deliveryNote     DeliveryNote    @relation(fields: [deliveryNoteId], references: [id])
+  product          Product         @relation(fields: [productId], references: [id])
+  salesOrderLine   SalesOrderLine? @relation(fields: [salesOrderLineId], references: [id])
+  unit             ProductUnit     @relation(fields: [unitId], references: [id])
 
   @@map("delivery_note_lines")
 }

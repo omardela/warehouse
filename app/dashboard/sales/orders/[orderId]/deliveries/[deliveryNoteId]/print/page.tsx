@@ -48,7 +48,12 @@ export default async function DeliveryNotePrintPage({ params }: PageProps) {
     },
   });
 
-  if (!note || note.salesOrderId !== orderId || note.warehouseId !== session.warehouseId) {
+  if (
+    !note ||
+    note.salesOrderId !== orderId ||
+    !note.salesOrder ||
+    note.warehouseId !== session.warehouseId
+  ) {
     notFound();
   }
 
