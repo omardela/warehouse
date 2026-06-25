@@ -162,23 +162,25 @@ export default async function PurchaseInvoiceDetailPage({ params }: PageProps) {
             )}
             {isConfirmed && (
               <>
-                <Link
-                  href={`/dashboard/purchases/${invoice.id}/payments/new`}
-                  style={{
-                    padding: "8px 16px",
-                    borderRadius: "8px",
-                    background: "rgba(98,223,125,0.12)",
-                    border: "1px solid rgba(98,223,125,0.3)",
-                    color: "#62df7d",
-                    fontSize: "13px",
-                    fontWeight: 500,
-                    textDecoration: "none",
-                    display: "inline-flex",
-                    alignItems: "center",
-                  }}
-                >
-                  Record Payment
-                </Link>
+                {remaining > 0 && (
+                  <Link
+                    href={`/dashboard/purchases/${invoice.id}/payments/new`}
+                    style={{
+                      padding: "8px 16px",
+                      borderRadius: "8px",
+                      background: "rgba(98,223,125,0.12)",
+                      border: "1px solid rgba(98,223,125,0.3)",
+                      color: "#62df7d",
+                      fontSize: "13px",
+                      fontWeight: 500,
+                      textDecoration: "none",
+                      display: "inline-flex",
+                      alignItems: "center",
+                    }}
+                  >
+                    Record Payment
+                  </Link>
+                )}
                 <Link
                   href={`/dashboard/purchases/${invoice.id}/credit-notes/new`}
                   style={{

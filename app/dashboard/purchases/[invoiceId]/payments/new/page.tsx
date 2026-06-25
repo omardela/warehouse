@@ -41,6 +41,11 @@ export default async function NewPaymentPage({ params }: PageProps) {
   const totalPaid = invoice.payments.reduce((sum, p) => sum + Number(p.amount), 0);
   const remaining = Number(invoice.totalAmount) - totalPaid;
 
+  // Already fully paid — nothing left to record a payment against.
+  if (remaining <= 0.001) {
+    redirect(`/dashboard/purchases/${invoiceId}`);
+  }
+
   return (
     <PaymentForm
       invoiceId={invoiceId}

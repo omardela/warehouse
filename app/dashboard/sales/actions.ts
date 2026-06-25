@@ -440,7 +440,13 @@ export async function createSalesPaymentAction(
   // Verify invoice belongs to this warehouse and is confirmed
   const invoice = await db.invoice.findUnique({
     where: { id: invoiceId },
-    select: { warehouseId: true, status: true, type: true },
+    select: {
+      warehouseId: true,
+      status: true,
+      type: true,
+      totalAmount: true,
+      payments: { select: { amount: true } },
+    },
   });
 
   if (!invoice || invoice.warehouseId !== session.warehouseId) {
@@ -453,6 +459,18 @@ export async function createSalesPaymentAction(
 
   if (invoice.status !== "CONFIRMED") {
     return { error: "Payments can only be recorded on confirmed invoices." };
+  }
+
+  // Reject payments that would drive the remaining balance below zero.
+  const totalPaid = invoice.payments.reduce((sum, p) => sum + Number(p.amount), 0);
+  const remaining = Number(invoice.totalAmount) - totalPaid;
+  if (remaining <= 0.001) {
+    return { error: "This invoice has already been fully paid." };
+  }
+  if (amount > remaining + 0.001) {
+    return {
+      error: `Payment amount exceeds the outstanding balance. ($${amount.toFixed(2)} entered, $${remaining.toFixed(2)} remaining)`,
+    };
   }
 
   const payment = await db.payment.create({

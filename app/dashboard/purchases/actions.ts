@@ -449,10 +449,16 @@ export async function createPurchasePaymentAction(
   if (invoice.type !== "PURCHASE") return { error: "Not a purchase invoice." };
   if (invoice.status !== "CONFIRMED") return { error: "Payments can only be recorded on confirmed invoices." };
 
+  // Reject payments that would drive the remaining balance below zero.
   const totalPaid = invoice.payments.reduce((sum, p) => sum + Number(p.amount), 0);
   const remaining = Number(invoice.totalAmount) - totalPaid;
+  if (remaining <= 0.001) {
+    return { error: "This invoice has already been fully paid." };
+  }
   if (amount > remaining + 0.001) {
-    return { error: `Payment amount ($${amount.toFixed(2)}) exceeds remaining balance ($${remaining.toFixed(2)}).` };
+    return {
+      error: `Payment amount exceeds the outstanding balance. ($${amount.toFixed(2)} entered, $${remaining.toFixed(2)} remaining)`,
+    };
   }
 
   const payment = await db.payment.create({
