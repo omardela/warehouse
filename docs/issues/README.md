@@ -42,3 +42,33 @@
 - After 002 lands, **003**, **004**, and **005** can all start in parallel.
 - After 005 lands, **006** and **008** can run in parallel.
 - After 009 lands, **010**, **011**, **012**, and **015** can all run in parallel.
+
+## Wave 7 — purchasing/sales architecture review fixes (2026-06-28)
+
+Resolved during the ERP architecture grilling session (`CONTEXT.md`, ADR-0001). All six
+are AFK — every open design question was already resolved before these were written.
+
+| # | Issue | Type | Blocked by |
+|---|-------|------|-----------|
+| 035 | [Atomic conditional updates for Goods Receipt & Delivery Note quantity caps](035-atomic-quantity-cap-updates.md) | AFK | — |
+| 036 | [Purchase Order: multi-invoice support (invoicedBaseQuantity)](036-purchase-order-multi-invoice.md) | AFK | 035 |
+| 037 | [Sales Invoice ↔ Delivery Note linkage + delivered-quantity validation](037-sales-invoice-delivery-note-linkage.md) | AFK | — |
+| 038 | [Fix outstanding balance formula to include Credit Notes (sales + purchase)](038-fix-balance-formula-credit-notes.md) | AFK | — |
+| 039 | [Purchase Order CLOSED status](039-purchase-order-closed-status.md) | AFK | — |
+| 040 | [Sales Order CLOSED status](040-sales-order-closed-status.md) | AFK | — |
+
+### Wave 7 dependency graph
+
+```
+035 ──► 036
+037 (parallel, no blockers)
+038 (parallel, no blockers)
+039 (parallel, no blockers)
+040 (parallel, no blockers)
+```
+
+### Wave 7 parallel start candidates
+
+- **035**, **037**, **038**, **039**, and **040** can all start simultaneously.
+- **036** waits on **035** landing (reuses its atomic-update helper for the new
+  `invoicedBaseQuantity` increment).

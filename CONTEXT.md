@@ -67,11 +67,46 @@ Proof of what physically left the warehouse on a specific shipment.
 Linked to a Sales Order. May cover partial fulfilment.
 Triggers stock decrement (`SALE_OUT` movement) on confirmation.
 A Sales Invoice is raised from the Delivery Note.
+**Sales Invoice links to `deliveryNoteId`, never to `salesOrderId` directly** (decided
+2026-06-28). The Delivery Note is the operational document that owns delivered quantities,
+so invoice-quantity validation (`invoiced ≤ delivered`) is performed against the linked
+Delivery Note's lines, not the Sales Order's. Preserves the
+`Sales Order → Delivery Note → Sales Invoice` separation — Sales Invoice is never
+re-coupled to Sales Order.
+**One Delivery Note maps to at most one Sales Invoice** (`Invoice.deliveryNoteId` is
+unique) — partial invoicing of a Sales Order is achieved only by creating multiple
+Delivery Notes (DN#1→Invoice#1, DN#2→Invoice#2), each fully invoiced once. This means
+sales-side partial invoicing is coarser-grained than purchase-side (which invoices at the
+Purchase Order line level, ignoring Goods Receipt boundaries) — an accepted, intentional
+asymmetry, not a bug.
+There are two distinct, opposite-direction FKs between Invoice and DeliveryNote and they
+are mutually exclusive per Invoice — enforced at the application level (no DB constraint),
+consistent with this codebase's existing convention for cross-document quantity rules:
+- `DeliveryNote.invoiceId` — set when the DN was created **implicitly because of** a
+  direct/POS Sales Invoice (Invoice existed first; DN is the dependent record).
+- `Invoice.deliveryNoteId` — set when the Invoice was **raised from** a pre-existing DN
+  that came from a Sales Order (DN existed first; Invoice is the dependent record).
+A DeliveryNote with `invoiceId` set (implicit) must never also be the target of an
+`Invoice.deliveryNoteId`.
 
 ### Purchase Order (PO)
 A commitment to buy from a supplier, sent before goods arrive.
-Statuses: `DRAFT → SENT → PARTIAL → RECEIVED | CANCELLED`.
+Statuses: `DRAFT → SENT → PARTIAL → RECEIVED | CANCELLED | CLOSED`.
 Enables "on order" stock visibility.
+A PO may be invoiced over **multiple Purchase Invoices** (decided 2026-06-28, supersedes
+the wave-6 "one PO, one invoice" constraint). Each `PurchaseOrderLine` tracks cumulative
+`invoicedBaseQuantity` separately from `receivedBaseQuantity`; a new invoice may only bill
+`receivedBaseQuantity - invoicedBaseQuantity` per line, never more.
+
+### Order Closure vs Cancellation (PO and SO)
+**Cancelled** — no execution ever happened (no Goods Receipt / Delivery Note exists yet).
+Only reachable from `DRAFT` or `SENT`/pre-confirmation states.
+**Closed** — execution started (at least one Goods Receipt / Delivery Note exists), and
+the business has agreed the remaining quantity will never be fulfilled. Only reachable
+from `PARTIAL`. History (Ordered/Received/Delivered/Invoiced/Returned) is preserved
+unchanged — closing never rewrites past quantities, it only stops future fulfilment.
+**Completed** (`RECEIVED` / `FULFILLED`) — the entire ordered quantity was fulfilled.
+Terminal; does not need closing.
 
 ### Goods Receipt
 Records what physically arrived from a supplier against a Purchase Order.
@@ -84,6 +119,15 @@ A financial document issued when goods are returned.
 Always linked to an original Invoice (Sales or Purchase).
 On confirmation: stock is restocked and the customer/supplier's balance is reduced.
 Not a reversal — the original invoice remains immutable.
+
+### Outstanding Balance
+`Invoice Total − Payments − confirmed Credit Notes` (Sales and Purchase alike).
+**Known gap (found 2026-06-28, not yet fixed):** `createSalesPaymentAction` and
+`createPurchaseInvoicePaymentAction`-equivalent both currently compute remaining balance
+as `totalAmount − totalPaid`, omitting Credit Notes. A confirmed return on a
+partially-paid invoice currently lets the counterparty overpay relative to the true
+balance. Fix is a straight formula correction, not a design decision — sum confirmed
+Credit Note line totals for the invoice and subtract them too.
 
 ### Accounts Receivable (AR) — operational layer
 Derived from confirmed Sales Invoices minus recorded Payments.
