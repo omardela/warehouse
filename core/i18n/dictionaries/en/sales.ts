@@ -158,6 +158,7 @@ const sales = {
     PARTIAL: "Partial",
     FULFILLED: "Fulfilled",
     CANCELLED: "Cancelled",
+    CLOSED: "Closed",
   },
 
   orders: {

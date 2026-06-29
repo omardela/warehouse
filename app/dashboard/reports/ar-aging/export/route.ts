@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/core/auth/session";
 import { requirePermission } from "@/core/auth/require-permission";
 import { db } from "@/lib/db";
+import { computeOutstandingBalance } from "@/core/billing/compute-outstanding-balance";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Types
@@ -128,6 +129,10 @@ export async function GET(request: NextRequest) {
       confirmedAt: true,
       createdAt: true,
       payments: { select: { amount: true } },
+      creditNotes: {
+        where: { status: { not: "CANCELLED" } },
+        include: { lines: true },
+      },
     },
     orderBy: { confirmedAt: "asc" },
   });
@@ -138,7 +143,7 @@ export async function GET(request: NextRequest) {
     if (!inv.customer) continue;
     const originalAmount = toNum(inv.totalAmount);
     const paidAmount = inv.payments.reduce((acc, p) => acc + toNum(p.amount), 0);
-    const balance = originalAmount - paidAmount;
+    const balance = computeOutstandingBalance(inv);
 
     if (balance <= 0) continue;
 

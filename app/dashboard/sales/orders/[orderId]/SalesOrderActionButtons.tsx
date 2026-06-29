@@ -2,7 +2,12 @@
 
 import { useActionState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { confirmSalesOrderAction, cancelSalesOrderAction, type SalesOrderActionState } from "../actions";
+import {
+  confirmSalesOrderAction,
+  cancelSalesOrderAction,
+  closeSalesOrderAction,
+  type SalesOrderActionState,
+} from "../actions";
 
 type Action = (prevState: SalesOrderActionState, formData: FormData) => Promise<SalesOrderActionState>;
 
@@ -75,10 +80,12 @@ export function SalesOrderActionButtons({
   salesOrderId,
   canConfirm,
   canCancel,
+  canClose,
 }: {
   salesOrderId: string;
   canConfirm: boolean;
   canCancel: boolean;
+  canClose: boolean;
 }) {
   return (
     <div style={{ display: "flex", gap: "8px", alignItems: "flex-start", flexWrap: "wrap" }}>
@@ -112,6 +119,24 @@ export function SalesOrderActionButtons({
             border: "1px solid rgba(255,180,171,0.3)",
             background: "rgba(255,180,171,0.08)",
             color: "#ffb4ab",
+            fontSize: "13px",
+            fontWeight: 500,
+          }}
+        />
+      )}
+      {canClose && (
+        <ActionForm
+          salesOrderId={salesOrderId}
+          action={closeSalesOrderAction}
+          label="Close Order"
+          pendingLabel="Closing…"
+          confirmPrompt="Are you sure you want to close this sales order? The remaining quantity will never be fulfilled. This action cannot be undone."
+          buttonStyle={{
+            padding: "8px 16px",
+            borderRadius: "8px",
+            border: "1px solid rgba(140,144,162,0.3)",
+            background: "rgba(140,144,162,0.08)",
+            color: "#8c90a2",
             fontSize: "13px",
             fontWeight: 500,
           }}

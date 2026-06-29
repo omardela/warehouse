@@ -5,6 +5,7 @@ import { db } from "@/lib/db";
 import { requirePagePermission } from "@/core/auth/require-page-permission";
 import { InvoiceActionButtons } from "./InvoiceActionButtons";
 import { confirmSalesInvoiceAction, cancelSalesInvoiceAction } from "../actions";
+import { computeOutstandingBalance } from "@/core/billing/compute-outstanding-balance";
 
 export const dynamic = "force-dynamic";
 
@@ -110,6 +111,10 @@ export default async function SalesInvoiceDetailPage({ params }: PageProps) {
         orderBy: { paidAt: "asc" },
         select: { id: true, amount: true, method: true, paidAt: true, notes: true },
       },
+      creditNotes: {
+        where: { status: { not: "CANCELLED" } },
+        include: { lines: true },
+      },
       actor: { select: { name: true } },
     },
   });
@@ -119,7 +124,7 @@ export default async function SalesInvoiceDetailPage({ params }: PageProps) {
   }
 
   const totalPaid = invoice.payments.reduce((sum, p) => sum + Number(p.amount), 0);
-  const remaining = Number(invoice.totalAmount) - totalPaid;
+  const remaining = computeOutstandingBalance(invoice);
   const isOverdue =
     invoice.dueDate != null &&
     invoice.dueDate.getTime() < Date.now() &&

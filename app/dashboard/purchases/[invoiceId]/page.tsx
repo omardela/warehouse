@@ -5,6 +5,7 @@ import { db } from "@/lib/db";
 import { requirePagePermission } from "@/core/auth/require-page-permission";
 import { confirmPurchaseInvoiceAction } from "../actions";
 import { CancelInvoiceButton } from "./CancelInvoiceButton";
+import { computeOutstandingBalance } from "@/core/billing/compute-outstanding-balance";
 
 export const dynamic = "force-dynamic";
 
@@ -85,6 +86,10 @@ export default async function PurchaseInvoiceDetailPage({ params }: PageProps) {
           actor: { select: { id: true, name: true } },
         },
       },
+      creditNotes: {
+        where: { status: { not: "CANCELLED" } },
+        include: { lines: true },
+      },
     },
   });
 
@@ -93,7 +98,7 @@ export default async function PurchaseInvoiceDetailPage({ params }: PageProps) {
   }
 
   const totalPaid = invoice.payments.reduce((sum, p) => sum + Number(p.amount), 0);
-  const remaining = Number(invoice.totalAmount) - totalPaid;
+  const remaining = computeOutstandingBalance(invoice);
   const isDraft = invoice.status === "DRAFT";
   const isConfirmed = invoice.status === "CONFIRMED";
 

@@ -10,6 +10,7 @@ import { Prisma } from "@prisma/client";
 import { writeNotification } from "@/core/notifications/write-notification";
 import { resolveBaseQuantity } from "@/core/inventory/resolve-base-quantity";
 import { recordMovement } from "@/core/inventory/record-movement";
+import { computeOutstandingBalance } from "@/core/billing/compute-outstanding-balance";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -35,6 +36,7 @@ const lineSchema = z.object({
 
 const createSalesInvoiceSchema = z.object({
   customerId: z.string().optional(),
+  deliveryNoteId: z.string().optional(),
   notes: z.string().max(1000).optional(),
   lines: z.array(lineSchema).min(1, "At least one line item is required"),
 });
@@ -73,6 +75,7 @@ export async function createSalesInvoiceAction(
 
   const parsed = createSalesInvoiceSchema.safeParse({
     customerId: formData.get("customerId") || undefined,
+    deliveryNoteId: formData.get("deliveryNoteId") || undefined,
     notes: formData.get("notes") || undefined,
     lines: rawLines,
   });
@@ -84,7 +87,7 @@ export async function createSalesInvoiceAction(
     return { error: firstFieldError ?? firstLineError ?? "Invalid form data." };
   }
 
-  const { customerId, notes, lines } = parsed.data;
+  const { customerId, deliveryNoteId, notes, lines } = parsed.data;
 
   // Verify customer belongs to org (if provided)
   if (customerId) {
@@ -94,6 +97,68 @@ export async function createSalesInvoiceAction(
     });
     if (!customer || customer.organizationId !== session.orgId) {
       return { error: "Selected customer not found." };
+    }
+  }
+
+  // Validate linked delivery note, if provided: must belong to this org/warehouse,
+  // must not already be the target of another Invoice's deliveryNoteId (the unique
+  // constraint is the authoritative guard; this check just gives a friendlier
+  // error message), and must not be an implicit DN created for a direct/POS sale
+  // (DeliveryNote.invoiceId set) — that is the opposite-direction relationship and
+  // the two must never both apply to the same DeliveryNote.
+  if (deliveryNoteId) {
+    const deliveryNote = await db.deliveryNote.findFirst({
+      where: { id: deliveryNoteId, warehouseId: session.warehouseId },
+      select: {
+        id: true,
+        invoiceId: true,
+        salesInvoice: { select: { id: true } },
+        lines: {
+          select: {
+            productId: true,
+            unitId: true,
+            displayQuantity: true,
+            product: { select: { name: true } },
+          },
+        },
+      },
+    });
+    if (!deliveryNote) return { error: "Linked delivery note not found." };
+    if (deliveryNote.invoiceId) {
+      return { error: "This delivery note was created for a direct sale and cannot be linked to another invoice." };
+    }
+    if (deliveryNote.salesInvoice) {
+      return { error: "This delivery note has already been invoiced." };
+    }
+
+    // Lines that match a delivered DN line can't bill for more than was actually
+    // delivered — a DN can only ever be linked to one invoice, so delivered
+    // quantity is always the full invoiceable quantity, not a remaining balance.
+    // Lines that don't match any DN line are left unvalidated — they're treated
+    // as ordinary manual lines.
+    const deliveredByProductUnit = new Map<string, { qty: number; productName: string }>();
+    for (const dnLine of deliveryNote.lines) {
+      const key = `${dnLine.productId}__${dnLine.unitId}`;
+      deliveredByProductUnit.set(key, {
+        qty: (deliveredByProductUnit.get(key)?.qty ?? 0) + Number(dnLine.displayQuantity),
+        productName: dnLine.product.name,
+      });
+    }
+
+    const invoicedByProductUnit = new Map<string, number>();
+    for (const l of lines) {
+      const key = `${l.productId}__${l.unitId}`;
+      invoicedByProductUnit.set(key, (invoicedByProductUnit.get(key) ?? 0) + l.quantity);
+    }
+
+    for (const [key, invoicedQty] of invoicedByProductUnit) {
+      const delivered = deliveredByProductUnit.get(key);
+      if (!delivered) continue;
+      if (invoicedQty > delivered.qty + 0.000001) {
+        return {
+          error: `Invoice quantity for ${delivered.productName} (${invoicedQty.toFixed(4)}) exceeds the delivered quantity from this delivery note (${delivered.qty.toFixed(4)}).`,
+        };
+      }
     }
   }
 
@@ -113,21 +178,30 @@ export async function createSalesInvoiceAction(
 
   const totalAmount = lineData.reduce((sum, l) => sum + Number(l.totalPrice), 0);
 
-  const invoice = await db.invoice.create({
-    data: {
-      type: "SALE",
-      status: "DRAFT",
-      warehouseId: session.warehouseId,
-      customerId: customerId ?? null,
-      totalAmount: new Prisma.Decimal(totalAmount.toFixed(2)),
-      notes: notes ?? null,
-      actorId: session.employeeId,
-      lines: {
-        create: lineData,
+  let invoice: { id: string };
+  try {
+    invoice = await db.invoice.create({
+      data: {
+        type: "SALE",
+        status: "DRAFT",
+        warehouseId: session.warehouseId,
+        customerId: customerId ?? null,
+        deliveryNoteId: deliveryNoteId ?? null,
+        totalAmount: new Prisma.Decimal(totalAmount.toFixed(2)),
+        notes: notes ?? null,
+        actorId: session.employeeId,
+        lines: {
+          create: lineData,
+        },
       },
-    },
-    select: { id: true },
-  });
+      select: { id: true },
+    });
+  } catch (err) {
+    if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002") {
+      return { error: "This delivery note has already been invoiced." };
+    }
+    throw err;
+  }
 
   await writeAuditLog({
     actorId: session.employeeId,
@@ -138,6 +212,7 @@ export async function createSalesInvoiceAction(
       type: "SALE",
       status: "DRAFT",
       customerId: customerId ?? null,
+      deliveryNoteId: deliveryNoteId ?? null,
       totalAmount: totalAmount.toFixed(2),
       lineCount: lines.length,
     },
@@ -446,6 +521,10 @@ export async function createSalesPaymentAction(
       type: true,
       totalAmount: true,
       payments: { select: { amount: true } },
+      creditNotes: {
+        where: { status: { not: "CANCELLED" } },
+        include: { lines: true },
+      },
     },
   });
 
@@ -462,8 +541,7 @@ export async function createSalesPaymentAction(
   }
 
   // Reject payments that would drive the remaining balance below zero.
-  const totalPaid = invoice.payments.reduce((sum, p) => sum + Number(p.amount), 0);
-  const remaining = Number(invoice.totalAmount) - totalPaid;
+  const remaining = computeOutstandingBalance(invoice);
   if (remaining <= 0.001) {
     return { error: "This invoice has already been fully paid." };
   }

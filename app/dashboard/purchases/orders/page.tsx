@@ -40,6 +40,7 @@ function StatusBadge({ status, label }: { status: string; label: string }) {
     PARTIAL: { bg: "rgba(245,158,11,0.15)", color: "#f59e0b" },
     RECEIVED: { bg: "rgba(98,223,125,0.12)", color: "#62df7d" },
     CANCELLED: { bg: "rgba(255,180,171,0.12)", color: "#ffb4ab" },
+    CLOSED: { bg: "rgba(140,144,162,0.15)", color: "#8c90a2" },
   };
   const s = map[status] ?? { bg: "rgba(140,144,162,0.1)", color: "#8c90a2" };
   return (
@@ -73,7 +74,7 @@ export default async function PurchaseOrdersPage({ searchParams }: PageProps) {
   const page = Math.max(1, parseInt(params.page ?? "1", 10));
   const skip = (page - 1) * PAGE_SIZE;
 
-  const validStatuses = ["DRAFT", "SENT", "PARTIAL", "RECEIVED", "CANCELLED"];
+  const validStatuses = ["DRAFT", "SENT", "PARTIAL", "RECEIVED", "CANCELLED", "CLOSED"];
 
   const where = {
     warehouseId: session.warehouseId,
@@ -84,7 +85,8 @@ export default async function PurchaseOrdersPage({ searchParams }: PageProps) {
             | "SENT"
             | "PARTIAL"
             | "RECEIVED"
-            | "CANCELLED",
+            | "CANCELLED"
+            | "CLOSED",
         }
       : {}),
   };
@@ -204,7 +206,7 @@ export default async function PurchaseOrdersPage({ searchParams }: PageProps) {
             alignItems: "center",
           }}
         >
-          {["", "DRAFT", "SENT", "PARTIAL", "RECEIVED", "CANCELLED"].map(
+          {["", "DRAFT", "SENT", "PARTIAL", "RECEIVED", "CANCELLED", "CLOSED"].map(
             (s) => (
               <Link
                 key={s}

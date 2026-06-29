@@ -5,6 +5,7 @@ import { db } from "@/lib/db";
 import { requirePagePermission } from "@/core/auth/require-page-permission";
 import { markPurchaseOrderSentAction } from "../actions";
 import { CancelPurchaseOrderButton } from "./CancelPurchaseOrderButton";
+import { ClosePurchaseOrderButton } from "./ClosePurchaseOrderButton";
 
 export const dynamic = "force-dynamic";
 
@@ -39,6 +40,7 @@ function StatusBadge({ status }: { status: string }) {
     PARTIAL: { bg: "rgba(245,158,11,0.15)", color: "#f59e0b" },
     RECEIVED: { bg: "rgba(98,223,125,0.12)", color: "#62df7d" },
     CANCELLED: { bg: "rgba(255,180,171,0.12)", color: "#ffb4ab" },
+    CLOSED: { bg: "rgba(140,144,162,0.15)", color: "#8c90a2" },
   };
   const s = map[status] ?? { bg: "rgba(140,144,162,0.1)", color: "#8c90a2" };
   return (
@@ -94,6 +96,7 @@ export default async function PurchaseOrderDetailPage({ params }: PageProps) {
   const isPartial = po.status === "PARTIAL";
   const canReceive = isSent || isPartial;
   const canCancel = isDraft || isSent;
+  const canClose = isPartial;
 
   return (
     <div style={{ minHeight: "100vh", background: "#0b1326", padding: "24px" }}>
@@ -160,6 +163,7 @@ export default async function PurchaseOrderDetailPage({ params }: PageProps) {
               </Link>
             )}
             {canCancel && <CancelPurchaseOrderButton purchaseOrderId={po.id} />}
+            {canClose && <ClosePurchaseOrderButton purchaseOrderId={po.id} />}
             <Link
               href={`/dashboard/purchases/orders/${po.id}/print`}
               target="_blank"

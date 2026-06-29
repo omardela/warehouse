@@ -51,6 +51,7 @@ function StatusBadge({ status }: { status: string }) {
     PARTIAL: { bg: "rgba(245,158,11,0.15)", color: "#f59e0b" },
     FULFILLED: { bg: "rgba(98,223,125,0.12)", color: "#62df7d" },
     CANCELLED: { bg: "rgba(255,180,171,0.12)", color: "#ffb4ab" },
+    CLOSED: { bg: "rgba(140,144,162,0.15)", color: "#8c90a2" },
   };
   const s = map[status] ?? { bg: "rgba(140,144,162,0.1)", color: "#8c90a2" };
   return (
@@ -124,6 +125,7 @@ export default async function SalesOrderDetailPage({ params }: PageProps) {
   );
   const canDeliver = (isConfirmed || isPartial) && hasRemaining;
   const canCancel = (isDraft || isConfirmed) && so.deliveryNotes.length === 0;
+  const canClose = isPartial;
 
   return (
     <div style={{ minHeight: "100vh", background: "#0b1326", padding: "24px" }}>
@@ -197,6 +199,7 @@ export default async function SalesOrderDetailPage({ params }: PageProps) {
               salesOrderId={so.id}
               canConfirm={isDraft}
               canCancel={canCancel}
+              canClose={canClose}
             />
             {canDeliver && (
               <Link

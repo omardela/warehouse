@@ -3,11 +3,12 @@ import Link from "next/link";
 import { getSession } from "@/core/auth/session";
 import { requirePagePermission } from "@/core/auth/require-page-permission";
 import { db } from "@/lib/db";
+import { computeOutstandingBalance } from "@/core/billing/compute-outstanding-balance";
 
 export const dynamic = "force-dynamic";
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Types
+// Types kkkk
 // ─────────────────────────────────────────────────────────────────────────────
 
 type SearchParams = Promise<{
@@ -83,7 +84,8 @@ function daysOverdueFor(dueDate: Date | null, asOfDate: Date): number {
   if (!dueDate) return 0;
   const msPerDay = 1000 * 60 * 60 * 24;
   const diff = Math.floor(
-    (asOfDate.setHours(0, 0, 0, 0) - new Date(dueDate).setHours(0, 0, 0, 0)) / msPerDay
+    (asOfDate.setHours(0, 0, 0, 0) - new Date(dueDate).setHours(0, 0, 0, 0)) /
+      msPerDay,
   );
   return Math.max(0, diff);
 }
@@ -173,10 +175,12 @@ export default async function ArAgingReportPage({
 
   const todayStr = toDateStr(new Date());
   const asOfParam = params.asOf ?? "";
-  const asOfDate = asOfParam && !isNaN(new Date(asOfParam).getTime())
-    ? new Date(asOfParam)
-    : new Date();
-  const asOfStr = asOfParam && !isNaN(new Date(asOfParam).getTime()) ? asOfParam : todayStr;
+  const asOfDate =
+    asOfParam && !isNaN(new Date(asOfParam).getTime())
+      ? new Date(asOfParam)
+      : new Date();
+  const asOfStr =
+    asOfParam && !isNaN(new Date(asOfParam).getTime()) ? asOfParam : todayStr;
 
   // Customers scoped to this org only (for the filter dropdown).
   const customers = await db.customer.findMany({
@@ -187,7 +191,9 @@ export default async function ArAgingReportPage({
 
   const validCustomerIds = new Set(customers.map((c) => c.id));
   const effectiveCustomerId =
-    customerIdFilter && validCustomerIds.has(customerIdFilter) ? customerIdFilter : "";
+    customerIdFilter && validCustomerIds.has(customerIdFilter)
+      ? customerIdFilter
+      : "";
 
   // Confirmed sale invoices, scoped to this warehouse session, with payments.
   const invoices = await db.invoice.findMany({
@@ -207,6 +213,10 @@ export default async function ArAgingReportPage({
       confirmedAt: true,
       createdAt: true,
       payments: { select: { amount: true } },
+      creditNotes: {
+        where: { status: { not: "CANCELLED" } },
+        include: { lines: true },
+      },
     },
     orderBy: { confirmedAt: "asc" },
   });
@@ -216,8 +226,11 @@ export default async function ArAgingReportPage({
   for (const inv of invoices) {
     if (!inv.customer) continue;
     const originalAmount = toNum(inv.totalAmount);
-    const paidAmount = inv.payments.reduce((acc, p) => acc + toNum(p.amount), 0);
-    const balance = originalAmount - paidAmount;
+    const paidAmount = inv.payments.reduce(
+      (acc, p) => acc + toNum(p.amount),
+      0,
+    );
+    const balance = computeOutstandingBalance(inv);
 
     if (balance <= 0) continue; // exclude fully paid / zero-balance invoices
 
@@ -264,14 +277,17 @@ export default async function ArAgingReportPage({
   }
 
   const customerRows = Array.from(customerMap.values()).sort(
-    (a, b) => b.total - a.total
+    (a, b) => b.total - a.total,
   );
 
   const invoiceRows = [...outstandingRows].sort(
-    (a, b) => b.daysOverdue - a.daysOverdue
+    (a, b) => b.daysOverdue - a.daysOverdue,
   );
 
-  const totalOutstanding = outstandingRows.reduce((acc, r) => acc + r.balance, 0);
+  const totalOutstanding = outstandingRows.reduce(
+    (acc, r) => acc + r.balance,
+    0,
+  );
   const totalCurrent = outstandingRows
     .filter((r) => r.bucket === "current")
     .reduce((acc, r) => acc + r.balance, 0);
@@ -308,11 +324,19 @@ export default async function ArAgingReportPage({
           }}
         >
           <div>
-            <h1 style={{ fontSize: "24px", fontWeight: 700, color: "#dbe2fd", margin: 0 }}>
+            <h1
+              style={{
+                fontSize: "24px",
+                fontWeight: 700,
+                color: "#dbe2fd",
+                margin: 0,
+              }}
+            >
               AR Aging Report
             </h1>
             <p style={{ fontSize: "13px", color: "#8c90a2", marginTop: "4px" }}>
-              Outstanding sales invoices grouped by how many days overdue, as of {fmtDate(asOfDate)}.
+              Outstanding sales invoices grouped by how many days overdue, as of{" "}
+              {fmtDate(asOfDate)}.
             </p>
           </div>
           <Link
@@ -331,7 +355,13 @@ export default async function ArAgingReportPage({
               textDecoration: "none",
             }}
           >
-            <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden="true">
+            <svg
+              width="13"
+              height="13"
+              viewBox="0 0 13 13"
+              fill="none"
+              aria-hidden="true"
+            >
               <path
                 d="M6.5 1V9M6.5 9L3.5 6M6.5 9L9.5 6"
                 stroke="currentColor"
@@ -339,7 +369,12 @@ export default async function ArAgingReportPage({
                 strokeLinecap="round"
                 strokeLinejoin="round"
               />
-              <path d="M1.5 10.5H11.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+              <path
+                d="M1.5 10.5H11.5"
+                stroke="currentColor"
+                strokeWidth="1.4"
+                strokeLinecap="round"
+              />
             </svg>
             Export CSV
           </Link>
@@ -397,8 +432,12 @@ export default async function ArAgingReportPage({
               style={{
                 padding: "8px 16px",
                 borderRadius: "8px",
-                border: view === "customer" ? "1px solid #0062ff" : "1px solid #2d3449",
-                background: view === "customer" ? "rgba(0,98,255,0.12)" : "#0d1627",
+                border:
+                  view === "customer"
+                    ? "1px solid #0062ff"
+                    : "1px solid #2d3449",
+                background:
+                  view === "customer" ? "rgba(0,98,255,0.12)" : "#0d1627",
                 color: view === "customer" ? "#7da6ff" : "#8c90a2",
                 fontSize: "13px",
                 fontWeight: 600,
@@ -412,8 +451,12 @@ export default async function ArAgingReportPage({
               style={{
                 padding: "8px 16px",
                 borderRadius: "8px",
-                border: view === "invoice" ? "1px solid #0062ff" : "1px solid #2d3449",
-                background: view === "invoice" ? "rgba(0,98,255,0.12)" : "#0d1627",
+                border:
+                  view === "invoice"
+                    ? "1px solid #0062ff"
+                    : "1px solid #2d3449",
+                background:
+                  view === "invoice" ? "rgba(0,98,255,0.12)" : "#0d1627",
                 color: view === "invoice" ? "#7da6ff" : "#8c90a2",
                 fontSize: "13px",
                 fontWeight: 600,
@@ -427,7 +470,12 @@ export default async function ArAgingReportPage({
           {/* Filters form */}
           <form
             method="GET"
-            style={{ display: "flex", gap: "12px", flexWrap: "wrap", alignItems: "center" }}
+            style={{
+              display: "flex",
+              gap: "12px",
+              flexWrap: "wrap",
+              alignItems: "center",
+            }}
           >
             <input type="hidden" name="view" value={view} />
 
@@ -513,7 +561,13 @@ export default async function ArAgingReportPage({
         >
           <div style={{ overflowX: "auto" }}>
             {view === "customer" ? (
-              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "13px" }}>
+              <table
+                style={{
+                  width: "100%",
+                  borderCollapse: "collapse",
+                  fontSize: "13px",
+                }}
+              >
                 <thead>
                   <tr style={{ borderBottom: "1px solid #222a3e" }}>
                     {[
@@ -563,27 +617,79 @@ export default async function ArAgingReportPage({
                     customerRows.map((row) => (
                       <tr
                         key={row.customerId}
-                        style={{ borderBottom: "1px solid #1a2237", backgroundColor: "transparent" }}
+                        style={{
+                          borderBottom: "1px solid #1a2237",
+                          backgroundColor: "transparent",
+                        }}
                       >
-                        <td style={{ padding: "12px 16px", color: "#dbe2fd", whiteSpace: "nowrap" }}>
+                        <td
+                          style={{
+                            padding: "12px 16px",
+                            color: "#dbe2fd",
+                            whiteSpace: "nowrap",
+                          }}
+                        >
                           {row.customerName}
                         </td>
-                        <td style={{ padding: "12px 16px", textAlign: "right", color: "#dbe2fd", whiteSpace: "nowrap" }}>
+                        <td
+                          style={{
+                            padding: "12px 16px",
+                            textAlign: "right",
+                            color: "#dbe2fd",
+                            whiteSpace: "nowrap",
+                          }}
+                        >
                           {row.current > 0 ? fmtMoney(row.current) : "—"}
                         </td>
-                        <td style={{ padding: "12px 16px", textAlign: "right", color: "#dbe2fd", whiteSpace: "nowrap" }}>
+                        <td
+                          style={{
+                            padding: "12px 16px",
+                            textAlign: "right",
+                            color: "#dbe2fd",
+                            whiteSpace: "nowrap",
+                          }}
+                        >
                           {row.b1_30 > 0 ? fmtMoney(row.b1_30) : "—"}
                         </td>
-                        <td style={{ padding: "12px 16px", textAlign: "right", color: "#fbbf24", whiteSpace: "nowrap" }}>
+                        <td
+                          style={{
+                            padding: "12px 16px",
+                            textAlign: "right",
+                            color: "#fbbf24",
+                            whiteSpace: "nowrap",
+                          }}
+                        >
                           {row.b31_60 > 0 ? fmtMoney(row.b31_60) : "—"}
                         </td>
-                        <td style={{ padding: "12px 16px", textAlign: "right", color: "#fb923c", whiteSpace: "nowrap" }}>
+                        <td
+                          style={{
+                            padding: "12px 16px",
+                            textAlign: "right",
+                            color: "#fb923c",
+                            whiteSpace: "nowrap",
+                          }}
+                        >
                           {row.b61_90 > 0 ? fmtMoney(row.b61_90) : "—"}
                         </td>
-                        <td style={{ padding: "12px 16px", textAlign: "right", color: "#f87171", whiteSpace: "nowrap" }}>
+                        <td
+                          style={{
+                            padding: "12px 16px",
+                            textAlign: "right",
+                            color: "#f87171",
+                            whiteSpace: "nowrap",
+                          }}
+                        >
                           {row.b90_plus > 0 ? fmtMoney(row.b90_plus) : "—"}
                         </td>
-                        <td style={{ padding: "12px 16px", textAlign: "right", color: "#dbe2fd", fontWeight: 600, whiteSpace: "nowrap" }}>
+                        <td
+                          style={{
+                            padding: "12px 16px",
+                            textAlign: "right",
+                            color: "#dbe2fd",
+                            fontWeight: 600,
+                            whiteSpace: "nowrap",
+                          }}
+                        >
                           {fmtMoney(row.total)}
                         </td>
                       </tr>
@@ -592,7 +698,12 @@ export default async function ArAgingReportPage({
                 </tbody>
                 {customerRows.length > 0 && (
                   <tfoot>
-                    <tr style={{ borderTop: "1px solid #222a3e", backgroundColor: "#0d1627" }}>
+                    <tr
+                      style={{
+                        borderTop: "1px solid #222a3e",
+                        backgroundColor: "#0d1627",
+                      }}
+                    >
                       <td
                         style={{
                           padding: "12px 16px",
@@ -605,22 +716,74 @@ export default async function ArAgingReportPage({
                       >
                         Totals
                       </td>
-                      <td style={{ padding: "12px 16px", textAlign: "right", color: "#dbe2fd", fontWeight: 700 }}>
-                        {fmtMoney(customerRows.reduce((a, r) => a + r.current, 0))}
+                      <td
+                        style={{
+                          padding: "12px 16px",
+                          textAlign: "right",
+                          color: "#dbe2fd",
+                          fontWeight: 700,
+                        }}
+                      >
+                        {fmtMoney(
+                          customerRows.reduce((a, r) => a + r.current, 0),
+                        )}
                       </td>
-                      <td style={{ padding: "12px 16px", textAlign: "right", color: "#dbe2fd", fontWeight: 700 }}>
-                        {fmtMoney(customerRows.reduce((a, r) => a + r.b1_30, 0))}
+                      <td
+                        style={{
+                          padding: "12px 16px",
+                          textAlign: "right",
+                          color: "#dbe2fd",
+                          fontWeight: 700,
+                        }}
+                      >
+                        {fmtMoney(
+                          customerRows.reduce((a, r) => a + r.b1_30, 0),
+                        )}
                       </td>
-                      <td style={{ padding: "12px 16px", textAlign: "right", color: "#dbe2fd", fontWeight: 700 }}>
-                        {fmtMoney(customerRows.reduce((a, r) => a + r.b31_60, 0))}
+                      <td
+                        style={{
+                          padding: "12px 16px",
+                          textAlign: "right",
+                          color: "#dbe2fd",
+                          fontWeight: 700,
+                        }}
+                      >
+                        {fmtMoney(
+                          customerRows.reduce((a, r) => a + r.b31_60, 0),
+                        )}
                       </td>
-                      <td style={{ padding: "12px 16px", textAlign: "right", color: "#dbe2fd", fontWeight: 700 }}>
-                        {fmtMoney(customerRows.reduce((a, r) => a + r.b61_90, 0))}
+                      <td
+                        style={{
+                          padding: "12px 16px",
+                          textAlign: "right",
+                          color: "#dbe2fd",
+                          fontWeight: 700,
+                        }}
+                      >
+                        {fmtMoney(
+                          customerRows.reduce((a, r) => a + r.b61_90, 0),
+                        )}
                       </td>
-                      <td style={{ padding: "12px 16px", textAlign: "right", color: "#dbe2fd", fontWeight: 700 }}>
-                        {fmtMoney(customerRows.reduce((a, r) => a + r.b90_plus, 0))}
+                      <td
+                        style={{
+                          padding: "12px 16px",
+                          textAlign: "right",
+                          color: "#dbe2fd",
+                          fontWeight: 700,
+                        }}
+                      >
+                        {fmtMoney(
+                          customerRows.reduce((a, r) => a + r.b90_plus, 0),
+                        )}
                       </td>
-                      <td style={{ padding: "12px 16px", textAlign: "right", color: "#dbe2fd", fontWeight: 700 }}>
+                      <td
+                        style={{
+                          padding: "12px 16px",
+                          textAlign: "right",
+                          color: "#dbe2fd",
+                          fontWeight: 700,
+                        }}
+                      >
                         {fmtMoney(totalOutstanding)}
                       </td>
                     </tr>
@@ -628,7 +791,13 @@ export default async function ArAgingReportPage({
                 )}
               </table>
             ) : (
-              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "13px" }}>
+              <table
+                style={{
+                  width: "100%",
+                  borderCollapse: "collapse",
+                  fontSize: "13px",
+                }}
+              >
                 <thead>
                   <tr style={{ borderBottom: "1px solid #222a3e" }}>
                     {[
@@ -679,12 +848,27 @@ export default async function ArAgingReportPage({
                     invoiceRows.map((row) => (
                       <tr
                         key={row.invoiceId}
-                        style={{ borderBottom: "1px solid #1a2237", backgroundColor: "transparent" }}
+                        style={{
+                          borderBottom: "1px solid #1a2237",
+                          backgroundColor: "transparent",
+                        }}
                       >
-                        <td style={{ padding: "12px 16px", color: "#dbe2fd", whiteSpace: "nowrap" }}>
+                        <td
+                          style={{
+                            padding: "12px 16px",
+                            color: "#dbe2fd",
+                            whiteSpace: "nowrap",
+                          }}
+                        >
                           {row.customerName}
                         </td>
-                        <td style={{ padding: "12px 16px", color: "#dbe2fd", whiteSpace: "nowrap" }}>
+                        <td
+                          style={{
+                            padding: "12px 16px",
+                            color: "#dbe2fd",
+                            whiteSpace: "nowrap",
+                          }}
+                        >
                           <span
                             style={{
                               fontFamily: "monospace",
@@ -699,22 +883,62 @@ export default async function ArAgingReportPage({
                             {row.invoiceId}
                           </span>
                         </td>
-                        <td style={{ padding: "12px 16px", color: "#dbe2fd", whiteSpace: "nowrap" }}>
+                        <td
+                          style={{
+                            padding: "12px 16px",
+                            color: "#dbe2fd",
+                            whiteSpace: "nowrap",
+                          }}
+                        >
                           {fmtDate(row.invoiceDate)}
                         </td>
-                        <td style={{ padding: "12px 16px", color: "#dbe2fd", whiteSpace: "nowrap" }}>
+                        <td
+                          style={{
+                            padding: "12px 16px",
+                            color: "#dbe2fd",
+                            whiteSpace: "nowrap",
+                          }}
+                        >
                           {fmtDate(row.dueDate)}
                         </td>
-                        <td style={{ padding: "12px 16px", textAlign: "right", color: "#dbe2fd", whiteSpace: "nowrap" }}>
+                        <td
+                          style={{
+                            padding: "12px 16px",
+                            textAlign: "right",
+                            color: "#dbe2fd",
+                            whiteSpace: "nowrap",
+                          }}
+                        >
                           {fmtMoney(row.originalAmount)}
                         </td>
-                        <td style={{ padding: "12px 16px", textAlign: "right", color: "#dbe2fd", whiteSpace: "nowrap" }}>
+                        <td
+                          style={{
+                            padding: "12px 16px",
+                            textAlign: "right",
+                            color: "#dbe2fd",
+                            whiteSpace: "nowrap",
+                          }}
+                        >
                           {fmtMoney(row.paidAmount)}
                         </td>
-                        <td style={{ padding: "12px 16px", textAlign: "right", color: "#dbe2fd", fontWeight: 600, whiteSpace: "nowrap" }}>
+                        <td
+                          style={{
+                            padding: "12px 16px",
+                            textAlign: "right",
+                            color: "#dbe2fd",
+                            fontWeight: 600,
+                            whiteSpace: "nowrap",
+                          }}
+                        >
                           {fmtMoney(row.balance)}
                         </td>
-                        <td style={{ padding: "12px 16px", textAlign: "right", whiteSpace: "nowrap" }}>
+                        <td
+                          style={{
+                            padding: "12px 16px",
+                            textAlign: "right",
+                            whiteSpace: "nowrap",
+                          }}
+                        >
                           {row.daysOverdue === 0 ? (
                             <span
                               style={{
@@ -753,7 +977,12 @@ export default async function ArAgingReportPage({
                 </tbody>
                 {invoiceRows.length > 0 && (
                   <tfoot>
-                    <tr style={{ borderTop: "1px solid #222a3e", backgroundColor: "#0d1627" }}>
+                    <tr
+                      style={{
+                        borderTop: "1px solid #222a3e",
+                        backgroundColor: "#0d1627",
+                      }}
+                    >
                       <td
                         colSpan={6}
                         style={{
@@ -767,7 +996,14 @@ export default async function ArAgingReportPage({
                       >
                         Totals
                       </td>
-                      <td style={{ padding: "12px 16px", textAlign: "right", color: "#dbe2fd", fontWeight: 700 }}>
+                      <td
+                        style={{
+                          padding: "12px 16px",
+                          textAlign: "right",
+                          color: "#dbe2fd",
+                          fontWeight: 700,
+                        }}
+                      >
                         {fmtMoney(totalOutstanding)}
                       </td>
                       <td style={{ padding: "12px 16px" }} />

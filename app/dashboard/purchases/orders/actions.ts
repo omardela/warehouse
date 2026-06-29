@@ -10,6 +10,7 @@ import { writeAuditLog } from "@/core/audit/write-audit-log";
 import { writeNotification } from "@/core/notifications/write-notification";
 import { resolveBaseQuantity } from "@/core/inventory/resolve-base-quantity";
 import { recordMovement } from "@/core/inventory/record-movement";
+import { applyQuantityCapUpdate } from "@/core/inventory/apply-quantity-cap-update";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -28,8 +29,12 @@ export type GoodsReceiptActionState =
 const lineSchema = z.object({
   productId: z.string().min(1, "Product is required"),
   unitId: z.string().min(1, "Unit is required"),
-  quantity: z.coerce.number({ message: "Quantity must be a number" }).positive("Quantity must be positive"),
-  unitCost: z.coerce.number({ message: "Unit cost must be a number" }).min(0, "Unit cost cannot be negative"),
+  quantity: z.coerce
+    .number({ message: "Quantity must be a number" })
+    .positive("Quantity must be positive"),
+  unitCost: z.coerce
+    .number({ message: "Unit cost must be a number" })
+    .min(0, "Unit cost cannot be negative"),
 });
 
 const createOrderSchema = z.object({
@@ -41,7 +46,7 @@ const createOrderSchema = z.object({
 
 export async function createPurchaseOrderAction(
   _prevState: PurchaseOrderActionState,
-  formData: FormData
+  formData: FormData,
 ): Promise<PurchaseOrderActionState> {
   const session = await getSession();
   if (!session) return { error: "Unauthorized" };
@@ -64,7 +69,9 @@ export async function createPurchaseOrderAction(
     }
   }
 
-  const rawExpectedDeliveryDate = (formData.get("expectedDeliveryDate") as string)?.trim();
+  const rawExpectedDeliveryDate = (
+    formData.get("expectedDeliveryDate") as string
+  )?.trim();
   const rawNote = (formData.get("note") as string)?.trim();
 
   const parsed = createOrderSchema.safeParse({
@@ -75,7 +82,10 @@ export async function createPurchaseOrderAction(
   });
 
   if (!parsed.success) {
-    const fieldErrors = parsed.error.flatten().fieldErrors as Record<string, string[]>;
+    const fieldErrors = parsed.error.flatten().fieldErrors as Record<
+      string,
+      string[]
+    >;
     const firstMessage =
       parsed.error.flatten().formErrors[0] ||
       Object.values(fieldErrors).flat()[0] ||
@@ -121,7 +131,7 @@ export async function createPurchaseOrderAction(
         l.productId,
         product.defaultUnitId,
         l.unitId,
-        l.quantity
+        l.quantity,
       );
       lineData.push({
         productId: l.productId,
@@ -131,7 +141,12 @@ export async function createPurchaseOrderAction(
         unitCost: l.unitCost,
       });
     } catch (err) {
-      return { error: err instanceof Error ? err.message : "Failed to resolve unit conversion." };
+      return {
+        error:
+          err instanceof Error
+            ? err.message
+            : "Failed to resolve unit conversion.",
+      };
     }
   }
 
@@ -142,7 +157,9 @@ export async function createPurchaseOrderAction(
         warehouseId: session.warehouseId,
         supplierId,
         status: "DRAFT",
-        expectedDeliveryDate: expectedDeliveryDate ? new Date(expectedDeliveryDate) : null,
+        expectedDeliveryDate: expectedDeliveryDate
+          ? new Date(expectedDeliveryDate)
+          : null,
         note: note || null,
         createdById: session.employeeId,
       },
@@ -177,7 +194,9 @@ export async function createPurchaseOrderAction(
 
 // ─── Mark Purchase Order Sent ───────────────────────────────────────────────
 
-export async function markPurchaseOrderSentAction(formData: FormData): Promise<void> {
+export async function markPurchaseOrderSentAction(
+  formData: FormData,
+): Promise<void> {
   const session = await getSession();
   if (!session) redirect("/login");
 
@@ -197,7 +216,8 @@ export async function markPurchaseOrderSentAction(formData: FormData): Promise<v
 
   if (!po) throw new Error("Purchase order not found.");
   if (po.warehouseId !== session.warehouseId) throw new Error("Access denied.");
-  if (po.status !== "DRAFT") throw new Error("Only draft purchase orders can be marked as sent.");
+  if (po.status !== "DRAFT")
+    throw new Error("Only draft purchase orders can be marked as sent.");
 
   const beforeStatus = po.status;
 
@@ -222,7 +242,9 @@ export async function markPurchaseOrderSentAction(formData: FormData): Promise<v
 
 // ─── Cancel Purchase Order ──────────────────────────────────────────────────
 
-export async function cancelPurchaseOrderAction(formData: FormData): Promise<void> {
+export async function cancelPurchaseOrderAction(
+  formData: FormData,
+): Promise<void> {
   const session = await getSession();
   if (!session) redirect("/login");
 
@@ -267,22 +289,75 @@ export async function cancelPurchaseOrderAction(formData: FormData): Promise<voi
   redirect(`/dashboard/purchases/orders/${purchaseOrderId}`);
 }
 
+// ─── Close Purchase Order ───────────────────────────────────────────────────
+
+export async function closePurchaseOrderAction(
+  formData: FormData,
+): Promise<void> {
+  const session = await getSession();
+  if (!session) redirect("/login");
+
+  const purchaseOrderId = formData.get("purchaseOrderId") as string;
+  if (!purchaseOrderId) return;
+
+  try {
+    await requirePermission(session, "purchases.orders.create");
+  } catch {
+    throw new Error("You do not have permission to close purchase orders.");
+  }
+
+  const po = await db.purchaseOrder.findUnique({
+    where: { id: purchaseOrderId },
+    select: { id: true, status: true, warehouseId: true },
+  });
+
+  if (!po) throw new Error("Purchase order not found.");
+  if (po.warehouseId !== session.warehouseId) throw new Error("Access denied.");
+  if (po.status !== "PARTIAL") {
+    throw new Error("Only partially received purchase orders can be closed.");
+  }
+
+  const beforeStatus = po.status;
+
+  await db.purchaseOrder.update({
+    where: { id: purchaseOrderId },
+    data: { status: "CLOSED" },
+  });
+
+  await writeAuditLog({
+    actorId: session.employeeId,
+    action: "purchases.orders.close",
+    entityType: "PurchaseOrder",
+    entityId: purchaseOrderId,
+    before: { status: beforeStatus },
+    after: { status: "CLOSED" },
+  });
+
+  revalidatePath("/dashboard/purchases/orders");
+  revalidatePath(`/dashboard/purchases/orders/${purchaseOrderId}`);
+  redirect(`/dashboard/purchases/orders/${purchaseOrderId}`);
+}
+
 // ─── Create Goods Receipt ───────────────────────────────────────────────────
 
 const receiptLineSchema = z.object({
   purchaseOrderLineId: z.string().min(1),
-  quantity: z.coerce.number({ message: "Quantity must be a number" }).min(0, "Quantity cannot be negative"),
+  quantity: z.coerce
+    .number({ message: "Quantity must be a number" })
+    .min(0, "Quantity cannot be negative"),
 });
 
 const createReceiptSchema = z.object({
   purchaseOrderId: z.string().min(1),
   note: z.string().max(2000).optional(),
-  lines: z.array(receiptLineSchema).min(1, "At least one line item is required"),
+  lines: z
+    .array(receiptLineSchema)
+    .min(1, "At least one line item is required"),
 });
 
 export async function createGoodsReceiptAction(
   _prevState: GoodsReceiptActionState,
-  formData: FormData
+  formData: FormData,
 ): Promise<GoodsReceiptActionState> {
   const session = await getSession();
   if (!session) return { error: "Unauthorized" };
@@ -297,7 +372,9 @@ export async function createGoodsReceiptAction(
   const lineCount = parseInt((formData.get("lineCount") as string) ?? "0", 10);
   const linesRaw = [];
   for (let i = 0; i < lineCount; i++) {
-    const purchaseOrderLineId = (formData.get(`line_polId_${i}`) as string)?.trim();
+    const purchaseOrderLineId = (
+      formData.get(`line_polId_${i}`) as string
+    )?.trim();
     const quantity = formData.get(`line_quantity_${i}`) as string;
     if (purchaseOrderLineId && quantity) {
       linesRaw.push({ purchaseOrderLineId, quantity });
@@ -313,7 +390,10 @@ export async function createGoodsReceiptAction(
   });
 
   if (!parsed.success) {
-    const fieldErrors = parsed.error.flatten().fieldErrors as Record<string, string[]>;
+    const fieldErrors = parsed.error.flatten().fieldErrors as Record<
+      string,
+      string[]
+    >;
     const firstMessage =
       parsed.error.flatten().formErrors[0] ||
       Object.values(fieldErrors).flat()[0] ||
@@ -341,9 +421,13 @@ export async function createGoodsReceiptAction(
   });
 
   if (!po) return { error: "Purchase order not found." };
-  if (po.warehouseId !== session.warehouseId) return { error: "Access denied." };
+  if (po.warehouseId !== session.warehouseId)
+    return { error: "Access denied." };
   if (po.status !== "SENT" && po.status !== "PARTIAL") {
-    return { error: "Goods can only be received against a SENT or PARTIAL purchase order." };
+    return {
+      error:
+        "Goods can only be received against a SENT or PARTIAL purchase order.",
+    };
   }
 
   const poLineMap = new Map(po.lines.map((l) => [l.id, l]));
@@ -351,18 +435,24 @@ export async function createGoodsReceiptAction(
   // Validate each receipt line against outstanding quantity
   for (const rl of nonZeroLines) {
     const poLine = poLineMap.get(rl.purchaseOrderLineId);
-    if (!poLine) return { error: "One or more lines do not belong to this purchase order." };
-    const outstanding = Number(poLine.baseQuantity) - Number(poLine.receivedBaseQuantity);
+    if (!poLine)
+      return {
+        error: "One or more lines do not belong to this purchase order.",
+      };
+    const outstanding =
+      Number(poLine.baseQuantity) - Number(poLine.receivedBaseQuantity);
     // rl.quantity is in display units of the PO line's unit; resolve to base for comparison
     const baseQty = await resolveBaseQuantity(
       db,
       poLine.productId,
       poLine.product.defaultUnitId,
       poLine.unitId,
-      rl.quantity
+      rl.quantity,
     );
     if (baseQty > outstanding + 0.000001) {
-      return { error: `Received quantity exceeds outstanding quantity for one or more lines.` };
+      return {
+        error: `Received quantity exceeds outstanding quantity for one or more lines.`,
+      };
     }
   }
 
@@ -388,7 +478,7 @@ export async function createGoodsReceiptAction(
         poLine.productId,
         poLine.product.defaultUnitId,
         poLine.unitId,
-        rl.quantity
+        rl.quantity,
       );
 
       await tx.goodsReceiptLine.create({
@@ -421,10 +511,20 @@ export async function createGoodsReceiptAction(
 
       pendingSideEffects.push(runSideEffects);
 
-      // Increment running received total on the PO line
-      await tx.purchaseOrderLine.update({
-        where: { id: poLine.id },
-        data: { receivedBaseQuantity: { increment: baseQty } },
+      // Increment running received total on the PO line. The pre-transaction
+      // check above is a fast-path UX check; this conditional atomic update
+      // is the authoritative guard against two concurrent receipts both
+      // passing the pre-check and over-receiving past baseQuantity (see
+      // docs/adr/0001-atomic-conditional-updates-for-quantity-caps.md).
+      await applyQuantityCapUpdate({
+        table: "purchase_order_lines",
+        id: poLine.id,
+        column: "receivedBaseQuantity",
+        capColumn: "baseQuantity",
+        amount: baseQty,
+        errorMessage:
+          "Received quantity exceeds outstanding quantity for one or more lines.",
+        tx,
       });
     }
 
@@ -434,11 +534,18 @@ export async function createGoodsReceiptAction(
       select: { baseQuantity: true, receivedBaseQuantity: true },
     });
     const fullyReceived = refreshedLines.every(
-      (l) => Number(l.receivedBaseQuantity) >= Number(l.baseQuantity) - 0.000001
+      (l) =>
+        Number(l.receivedBaseQuantity) >= Number(l.baseQuantity) - 0.000001,
     );
-    const anyReceived = refreshedLines.some((l) => Number(l.receivedBaseQuantity) > 0);
+    const anyReceived = refreshedLines.some(
+      (l) => Number(l.receivedBaseQuantity) > 0,
+    );
 
-    const newStatus = fullyReceived ? "RECEIVED" : anyReceived ? "PARTIAL" : po.status;
+    const newStatus = fullyReceived
+      ? "RECEIVED"
+      : anyReceived
+        ? "PARTIAL"
+        : po.status;
 
     await tx.purchaseOrder.update({
       where: { id: po.id },

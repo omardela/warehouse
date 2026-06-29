@@ -9,6 +9,7 @@ import { writeAuditLog } from "@/core/audit/write-audit-log";
 import { writeNotification } from "@/core/notifications/write-notification";
 import { resolveBaseQuantity } from "@/core/inventory/resolve-base-quantity";
 import { recordMovement } from "@/core/inventory/record-movement";
+import { applyQuantityCapUpdate } from "@/core/inventory/apply-quantity-cap-update";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -333,6 +334,56 @@ export async function cancelSalesOrderAction(
   return { success: true, salesOrderId };
 }
 
+// ─── Close Sales Order ───────────────────────────────────────────────────────
+
+export async function closeSalesOrderAction(
+  _prevState: SalesOrderActionState,
+  formData: FormData
+): Promise<SalesOrderActionState> {
+  const session = await getSession();
+  if (!session) return { error: "Unauthorized" };
+
+  const salesOrderId = formData.get("salesOrderId") as string;
+  if (!salesOrderId) return { error: "Sales order ID is required." };
+
+  try {
+    await requirePermission(session, "sales.orders.create");
+  } catch {
+    return { error: "You do not have permission to close sales orders." };
+  }
+
+  const so = await db.salesOrder.findUnique({
+    where: { id: salesOrderId },
+    select: { id: true, status: true, warehouseId: true },
+  });
+
+  if (!so) return { error: "Sales order not found." };
+  if (so.warehouseId !== session.warehouseId) return { error: "Access denied." };
+  if (so.status !== "PARTIAL") {
+    return { error: "Only partially fulfilled sales orders can be closed." };
+  }
+
+  const beforeStatus = so.status;
+
+  await db.salesOrder.update({
+    where: { id: salesOrderId },
+    data: { status: "CLOSED" },
+  });
+
+  await writeAuditLog({
+    actorId: session.employeeId,
+    action: "sales.orders.close",
+    entityType: "SalesOrder",
+    entityId: salesOrderId,
+    before: { status: beforeStatus },
+    after: { status: "CLOSED" },
+  });
+
+  revalidatePath("/dashboard/sales/orders");
+  revalidatePath(`/dashboard/sales/orders/${salesOrderId}`);
+  return { success: true, salesOrderId };
+}
+
 // ─── Create Delivery Note ───────────────────────────────────────────────────
 
 const deliveryLineSchema = z.object({
@@ -486,10 +537,19 @@ export async function createDeliveryNoteAction(
       });
       sideEffectCallbacks.push(runSideEffects);
 
-      // Increment running delivered total on the SO line
-      await tx.salesOrderLine.update({
-        where: { id: soLine.id },
-        data: { deliveredBaseQuantity: { increment: baseQty } },
+      // Increment running delivered total on the SO line. The pre-transaction
+      // check above is a fast-path UX check; this conditional atomic update
+      // is the authoritative guard against two concurrent deliveries both
+      // passing the pre-check and over-delivering past baseQuantity (see
+      // docs/adr/0001-atomic-conditional-updates-for-quantity-caps.md).
+      await applyQuantityCapUpdate({
+        table: "sales_order_lines",
+        id: soLine.id,
+        column: "deliveredBaseQuantity",
+        capColumn: "baseQuantity",
+        amount: baseQty,
+        errorMessage: "Dispatched quantity exceeds remaining quantity for one or more lines.",
+        tx,
       });
     }
 

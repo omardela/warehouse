@@ -10,6 +10,7 @@ import { writeAuditLog } from "@/core/audit/write-audit-log";
 import { writeNotification } from "@/core/notifications/write-notification";
 import { resolveBaseQuantity } from "@/core/inventory/resolve-base-quantity";
 import { recordMovement } from "@/core/inventory/record-movement";
+import { computeOutstandingBalance } from "@/core/billing/compute-outstanding-balance";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -441,6 +442,10 @@ export async function createPurchasePaymentAction(
       status: true,
       totalAmount: true,
       payments: { select: { amount: true } },
+      creditNotes: {
+        where: { status: { not: "CANCELLED" } },
+        include: { lines: true },
+      },
     },
   });
 
@@ -450,8 +455,7 @@ export async function createPurchasePaymentAction(
   if (invoice.status !== "CONFIRMED") return { error: "Payments can only be recorded on confirmed invoices." };
 
   // Reject payments that would drive the remaining balance below zero.
-  const totalPaid = invoice.payments.reduce((sum, p) => sum + Number(p.amount), 0);
-  const remaining = Number(invoice.totalAmount) - totalPaid;
+  const remaining = computeOutstandingBalance(invoice);
   if (remaining <= 0.001) {
     return { error: "This invoice has already been fully paid." };
   }

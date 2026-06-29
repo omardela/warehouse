@@ -160,6 +160,7 @@ const dict: typeof sales = {
     PARTIAL: "جزئي",
     FULFILLED: "مكتمل",
     CANCELLED: "ملغى",
+    CLOSED: "مغلق",
   },
 
   orders: {

@@ -162,6 +162,7 @@ export function SalesInvoiceForm({ products, customers, action, recentDeliveryNo
 
         <form action={formAction}>
           <input type="hidden" name="lineCount" value={lines.length} />
+          <input type="hidden" name="deliveryNoteId" value={deliveryNoteId} />
           {lines.map((line, i) => (
             <div key={line.id}>
               <input type="hidden" name={`line_productId_${i}`} value={line.productId} />
