@@ -45,16 +45,15 @@ export default async function NewPurchaseInvoicePage({ searchParams }: PageProps
       },
     }),
     // Purchase orders eligible to be linked to a new invoice: goods have
-    // arrived (RECEIVED or PARTIAL) and not already linked to an invoice.
-    // A PO can only ever be linked to one invoice (enforced by `invoices: { none: {} }`),
-    // so "received quantity" here is always the full remaining invoiceable quantity —
-    // there's no partial-invoicing-against-this-PO case to account for.
+    // arrived (RECEIVED or PARTIAL). A PO may be invoiced over multiple
+    // Purchase Invoices (decided 2026-06-28 — see CONTEXT.md "Purchase Order
+    // (PO)"), so a PO with an existing invoice remains eligible as long as at
+    // least one line still has `receivedBaseQuantity - invoicedBaseQuantity > 0`.
     db.purchaseOrder.findMany({
       where: {
         organizationId: session.orgId,
         warehouseId: session.warehouseId,
         status: { in: ["RECEIVED", "PARTIAL"] },
-        invoices: { none: {} },
       },
       orderBy: { createdAt: "desc" },
       select: {
@@ -70,6 +69,7 @@ export default async function NewPurchaseInvoicePage({ searchParams }: PageProps
             displayQuantity: true,
             baseQuantity: true,
             receivedBaseQuantity: true,
+            invoicedBaseQuantity: true,
             product: { select: { name: true, sku: true } },
             unit: { select: { name: true, symbol: true } },
           },
@@ -78,28 +78,39 @@ export default async function NewPurchaseInvoicePage({ searchParams }: PageProps
     }),
   ]);
 
-  const purchaseOrders = eligiblePurchaseOrders.map((po) => ({
-    id: po.id,
-    supplierId: po.supplierId,
-    status: po.status,
-    label: `${po.id.slice(0, 8).toUpperCase()} · ${po.status} · ${new Date(po.createdAt).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })}`,
-    lines: po.lines
-      .filter((l) => Number(l.receivedBaseQuantity) > 0)
-      .map((l) => {
-        const baseQty = Number(l.baseQuantity);
-        const ratio = baseQty > 0 ? Number(l.displayQuantity) / baseQty : 1;
-        const receivedDisplayQty = Number(l.receivedBaseQuantity) * ratio;
-        return {
-          productId: l.productId,
-          productName: l.product.name,
-          sku: l.product.sku,
-          unitId: l.unitId,
-          unitSymbol: l.unit.symbol,
-          quantity: receivedDisplayQty,
-          unitPrice: Number(l.unitCost),
-        };
-      }),
-  }));
+  const purchaseOrders = eligiblePurchaseOrders
+    .map((po) => ({
+      id: po.id,
+      supplierId: po.supplierId,
+      status: po.status,
+      label: `${po.id.slice(0, 8).toUpperCase()} · ${po.status} · ${new Date(po.createdAt).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })}`,
+      lines: po.lines
+        .filter((l) => Number(l.receivedBaseQuantity) - Number(l.invoicedBaseQuantity) > 0.000001)
+        .map((l) => {
+          const baseQty = Number(l.baseQuantity);
+          const ratio = baseQty > 0 ? Number(l.displayQuantity) / baseQty : 1;
+          const orderedDisplayQty = Number(l.displayQuantity);
+          const receivedDisplayQty = Number(l.receivedBaseQuantity) * ratio;
+          const invoicedDisplayQty = Number(l.invoicedBaseQuantity) * ratio;
+          const remainingDisplayQty = receivedDisplayQty - invoicedDisplayQty;
+          return {
+            productId: l.productId,
+            productName: l.product.name,
+            sku: l.product.sku,
+            unitId: l.unitId,
+            unitSymbol: l.unit.symbol,
+            ordered: orderedDisplayQty,
+            received: receivedDisplayQty,
+            alreadyInvoiced: invoicedDisplayQty,
+            quantity: remainingDisplayQty,
+            unitPrice: Number(l.unitCost),
+          };
+        }),
+    }))
+    // A PO whose remaining-to-invoice is zero on every line has nothing left
+    // to bill and shouldn't appear in the dropdown even though its status is
+    // still RECEIVED/PARTIAL.
+    .filter((po) => po.lines.length > 0);
 
   // Build per-product unit list: default unit + all units referenced in product-specific conversions
   const products = rawProducts.map((p) => {

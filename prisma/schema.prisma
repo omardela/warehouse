@@ -408,6 +408,7 @@ model PurchaseOrderLine {
   baseQuantity         Decimal            @db.Decimal(20, 6)
   unitCost             Decimal            @db.Decimal(20, 2)
   receivedBaseQuantity Decimal            @default(0) @db.Decimal(20, 6)
+  invoicedBaseQuantity Decimal            @default(0) @db.Decimal(20, 6)
   goodsReceiptLines    GoodsReceiptLine[]
   product              Product            @relation(fields: [productId], references: [id])
   purchaseOrder        PurchaseOrder      @relation(fields: [purchaseOrderId], references: [id])

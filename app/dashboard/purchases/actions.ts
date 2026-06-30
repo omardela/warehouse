@@ -11,6 +11,7 @@ import { writeNotification } from "@/core/notifications/write-notification";
 import { resolveBaseQuantity } from "@/core/inventory/resolve-base-quantity";
 import { recordMovement } from "@/core/inventory/record-movement";
 import { computeOutstandingBalance } from "@/core/billing/compute-outstanding-balance";
+import { applyQuantityCapUpdate } from "@/core/inventory/apply-quantity-cap-update";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -98,6 +99,10 @@ export async function createPurchaseInvoiceAction(
 
   // Validate linked purchase order, if provided: must belong to this org/warehouse,
   // the same supplier, and be RECEIVED or PARTIAL (i.e. goods have actually arrived).
+  // Per-line base-quantity increments to apply to PurchaseOrderLine.invoicedBaseQuantity
+  // inside the creation transaction (only populated when a PO is linked).
+  let poLineIncrements: Array<{ purchaseOrderLineId: string; baseQuantity: number }> = [];
+
   if (purchaseOrderId) {
     const po = await db.purchaseOrder.findFirst({
       where: {
@@ -111,11 +116,13 @@ export async function createPurchaseInvoiceAction(
         status: true,
         lines: {
           select: {
+            id: true,
             productId: true,
             unitId: true,
             displayQuantity: true,
             baseQuantity: true,
             receivedBaseQuantity: true,
+            invoicedBaseQuantity: true,
             product: { select: { name: true } },
           },
         },
@@ -126,22 +133,36 @@ export async function createPurchaseInvoiceAction(
       return { error: "Purchase order must be partially or fully received before linking an invoice." };
     }
 
-    // Lines that match a received PO line can't bill for more than was actually
-    // received — a PO can only ever be linked to one invoice (see the eligibility
-    // query on the "new invoice" page), so received quantity is always the full
-    // invoiceable quantity, not a remaining balance. Lines that don't match any PO
-    // line (e.g. a freight/handling charge) are left unvalidated — they're treated
-    // as ordinary manual lines.
-    const receivedByProductUnit = new Map<string, { qty: number; productName: string }>();
+    // A PO may be invoiced over multiple Purchase Invoices (decided 2026-06-28 —
+    // see CONTEXT.md "Purchase Order (PO)"): cumulative invoiced quantity per line
+    // can never exceed cumulative received quantity, independent of Goods Receipt
+    // boundaries. So lines that match a received PO line can't bill for more than
+    // `receivedBaseQuantity - invoicedBaseQuantity` (remaining-to-invoice), not the
+    // received quantity outright. Lines that don't match any PO line (e.g. a
+    // freight/handling charge) are left unvalidated — they're treated as ordinary
+    // manual lines.
+    const remainingByProductUnit = new Map<
+      string,
+      { qty: number; productName: string; lineId: string; ratio: number }
+    >();
     for (const poLine of po.lines) {
       const received = Number(poLine.receivedBaseQuantity);
       if (received <= 0) continue;
+      const invoiced = Number(poLine.invoicedBaseQuantity);
+      // Clamp at zero (never negative) — a line with nothing left to invoice
+      // still needs to appear in the map so it's validated against (and any
+      // positive invoice amount against it is rejected), rather than being
+      // silently skipped and treated as an unvalidated manual line.
+      const remainingBase = Math.max(0, received - invoiced);
       const baseQty = Number(poLine.baseQuantity);
       const ratio = baseQty > 0 ? Number(poLine.displayQuantity) / baseQty : 1;
       const key = `${poLine.productId}__${poLine.unitId}`;
-      receivedByProductUnit.set(key, {
-        qty: (receivedByProductUnit.get(key)?.qty ?? 0) + received * ratio,
+      const existing = remainingByProductUnit.get(key);
+      remainingByProductUnit.set(key, {
+        qty: (existing?.qty ?? 0) + remainingBase * ratio,
         productName: poLine.product.name,
+        lineId: poLine.id,
+        ratio,
       });
     }
 
@@ -152,14 +173,23 @@ export async function createPurchaseInvoiceAction(
     }
 
     for (const [key, invoicedQty] of invoicedByProductUnit) {
-      const received = receivedByProductUnit.get(key);
-      if (!received) continue;
-      if (invoicedQty > received.qty + 0.000001) {
+      const remaining = remainingByProductUnit.get(key);
+      if (!remaining) continue;
+      if (invoicedQty > remaining.qty + 0.000001) {
         return {
-          error: `Invoice quantity for ${received.productName} (${invoicedQty.toFixed(4)}) exceeds the received quantity from this purchase order (${received.qty.toFixed(4)}).`,
+          error: `Invoice quantity for ${remaining.productName} (${invoicedQty.toFixed(4)}) exceeds the remaining quantity to invoice from this purchase order (${remaining.qty.toFixed(4)}).`,
         };
       }
     }
+
+    poLineIncrements = [...invoicedByProductUnit.entries()]
+      .map(([key, invoicedQty]) => {
+        const remaining = remainingByProductUnit.get(key);
+        if (!remaining) return null;
+        const baseQuantity = remaining.ratio > 0 ? invoicedQty / remaining.ratio : invoicedQty;
+        return { purchaseOrderLineId: remaining.lineId, baseQuantity };
+      })
+      .filter((x): x is { purchaseOrderLineId: string; baseQuantity: number } => x !== null);
   }
 
   // Validate products belong to org
@@ -208,6 +238,24 @@ export async function createPurchaseInvoiceAction(
         totalPrice: l.totalPrice,
       })),
     });
+
+    // Increment the running invoiced total on each linked PO line. The
+    // pre-transaction check above is a fast-path UX check; this conditional
+    // atomic update (issue 035) is the authoritative guard against two
+    // concurrent invoices both passing the pre-check and over-invoicing past
+    // receivedBaseQuantity.
+    for (const increment of poLineIncrements) {
+      await applyQuantityCapUpdate({
+        table: "purchase_order_lines",
+        id: increment.purchaseOrderLineId,
+        column: "invoicedBaseQuantity",
+        capColumn: "receivedBaseQuantity",
+        amount: increment.baseQuantity,
+        errorMessage:
+          "Invoice quantity exceeds the remaining quantity to invoice for one or more lines.",
+        tx,
+      });
+    }
 
     return inv;
   });

@@ -15,6 +15,9 @@ type PurchaseOrderLine = {
   sku: string;
   unitId: string;
   unitSymbol: string;
+  ordered: number;
+  received: number;
+  alreadyInvoiced: number;
   quantity: number;
   unitPrice: number;
 };
@@ -34,9 +37,19 @@ type LineRow = {
   unitPrice: string;
   // Set when this row was auto-loaded from a linked PO's received line.
   // Locks productId/unitId and carries the figures used for the qty/price
-  // validation hints (the PO's received quantity can't be exceeded; the
-  // PO's agreed unit cost is shown as a reference, not enforced).
-  locked?: { productName: string; sku: string; unitSymbol: string; receivedQty: number; agreedPrice: number };
+  // validation hints — the line's remaining-to-invoice quantity
+  // (received − already invoiced) can't be exceeded; the PO's agreed unit
+  // cost is shown as a reference, not enforced.
+  locked?: {
+    productName: string;
+    sku: string;
+    unitSymbol: string;
+    ordered: number;
+    received: number;
+    alreadyInvoiced: number;
+    remainingQty: number;
+    agreedPrice: number;
+  };
 };
 
 interface PurchaseInvoiceFormProps {
@@ -45,6 +58,10 @@ interface PurchaseInvoiceFormProps {
   products: Product[];
   purchaseOrders: EligiblePurchaseOrder[];
   defaultSupplierId?: string;
+}
+
+function formatQty(n: number): string {
+  return n % 1 === 0 ? n.toString() : n.toFixed(4).replace(/\.?0+$/, "");
 }
 
 function Field({
@@ -164,7 +181,7 @@ function LineItem({
   const total = qty * price;
   const locked = row.locked;
 
-  const qtyExceedsReceived = locked != null && qty > locked.receivedQty + 0.000001;
+  const qtyExceedsRemaining = locked != null && qty > locked.remainingQty + 0.000001;
   const priceDiffersFromPO = locked != null && Math.abs(price - locked.agreedPrice) > 0.000001;
 
   const lockedTextStyle: React.CSSProperties = {
@@ -186,7 +203,13 @@ function LineItem({
       >
         {locked ? (
           <div style={lockedTextStyle}>
-            {locked.productName} ({locked.sku})
+            <div>{locked.productName} ({locked.sku})</div>
+            <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", marginTop: "4px", fontSize: "11px", color: "#8c90a2" }}>
+              <span>{t.purchases.invoices.poBreakdown.ordered}: {formatQty(locked.ordered)} {locked.unitSymbol}</span>
+              <span>{t.purchases.invoices.poBreakdown.received}: {formatQty(locked.received)} {locked.unitSymbol}</span>
+              <span>{t.purchases.invoices.poBreakdown.alreadyInvoiced}: {formatQty(locked.alreadyInvoiced)} {locked.unitSymbol}</span>
+              <span style={{ color: "#62df7d" }}>{t.purchases.invoices.poBreakdown.remaining}: {formatQty(locked.remainingQty)} {locked.unitSymbol}</span>
+            </div>
             <input type="hidden" name={`line_productId_${index}`} value={row.productId} />
           </div>
         ) : (
@@ -234,7 +257,7 @@ function LineItem({
           value={row.quantity}
           onChange={(e) => onChange(row.id, "quantity", e.target.value)}
           placeholder={t.purchases.invoices.qtyPlaceholder}
-          style={{ ...inputStyle, borderColor: qtyExceedsReceived ? "#ffb4ab" : "#2d3449" }}
+          style={{ ...inputStyle, borderColor: qtyExceedsRemaining ? "#ffb4ab" : "#2d3449" }}
         />
 
         <input
@@ -278,11 +301,11 @@ function LineItem({
         </button>
       </div>
 
-      {locked && (qtyExceedsReceived || priceDiffersFromPO) && (
+      {locked && (qtyExceedsRemaining || priceDiffersFromPO) && (
         <div style={{ display: "flex", gap: "16px", paddingBottom: "10px", fontSize: "11px" }}>
-          {qtyExceedsReceived && (
+          {qtyExceedsRemaining && (
             <span style={{ color: "#ffb4ab" }}>
-              {t.purchases.invoices.qtyExceedsReceived.replace("{qty}", String(locked.receivedQty))}
+              {t.purchases.invoices.qtyExceedsReceived.replace("{qty}", formatQty(locked.remainingQty))}
             </span>
           )}
           {priceDiffersFromPO && (
@@ -346,13 +369,19 @@ export function PurchaseInvoiceForm({ action, suppliers, products, purchaseOrder
           id: `po-line-${i}`,
           productId: l.productId,
           unitId: l.unitId,
+          // Default the quantity field to the remaining-to-invoice amount —
+          // cumulative invoiced can never exceed cumulative received, but the
+          // user may bill less than the remainder (multi-invoice splitting).
           quantity: String(l.quantity),
           unitPrice: String(l.unitPrice),
           locked: {
             productName: l.productName,
             sku: l.sku,
             unitSymbol: l.unitSymbol,
-            receivedQty: l.quantity,
+            ordered: l.ordered,
+            received: l.received,
+            alreadyInvoiced: l.alreadyInvoiced,
+            remainingQty: l.quantity,
             agreedPrice: l.unitPrice,
           },
         }))
