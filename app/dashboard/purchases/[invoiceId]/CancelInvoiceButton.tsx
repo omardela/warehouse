@@ -13,7 +13,7 @@ export function CancelInvoiceButton({ invoiceId }: { invoiceId: string }) {
 
   return (
     <div>
-      {state && typeof state === "object" && "error" in state && (
+      {state && typeof state === "object" && "error" in state ? (
         <div
           style={{
             padding: "8px 12px",
@@ -28,7 +28,7 @@ export function CancelInvoiceButton({ invoiceId }: { invoiceId: string }) {
         >
           {state.error}
         </div>
-      )}
+      ) : null}
       <form action={formAction}>
         <input type="hidden" name="invoiceId" value={invoiceId} />
         <button

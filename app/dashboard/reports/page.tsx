@@ -841,6 +841,21 @@ export default async function ReportsPage({
             {t.reports.links.arAgingReport}
           </Link>
           <Link
+            href="/dashboard/reports/ap-aging"
+            style={{
+              padding: "8px 14px",
+              borderRadius: "8px",
+              border: "1px solid #222a3e",
+              backgroundColor: "#171f33",
+              color: "#8c90a2",
+              fontSize: "13px",
+              fontWeight: 500,
+              textDecoration: "none",
+            }}
+          >
+            {t.reports.links.apAgingReport}
+          </Link>
+          <Link
             href="/dashboard/reports/stock-valuation"
             style={{
               padding: "8px 14px",

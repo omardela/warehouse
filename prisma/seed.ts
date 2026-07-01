@@ -145,6 +145,7 @@ async function main() {
     { code: "reports.report.read", description: "Read reports" },
     { code: "reports.stock.view", description: "View stock valuation report" },
     { code: "reports.ar.view", description: "View AR aging report" },
+    { code: "reports.ap.view", description: "View AP aging report" },
     // Audit
     { code: "audit.log.read", description: "Read audit logs" },
     // Inventory management
@@ -397,6 +398,7 @@ async function main() {
       "employees.employee.read",
       "reports.report.read",
       "reports.ar.view",
+      "reports.ap.view",
       "pos.sales.create",
     ];
     const smPerms = await prisma.permission.findMany({
