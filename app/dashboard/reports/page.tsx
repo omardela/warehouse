@@ -627,6 +627,20 @@ export default async function ReportsPage({
       <>
         <div
           style={{
+            background: "rgba(245,158,11,0.08)",
+            border: "1px solid rgba(245,158,11,0.2)",
+            borderRadius: "8px",
+            padding: "12px 16px",
+            marginBottom: "16px",
+            color: "#d4a017",
+            fontSize: "13px",
+            lineHeight: "1.6",
+          }}
+        >
+          {t.reports.profitDisclaimer}
+        </div>
+        <div
+          style={{
             display: "grid",
             gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
             gap: "12px",

@@ -10,6 +10,7 @@ import { recordMovement } from "@/core/inventory/record-movement";
 import { resolveBaseQuantity } from "@/core/inventory/resolve-base-quantity";
 import { getLocale } from "@/core/i18n/locale";
 import { getDictionary } from "@/core/i18n/get-dictionary";
+import { getNextDocumentNumber } from "@/core/documents/get-next-document-number";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -28,6 +29,7 @@ export type PosActionState =
       invoiceId: string;
       total: number;
       itemCount: number;
+      paymentMethod: string;
       lines: Array<{
         productId: string;
         productName: string;
@@ -74,6 +76,15 @@ export async function completeSaleAction(
   if (!cartRaw || typeof cartRaw !== "string") {
     return { error: t.cartMissing };
   }
+
+  // Parse and validate payment method
+  const paymentMethodRaw = formData.get("paymentMethod");
+  const VALID_METHODS = ["CASH", "CARD", "BANK_TRANSFER"] as const;
+  type PaymentMethodType = typeof VALID_METHODS[number];
+  if (!paymentMethodRaw || !VALID_METHODS.includes(paymentMethodRaw as PaymentMethodType)) {
+    return { error: t.invalidPaymentMethod };
+  }
+  const paymentMethod = paymentMethodRaw as PaymentMethodType;
 
   let cartParsed: unknown;
   try {
@@ -144,8 +155,15 @@ export async function completeSaleAction(
   try {
     const result = await db.$transaction(async (tx) => {
       // Create CONFIRMED Invoice (type: SALE) — walk-in customer, so customerId is null
+      const invoiceNumber = await getNextDocumentNumber(
+        session.orgId,
+        "SALES_INVOICE",
+        new Date().getFullYear(),
+        tx
+      );
       const invoice = await tx.invoice.create({
         data: {
+          number: invoiceNumber,
           type: "SALE",
           status: "CONFIRMED",
           warehouseId: session.warehouseId,
@@ -173,8 +191,15 @@ export async function completeSaleAction(
       });
 
       // Create the implicit Delivery Note for this POS sale
+      const dnNumber = await getNextDocumentNumber(
+        session.orgId,
+        "DELIVERY_NOTE",
+        new Date().getFullYear(),
+        tx
+      );
       const deliveryNote = await tx.deliveryNote.create({
         data: {
+          number: dnNumber,
           salesOrderId: null,
           invoiceId: invoice.id,
           warehouseId: session.warehouseId,
@@ -236,6 +261,24 @@ export async function completeSaleAction(
         }
       }
 
+      // Record payment — POS sales are always settled at point of sale
+      const paymentNumber = await getNextDocumentNumber(
+        session.orgId,
+        "PAYMENT",
+        new Date().getFullYear(),
+        tx
+      );
+      await tx.payment.create({
+        data: {
+          number: paymentNumber,
+          invoiceId: invoice.id,
+          amount: new Prisma.Decimal(totalAmount.toFixed(2)),
+          method: paymentMethod,
+          paidAt: new Date(),
+          actorId: session.employeeId,
+        },
+      });
+
       return { invoice, deliveryNote };
     });
 
@@ -260,6 +303,8 @@ export async function completeSaleAction(
         lineCount: cart.length,
         referenceType: "DeliveryNote",
         referenceId: deliveryNoteId,
+        paymentMethod,
+        paymentAmount: totalAmount.toFixed(2),
       },
       warehouseId: session.warehouseId,
     });
@@ -285,5 +330,6 @@ export async function completeSaleAction(
     total: totalAmount,
     itemCount: cart.length,
     lines: responseLines,
+    paymentMethod,
   };
 }

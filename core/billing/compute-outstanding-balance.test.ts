@@ -54,6 +54,7 @@ describe("computeOutstandingBalance", () => {
     // $1000 confirmed sales invoice: 10 units @ $100.
     const invoice = await db.invoice.create({
       data: {
+        number: `INV-TEST-${Date.now()}-${Math.random().toString(36).slice(2)}`,
         type: "SALE",
         status: "CONFIRMED",
         warehouseId,
@@ -80,6 +81,7 @@ describe("computeOutstandingBalance", () => {
     // Confirmed credit note for $200: 2 units @ $100 returned.
     await db.creditNote.create({
       data: {
+        number: `CN-TEST-${Date.now()}-${Math.random().toString(36).slice(2)}`,
         type: "SALE",
         status: "CONFIRMED",
         organizationId,
@@ -104,6 +106,7 @@ describe("computeOutstandingBalance", () => {
     // A cancelled credit note for $50 must NOT affect the balance.
     await db.creditNote.create({
       data: {
+        number: `CN-TEST-${Date.now()}-${Math.random().toString(36).slice(2)}`,
         type: "SALE",
         status: "CANCELLED",
         organizationId,
@@ -174,6 +177,7 @@ describe("computeOutstandingBalance", () => {
 
     await db.payment.create({
       data: {
+        number: `PAY-TEST-${Date.now()}-${Math.random().toString(36).slice(2)}`,
         invoiceId,
         amount: new Prisma.Decimal("800.00"),
         method: "CASH",

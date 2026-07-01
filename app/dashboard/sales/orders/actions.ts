@@ -10,6 +10,7 @@ import { writeNotification } from "@/core/notifications/write-notification";
 import { resolveBaseQuantity } from "@/core/inventory/resolve-base-quantity";
 import { recordMovement } from "@/core/inventory/record-movement";
 import { applyQuantityCapUpdate } from "@/core/inventory/apply-quantity-cap-update";
+import { getNextDocumentNumber } from "@/core/documents/get-next-document-number";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -149,8 +150,15 @@ export async function createSalesOrderAction(
   }
 
   const salesOrder = await db.$transaction(async (tx) => {
+    const soNumber = await getNextDocumentNumber(
+      session.orgId,
+      "SALES_ORDER",
+      new Date().getFullYear(),
+      tx
+    );
     const so = await tx.salesOrder.create({
       data: {
+        number: soNumber,
         organizationId: session.orgId,
         warehouseId,
         customerId,
@@ -486,8 +494,15 @@ export async function createDeliveryNoteAction(
   const sideEffectCallbacks: Array<() => Promise<{ lowStockTriggered: boolean }>> = [];
 
   const deliveryNote = await db.$transaction(async (tx) => {
+    const dnNumber = await getNextDocumentNumber(
+      session.orgId,
+      "DELIVERY_NOTE",
+      new Date().getFullYear(),
+      tx
+    );
     const dn = await tx.deliveryNote.create({
       data: {
+        number: dnNumber,
         salesOrderId: so.id,
         warehouseId: session.warehouseId,
         dispatchedById: session.employeeId,

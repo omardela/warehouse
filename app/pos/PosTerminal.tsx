@@ -26,6 +26,7 @@ type SuccessPayload = {
   invoiceId: string;
   total: number;
   itemCount: number;
+  paymentMethod: string;
   lines: Array<{
     productId: string;
     productName: string;
@@ -131,6 +132,7 @@ export default function PosTerminal({ products }: { products: ProductForPos[] })
   const [search, setSearch] = useState("");
   const [successData, setSuccessData] = useState<SuccessPayload | null>(null);
   const [priceErrors, setPriceErrors] = useState<Set<string>>(new Set());
+  const [paymentMethod, setPaymentMethod] = useState<"CASH" | "CARD" | "BANK_TRANSFER">("CASH");
   const searchRef = useRef<HTMLInputElement>(null);
 
   const [actionState, formAction, isPending] = useActionState<
@@ -145,6 +147,7 @@ export default function PosTerminal({ products }: { products: ProductForPos[] })
         invoiceId: actionState.invoiceId,
         total: actionState.total,
         itemCount: actionState.itemCount,
+        paymentMethod: actionState.paymentMethod,
         lines: actionState.lines,
       });
       setCart([]);
@@ -296,6 +299,7 @@ export default function PosTerminal({ products }: { products: ProductForPos[] })
         }))
       )
     );
+    fd.set("paymentMethod", paymentMethod);
     startTransition(() => formAction(fd));
   }
 
@@ -1113,6 +1117,40 @@ export default function PosTerminal({ products }: { products: ProductForPos[] })
             </span>
           </div>
 
+          {/* Payment Method Selector */}
+          <div style={{ marginBottom: "12px" }}>
+            <div style={{ color: "#8b9bb4", fontSize: "11px", fontWeight: 500, marginBottom: "8px", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+              Payment Method
+            </div>
+            <div style={{ display: "flex", gap: "8px" }}>
+              {(["CASH", "CARD", "BANK_TRANSFER"] as const).map((method) => {
+                const labels: Record<string, string> = { CASH: "Cash", CARD: "Card", BANK_TRANSFER: "Bank Transfer" };
+                const isSelected = paymentMethod === method;
+                return (
+                  <button
+                    key={method}
+                    type="button"
+                    onClick={() => setPaymentMethod(method)}
+                    style={{
+                      flex: 1,
+                      padding: "8px 4px",
+                      borderRadius: "8px",
+                      border: isSelected ? "1.5px solid #0062ff" : "1px solid rgba(139,155,180,0.2)",
+                      background: isSelected ? "rgba(0,98,255,0.15)" : "rgba(255,255,255,0.04)",
+                      color: isSelected ? "#4d9fff" : "#8b9bb4",
+                      fontSize: "12px",
+                      fontWeight: isSelected ? 600 : 400,
+                      cursor: "pointer",
+                      transition: "all 0.15s ease",
+                    }}
+                  >
+                    {labels[method]}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
           {/* Complete Sale button */}
           <button
             onClick={handleCompleteSale}
@@ -1337,6 +1375,7 @@ export default function PosTerminal({ products }: { products: ProductForPos[] })
                   justifyContent: "space-between",
                   paddingTop: "10px",
                   borderTop: "1px solid #222a3e",
+                  marginBottom: "10px",
                 }}
               >
                 <span
@@ -1357,6 +1396,14 @@ export default function PosTerminal({ products }: { products: ProductForPos[] })
                 >
                   {formatCurrency(successData.total)}
                 </span>
+              </div>
+              <div style={{ color: "#8b9bb4", fontSize: "13px" }}>
+                Payment:{" "}
+                {successData.paymentMethod === "CASH"
+                  ? "Cash"
+                  : successData.paymentMethod === "CARD"
+                  ? "Card"
+                  : "Bank Transfer"}
               </div>
             </div>
 

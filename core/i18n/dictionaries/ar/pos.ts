@@ -42,6 +42,13 @@ const dict: typeof pos = {
     completeSale: "إتمام البيع",
     processing: "جارٍ المعالجة…",
   },
+  payment: {
+    title: "طريقة الدفع",
+    cash: "نقداً",
+    card: "بطاقة",
+    bankTransfer: "تحويل بنكي",
+    selectMethod: "اختر طريقة الدفع",
+  },
   receipt: {
     saleComplete: "تمت عملية البيع بنجاح!",
     invoiceRef: "مرجع الفاتورة",
@@ -50,6 +57,7 @@ const dict: typeof pos = {
     items: "العناصر",
     printReceipt: "طباعة الإيصال",
     newSale: "عملية بيع جديدة",
+    paymentMethod: "طريقة الدفع",
   },
   errors: {
     unauthorized: "غير مصرح",
@@ -66,6 +74,7 @@ const dict: typeof pos = {
     outOfStock: "غير متوفر في المخزون: {productName}",
     stockDeductionFailed: "فشل خصم المخزون لـ {productName}: {message}",
     stockError: "خطأ في المخزون",
+    invalidPaymentMethod: "طريقة الدفع المحددة غير صالحة.",
   },
 };
 

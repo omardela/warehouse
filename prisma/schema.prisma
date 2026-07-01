@@ -7,19 +7,20 @@ datasource db {
 }
 
 model Organization {
-  id             String               @id @default(cuid())
-  name           String
-  createdAt      DateTime             @default(now())
-  updatedAt      DateTime             @updatedAt
-  creditNotes    CreditNote[]
-  customers      Customer[]
-  modules        OrganisationModule[]
-  categories     ProductCategory[]
-  products       Product[]
-  purchaseOrders PurchaseOrder[]
-  salesOrders    SalesOrder[]
-  suppliers      Supplier[]
-  warehouses     Warehouse[]
+  id                String               @id @default(cuid())
+  name              String
+  createdAt         DateTime             @default(now())
+  updatedAt         DateTime             @updatedAt
+  creditNotes       CreditNote[]
+  customers         Customer[]
+  modules           OrganisationModule[]
+  categories        ProductCategory[]
+  products          Product[]
+  purchaseOrders    PurchaseOrder[]
+  salesOrders       SalesOrder[]
+  suppliers         Supplier[]
+  warehouses        Warehouse[]
+  documentSequences DocumentSequence[]
 
   @@map("organizations")
 }
@@ -313,6 +314,7 @@ model Supplier {
 
 model Invoice {
   id              String         @id @default(cuid())
+  number          String         @unique
   type            InvoiceType
   status          InvoiceStatus  @default(DRAFT)
   warehouseId     String
@@ -346,23 +348,25 @@ model Invoice {
 }
 
 model InvoiceLine {
-  id         String      @id @default(cuid())
-  invoiceId  String
-  productId  String
-  unitId     String
-  quantity   Decimal     @db.Decimal(20, 6)
-  unitPrice  Decimal     @db.Decimal(20, 2)
-  totalPrice Decimal     @db.Decimal(20, 2)
-  discount   Decimal?    @db.Decimal(5, 2)
-  invoice    Invoice     @relation(fields: [invoiceId], references: [id])
-  product    Product     @relation(fields: [productId], references: [id])
-  unit       ProductUnit @relation(fields: [unitId], references: [id])
+  id                   String      @id @default(cuid())
+  invoiceId            String
+  productId            String
+  unitId               String
+  quantity             Decimal     @db.Decimal(20, 6)
+  unitPrice            Decimal     @db.Decimal(20, 2)
+  totalPrice           Decimal     @db.Decimal(20, 2)
+  discount             Decimal?    @db.Decimal(5, 2)
+  returnedBaseQuantity Decimal     @default(0) @db.Decimal(20, 6)
+  invoice              Invoice     @relation(fields: [invoiceId], references: [id])
+  product              Product     @relation(fields: [productId], references: [id])
+  unit                 ProductUnit @relation(fields: [unitId], references: [id])
 
   @@map("invoice_lines")
 }
 
 model Payment {
   id        String        @id @default(cuid())
+  number    String        @unique
   invoiceId String
   amount    Decimal       @db.Decimal(20, 2)
   method    PaymentMethod
@@ -377,6 +381,7 @@ model Payment {
 
 model PurchaseOrder {
   id                   String              @id @default(cuid())
+  number               String              @unique
   organizationId       String
   warehouseId          String
   supplierId           String
@@ -419,6 +424,7 @@ model PurchaseOrderLine {
 
 model GoodsReceipt {
   id              String             @id @default(cuid())
+  number          String             @unique
   purchaseOrderId String?
   invoiceId       String?
   warehouseId     String
@@ -452,6 +458,7 @@ model GoodsReceiptLine {
 
 model CreditNote {
   id                String           @id @default(cuid())
+  number            String           @unique
   type              CreditNoteType
   status            CreditNoteStatus @default(DRAFT)
   organizationId    String
@@ -488,6 +495,7 @@ model CreditNoteLine {
 
 model SalesOrder {
   id                   String           @id @default(cuid())
+  number               String           @unique
   organizationId       String
   warehouseId          String
   customerId           String
@@ -529,6 +537,7 @@ model SalesOrderLine {
 
 model DeliveryNote {
   id              String             @id @default(cuid())
+  number          String             @unique
   salesOrderId    String?
   invoiceId       String?
   warehouseId     String
@@ -650,4 +659,15 @@ enum SalesOrderStatus {
   FULFILLED
   CANCELLED
   CLOSED
+}
+
+model DocumentSequence {
+  id             String       @id @default(cuid())
+  organizationId String
+  documentType   String
+  lastNumber     Int          @default(0)
+  organization   Organization @relation(fields: [organizationId], references: [id])
+
+  @@unique([organizationId, documentType])
+  @@map("document_sequences")
 }

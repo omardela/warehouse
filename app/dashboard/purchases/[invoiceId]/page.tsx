@@ -119,7 +119,7 @@ export default async function PurchaseInvoiceDetailPage({ params }: PageProps) {
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
               <h1 style={{ fontSize: "22px", fontWeight: 700, color: "#dbe2fd", margin: 0 }}>
-                Purchase Invoice
+                {invoice.number}
               </h1>
               <StatusBadge status={invoice.status} />
             </div>

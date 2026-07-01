@@ -325,6 +325,7 @@ const dict: typeof purchases = {
     invoiceNotDraft: "الفاتورة ليست في حالة مسودة.",
     notPurchaseInvoice: "ليست فاتورة شراء.",
     invoiceAlreadyCancelled: "الفاتورة ملغاة بالفعل.",
+    confirmedInvoiceCannotBeCancelled: "لا يمكن إلغاء الفواتير المؤكدة. أصدر إشعار دائن للعكس.",
     paymentsOnlyOnConfirmed: "لا يمكن تسجيل الدفعات إلا على الفواتير المؤكدة.",
     paymentExceedsRemaining: "مبلغ الدفعة (${amount}) يتجاوز الرصيد المتبقي (${remaining}).",
     orderNotFound: "أمر الشراء غير موجود.",

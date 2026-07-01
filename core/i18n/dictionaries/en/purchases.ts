@@ -323,6 +323,7 @@ const purchases = {
     invoiceNotDraft: "Invoice is not in DRAFT status.",
     notPurchaseInvoice: "Not a purchase invoice.",
     invoiceAlreadyCancelled: "Invoice is already cancelled.",
+    confirmedInvoiceCannotBeCancelled: "Confirmed invoices cannot be cancelled. Issue a Credit Note to reverse.",
     paymentsOnlyOnConfirmed: "Payments can only be recorded on confirmed invoices.",
     paymentExceedsRemaining: "Payment amount (${amount}) exceeds remaining balance (${remaining}).",
     orderNotFound: "Purchase order not found.",

@@ -9,9 +9,11 @@ const reports = {
   tabs: {
     sales: "Sales",
     purchases: "Purchases",
-    profit: "Profit",
+    profit: "Revenue vs. Spend",
     stock: "Stock Valuation",
   },
+
+  profitDisclaimer: "This report compares confirmed sales revenue against confirmed purchase costs in the same period. It is not an accounting-grade gross profit report and does not reflect the cost of goods sold (COGS). A true Gross Profit report will be available in the Accounting Module.",
 
   dateRange: {
     period: "Period:",
@@ -48,7 +50,7 @@ const reports = {
     spend: "Spend",
     salesRevenue: "Sales Revenue",
     purchaseCost: "Purchase Cost",
-    grossProfit: "Gross Profit",
+    grossProfit: "Revenue vs. Spend",
     currentQty: "Current Qty",
     quantityOnHand: "Quantity on Hand",
     avgCost: "Avg Cost",
@@ -77,7 +79,7 @@ const reports = {
     totalSpend: "Total Spend",
     totalSalesRevenue: "Total Sales Revenue",
     totalPurchaseCost: "Total Purchase Cost",
-    grossProfit: "Gross Profit",
+    grossProfit: "Revenue vs. Spend",
     grossMargin: "Gross Margin",
     totalPortfolioValue: "Total Portfolio Value",
     productsWithStock: "Products with Stock",

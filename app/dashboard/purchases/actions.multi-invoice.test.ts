@@ -93,6 +93,7 @@ describe("createPurchaseInvoiceAction — multi-invoice PO billing", () => {
   async function createReceivedPurchaseOrder(receivedBaseQuantity: number) {
     const po = await db.purchaseOrder.create({
       data: {
+        number: `PO-TEST-${Date.now()}-${Math.random().toString(36).slice(2)}`,
         organizationId,
         warehouseId,
         supplierId,

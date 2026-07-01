@@ -10,6 +10,7 @@ const sales = {
     noResultsFiltered: "No invoices match your filters.",
     noResultsEmpty: "No sales invoices yet. Create your first sale to get started.",
     columns: {
+      number: "Number",
       invoiceId: "Invoice ID",
       customer: "Customer",
       totalAmount: "Total Amount",
@@ -140,6 +141,7 @@ const sales = {
     invoiceAlreadyStatus: "Invoice is already {status}.",
     insufficientStock: "Insufficient stock for product: {product} (available: {available}, requested: {requested})",
     invoiceAlreadyCancelled: "Invoice is already cancelled.",
+    confirmedInvoiceCannotBeCancelled: "Confirmed invoices cannot be cancelled. Issue a Credit Note to reverse.",
     paymentsOnlyOnConfirmed: "Payments can only be recorded on confirmed invoices.",
   },
 

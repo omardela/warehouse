@@ -11,6 +11,7 @@ import { writeNotification } from "@/core/notifications/write-notification";
 import { resolveBaseQuantity } from "@/core/inventory/resolve-base-quantity";
 import { recordMovement } from "@/core/inventory/record-movement";
 import { applyQuantityCapUpdate } from "@/core/inventory/apply-quantity-cap-update";
+import { getNextDocumentNumber } from "@/core/documents/get-next-document-number";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -151,8 +152,15 @@ export async function createPurchaseOrderAction(
   }
 
   const purchaseOrder = await db.$transaction(async (tx) => {
+    const poNumber = await getNextDocumentNumber(
+      session.orgId,
+      "PURCHASE_ORDER",
+      new Date().getFullYear(),
+      tx
+    );
     const po = await tx.purchaseOrder.create({
       data: {
+        number: poNumber,
         organizationId: session.orgId,
         warehouseId: session.warehouseId,
         supplierId,
@@ -461,8 +469,15 @@ export async function createGoodsReceiptAction(
   const pendingSideEffects: Array<() => Promise<unknown>> = [];
 
   const goodsReceipt = await db.$transaction(async (tx) => {
+    const grNumber = await getNextDocumentNumber(
+      session.orgId,
+      "GOODS_RECEIPT",
+      new Date().getFullYear(),
+      tx
+    );
     const receipt = await tx.goodsReceipt.create({
       data: {
+        number: grNumber,
         purchaseOrderId: po.id,
         warehouseId: session.warehouseId,
         receivedById: session.employeeId,

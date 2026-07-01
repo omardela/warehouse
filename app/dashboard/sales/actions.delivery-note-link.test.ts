@@ -93,6 +93,7 @@ describe("createSalesInvoiceAction — delivery note linkage", () => {
   async function createDeliveryNote(deliveredQty: number) {
     const dn = await db.deliveryNote.create({
       data: {
+        number: `DN-TEST-${Date.now()}-${Math.random().toString(36).slice(2)}`,
         salesOrderId: null,
         invoiceId: null,
         warehouseId,
@@ -164,6 +165,7 @@ describe("createSalesInvoiceAction — delivery note linkage", () => {
     // Simulate the implicit-DN case: an Invoice exists first, DN.invoiceId points to it.
     const implicitInvoice = await db.invoice.create({
       data: {
+        number: `INV-TEST-${Date.now()}-${Math.random().toString(36).slice(2)}`,
         type: "SALE",
         status: "CONFIRMED",
         warehouseId,
@@ -174,6 +176,7 @@ describe("createSalesInvoiceAction — delivery note linkage", () => {
     });
     const dn = await db.deliveryNote.create({
       data: {
+        number: `DN-TEST-${Date.now()}-${Math.random().toString(36).slice(2)}`,
         salesOrderId: null,
         invoiceId: implicitInvoice.id,
         warehouseId,

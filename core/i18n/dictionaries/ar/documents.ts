@@ -13,6 +13,7 @@ const documents = {
 
   meta: {
     documentNo: "رقم المستند",
+    documentNumber: "رقم الوثيقة",
     issueDate: "تاريخ الإصدار",
     dueDate: "تاريخ الاستحقاق",
     expectedDeliveryDate: "تاريخ التسليم المتوقع",

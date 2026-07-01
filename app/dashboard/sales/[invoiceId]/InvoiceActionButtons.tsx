@@ -136,20 +136,7 @@ export function InvoiceActionButtons({
   }
 
   if (status === "CONFIRMED") {
-    return (
-      <div style={{ display: "flex", gap: "8px", alignItems: "flex-start", flexWrap: "wrap" }}>
-        {canCancel && (
-          <ActionForm
-            invoiceId={invoiceId}
-            action={cancelAction}
-            label="Cancel Invoice"
-            pendingLabel="Cancelling…"
-            buttonStyle={cancelBtnStyle}
-            onConfirmPrompt="Cancel this confirmed invoice? Note: stock will NOT be automatically reversed."
-          />
-        )}
-      </div>
-    );
+    return null;
   }
 
   // CANCELLED — no actions

@@ -9,6 +9,8 @@ import { writeAuditLog } from "@/core/audit/write-audit-log";
 import { MovementType } from "@prisma/client";
 import { resolveBaseQuantity } from "@/core/inventory/resolve-base-quantity";
 import { recordMovement } from "@/core/inventory/record-movement";
+import { applyQuantityCapUpdate } from "@/core/inventory/apply-quantity-cap-update";
+import { getNextDocumentNumber } from "@/core/documents/get-next-document-number";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -133,8 +135,15 @@ export async function createSalesCreditNoteAction(
   }
 
   const creditNote = await db.$transaction(async (tx) => {
+    const creditNoteNumber = await getNextDocumentNumber(
+      session.orgId,
+      "CREDIT_NOTE",
+      new Date().getFullYear(),
+      tx
+    );
     const cn = await tx.creditNote.create({
       data: {
+        number: creditNoteNumber,
         type: "SALE",
         status: "DRAFT",
         organizationId: session.orgId,
@@ -165,6 +174,16 @@ export async function createSalesCreditNoteAction(
           baseQuantity: baseQty,
           unitPrice: invLine.unitPrice,
         },
+      });
+
+      await applyQuantityCapUpdate({
+        table: "invoice_lines",
+        id: invLine.id,
+        column: "returnedBaseQuantity",
+        capColumn: "quantity",
+        amount: baseQty,
+        errorMessage: `Return quantity for "${invLine.productId}" exceeds the original invoice line quantity.`,
+        tx,
       });
     }
 

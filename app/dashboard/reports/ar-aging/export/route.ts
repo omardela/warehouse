@@ -130,7 +130,7 @@ export async function GET(request: NextRequest) {
       createdAt: true,
       payments: { select: { amount: true } },
       creditNotes: {
-        where: { status: { not: "CANCELLED" } },
+        where: { status: "CONFIRMED" },
         include: { lines: true },
       },
     },

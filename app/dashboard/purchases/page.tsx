@@ -178,7 +178,7 @@ export default async function PurchasesPage({ searchParams }: PageProps) {
             <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "13px" }}>
               <thead>
                 <tr style={{ borderBottom: "1px solid #222a3e", background: "#0d1627" }}>
-                  {["Invoice ID", "Supplier", "Total Amount", "Status", "Created", "Confirmed", "Actions"].map((h) => (
+                  {["Number", "Invoice ID", "Supplier", "Total Amount", "Status", "Created", "Confirmed", "Actions"].map((h) => (
                     <th
                       key={h}
                       style={{
@@ -200,13 +200,18 @@ export default async function PurchasesPage({ searchParams }: PageProps) {
               <tbody>
                 {invoices.length === 0 ? (
                   <tr>
-                    <td colSpan={7} style={{ padding: "48px 24px", textAlign: "center", color: "#8c90a2", fontSize: "14px" }}>
+                    <td colSpan={8} style={{ padding: "48px 24px", textAlign: "center", color: "#8c90a2", fontSize: "14px" }}>
                       {statusFilter ? `No ${statusFilter.toLowerCase()} invoices found.` : "No purchase invoices yet."}
                     </td>
                   </tr>
                 ) : (
                   invoices.map((inv) => (
                     <tr key={inv.id} className="invoice-row" style={{ borderBottom: "1px solid #1a2237" }}>
+                      <td style={{ padding: "12px 16px" }}>
+                        <span style={{ fontFamily: "monospace", fontSize: "12px", color: "#6b9fff", fontWeight: 600 }}>
+                          {inv.number}
+                        </span>
+                      </td>
                       <td style={{ padding: "12px 16px" }}>
                         <span style={{ fontFamily: "monospace", fontSize: "12px", color: "#dbe2fd", background: "#0d1627", padding: "2px 6px", borderRadius: "4px", border: "1px solid #222a3e" }}>
                           {inv.id.slice(0, 8).toUpperCase()}

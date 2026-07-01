@@ -40,6 +40,13 @@ const pos = {
     completeSale: "Complete Sale",
     processing: "Processing…",
   },
+  payment: {
+    title: "Payment Method",
+    cash: "Cash",
+    card: "Card",
+    bankTransfer: "Bank Transfer",
+    selectMethod: "Select payment method",
+  },
   receipt: {
     saleComplete: "Sale Complete!",
     invoiceRef: "Invoice Ref",
@@ -48,6 +55,7 @@ const pos = {
     items: "Items",
     printReceipt: "Print Receipt",
     newSale: "New Sale",
+    paymentMethod: "Payment Method",
   },
   errors: {
     unauthorized: "Unauthorized",
@@ -64,6 +72,7 @@ const pos = {
     outOfStock: "Out of stock: {productName}",
     stockDeductionFailed: "Failed to deduct stock for {productName}: {message}",
     stockError: "Stock error",
+    invalidPaymentMethod: "Invalid payment method selected.",
   },
 };
 

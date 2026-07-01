@@ -74,6 +74,7 @@ describe("applyQuantityCapUpdate", () => {
   it("applies the increment when the result stays at or under the cap", async () => {
     const po = await db.purchaseOrder.create({
       data: {
+        number: `PO-TEST-${Date.now()}-${Math.random().toString(36).slice(2)}`,
         organizationId,
         warehouseId,
         supplierId,
@@ -108,6 +109,7 @@ describe("applyQuantityCapUpdate", () => {
   it("rejects an increment that would push the running total past the cap", async () => {
     const po = await db.purchaseOrder.create({
       data: {
+        number: `PO-TEST-${Date.now()}-${Math.random().toString(36).slice(2)}`,
         organizationId,
         warehouseId,
         supplierId,
@@ -144,6 +146,7 @@ describe("applyQuantityCapUpdate", () => {
   it("rolls back the caller's transaction when the cap check fails inside it", async () => {
     const po = await db.purchaseOrder.create({
       data: {
+        number: `PO-TEST-${Date.now()}-${Math.random().toString(36).slice(2)}`,
         organizationId,
         warehouseId,
         supplierId,
@@ -187,6 +190,7 @@ describe("applyQuantityCapUpdate", () => {
   it("PO race: two concurrent receipts summing past baseQuantity — exactly one succeeds and the total never exceeds the cap", async () => {
     const po = await db.purchaseOrder.create({
       data: {
+        number: `PO-TEST-${Date.now()}-${Math.random().toString(36).slice(2)}`,
         organizationId,
         warehouseId,
         supplierId,
@@ -242,6 +246,7 @@ describe("applyQuantityCapUpdate", () => {
   it("SO race: two concurrent deliveries summing past baseQuantity — exactly one succeeds and the total never exceeds the cap", async () => {
     const so = await db.salesOrder.create({
       data: {
+        number: `SO-TEST-${Date.now()}-${Math.random().toString(36).slice(2)}`,
         organizationId,
         warehouseId,
         customerId,

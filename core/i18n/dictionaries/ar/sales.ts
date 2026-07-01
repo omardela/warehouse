@@ -12,6 +12,7 @@ const dict: typeof sales = {
     noResultsFiltered: "لا توجد فواتير مطابقة لمرشحاتك.",
     noResultsEmpty: "لا توجد فواتير مبيعات حتى الآن. أنشئ أول عملية بيع للبدء.",
     columns: {
+      number: "الرقم",
       invoiceId: "رقم الفاتورة",
       customer: "العميل",
       totalAmount: "المبلغ الإجمالي",
@@ -142,6 +143,7 @@ const dict: typeof sales = {
     invoiceAlreadyStatus: "الفاتورة بالفعل {status}.",
     insufficientStock: "المخزون غير كافٍ للمنتج: {product} (المتوفر: {available}، المطلوب: {requested})",
     invoiceAlreadyCancelled: "الفاتورة ملغاة بالفعل.",
+    confirmedInvoiceCannotBeCancelled: "لا يمكن إلغاء الفواتير المؤكدة. أصدر إشعار دائن للعكس.",
     paymentsOnlyOnConfirmed: "لا يمكن تسجيل الدفعات إلا على الفواتير المؤكدة.",
   },
 

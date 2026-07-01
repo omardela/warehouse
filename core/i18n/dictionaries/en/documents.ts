@@ -13,6 +13,7 @@ const documents = {
 
   meta: {
     documentNo: "Document No.",
+    documentNumber: "Document #",
     issueDate: "Issue Date",
     dueDate: "Due Date",
     expectedDeliveryDate: "Expected Delivery Date",

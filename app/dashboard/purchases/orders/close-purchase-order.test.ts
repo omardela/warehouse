@@ -116,6 +116,7 @@ describe("closePurchaseOrderAction", () => {
   async function createOrder(status: "DRAFT" | "SENT" | "PARTIAL" | "RECEIVED") {
     return db.purchaseOrder.create({
       data: {
+        number: `PO-TEST-${Date.now()}-${Math.random().toString(36).slice(2)}`,
         organizationId,
         warehouseId,
         supplierId,

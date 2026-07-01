@@ -11,6 +11,7 @@ import { writeNotification } from "@/core/notifications/write-notification";
 import { resolveBaseQuantity } from "@/core/inventory/resolve-base-quantity";
 import { recordMovement } from "@/core/inventory/record-movement";
 import { computeOutstandingBalance } from "@/core/billing/compute-outstanding-balance";
+import { getNextDocumentNumber } from "@/core/documents/get-next-document-number";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -180,21 +181,30 @@ export async function createSalesInvoiceAction(
 
   let invoice: { id: string };
   try {
-    invoice = await db.invoice.create({
-      data: {
-        type: "SALE",
-        status: "DRAFT",
-        warehouseId: session.warehouseId,
-        customerId: customerId ?? null,
-        deliveryNoteId: deliveryNoteId ?? null,
-        totalAmount: new Prisma.Decimal(totalAmount.toFixed(2)),
-        notes: notes ?? null,
-        actorId: session.employeeId,
-        lines: {
-          create: lineData,
+    invoice = await db.$transaction(async (tx) => {
+      const invoiceNumber = await getNextDocumentNumber(
+        session.orgId,
+        "SALES_INVOICE",
+        new Date().getFullYear(),
+        tx
+      );
+      return tx.invoice.create({
+        data: {
+          number: invoiceNumber,
+          type: "SALE",
+          status: "DRAFT",
+          warehouseId: session.warehouseId,
+          customerId: customerId ?? null,
+          deliveryNoteId: deliveryNoteId ?? null,
+          totalAmount: new Prisma.Decimal(totalAmount.toFixed(2)),
+          notes: notes ?? null,
+          actorId: session.employeeId,
+          lines: {
+            create: lineData,
+          },
         },
-      },
-      select: { id: true },
+        select: { id: true },
+      });
     });
   } catch (err) {
     if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002") {
@@ -307,8 +317,15 @@ export async function confirmSalesInvoiceAction(
 
       // 4. Create an implicit Delivery Note for this direct invoice sale, and
       // route stock movements through recordMovement() inside this same transaction.
+      const dnNumber = await getNextDocumentNumber(
+        session.orgId,
+        "DELIVERY_NOTE",
+        new Date().getFullYear(),
+        tx
+      );
       const deliveryNote = await tx.deliveryNote.create({
         data: {
+          number: dnNumber,
           salesOrderId: null,
           invoiceId: invoiceId,
           warehouseId: session.warehouseId,
@@ -444,6 +461,10 @@ export async function cancelSalesInvoiceAction(
     return { error: "This is not a sales invoice." };
   }
 
+  if (invoice.status === "CONFIRMED") {
+    return { error: "Confirmed invoices cannot be cancelled. Issue a Credit Note to reverse." };
+  }
+
   if (invoice.status === "CANCELLED") {
     return { error: "Invoice is already cancelled." };
   }
@@ -522,7 +543,7 @@ export async function createSalesPaymentAction(
       totalAmount: true,
       payments: { select: { amount: true } },
       creditNotes: {
-        where: { status: { not: "CANCELLED" } },
+        where: { status: "CONFIRMED" },
         include: { lines: true },
       },
     },
@@ -551,16 +572,25 @@ export async function createSalesPaymentAction(
     };
   }
 
-  const payment = await db.payment.create({
-    data: {
-      invoiceId,
-      amount: new Prisma.Decimal(amount.toFixed(2)),
-      method: payMethod,
-      paidAt: new Date(paidAt),
-      notes: payNotes ?? null,
-      actorId: session.employeeId,
-    },
-    select: { id: true },
+  const payment = await db.$transaction(async (tx) => {
+    const paymentNumber = await getNextDocumentNumber(
+      session.orgId,
+      "PAYMENT",
+      new Date().getFullYear(),
+      tx
+    );
+    return tx.payment.create({
+      data: {
+        number: paymentNumber,
+        invoiceId,
+        amount: new Prisma.Decimal(amount.toFixed(2)),
+        method: payMethod,
+        paidAt: new Date(paidAt),
+        notes: payNotes ?? null,
+        actorId: session.employeeId,
+      },
+      select: { id: true },
+    });
   });
 
   await writeAuditLog({

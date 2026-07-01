@@ -146,7 +146,7 @@ export default async function SalesInvoiceDetailPage({ params }: PageProps) {
           <div>
             <div style={{ display: "flex", alignItems: "center", gap: "12px", flexWrap: "wrap" }}>
               <h1 style={{ fontSize: "20px", fontWeight: 700, color: "#dbe2fd", margin: 0, fontFamily: "monospace" }}>
-                {invoiceId}
+                {invoice.number}
               </h1>
               <StatusBadge status={invoice.status} />
               {isOverdue && <OverdueBadge />}

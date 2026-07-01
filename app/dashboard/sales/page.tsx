@@ -238,6 +238,7 @@ export default async function SalesPage({ searchParams }: PageProps) {
               <thead>
                 <tr style={{ borderBottom: "1px solid #222a3e", background: "#0d1627" }}>
                   {[
+                    t.sales.invoices.columns.number,
                     t.sales.invoices.columns.invoiceId,
                     t.sales.invoices.columns.customer,
                     t.sales.invoices.columns.totalAmount,
@@ -268,7 +269,7 @@ export default async function SalesPage({ searchParams }: PageProps) {
               <tbody>
                 {filteredInvoices.length === 0 ? (
                   <tr>
-                    <td colSpan={8} style={{ padding: "48px 24px", textAlign: "center", color: "#8c90a2", fontSize: "14px" }}>
+                    <td colSpan={9} style={{ padding: "48px 24px", textAlign: "center", color: "#8c90a2", fontSize: "14px" }}>
                       {q || statusFilter !== "ALL"
                         ? t.sales.invoices.noResultsFiltered
                         : t.sales.invoices.noResultsEmpty}
@@ -284,6 +285,11 @@ export default async function SalesPage({ searchParams }: PageProps) {
                         className="invoice-row"
                         style={{ borderBottom: "1px solid #1a2237" }}
                       >
+                        <td style={{ padding: "12px 16px" }}>
+                          <span style={{ fontFamily: "monospace", fontSize: "12px", color: "#6b9fff", fontWeight: 600 }}>
+                            {invoice.number}
+                          </span>
+                        </td>
                         <td style={{ padding: "12px 16px" }}>
                           <span style={{ fontFamily: "monospace", fontSize: "12px", color: "#8c90a2", background: "#0d1627", padding: "2px 6px", borderRadius: "4px", border: "1px solid #222a3e" }}>
                             {invoice.id.slice(0, 14)}…

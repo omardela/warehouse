@@ -11,9 +11,11 @@ const dict: typeof reports = {
   tabs: {
     sales: "المبيعات",
     purchases: "المشتريات",
-    profit: "الربح",
+    profit: "الإيرادات مقابل الإنفاق",
     stock: "تقييم المخزون",
   },
+
+  profitDisclaimer: "يقارن هذا التقرير إيرادات المبيعات المؤكدة مع تكاليف المشتريات المؤكدة في نفس الفترة. هذا ليس تقرير ربح إجمالي بمعايير محاسبية ولا يعكس تكلفة البضائع المباعة. سيتوفر تقرير الربح الإجمالي الحقيقي في وحدة المحاسبة.",
 
   dateRange: {
     period: "الفترة:",
@@ -50,7 +52,7 @@ const dict: typeof reports = {
     spend: "المصروفات",
     salesRevenue: "إيرادات المبيعات",
     purchaseCost: "تكلفة الشراء",
-    grossProfit: "إجمالي الربح",
+    grossProfit: "الإيرادات مقابل الإنفاق",
     currentQty: "الكمية الحالية",
     quantityOnHand: "الكمية المتوفرة",
     avgCost: "متوسط التكلفة",
@@ -79,7 +81,7 @@ const dict: typeof reports = {
     totalSpend: "إجمالي المصروفات",
     totalSalesRevenue: "إجمالي إيرادات المبيعات",
     totalPurchaseCost: "إجمالي تكلفة المشتريات",
-    grossProfit: "إجمالي الربح",
+    grossProfit: "الإيرادات مقابل الإنفاق",
     grossMargin: "هامش الربح الإجمالي",
     totalPortfolioValue: "القيمة الإجمالية للمخزون",
     productsWithStock: "المنتجات المتوفرة بالمخزون",

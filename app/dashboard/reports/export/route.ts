@@ -193,7 +193,7 @@ export async function GET(request: NextRequest) {
     const productMap = new Map(products.map((p) => [p.id, p]));
 
     const rows = [
-      buildCsvRow(["Product", "SKU", "Sales Revenue", "Purchase Cost", "Gross Profit"]),
+      buildCsvRow(["Product", "SKU", "Sales Revenue", "Purchase Cost", "Revenue vs. Spend"]),
     ];
     const profitData = allProductIds
       .map((id) => {
@@ -216,7 +216,7 @@ export async function GET(request: NextRequest) {
       );
     }
     csvContent = rows.join("\n");
-    filename = `profit-report-${from ?? "current-month"}`;
+    filename = `revenue-vs-spend-${from ?? "current-month"}`;
   } else if (tab === "stock") {
     const [balances, purchaseLines] = await Promise.all([
       db.inventoryBalance.findMany({

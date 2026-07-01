@@ -12,6 +12,7 @@ import { resolveBaseQuantity } from "@/core/inventory/resolve-base-quantity";
 import { recordMovement } from "@/core/inventory/record-movement";
 import { computeOutstandingBalance } from "@/core/billing/compute-outstanding-balance";
 import { applyQuantityCapUpdate } from "@/core/inventory/apply-quantity-cap-update";
+import { getNextDocumentNumber } from "@/core/documents/get-next-document-number";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -213,8 +214,15 @@ export async function createPurchaseInvoiceAction(
   const totalAmount = lineData.reduce((sum, l) => sum + l.totalPrice, 0);
 
   const invoice = await db.$transaction(async (tx) => {
+    const invoiceNumber = await getNextDocumentNumber(
+      session.orgId,
+      "PURCHASE_INVOICE",
+      new Date().getFullYear(),
+      tx
+    );
     const inv = await tx.invoice.create({
       data: {
+        number: invoiceNumber,
         type: "PURCHASE",
         status: "DRAFT",
         warehouseId: session.warehouseId,
@@ -319,8 +327,15 @@ export async function confirmPurchaseInvoiceAction(formData: FormData): Promise<
     // when the Goods Receipt was created against that PO (issue 019) — confirming
     // such an invoice is purely a financial status change.
     if (invoice.purchaseOrderId == null) {
+      const grNumber = await getNextDocumentNumber(
+        session.orgId,
+        "GOODS_RECEIPT",
+        new Date().getFullYear(),
+        tx
+      );
       const receipt = await tx.goodsReceipt.create({
         data: {
+          number: grNumber,
           purchaseOrderId: null,
           invoiceId: invoiceId,
           warehouseId: session.warehouseId,
@@ -397,9 +412,12 @@ export async function confirmPurchaseInvoiceAction(formData: FormData): Promise<
 
 // ─── Cancel Purchase Invoice ───────────────────────────────────────────────
 
-export async function cancelPurchaseInvoiceAction(formData: FormData): Promise<void> {
+export async function cancelPurchaseInvoiceAction(
+  _prevState: { error: string } | void,
+  formData: FormData
+): Promise<{ error: string } | void> {
   const session = await getSession();
-  if (!session) redirect("/login");
+  if (!session) return { error: "Unauthorized" };
 
   const invoiceId = formData.get("invoiceId") as string;
   if (!invoiceId) return;
@@ -407,7 +425,7 @@ export async function cancelPurchaseInvoiceAction(formData: FormData): Promise<v
   try {
     await requirePermission(session, "purchase.invoice.cancel");
   } catch {
-    throw new Error("You do not have permission to cancel purchase invoices.");
+    return { error: "You do not have permission to cancel purchase invoices." };
   }
 
   const invoice = await db.invoice.findUnique({
@@ -415,10 +433,13 @@ export async function cancelPurchaseInvoiceAction(formData: FormData): Promise<v
     select: { id: true, status: true, warehouseId: true, type: true },
   });
 
-  if (!invoice) throw new Error("Invoice not found.");
-  if (invoice.warehouseId !== session.warehouseId) throw new Error("Access denied.");
-  if (invoice.status === "CANCELLED") throw new Error("Invoice is already cancelled.");
-  if (invoice.type !== "PURCHASE") throw new Error("Not a purchase invoice.");
+  if (!invoice) return { error: "Invoice not found." };
+  if (invoice.warehouseId !== session.warehouseId) return { error: "Access denied." };
+  if (invoice.status === "CONFIRMED") {
+    return { error: "Confirmed invoices cannot be cancelled. Issue a Credit Note to reverse." };
+  }
+  if (invoice.status === "CANCELLED") return { error: "Invoice is already cancelled." };
+  if (invoice.type !== "PURCHASE") return { error: "Not a purchase invoice." };
 
   const beforeStatus = invoice.status;
 
@@ -491,7 +512,7 @@ export async function createPurchasePaymentAction(
       totalAmount: true,
       payments: { select: { amount: true } },
       creditNotes: {
-        where: { status: { not: "CANCELLED" } },
+        where: { status: "CONFIRMED" },
         include: { lines: true },
       },
     },
@@ -513,16 +534,25 @@ export async function createPurchasePaymentAction(
     };
   }
 
-  const payment = await db.payment.create({
-    data: {
-      invoiceId,
-      amount,
-      method: method as "CASH" | "CARD" | "BANK_TRANSFER",
-      paidAt: new Date(paidAt),
-      notes: notes || null,
-      actorId: session.employeeId,
-    },
-    select: { id: true },
+  const payment = await db.$transaction(async (tx) => {
+    const paymentNumber = await getNextDocumentNumber(
+      session.orgId,
+      "PAYMENT",
+      new Date().getFullYear(),
+      tx
+    );
+    return tx.payment.create({
+      data: {
+        number: paymentNumber,
+        invoiceId,
+        amount,
+        method: method as "CASH" | "CARD" | "BANK_TRANSFER",
+        paidAt: new Date(paidAt),
+        notes: notes || null,
+        actorId: session.employeeId,
+      },
+      select: { id: true },
+    });
   });
 
   await writeAuditLog({

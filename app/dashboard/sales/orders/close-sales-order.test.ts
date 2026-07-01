@@ -110,6 +110,7 @@ describe("closeSalesOrderAction", () => {
   ) {
     return db.salesOrder.create({
       data: {
+        number: `SO-TEST-${Date.now()}-${Math.random().toString(36).slice(2)}`,
         organizationId,
         warehouseId,
         customerId,
