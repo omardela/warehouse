@@ -512,8 +512,8 @@ export function Sidebar({ isOpen, onClose }: { isOpen: boolean; onClose: () => v
       {/* Mobile/tablet: full-screen drawer, only below lg */}
       {isOpen && (
         <div
-          className="lg:hidden"
-          style={{ position: "fixed", inset: 0, zIndex: 40, display: "flex" }}
+          className="flex lg:hidden"
+          style={{ position: "fixed", inset: 0, zIndex: 40 }}
         >
           {/* Backdrop */}
           <div

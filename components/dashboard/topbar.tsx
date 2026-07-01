@@ -95,7 +95,6 @@ function IconWarehouse() {
 // ── Icon button ───────────────────────────────────────────────────────────────
 
 const iconButtonStyle: React.CSSProperties = {
-  display: "flex",
   alignItems: "center",
   justifyContent: "center",
   width: "34px",
@@ -124,7 +123,7 @@ function IconButton({
     <button
       aria-label={label}
       onClick={onClick}
-      className={className}
+      className={className ? `flex ${className}` : "flex"}
       style={iconButtonStyle}
       onMouseEnter={(e) => {
         (e.currentTarget as HTMLElement).style.backgroundColor = "#171f33";
