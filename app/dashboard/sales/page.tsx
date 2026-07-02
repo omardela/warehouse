@@ -76,11 +76,11 @@ export default async function SalesPage({ searchParams }: PageProps) {
     orderBy: { createdAt: "desc" },
   });
 
-  // Filter by customer name search client-side (via DB ILIKE if customerId not specified)
+  // Filter by invoice number or customer name search client-side
   const filteredInvoices = q
     ? invoices.filter((inv) =>
-        inv.customer?.name.toLowerCase().includes(q.toLowerCase()) ||
-        inv.id.toLowerCase().includes(q.toLowerCase())
+        inv.number.toLowerCase().includes(q.toLowerCase()) ||
+        (inv.customer?.name.toLowerCase().includes(q.toLowerCase()) ?? false)
       )
     : invoices;
 

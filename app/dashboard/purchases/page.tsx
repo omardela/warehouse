@@ -12,6 +12,7 @@ interface PageProps {
   searchParams: Promise<{
     status?: string;
     page?: string;
+    q?: string;
   }>;
 }
 
@@ -56,6 +57,7 @@ export default async function PurchasesPage({ searchParams }: PageProps) {
 
   const params = await searchParams;
   const statusFilter = params.status ?? "";
+  const q = params.q?.trim() ?? "";
   const page = Math.max(1, parseInt(params.page ?? "1", 10));
   const skip = (page - 1) * PAGE_SIZE;
 
@@ -66,6 +68,14 @@ export default async function PurchasesPage({ searchParams }: PageProps) {
     type: "PURCHASE" as const,
     ...(statusFilter && validStatuses.includes(statusFilter)
       ? { status: statusFilter as "DRAFT" | "CONFIRMED" | "CANCELLED" }
+      : {}),
+    ...(q
+      ? {
+          OR: [
+            { number: { contains: q, mode: "insensitive" as const } },
+            { supplier: { name: { contains: q, mode: "insensitive" as const } } },
+          ],
+        }
       : {}),
   };
 
@@ -137,29 +147,94 @@ export default async function PurchasesPage({ searchParams }: PageProps) {
             padding: "14px 16px",
             marginBottom: "16px",
             display: "flex",
-            gap: "8px",
+            gap: "12px",
             flexWrap: "wrap",
             alignItems: "center",
           }}
         >
-          {["", "DRAFT", "CONFIRMED", "CANCELLED"].map((s) => (
-            <Link
-              key={s}
-              href={s ? `?status=${s}` : "/dashboard/purchases"}
+          <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+            {["", "DRAFT", "CONFIRMED", "CANCELLED"].map((s) => (
+              <Link
+                key={s}
+                href={`?status=${s}${q ? `&q=${encodeURIComponent(q)}` : ""}`}
+                style={{
+                  padding: "6px 14px",
+                  borderRadius: "20px",
+                  fontSize: "12px",
+                  fontWeight: 500,
+                  textDecoration: "none",
+                  border: `1px solid ${statusFilter === s ? "#0062ff" : "#2d3449"}`,
+                  background: statusFilter === s ? "rgba(0,98,255,0.15)" : "transparent",
+                  color: statusFilter === s ? "#6b9fff" : "#8c90a2",
+                }}
+              >
+                {s || "All"}
+              </Link>
+            ))}
+          </div>
+
+          <form method="GET" style={{ display: "flex", gap: "8px", flexWrap: "wrap", flex: 1, alignItems: "center", minWidth: "220px" }}>
+            <input type="hidden" name="status" value={statusFilter} />
+            <div style={{ position: "relative", flex: 1, minWidth: "180px" }}>
+              <svg
+                width="14" height="14" viewBox="0 0 14 14" fill="none"
+                style={{ position: "absolute", insetInlineStart: "10px", top: "50%", transform: "translateY(-50%)", color: "#4a5068", pointerEvents: "none" }}
+              >
+                <circle cx="6" cy="6" r="4" stroke="currentColor" strokeWidth="1.5" />
+                <path d="M9.5 9.5L12.5 12.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+              </svg>
+              <input
+                name="q"
+                type="text"
+                defaultValue={q}
+                placeholder="Search by invoice number or supplier..."
+                style={{
+                  width: "100%",
+                  paddingInlineStart: "32px",
+                  paddingInlineEnd: "12px",
+                  paddingTop: "7px",
+                  paddingBottom: "7px",
+                  background: "#0d1627",
+                  border: "1px solid #2d3449",
+                  borderRadius: "8px",
+                  color: "#dbe2fd",
+                  fontSize: "13px",
+                  outline: "none",
+                  boxSizing: "border-box",
+                }}
+              />
+            </div>
+            <button
+              type="submit"
               style={{
-                padding: "6px 14px",
-                borderRadius: "20px",
-                fontSize: "12px",
+                padding: "7px 14px",
+                background: "#0062ff",
+                border: "none",
+                borderRadius: "8px",
+                color: "#fff",
+                fontSize: "13px",
                 fontWeight: 500,
-                textDecoration: "none",
-                border: `1px solid ${statusFilter === s ? "#0062ff" : "#2d3449"}`,
-                background: statusFilter === s ? "rgba(0,98,255,0.15)" : "transparent",
-                color: statusFilter === s ? "#6b9fff" : "#8c90a2",
+                cursor: "pointer",
               }}
             >
-              {s || "All"}
-            </Link>
-          ))}
+              Search
+            </button>
+            {q && (
+              <Link
+                href={statusFilter ? `?status=${statusFilter}` : "/dashboard/purchases"}
+                style={{
+                  padding: "7px 12px",
+                  border: "1px solid #2d3449",
+                  borderRadius: "8px",
+                  color: "#8c90a2",
+                  fontSize: "13px",
+                  textDecoration: "none",
+                }}
+              >
+                Clear
+              </Link>
+            )}
+          </form>
         </div>
 
         {/* Table */}
@@ -201,7 +276,9 @@ export default async function PurchasesPage({ searchParams }: PageProps) {
                 {invoices.length === 0 ? (
                   <tr>
                     <td colSpan={8} style={{ padding: "48px 24px", textAlign: "center", color: "#8c90a2", fontSize: "14px" }}>
-                      {statusFilter ? `No ${statusFilter.toLowerCase()} invoices found.` : "No purchase invoices yet."}
+                      {q || statusFilter
+                        ? "No invoices match your filters."
+                        : "No purchase invoices yet."}
                     </td>
                   </tr>
                 ) : (
@@ -271,7 +348,7 @@ export default async function PurchasesPage({ searchParams }: PageProps) {
               <div style={{ display: "flex", gap: "8px" }}>
                 {page > 1 && (
                   <Link
-                    href={`?status=${statusFilter}&page=${page - 1}`}
+                    href={`?status=${statusFilter}&page=${page - 1}${q ? `&q=${encodeURIComponent(q)}` : ""}`}
                     style={{ padding: "6px 12px", borderRadius: "6px", border: "1px solid #2d3449", color: "#dbe2fd", fontSize: "13px", textDecoration: "none" }}
                   >
                     Previous
@@ -282,7 +359,7 @@ export default async function PurchasesPage({ searchParams }: PageProps) {
                 </span>
                 {page < totalPages && (
                   <Link
-                    href={`?status=${statusFilter}&page=${page + 1}`}
+                    href={`?status=${statusFilter}&page=${page + 1}${q ? `&q=${encodeURIComponent(q)}` : ""}`}
                     style={{ padding: "6px 12px", borderRadius: "6px", border: "1px solid #2d3449", color: "#dbe2fd", fontSize: "13px", textDecoration: "none" }}
                   >
                     Next

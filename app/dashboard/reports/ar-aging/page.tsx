@@ -21,6 +21,7 @@ type AgingBucket = "current" | "b1_30" | "b31_60" | "b61_90" | "b90_plus";
 
 interface OutstandingInvoiceRow {
   invoiceId: string;
+  invoiceNumber: string;
   customerId: string;
   customerName: string;
   invoiceDate: Date | null;
@@ -206,6 +207,7 @@ export default async function ArAgingReportPage({
     },
     select: {
       id: true,
+      number: true,
       customerId: true,
       customer: { select: { id: true, name: true } },
       totalAmount: true,
@@ -239,6 +241,7 @@ export default async function ArAgingReportPage({
 
     outstandingRows.push({
       invoiceId: inv.id,
+      invoiceNumber: inv.number,
       customerId: inv.customerId as string,
       customerName: inv.customer.name,
       invoiceDate: inv.confirmedAt ?? inv.createdAt,
@@ -869,19 +872,21 @@ export default async function ArAgingReportPage({
                             whiteSpace: "nowrap",
                           }}
                         >
-                          <span
+                          <Link
+                            href={`/dashboard/sales/${row.invoiceId}`}
                             style={{
                               fontFamily: "monospace",
                               fontSize: "12px",
-                              color: "#8c90a2",
+                              color: "#7da6ff",
                               background: "#0d1627",
                               padding: "2px 6px",
                               borderRadius: "4px",
                               border: "1px solid #222a3e",
+                              textDecoration: "none",
                             }}
                           >
-                            {row.invoiceId}
-                          </span>
+                            {row.invoiceNumber}
+                          </Link>
                         </td>
                         <td
                           style={{

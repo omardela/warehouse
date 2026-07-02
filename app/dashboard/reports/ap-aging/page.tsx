@@ -872,19 +872,21 @@ export default async function ApAgingReportPage({
                             whiteSpace: "nowrap",
                           }}
                         >
-                          <span
+                          <Link
+                            href={`/dashboard/purchases/${row.invoiceId}`}
                             style={{
                               fontFamily: "monospace",
                               fontSize: "12px",
-                              color: "#8c90a2",
+                              color: "#7da6ff",
                               background: "#0d1627",
                               padding: "2px 6px",
                               borderRadius: "4px",
                               border: "1px solid #222a3e",
+                              textDecoration: "none",
                             }}
                           >
                             {row.invoiceNumber}
-                          </span>
+                          </Link>
                         </td>
                         <td
                           style={{

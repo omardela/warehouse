@@ -5,7 +5,7 @@ const sales = {
     title: "Sales Invoices",
     subtitle: "Track and manage all sales invoices, customer payments, and outstanding balances.",
     newSale: "New Sale",
-    searchPlaceholder: "Search by customer or ID...",
+    searchPlaceholder: "Search by customer or invoice number...",
     searchButton: "Search",
     noResultsFiltered: "No invoices match your filters.",
     noResultsEmpty: "No sales invoices yet. Create your first sale to get started.",
